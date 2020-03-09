@@ -33,6 +33,12 @@ operator*(const Matrix4f&, const Vector3f&);
 Vector3f
 operator+(const Vector3f&, const Vector3f&);
 
+Vector3f
+operator-(const Vector3f&);
+
+Vector3f
+operator-(const Vector3f&, const Vector3f&);
+
 Vector3f&
 operator+=(Vector3f&, const Vector3f&);
 

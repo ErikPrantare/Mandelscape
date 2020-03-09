@@ -4,7 +4,7 @@ project(MandelLandscape)
 
 file(GLOB src "*.h" "*.cpp")
 
-add_definitions("-Wall -Werror")
+add_definitions("-Wall -Werror -std=c++17")
 
 add_executable(app main.cpp ${src})
 

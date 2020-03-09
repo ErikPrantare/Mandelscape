@@ -3,6 +3,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -52,7 +53,7 @@ updateScene()
     //world.setPos(std::sin(offset), std::cos(offset), 1.0);
     world.setPos(0.0f, 0.0f, 4.0f);
     //world.rotate(0.0f, rotation/10.0f, 0.0f);
-    world.scale(10*scale, 10, 10*scale);
+    world.scale(10*scale, 30, 10*scale);
     camera.move(20.0f*velocity);
     world.setCamera(camera);
     offset += 0.01;
@@ -114,12 +115,36 @@ handleInputUp(unsigned char c, int, int)
 }
 
 static void
+handleMouseMove(int x, int y)
+{
+    static int mouseX = 0, mouseY = 0;
+    int deltaX = x - mouseX;
+    mouseX = x;
+    int deltaY = y - mouseY;
+    mouseY = y;
+
+    static float rotationX = 0.0f;
+    rotationX += deltaX/100.0f;
+    static float rotationY = 0.0f;
+    rotationY += deltaY/100.f;
+    rotationY = std::clamp(rotationY, float(-pi/3), float(pi/3));
+    
+    Vector3f lookAt =
+        rotationMatrix({0.0f, -rotationX, 0.0f})
+        * rotationMatrix({rotationY, 0.0f, 0.0f})
+        * Vector3f(0.0f, 0.0f, 1.0f);
+
+    camera.lookAt(lookAt);
+}
+
+static void
 initializeGlutCallbacks()
 {
     glutDisplayFunc(renderScene);
     glutIdleFunc(updateScene);
     glutKeyboardFunc(handleInputDown);
     glutKeyboardUpFunc(handleInputUp);
+    glutPassiveMotionFunc(handleMouseMove);
 }
 
 static void
