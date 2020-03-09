@@ -250,7 +250,7 @@ main(int argc, char **argv)
     glutSetKeyRepeat(false);
 
     camera.setSize(1024, 1024);
-    camera.setClip(0.1, 30);
+    camera.setClip(0.1, 100);
     camera.setFOV(pi/2);
     camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
     camera.setUp(Vector3f(0.0f, 1.0f, 0.0f));
@@ -269,7 +269,7 @@ main(int argc, char **argv)
     //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    glClearDepth(10.0f);
+    glClearDepth(100.0f);
 
     createVertexBuffer();
     createIndexBuffer();
