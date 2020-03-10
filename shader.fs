@@ -21,7 +21,7 @@ void main()
             fragColor = (1.0f - distance/100.0f) * vec4(
                 0.5f*sin(colorVal)+0.5f, 
                 0.5f*sin(colorVal+1.0f)+0.5f, 
-                0.5f*sin(colorVal+2.0f)+0.5f, 
+                sin(distance),
                 1.0f);
             break;
         }
