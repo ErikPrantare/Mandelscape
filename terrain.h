@@ -41,23 +41,29 @@ public:
     }
 
     static constexpr int granularity = 1000;
-private:
     static constexpr int iterations = 100;
 
-    float
-    iters(std::complex<float> c) {
+    static float
+    iters(const std::complex<float>& c) {
         std::complex<float> z(0.0f, 0.0f); 
+        std::complex<float> dz(0.0f, 0.0f);
 
-        for(int i = 0; i < iterations; ++i) {
+        int i = 0;
+        for(; i < iterations; ++i) {
+            dz = 2.0f*z*dz + 1.0f;
             z = z*z + c;
+
             if(std::abs(z) > 256) {
-                float val = 
-                    i - std::log(std::log(std::abs(z)))/std::log(2.0f) - 4.0f;
-                return std::log10(9*val/iterations + 1.0f);
+                float r = std::abs(z);
+                float dr = std::abs(dz);
+                float de = 2.0f*r*std::log(r)/dr;
+                //float val = 
+                //    i + 1 - std::log(std::log(std::abs(z)))/std::log(2.0f);
+                return std::tanh(de);
             }
         }
         
-        return 1;
+        return 0;
     }
 };
 

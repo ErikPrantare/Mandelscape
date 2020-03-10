@@ -37,6 +37,14 @@ public:
     void setPos(Vector3f pos) {
         m_pos = pos;
     }
+
+    void setY(float y) {
+        m_pos.y = y;
+    }
+
+    const Vector3f& getPos() const {
+        return m_pos;
+    }
 private:
     float m_zNear, m_zFar;
     float m_width, m_height;
