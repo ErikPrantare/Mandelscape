@@ -52,7 +52,8 @@ updateScene()
     zoom *= 1 + zoomVelocity;
     Pipeline world;
     world.scale(zoom, zoom, zoom);
-    camera.move(20.0f*velocity);
+    camera.move(5.0f*velocity);
+    camera.setPos((1.0f+zoomVelocity)*camera.getPos());
     camera.setY(1.0f+zoom*Terrain::iters({camera.getPos().x/zoom, 
                                         camera.getPos().z/zoom}));
     world.setCamera(camera);
@@ -77,7 +78,7 @@ handleInputDown(unsigned char c, int, int)
         velocity.x += 0.01f;
         break;
     case 'j':
-        zoomVelocity += 0.01f;
+        zoomVelocity += -0.01f;
         break;
     case 'k':
         zoomVelocity += 0.01f;
