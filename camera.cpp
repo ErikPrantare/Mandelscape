@@ -7,12 +7,10 @@
 void
 Camera::move(const Vector3f& movement)
 {
-    Vector3f m = movement;
-    m.x = -m.x;
-    m = uvn()*m;
-    m_pos.x -= m.x;
-    m_pos.z += m.z;
-    m_pos.y += movement.y;
+    m_pos += movement.y * m_up;
+    m_pos += movement.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
+    Vector3f right = cross(m_up, m_lookAt);
+    m_pos += movement.x * normalize(Vector3f(right.x, 0.0f, right.z));
 }
 
 Matrix4f

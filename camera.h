@@ -27,11 +27,11 @@ public:
     }
 
     void lookAt(Vector3f z) {
-        m_lookAt = z;
+        m_lookAt = normalize(z);
     }
 
     void setUp(Vector3f up) {
-        m_up = up;
+        m_up = normalize(up);
     }
 
     void setPos(Vector3f pos) {
