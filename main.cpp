@@ -25,6 +25,7 @@ Camera camera;
 Vector3f velocity(0.0f,0.0f,0.0f);
 
 float scale = 1.0f;
+float zoomVelocity = 0.0f;
 
 static void
 renderScene()
@@ -47,17 +48,14 @@ renderScene()
 static void
 updateScene()
 {
-    static float offset = 0;
-    static float rotation;
+    static float zoom = 1.0f;
+    zoom *= 1 + zoomVelocity;
     Pipeline world;
-    //world.setPos(std::sin(offset), std::cos(offset), 1.0);
-    world.setPos(0.0f, 0.0f, 4.0f);
-    //world.rotate(0.0f, rotation/10.0f, 0.0f);
-    world.scale(10*scale, 30, 10*scale);
+    world.scale(zoom, zoom, zoom);
     camera.move(20.0f*velocity);
+    camera.setY(1.0f+zoom*Terrain::iters({camera.getPos().x/zoom, 
+                                        camera.getPos().z/zoom}));
     world.setCamera(camera);
-    offset += 0.01;
-    rotation += 0.02;
     glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &world.getTrans().m[0][0]);
     glutPostRedisplay();
 }
@@ -79,10 +77,10 @@ handleInputDown(unsigned char c, int, int)
         velocity.x += 0.01f;
         break;
     case 'j':
-        velocity.y += -0.01f;
+        zoomVelocity += 0.01f;
         break;
     case 'k':
-        velocity.y += 0.01f;
+        zoomVelocity += 0.01f;
         break;
     case 'o':
         scale *= 1.1f;
@@ -107,10 +105,10 @@ handleInputUp(unsigned char c, int, int)
         velocity.x += -0.01f;
         break;
     case 'j':
-        velocity.y += 0.01f;
+        zoomVelocity += 0.01f;
         break;
     case 'k':
-        velocity.y += -0.01f;
+        zoomVelocity += -0.01f;
     }
 }
 
@@ -127,7 +125,7 @@ handleMouseMove(int x, int y)
     rotationX += deltaX/100.0f;
     static float rotationY = 0.0f;
     rotationY += deltaY/100.f;
-    rotationY = std::clamp(rotationY, float(-pi/3), float(pi/3));
+    rotationY = std::clamp(rotationY, float(-pi/2), float(pi/2));
     
     Vector3f lookAt =
         rotationMatrix({0.0f, -rotationX, 0.0f})
