@@ -17,7 +17,7 @@ public:
             float zPos = z/(granularity/4.0f)-2.0f;
             ps.emplace_back(
                     xPos,
-                    std::log(iters(std::complex<float>(xPos, zPos))/30.f + 1), 
+                    iters(std::complex<float>(xPos, zPos)), 
                     zPos);
         }
 
@@ -42,17 +42,22 @@ public:
 
     static constexpr int granularity = 1000;
 private:
+    static constexpr int iterations = 100;
 
-    int
+    float
     iters(std::complex<float> c) {
         std::complex<float> z(0.0f, 0.0f); 
 
-        for(int i = 0; i < 30; ++i) {
+        for(int i = 0; i < iterations; ++i) {
             z = z*z + c;
-            if(std::abs(z) > 2) return i;
+            if(std::abs(z) > 256) {
+                float val = 
+                    i - std::log(std::log(std::abs(z)))/std::log(2.0f) - 4.0f;
+                return std::log10(9*val/iterations + 1.0f);
+            }
         }
-
-        return 30;
+        
+        return 1;
     }
 };
 

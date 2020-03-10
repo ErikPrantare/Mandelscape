@@ -52,6 +52,18 @@ operator+(const Vector3f& a, const Vector3f& b)
     return Vector3f(a.x+b.x, a.y+b.y, a.z+b.z);
 }
 
+Vector3f
+operator-(const Vector3f& a)
+{
+    return Vector3f(-a.x, -a.y, -a.z);
+}
+
+Vector3f
+operator-(const Vector3f& a, const Vector3f& b)
+{
+    return a + (-b);
+}
+
 Vector3f&
 operator+=(Vector3f& a, const Vector3f& b)
 {
