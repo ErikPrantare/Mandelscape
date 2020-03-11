@@ -26,6 +26,7 @@ Vector3f velocity(0.0f,0.0f,0.0f);
 
 float scale = 1.0f;
 float zoomAmount = 0;
+float persistentZoomDirection = 0;
 
 static void
 renderScene()
@@ -49,9 +50,11 @@ static void
 updateScene()
 {
     static float zoom = 1.0f;
-    float constexpr zoomVelocity = 0.01f;
+    float constexpr zoomVelocity = 0.02f;
 
+    zoomAmount += 1.f * persistentZoomDirection;
     zoom *= 1 + zoomVelocity * zoomAmount;
+
     Pipeline world;
     world.scale(zoom, zoom, zoom);
     camera.move(5.0f*velocity);
@@ -82,16 +85,18 @@ handleInputDown(unsigned char c, int, int)
         velocity.x += 0.01f;
         break;
     case 'j':
-        zoomAmount += -1.f;
+        persistentZoomDirection += 1.f;
         break;
     case 'k':
-        zoomAmount += 1.f;
+        persistentZoomDirection += -1.f;
         break;
     case 'o':
         scale *= 1.1f;
         break;
     case 'q':
         exit(0);
+        break;
+    default:
         break;
     }
 }
@@ -113,8 +118,12 @@ handleInputUp(unsigned char c, int, int)
         velocity.x += -0.01f;
         break;
     case 'j':
+        persistentZoomDirection += -1.f;
         break;
     case 'k':
+        persistentZoomDirection += 1.f;
+        break;
+    default:
         break;
     }
 }
@@ -155,14 +164,12 @@ handleMouseButtons(int button, int state, [[maybe_unused]] int x, [[maybe_unused
 
     switch(button) {
     case wheelUp:
-        if(state == GLUT_DOWN) {
-          zoomAmount += -1.f;
-        }
+        if(state == GLUT_DOWN)
+          zoomAmount += 1.f;
           break;
     case wheelDown:
-        if(state == GLUT_DOWN) {
-          zoomAmount += 1.f;
-        }
+        if(state == GLUT_DOWN)
+          zoomAmount += -1.f;
           break;
     default:
         break;
