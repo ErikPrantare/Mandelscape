@@ -50,7 +50,7 @@ static void
 updateScene()
 {
     static float zoom = 1.0f;
-    float constexpr zoomVelocity = 0.01f;
+    float constexpr zoomVelocity = 0.02f;
 
     zoomAmount += 1.f * persistentZoomDirection;
     zoom *= 1 + zoomVelocity * zoomAmount;
