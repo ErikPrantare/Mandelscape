@@ -15,10 +15,6 @@
 #include "camera.h"
 #include "terrain.h"
 
-GLuint VBO;
-GLuint IBO;
-GLuint terrainVBO;
-GLuint terrainIBO;
 GLuint worldLocation;
 
 Camera camera;
@@ -27,6 +23,9 @@ Vector3f velocity(0.0f,0.0f,0.0f);
 float scale = 1.0f;
 float zoomAmount = 0;
 float persistentZoomDirection = 0;
+float zoom = 1.0f;
+
+Terrain* terrain = nullptr;
 
 static void
 renderScene()
@@ -36,8 +35,8 @@ renderScene()
     glEnableVertexAttribArray(0);
 
     int vertexCount = std::pow((Terrain::granularity-1), 2)*3*2;
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
+    glBindBuffer(GL_ARRAY_BUFFER, terrain->terrainVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->terrainIBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
 
@@ -49,18 +48,16 @@ renderScene()
 static void
 updateScene()
 {
-    static float zoom = 1.0f;
     float constexpr zoomVelocity = 0.02f;
 
     zoomAmount += 1.f * persistentZoomDirection;
     zoom *= 1 + zoomVelocity * zoomAmount;
 
     Pipeline world;
-    world.scale(zoom, zoom, zoom);
-    camera.move(5.0f*velocity);
-    camera.setPos((1.0f+ zoomVelocity * zoomAmount)*camera.getPos());
-    camera.setY(1.0f+zoom*Terrain::iters({camera.getPos().x/zoom, 
-                                        camera.getPos().z/zoom}));
+    camera.setSize(1.0f/zoom);
+    camera.move(5.0f/zoom*velocity);
+    camera.setY(1.0f/zoom+terrain->iters({camera.getPos().x, 
+                                          camera.getPos().z}));
     world.setCamera(camera);
     glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &world.getTrans().m[0][0]);
     glutPostRedisplay();
@@ -92,6 +89,9 @@ handleInputDown(unsigned char c, int, int)
         break;
     case 'o':
         scale *= 1.1f;
+        break;
+    case 'r':
+        terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
         break;
     case 'q':
         exit(0);
@@ -189,33 +189,7 @@ initializeGlutCallbacks()
     glutMouseFunc(handleMouseButtons);
 }
 
-static void
-createVertexBuffer()
-{
-    std::vector<Vector3f> terrain = Terrain().getMeshPoints();
 
-    glGenBuffers(1, &terrainVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            terrain.size()*sizeof(Vector3f),
-            terrain.data(),
-            GL_STATIC_DRAW);
-}
-
-static void
-createIndexBuffer()
-{
-    std::vector<int> terrainIndices = Terrain().getMeshIndices();
-
-    glGenBuffers(1, &terrainIBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
-    glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            terrainIndices.size()*sizeof(int),
-            terrainIndices.data(),
-            GL_STATIC_DRAW);
-}
 
 static void
 addShader(
@@ -322,6 +296,7 @@ main(int argc, char **argv)
     camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
     camera.setUp(Vector3f(0.0f, 1.0f, 0.0f));
 
+    std::cout << "meme";
     initializeGlutCallbacks();
 
     GLenum res = glewInit();
@@ -338,8 +313,9 @@ main(int argc, char **argv)
     glDepthFunc(GL_LESS);
     glClearDepth(100.0f);
 
-    createVertexBuffer();
-    createIndexBuffer();
+    terrain = new Terrain();
+    terrain->populateBuffers();
+    std::cout << "2";
 
     compileShaders();
 

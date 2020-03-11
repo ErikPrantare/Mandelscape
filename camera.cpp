@@ -44,5 +44,8 @@ Camera::projectionTransformation() const
 
     Matrix4f translation = translationMatrix({-m_pos.x, -m_pos.y, -m_pos.z});
 
-    return Matrix4f(m) * uvn() * translation;
+    return Matrix4f(m) 
+        * scaleMatrix({1/m_size, 1/m_size, 1/m_size}) 
+        * uvn() 
+        * translation;
 }
