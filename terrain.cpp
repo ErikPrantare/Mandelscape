@@ -8,14 +8,14 @@
 
 Terrain::Terrain()
 {
-    glGenBuffers(1, &terrainVBO);
-    glGenBuffers(1, &terrainIBO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &IBO);
 }
 
 Terrain::~Terrain()
 {
-    glDeleteBuffers(1, &terrainVBO);
-    glDeleteBuffers(1, &terrainIBO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &IBO);
 }
 
 std::vector<Vector3f>
@@ -101,7 +101,7 @@ Terrain::createIndexBuffer()
 {
     std::vector<int> terrainIndices = getMeshIndices();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             terrainIndices.size()*sizeof(int),
@@ -115,10 +115,21 @@ Terrain::createVertexBuffer()
 {
     std::vector<Vector3f> terrainMesh = getMeshPoints();
 
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(
             GL_ARRAY_BUFFER,
             terrainMesh.size()*sizeof(Vector3f),
             terrainMesh.data(),
             GL_STATIC_DRAW);
+}
+
+
+void
+Terrain::render()
+{
+    int vertexCount = std::pow((granularity-1), 2)*3*2;
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
 }

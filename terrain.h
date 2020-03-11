@@ -31,8 +31,11 @@ public:
     void
     updateBuffers(float x, float y, float scale);
 
-    GLuint terrainVBO;
-    GLuint terrainIBO;
+    void
+    render();
+
+    GLuint VBO;
+    GLuint IBO;
 private:
     float m_x = 0.0f, 
           m_z = 0.0f, 

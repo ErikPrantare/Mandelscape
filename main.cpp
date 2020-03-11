@@ -34,11 +34,7 @@ renderScene()
 
     glEnableVertexAttribArray(0);
 
-    int vertexCount = std::pow((Terrain::granularity-1), 2)*3*2;
-    glBindBuffer(GL_ARRAY_BUFFER, terrain->terrainVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->terrainIBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+    terrain->render();
 
     glDisableVertexAttribArray(0);
 
