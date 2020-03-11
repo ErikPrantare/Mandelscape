@@ -24,7 +24,7 @@ float scale = 1.0f;
 float zoomAmount = 0;
 float persistentZoomDirection = 0;
 
-Terrain terrain;
+Terrain* terrain = nullptr;
 
 static void
 renderScene()
@@ -34,8 +34,8 @@ renderScene()
     glEnableVertexAttribArray(0);
 
     int vertexCount = std::pow((Terrain::granularity-1), 2)*3*2;
-    glBindBuffer(GL_ARRAY_BUFFER, terrain.terrainVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain.terrainIBO);
+    glBindBuffer(GL_ARRAY_BUFFER, terrain->terrainVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->terrainIBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
 
@@ -54,11 +54,10 @@ updateScene()
     zoom *= 1 + zoomVelocity * zoomAmount;
 
     Pipeline world;
-    world.scale(zoom, zoom, zoom);
-    camera.move(5.0f*velocity);
-    camera.setPos((1.0f+ zoomVelocity * zoomAmount)*camera.getPos());
-    camera.setY(1.0f+zoom*terrain.iters({camera.getPos().x/zoom, 
-                                         camera.getPos().z/zoom}));
+    camera.setSize(1.0f/zoom);
+    camera.move(5.0f/zoom*velocity);
+    camera.setY(1.0f/zoom+terrain->iters({camera.getPos().x, 
+                                          camera.getPos().z}));
     world.setCamera(camera);
     glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &world.getTrans().m[0][0]);
     glutPostRedisplay();
@@ -90,6 +89,9 @@ handleInputDown(unsigned char c, int, int)
         break;
     case 'o':
         scale *= 1.1f;
+        break;
+    case 'r':
+        terrain->updateBuffers(camera.getPos().x, camera.getPos().y, scale);
         break;
     case 'q':
         exit(0);
@@ -294,6 +296,7 @@ main(int argc, char **argv)
     camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
     camera.setUp(Vector3f(0.0f, 1.0f, 0.0f));
 
+    std::cout << "meme";
     initializeGlutCallbacks();
 
     GLenum res = glewInit();
@@ -310,7 +313,9 @@ main(int argc, char **argv)
     glDepthFunc(GL_LESS);
     glClearDepth(100.0f);
 
-    terrain.populateBuffers();
+    terrain = new Terrain();
+    terrain->populateBuffers();
+    std::cout << "2";
 
     compileShaders();
 

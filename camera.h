@@ -42,6 +42,10 @@ public:
         m_pos.y = y;
     }
 
+    void setSize(float size) {
+        m_size = size;
+    }
+
     const Vector3f& getPos() const {
         return m_pos;
     }
@@ -49,6 +53,7 @@ private:
     float m_zNear, m_zFar;
     float m_width, m_height;
     float m_FOV;
+    float m_size = 1.0f;
     Vector3f m_up, m_lookAt, m_pos;
 };
 
