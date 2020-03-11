@@ -1,3 +1,4 @@
 Different resolution depending on distance
 Move source files to src
-Keep mouse in centre of screen
+
+Make terrain a proper class
