@@ -157,7 +157,7 @@ handleMouseMove(int x, int y)
 }
 
 static void
-handleMouseButtons(int button, int state, [[maybe_unused]] int x, [[maybe_unused]]int y)
+handleMouseButtons(int button, int state, int x, int y)
 {
     int constexpr wheelUp = 3;
     int constexpr wheelDown = 4;

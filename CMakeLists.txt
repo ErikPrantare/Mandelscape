@@ -16,6 +16,16 @@ if(WERROR)
   add_definitions("-Werror")
 endif()
 
+CHECK_CXX_COMPILER_FLAG(-Wextra WEXTRA)
+if(WEXTRA)
+  add_definitions("-Wextra")
+endif()
+
+CHECK_CXX_COMPILER_FLAG(-Wno-unused-parameter WNOUNUSEDPARAMETER)
+if(WNOUNUSEDPARAMETER)
+  add_definitions("-Wno-unused-parameter")
+endif()
+
 file(GLOB src "*.h" "*.cpp")
 
 add_executable(app main.cpp ${src})
