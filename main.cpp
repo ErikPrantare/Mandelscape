@@ -296,7 +296,6 @@ main(int argc, char **argv)
     camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
     camera.setUp(Vector3f(0.0f, 1.0f, 0.0f));
 
-    std::cout << "meme";
     initializeGlutCallbacks();
 
     GLenum res = glewInit();
@@ -315,7 +314,6 @@ main(int argc, char **argv)
 
     terrain = new Terrain();
     terrain->populateBuffers();
-    std::cout << "2";
 
     compileShaders();
 
