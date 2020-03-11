@@ -5,8 +5,20 @@
 #include "terrain.h"
 #include "math3d.h"
 
+
+Terrain::Terrain()
+{
+}
+
+Terrain::~Terrain()
+{
+    glDeleteBuffers(1, &terrainVBO);
+    glDeleteBuffers(1, &terrainIBO);
+}
+
 std::vector<Vector3f>
-Terrain::getMeshPoints() {
+Terrain::getMeshPoints()
+{
     std::vector<Vector3f> ps;
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {

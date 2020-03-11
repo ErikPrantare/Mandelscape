@@ -7,23 +7,26 @@
 #include "math3d.h"
 
 class
-Terrain
+Terrain final
 {
 public:
+    static constexpr int granularity = 1000;
+    static constexpr int iterations = 100;
+
+    GLuint terrainVBO;
+    GLuint terrainIBO;
+
+    Terrain();
+    ~Terrain();
+
     std::vector<Vector3f>
     getMeshPoints();
 
     std::vector<int>
     getMeshIndices();
 
-    static constexpr int granularity = 1000;
-    static constexpr int iterations = 100;
-
     float
     iters(const std::complex<float>& c);
-    
-    GLuint terrainVBO;
-    GLuint terrainIBO;
 
     void
     createVertexBuffer();
