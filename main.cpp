@@ -15,8 +15,6 @@
 #include "camera.h"
 #include "terrain.h"
 
-GLuint VBO;
-GLuint IBO;
 GLuint worldLocation;
 
 Camera camera;
@@ -312,8 +310,7 @@ main(int argc, char **argv)
     glDepthFunc(GL_LESS);
     glClearDepth(100.0f);
 
-    terrain.createVertexBuffer();
-    terrain.createIndexBuffer();
+    terrain.populateBuffers();
 
     compileShaders();
 
