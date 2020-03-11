@@ -90,6 +90,8 @@ handleInputDown(unsigned char c, int, int)
     case 'o':
         scale *= 1.1f;
         break;
+    default:
+        break;
     }
 }
 
@@ -109,9 +111,7 @@ handleInputUp(unsigned char c, int, int)
     case 'd':
         velocity.x += -0.01f;
         break;
-    case 'j':
-        break;
-    case 'k':
+    default:
         break;
     }
 }
