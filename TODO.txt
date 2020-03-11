@@ -1,4 +1,13 @@
-Different resolution depending on distance
 Move source files to src
+Move window resolution to global variable
 
-Make terrain a proper class
+Move terrain rendering to method
+
+Remove camera height stuttering
+-ideas:
+-multiple sample points for height calculation
+-cap movement speed in y direction
+
+1. Make terrain mesh more dense near middle
+2. Move terrain height calculation to vertex shader
+1 && 2 => Make mesh height calculation seamlessly change with movement
