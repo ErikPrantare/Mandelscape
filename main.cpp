@@ -86,6 +86,9 @@ handleInputDown(unsigned char c, int, int)
     case 'o':
         scale *= 1.1f;
         break;
+    case 'q':
+        exit(0);
+        break;
     }
 }
 
@@ -118,8 +121,8 @@ handleMouseMove(int x, int y)
 {
     static int mouseX = 0, mouseY = 0;
     int deltaX = x - mouseX;
-    mouseX = x;
     int deltaY = y - mouseY;
+    mouseX = x;
     mouseY = y;
 
     static float rotationX = 0.0f;
@@ -134,6 +137,11 @@ handleMouseMove(int x, int y)
         * Vector3f(0.0f, 0.0f, 1.0f);
 
     camera.lookAt(lookAt);
+    if(x != 512 || y != 512) {
+        glutWarpPointer(512, 512);
+        mouseX = 512;
+        mouseY = 512;
+    }
 }
 
 static void
