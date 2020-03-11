@@ -1,10 +1,22 @@
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 3.0.2)
 
-project(MandelLandscape)
+project(MandelLandscape CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+
+include(CheckCXXCompilerFlag)
+
+CHECK_CXX_COMPILER_FLAG(-Wall WALL)
+if(WALL)
+  add_definitions("-Wall")
+endif()
+
+CHECK_CXX_COMPILER_FLAG(-Werror WERROR)
+if(WERROR)
+  add_definitions("-Werror")
+endif()
 
 file(GLOB src "*.h" "*.cpp")
-
-add_definitions("-Wall -Werror -std=c++17")
 
 add_executable(app main.cpp ${src})
 
