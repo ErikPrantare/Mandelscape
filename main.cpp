@@ -28,6 +28,8 @@ float scale = 1.0f;
 float zoomAmount = 0;
 float persistentZoomDirection = 0;
 
+Terrain terrain;
+
 static void
 renderScene()
 {
@@ -59,8 +61,8 @@ updateScene()
     world.scale(zoom, zoom, zoom);
     camera.move(5.0f*velocity);
     camera.setPos((1.0f+ zoomVelocity * zoomAmount)*camera.getPos());
-    camera.setY(1.0f+zoom*Terrain::iters({camera.getPos().x/zoom, 
-                                        camera.getPos().z/zoom}));
+    camera.setY(1.0f+zoom*terrain.iters({camera.getPos().x/zoom, 
+                                         camera.getPos().z/zoom}));
     world.setCamera(camera);
     glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &world.getTrans().m[0][0]);
     glutPostRedisplay();
@@ -192,21 +194,21 @@ initializeGlutCallbacks()
 static void
 createVertexBuffer()
 {
-    std::vector<Vector3f> terrain = Terrain().getMeshPoints();
+    std::vector<Vector3f> terrainMesh = terrain.getMeshPoints();
 
     glGenBuffers(1, &terrainVBO);
     glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            terrain.size()*sizeof(Vector3f),
-            terrain.data(),
+            terrainMesh.size()*sizeof(Vector3f),
+            terrainMesh.data(),
             GL_STATIC_DRAW);
 }
 
 static void
 createIndexBuffer()
 {
-    std::vector<int> terrainIndices = Terrain().getMeshIndices();
+    std::vector<int> terrainIndices = terrain.getMeshIndices();
 
     glGenBuffers(1, &terrainIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);

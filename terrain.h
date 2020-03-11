@@ -43,7 +43,7 @@ public:
     static constexpr int granularity = 1000;
     static constexpr int iterations = 100;
 
-    static float
+    float
     iters(const std::complex<float>& c) {
         std::complex<float> z(0.0f, 0.0f); 
         std::complex<float> dz(0.0f, 0.0f);
