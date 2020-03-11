@@ -56,10 +56,8 @@ public:
             if(std::abs(z) > 256) {
                 float r = std::abs(z);
                 float dr = std::abs(dz);
-                float de = 2.0f*r*std::log(r)/dr;
-                //float val = 
-                //    i + 1 - std::log(std::log(std::abs(z)))/std::log(2.0f);
-                return std::tanh(de);
+                float de = 2.0f*r*std::log(r)/dr; //estimated distance from set
+                return de;
             }
         }
         
