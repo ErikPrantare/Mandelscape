@@ -20,7 +20,7 @@ GLuint worldLocation;
 Camera camera;
 Vector3f velocity(0.0f,0.0f,0.0f);
 
-float scale = 1.0f;
+bool autoZoom = false;
 float zoomAmount = 0;
 float persistentZoomDirection = 0;
 float zoom = 1.0f;
@@ -47,11 +47,18 @@ updateScene()
     float constexpr zoomVelocity = 0.02f;
 
     zoomAmount += 1.f * persistentZoomDirection;
-    zoom *= 1 + zoomVelocity * zoomAmount;
+    if(autoZoom) {
+        zoom = 1/terrain->iters({camera.getPos().x, camera.getPos().z});
+        camera.move(2.0f/zoom*velocity);
+    }
+    else {
+        zoom *= 1 + zoomVelocity * zoomAmount;
+        camera.move(5.0f/zoom*velocity);
+    }
+
 
     Pipeline world;
     camera.setSize(1.0f/zoom);
-    camera.move(5.0f/zoom*velocity);
     camera.setY(1.0f/zoom+terrain->iters({camera.getPos().x, 
                                           camera.getPos().z}));
     world.setCamera(camera);
@@ -84,7 +91,7 @@ handleInputDown(unsigned char c, int, int)
         persistentZoomDirection += -1.f;
         break;
     case 'o':
-        scale *= 1.1f;
+        autoZoom = !autoZoom;
         break;
     case 'r':
         terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
@@ -291,6 +298,7 @@ main(int argc, char **argv)
     camera.setFOV(pi/2);
     camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
     camera.setUp(Vector3f(0.0f, 1.0f, 0.0f));
+    camera.setPos({1.0f, 0, 1.0f});
 
     initializeGlutCallbacks();
 

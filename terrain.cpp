@@ -59,6 +59,17 @@ Terrain::iters(const std::complex<float>& c)
 {
     std::complex<float> z(0.0f, 0.0f); 
     std::complex<float> dz(0.0f, 0.0f);
+    
+    //main cardioid check
+    float q = pow(c.real()-0.25f, 2.0f) + c.imag()*c.imag();
+    if(q*(q+(c.real()-0.25f)) < 0.25f*c.imag()*c.imag()) {
+        return 0.0f;
+    }
+
+    //period-2 bulb check
+    if((c.real()+1.0f)*c.real()+1.0f + c.imag()*c.imag() < 0.625f) {
+        return 0.0f;
+    }
 
     int i = 0;
     for(; i < iterations; ++i) {
