@@ -56,6 +56,7 @@ updateScene()
         camera.move(5.0f/zoom*velocity);
     }
 
+    terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
 
     Pipeline world;
     camera.setSize(1.0f/zoom);

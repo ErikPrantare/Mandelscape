@@ -27,7 +27,7 @@ void main()
         z = vec2(z.x*z.x - z.y*z.y, 2.0*z.x*z.y) + c;
         if(dot(z, z) > 256.0f*256.0f) {
             mediump float colorVal = float(i) - log2(log2(dot(z, z)));
-            fragColor = (1.0f - distance/100.0f) * vec4(
+            fragColor = (1.0f - distance/8.0f) * vec4(
                 0.5f*sin(colorVal*0.1f)+0.5f, 
                 0.5f*sin(colorVal*0.13f+1.0f)+0.5f, 
                 0.5f*sin(colorVal*0.15f+2.0f)+0.5f,

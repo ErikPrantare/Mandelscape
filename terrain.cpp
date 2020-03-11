@@ -24,8 +24,16 @@ Terrain::getMeshPoints()
     std::vector<Vector3f> ps;
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {
-        float xPos = (x/(granularity/16.0f)-8.0f)/m_scale + m_x;
-        float zPos = (z/(granularity/16.0f)-8.0f)/m_scale + m_z;
+        float discScale = pow(2.0f, int(log2(m_scale)));
+        float discX = int(m_x*discScale)/discScale;
+        float discZ = int(m_z*discScale)/discScale;
+        float xPos = (x/(granularity/16.0f)-8.0f)/discScale + discX;
+        float zPos = (z/(granularity/16.0f)-8.0f)/discScale + discZ;
+
+        //float xDist = std::abs(xPos - m_x);
+        //float zDist = std::abs(zPos - m_z);
+        //xPos += std::pow(xDist, 2);
+
         ps.emplace_back(
                 xPos,
                 iters(std::complex<float>(xPos, zPos)), 
