@@ -7,3 +7,5 @@ Makefile
 #Visual Studio junk
 .vs/
 out/
+
+build/
