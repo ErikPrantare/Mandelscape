@@ -25,7 +25,7 @@ Camera camera;
 Vector3f velocity(0.0f,0.0f,0.0f);
 
 float scale = 1.0f;
-float zoomVelocity = 0.0f;
+float zoomAmount = 0;
 
 static void
 renderScene()
@@ -49,16 +49,20 @@ static void
 updateScene()
 {
     static float zoom = 1.0f;
-    zoom *= 1 + zoomVelocity;
+    float constexpr zoomVelocity = 0.01f;
+
+    zoom *= 1 + zoomVelocity * zoomAmount;
     Pipeline world;
     world.scale(zoom, zoom, zoom);
     camera.move(5.0f*velocity);
-    camera.setPos((1.0f+zoomVelocity)*camera.getPos());
+    camera.setPos((1.0f+ zoomVelocity * zoomAmount)*camera.getPos());
     camera.setY(1.0f+zoom*Terrain::iters({camera.getPos().x/zoom, 
                                         camera.getPos().z/zoom}));
     world.setCamera(camera);
     glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &world.getTrans().m[0][0]);
     glutPostRedisplay();
+
+    zoomAmount = 0.f;
 }
 
 static void
@@ -78,10 +82,10 @@ handleInputDown(unsigned char c, int, int)
         velocity.x += 0.01f;
         break;
     case 'j':
-        zoomVelocity += -0.01f;
+        zoomAmount += -1.f;
         break;
     case 'k':
-        zoomVelocity += 0.01f;
+        zoomAmount += 1.f;
         break;
     case 'o':
         scale *= 1.1f;
@@ -106,10 +110,9 @@ handleInputUp(unsigned char c, int, int)
         velocity.x += -0.01f;
         break;
     case 'j':
-        zoomVelocity += 0.01f;
         break;
     case 'k':
-        zoomVelocity += -0.01f;
+        break;
     }
 }
 
@@ -139,17 +142,17 @@ handleMouseMove(int x, int y)
 static void
 handleMouseButtons(int button, int state, [[maybe_unused]] int x, [[maybe_unused]]int y)
 {
-    int constexpr wheelUp{3};
-    int constexpr wheelDown{4};
+    int constexpr wheelUp = 3;
+    int constexpr wheelDown = 4;
 
     switch(button) {
     case wheelUp:
         if(state == GLUT_DOWN)
-          zoomVelocity += -0.01f;
+          zoomAmount += -1.f;
           break;
     case wheelDown:
         if(state == GLUT_DOWN)
-          zoomVelocity += 0.01f;
+          zoomAmount += 1.f;
           break;
     default:
         break;
