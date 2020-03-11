@@ -13,9 +13,6 @@ public:
     static constexpr int granularity = 1000;
     static constexpr int iterations = 100;
 
-    GLuint terrainVBO;
-    GLuint terrainIBO;
-
     Terrain();
     ~Terrain();
 
@@ -27,6 +24,20 @@ public:
 
     float
     iters(const std::complex<float>& c);
+
+    void 
+    populateBuffers();
+
+    void
+    updateBuffers(float x, float y, float scale);
+
+    GLuint terrainVBO;
+    GLuint terrainIBO;
+private:
+    float m_x = 0.0f, 
+          m_z = 0.0f, 
+          m_scale = 1.0f;
+
 
     void
     createVertexBuffer();

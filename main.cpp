@@ -23,6 +23,7 @@ Vector3f velocity(0.0f,0.0f,0.0f);
 float scale = 1.0f;
 float zoomAmount = 0;
 float persistentZoomDirection = 0;
+float zoom = 1.0f;
 
 Terrain* terrain = nullptr;
 
@@ -47,7 +48,6 @@ renderScene()
 static void
 updateScene()
 {
-    static float zoom = 1.0f;
     float constexpr zoomVelocity = 0.02f;
 
     zoomAmount += 1.f * persistentZoomDirection;
@@ -91,7 +91,7 @@ handleInputDown(unsigned char c, int, int)
         scale *= 1.1f;
         break;
     case 'r':
-        terrain->updateBuffers(camera.getPos().x, camera.getPos().y, scale);
+        terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
         break;
     case 'q':
         exit(0);

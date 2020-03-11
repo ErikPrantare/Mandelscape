@@ -8,6 +8,8 @@
 
 Terrain::Terrain()
 {
+    glGenBuffers(1, &terrainVBO);
+    glGenBuffers(1, &terrainIBO);
 }
 
 Terrain::~Terrain()
@@ -22,8 +24,8 @@ Terrain::getMeshPoints()
     std::vector<Vector3f> ps;
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {
-        float xPos = x/(granularity/4.0f)-2.0f;
-        float zPos = z/(granularity/4.0f)-2.0f;
+        float xPos = (x/(granularity/16.0f)-8.0f)/m_scale + m_x;
+        float zPos = (z/(granularity/16.0f)-8.0f)/m_scale + m_z;
         ps.emplace_back(
                 xPos,
                 iters(std::complex<float>(xPos, zPos)), 
@@ -76,11 +78,29 @@ Terrain::iters(const std::complex<float>& c)
 
 
 void
+Terrain::updateBuffers(float x, float y, float scale)
+{
+    m_x = x;
+    m_z = y;
+    m_scale = scale;
+
+    createVertexBuffer();
+}
+
+
+void
+Terrain::populateBuffers()
+{
+    createVertexBuffer();
+    createIndexBuffer();
+}
+
+
+void
 Terrain::createIndexBuffer()
 {
     std::vector<int> terrainIndices = getMeshIndices();
 
-    glGenBuffers(1, &terrainIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
     glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
@@ -95,7 +115,6 @@ Terrain::createVertexBuffer()
 {
     std::vector<Vector3f> terrainMesh = getMeshPoints();
 
-    glGenBuffers(1, &terrainVBO);
     glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
     glBufferData(
             GL_ARRAY_BUFFER,
