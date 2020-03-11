@@ -17,8 +17,6 @@
 
 GLuint VBO;
 GLuint IBO;
-GLuint terrainVBO;
-GLuint terrainIBO;
 GLuint worldLocation;
 
 Camera camera;
@@ -38,8 +36,8 @@ renderScene()
     glEnableVertexAttribArray(0);
 
     int vertexCount = std::pow((Terrain::granularity-1), 2)*3*2;
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
+    glBindBuffer(GL_ARRAY_BUFFER, terrain.terrainVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain.terrainIBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
 
@@ -191,33 +189,7 @@ initializeGlutCallbacks()
     glutMouseFunc(handleMouseButtons);
 }
 
-static void
-createVertexBuffer()
-{
-    std::vector<Vector3f> terrainMesh = terrain.getMeshPoints();
 
-    glGenBuffers(1, &terrainVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            terrainMesh.size()*sizeof(Vector3f),
-            terrainMesh.data(),
-            GL_STATIC_DRAW);
-}
-
-static void
-createIndexBuffer()
-{
-    std::vector<int> terrainIndices = terrain.getMeshIndices();
-
-    glGenBuffers(1, &terrainIBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
-    glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            terrainIndices.size()*sizeof(int),
-            terrainIndices.data(),
-            GL_STATIC_DRAW);
-}
 
 static void
 addShader(
@@ -340,8 +312,8 @@ main(int argc, char **argv)
     glDepthFunc(GL_LESS);
     glClearDepth(100.0f);
 
-    createVertexBuffer();
-    createIndexBuffer();
+    terrain.createVertexBuffer();
+    terrain.createIndexBuffer();
 
     compileShaders();
 

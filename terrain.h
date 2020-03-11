@@ -63,6 +63,37 @@ public:
         
         return 0;
     }
+    
+    GLuint terrainVBO;
+
+    void
+    createVertexBuffer() {
+        std::vector<Vector3f> terrainMesh = getMeshPoints();
+
+        glGenBuffers(1, &terrainVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
+        glBufferData(
+                GL_ARRAY_BUFFER,
+                terrainMesh.size()*sizeof(Vector3f),
+                terrainMesh.data(),
+                GL_STATIC_DRAW);
+    }
+
+    GLuint terrainIBO;
+
+    void
+    createIndexBuffer()
+    {
+        std::vector<int> terrainIndices = getMeshIndices();
+
+        glGenBuffers(1, &terrainIBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
+        glBufferData(
+                GL_ELEMENT_ARRAY_BUFFER,
+                terrainIndices.size()*sizeof(int),
+                terrainIndices.data(),
+                GL_STATIC_DRAW);
+    }
 };
 
 #endif
