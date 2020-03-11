@@ -155,12 +155,14 @@ handleMouseButtons(int button, int state, [[maybe_unused]] int x, [[maybe_unused
 
     switch(button) {
     case wheelUp:
-        if(state == GLUT_DOWN)
+        if(state == GLUT_DOWN) {
           zoomAmount += -1.f;
+        }
           break;
     case wheelDown:
-        if(state == GLUT_DOWN)
+        if(state == GLUT_DOWN) {
           zoomAmount += 1.f;
+        }
           break;
     default:
         break;
