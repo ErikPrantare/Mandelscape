@@ -137,6 +137,26 @@ handleMouseMove(int x, int y)
 }
 
 static void
+handleMouseButtons(int button, int state, [[maybe_unused]] int x, [[maybe_unused]]int y)
+{
+    int constexpr wheelUp{3};
+    int constexpr wheelDown{4};
+
+    switch(button) {
+    case wheelUp:
+        if(state == GLUT_DOWN)
+          zoomVelocity += -0.01f;
+          break;
+    case wheelDown:
+        if(state == GLUT_DOWN)
+          zoomVelocity += 0.01f;
+          break;
+    default:
+        break;
+    }
+}
+
+static void
 initializeGlutCallbacks()
 {
     glutDisplayFunc(renderScene);
@@ -144,6 +164,7 @@ initializeGlutCallbacks()
     glutKeyboardFunc(handleInputDown);
     glutKeyboardUpFunc(handleInputUp);
     glutPassiveMotionFunc(handleMouseMove);
+    glutMouseFunc(handleMouseButtons);
 }
 
 static void
