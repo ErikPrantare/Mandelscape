@@ -48,8 +48,9 @@ Terrain::getMeshIndices()
             indices.push_back(z+x*granularity);
             indices.push_back(z+(x+1)*granularity);
             indices.push_back((z+1)+x*granularity);
-            indices.push_back(z+(x+1)*granularity);
+
             indices.push_back((z+1)+x*granularity);
+            indices.push_back(z+(x+1)*granularity);
             indices.push_back((z+1)+(x+1)*granularity);
         }
 
