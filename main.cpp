@@ -63,7 +63,7 @@ updateScene()
     camera.setY(1.0f/zoom+terrain->iters({camera.getPos().x, 
                                           camera.getPos().z}));
     world.setCamera(camera);
-    auto const transformationMatrix = world.getTrans(); 
+    Matrix4f const transformationMatrix = world.getTrans(); 
     glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &transformationMatrix.m[0][0]);
     glutPostRedisplay();
 
