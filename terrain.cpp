@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -18,15 +20,18 @@ Terrain::~Terrain()
     glDeleteBuffers(1, &IBO);
 }
 
+#include <iostream>
+
 std::vector<Vector3f>
 Terrain::getMeshPoints()
 {
     std::vector<Vector3f> ps;
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {
-        double discScale = pow(2.0d, int(log2(m_scale)));
-        double discX = int(m_x*discScale)/discScale;
-        double discZ = int(m_z*discScale)/discScale;
+        double discScale = std::pow(2.0, int(log2(m_scale)));
+        std::cout << discScale << std::endl;
+        double discX = int(m_x*discScale/4)/discScale*4;
+        double discZ = int(m_z*discScale/4)/discScale*4;
         double xPos = (x/(granularity/16.0d)-8.0d)/discScale + discX;
         double zPos = (z/(granularity/16.0d)-8.0d)/discScale + discZ;
 
@@ -103,7 +108,13 @@ Terrain::updateBuffers(float x, float y, float scale)
     m_z = y;
     m_scale = scale;
 
-    createVertexBuffer();
+    static auto last = std::chrono::system_clock::now();
+    auto now = std::chrono::system_clock::now();
+
+    if((now - last).count() > 16558939*60) {
+        last = now; 
+        createVertexBuffer();
+    } 
 }
 
 
