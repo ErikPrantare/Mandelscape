@@ -32,10 +32,7 @@ Terrain::getMeshPoints()
         double xPos = (x/(granularity/16.0d)-8.0d)/discScale + discX;
         double zPos = (z/(granularity/16.0d)-8.0d)/discScale + discZ;
 
-        ps.emplace_back(
-                xPos,
-                iters(std::complex<float>(xPos, zPos)), 
-                zPos);
+        ps.emplace_back(xPos, iters({xPos, zPos}), zPos);
     }
 
     return ps;
