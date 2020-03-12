@@ -24,11 +24,11 @@ Terrain::getMeshPoints()
     std::vector<Vector3f> ps;
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {
-        double discScale = pow(2.0f, int(log2(m_scale)));
+        double discScale = pow(2.0d, int(log2(m_scale)));
         double discX = int(m_x*discScale)/discScale;
         double discZ = int(m_z*discScale)/discScale;
-        double xPos = (x/(granularity/16.0f)-8.0f)/discScale + discX;
-        double zPos = (z/(granularity/16.0f)-8.0f)/discScale + discZ;
+        double xPos = (x/(granularity/16.0d)-8.0d)/discScale + discX;
+        double zPos = (z/(granularity/16.0d)-8.0d)/discScale + discZ;
 
         //float xDist = xPos - m_x;
         //float zDist = std::abs(zPos - m_z);
@@ -65,18 +65,18 @@ Terrain::getMeshIndices()
 double
 Terrain::iters(const std::complex<double>& c)
 {
-    std::complex<double> z(0.0f, 0.0f); 
-    std::complex<double> dz(0.0f, 0.0f);
+    std::complex<double> z(0.0d, 0.0d); 
+    std::complex<double> dz(0.0d, 0.0d);
     
     //main cardioid check
-    double q = pow(c.real()-0.25f, 2.0f) + c.imag()*c.imag();
-    if(q*(q+(c.real()-0.25f)) < 0.25f*c.imag()*c.imag()) {
-        return 0.0f;
+    double q = pow(c.real()-0.25d, 2.0d) + c.imag()*c.imag();
+    if(q*(q+(c.real()-0.25d)) < 0.25d*c.imag()*c.imag()) {
+        return 0.0d;
     }
 
     //period-2 bulb check
-    if((c.real()+1.0f)*c.real()+1.0f + c.imag()*c.imag() < 0.625f) {
-        return 0.0f;
+    if((c.real()+1.0d)*c.real()+1.0d + c.imag()*c.imag() < 0.625d) {
+        return 0.0d;
     }
 
     int i = 0;
@@ -87,7 +87,7 @@ Terrain::iters(const std::complex<double>& c)
         if(std::abs(z) > 256) {
             double r = std::abs(z);
             double dr = std::abs(dz);
-            double de = 2.0f*r*std::log(r)/dr; //estimated distance from set
+            double de = 2.0d*r*std::log(r)/dr; //estimated distance from set
             return de;
         }
     }
