@@ -20,8 +20,6 @@ Terrain::~Terrain()
     glDeleteBuffers(1, &IBO);
 }
 
-#include <iostream>
-
 std::vector<Vector3f>
 Terrain::getMeshPoints()
 {
@@ -29,15 +27,10 @@ Terrain::getMeshPoints()
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {
         double discScale = std::pow(2.0, int(log2(m_scale)));
-        std::cout << discScale << std::endl;
         double discX = int(m_x*discScale/4)/discScale*4;
         double discZ = int(m_z*discScale/4)/discScale*4;
         double xPos = (x/(granularity/16.0d)-8.0d)/discScale + discX;
         double zPos = (z/(granularity/16.0d)-8.0d)/discScale + discZ;
-
-        //float xDist = xPos - m_x;
-        //float zDist = std::abs(zPos - m_z);
-        //xPos += std::abs(xDist)*xDist;
 
         ps.emplace_back(
                 xPos,
