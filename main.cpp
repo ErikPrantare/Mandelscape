@@ -63,7 +63,8 @@ updateScene()
     camera.setY(1.0f/zoom+terrain->iters({camera.getPos().x, 
                                           camera.getPos().z}));
     world.setCamera(camera);
-    glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &world.getTrans().m[0][0]);
+    auto const transformationMatrix = world.getTrans(); 
+    glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &transformationMatrix.m[0][0]);
     glutPostRedisplay();
 
     zoomAmount = 0.f;
