@@ -1,13 +1,12 @@
 Move source files to src
 Move window resolution to global variable
 
-Move terrain rendering to method
+Make terrain mesh more dense near middle
 
-Remove camera height stuttering
--ideas:
--multiple sample points for height calculation
--cap movement speed in y direction
+Make camera not stutter when walking on rugged ground
 
-1. Make terrain mesh more dense near middle
-2. Move terrain height calculation to vertex shader
-1 && 2 => Make mesh height calculation seamlessly change with movement
+rename Terrain::iters
+rename Camera::setSize (name clash)
+
+
+Move terrain update to own thread
