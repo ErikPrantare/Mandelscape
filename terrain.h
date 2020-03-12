@@ -11,7 +11,7 @@ Terrain final
 {
 public:
     static constexpr int granularity = 100;
-    static constexpr int iterations = 50;
+    static constexpr int iterations = 100;
 
     Terrain();
     ~Terrain();
@@ -22,8 +22,8 @@ public:
     std::vector<int>
     getMeshIndices();
 
-    float
-    iters(const std::complex<float>& c);
+    double
+    iters(const std::complex<double>& c);
 
     void 
     populateBuffers();

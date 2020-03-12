@@ -24,15 +24,15 @@ Terrain::getMeshPoints()
     std::vector<Vector3f> ps;
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {
-        float discScale = pow(2.0f, int(log2(m_scale)));
-        float discX = int(m_x*discScale)/discScale;
-        float discZ = int(m_z*discScale)/discScale;
-        float xPos = (x/(granularity/16.0f)-8.0f)/discScale + discX;
-        float zPos = (z/(granularity/16.0f)-8.0f)/discScale + discZ;
+        double discScale = pow(2.0f, int(log2(m_scale)));
+        double discX = int(m_x*discScale)/discScale;
+        double discZ = int(m_z*discScale)/discScale;
+        double xPos = (x/(granularity/16.0f)-8.0f)/discScale + discX;
+        double zPos = (z/(granularity/16.0f)-8.0f)/discScale + discZ;
 
-        //float xDist = std::abs(xPos - m_x);
+        //float xDist = xPos - m_x;
         //float zDist = std::abs(zPos - m_z);
-        //xPos += std::pow(xDist, 2);
+        //xPos += std::abs(xDist)*xDist;
 
         ps.emplace_back(
                 xPos,
@@ -62,14 +62,14 @@ Terrain::getMeshIndices()
 }
 
 
-float
-Terrain::iters(const std::complex<float>& c)
+double
+Terrain::iters(const std::complex<double>& c)
 {
-    std::complex<float> z(0.0f, 0.0f); 
-    std::complex<float> dz(0.0f, 0.0f);
+    std::complex<double> z(0.0f, 0.0f); 
+    std::complex<double> dz(0.0f, 0.0f);
     
     //main cardioid check
-    float q = pow(c.real()-0.25f, 2.0f) + c.imag()*c.imag();
+    double q = pow(c.real()-0.25f, 2.0f) + c.imag()*c.imag();
     if(q*(q+(c.real()-0.25f)) < 0.25f*c.imag()*c.imag()) {
         return 0.0f;
     }
@@ -81,13 +81,13 @@ Terrain::iters(const std::complex<float>& c)
 
     int i = 0;
     for(; i < iterations; ++i) {
-        dz = 2.0f*z*dz + 1.0f;
+        dz = 2.0d*z*dz + 1.0d;
         z = z*z + c;
 
         if(std::abs(z) > 256) {
-            float r = std::abs(z);
-            float dr = std::abs(dz);
-            float de = 2.0f*r*std::log(r)/dr; //estimated distance from set
+            double r = std::abs(z);
+            double dr = std::abs(dz);
+            double de = 2.0f*r*std::log(r)/dr; //estimated distance from set
             return de;
         }
     }
