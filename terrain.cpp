@@ -35,13 +35,7 @@ Terrain::updateBuffers(float x, float y, float scale)
     m_z = y;
     m_scale = scale;
 
-    static auto last = std::chrono::system_clock::now();
-    auto now = std::chrono::system_clock::now();
-
-    if((now - last).count() > 16558939*60) {
-        last = now; 
-        createVertexBuffer();
-    } 
+    createVertexBuffer();
 }
 
 
