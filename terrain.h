@@ -17,12 +17,6 @@ public:
     Terrain();
     ~Terrain();
 
-    std::vector<Vector3f>
-    getMeshPoints();
-
-    std::vector<int>
-    getMeshIndices();
-
     static double
     heightAt(const std::complex<double>& c);
 
