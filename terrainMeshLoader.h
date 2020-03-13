@@ -18,7 +18,7 @@ public:
     TerrainMeshLoader();
     ~TerrainMeshLoader();
 
-    std::vector<Vector3f>
+    const std::vector<Vector3f>&
     getMeshPoints(double, double, double);
 
     std::vector<GLuint>
@@ -38,7 +38,6 @@ private:
     std::thread m_worker;
     std::mutex m_loadMutex;
     std::mutex m_changeParams;
-    std::unique_lock<std::mutex> m_loadLock;
     std::condition_variable m_loadCond;
     bool m_readyToLoad = false;
     bool m_destruct = false;

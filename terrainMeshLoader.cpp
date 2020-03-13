@@ -72,7 +72,7 @@ mesh(double _x, double _z, double _scale)
 }
 
 
-std::vector<Vector3f>
+const std::vector<Vector3f>&
 TerrainMeshLoader::getMeshPoints(double x, double z, double scale)
 {
     m_changeParams.lock();
