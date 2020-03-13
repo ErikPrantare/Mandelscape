@@ -5,6 +5,7 @@
 #include <complex>
 
 #include "math3d.h"
+#include "terrainMeshLoader.h"
 
 class
 Terrain final
@@ -22,8 +23,8 @@ public:
     std::vector<int>
     getMeshIndices();
 
-    double
-    iters(const std::complex<double>& c);
+    static double
+    heightAt(const std::complex<double>& c);
 
     void 
     populateBuffers();
@@ -41,6 +42,7 @@ private:
           m_z = 0.0f, 
           m_scale = 1.0f;
 
+    TerrainMeshLoader m_meshLoader;
 
     void
     createVertexBuffer();

@@ -48,7 +48,7 @@ updateScene()
 
     zoomAmount += 1.f * persistentZoomDirection;
     if(autoZoom) {
-        zoom = 1/terrain->iters({camera.getPos().x, camera.getPos().z});
+        zoom = 1/terrain->heightAt({camera.getPos().x, camera.getPos().z});
         camera.move(2.0f/zoom*velocity);
     }
     else {
@@ -60,8 +60,8 @@ updateScene()
 
     Pipeline world;
     camera.setSize(1.0f/zoom);
-    camera.setY(1.0f/zoom+terrain->iters({camera.getPos().x, 
-                                          camera.getPos().z}));
+    camera.setY(1.0f/zoom+terrain->heightAt({camera.getPos().x, 
+                                             camera.getPos().z}));
     world.setCamera(camera);
     Matrix4f const transformationMatrix = world.getTrans(); 
     glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &transformationMatrix.m[0][0]);
