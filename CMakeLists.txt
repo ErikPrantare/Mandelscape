@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10)
 
 project(MandelLandscape CXX)
 
@@ -34,15 +34,16 @@ file(GLOB src "*.h" "*.cpp")
 
 add_executable(app main.cpp ${src})
 
+set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 
 include_directories(
-    ${OPENGL_INCLUDE_DIRS} 
-    ${GLUT_INCLUDE_DIRS}
-    ${GLEW_INCLUDE_DIRS})
+  ${OPENGL_INCLUDE_DIRS} 
+  ${GLUT_INCLUDE_DIRS}
+  ${GLEW_INCLUDE_DIRS})
 target_link_libraries(app 
-    ${OPENGL_LIBRARIES} 
-    ${GLUT_LIBRARY}
-    ${GLEW_LIBRARIES})
+  ${OPENGL_gl_LIBRARY} 
+  ${GLUT_LIBRARY}
+  ${GLEW_LIBRARIES})
