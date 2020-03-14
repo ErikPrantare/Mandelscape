@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <complex>
 
 #include <GL/glew.h>
 
@@ -47,9 +48,9 @@ private:
     bool m_doneLoading = false;
     unsigned int m_loadIndex = 0;
 
-    double m_x = 0.0d;
-    double m_z = 0.0d; 
-    double m_scale = 1.0d;
+    double m_x = 0.0;
+    double m_z = 0.0; 
+    double m_scale = 1.0;
     
     void meshLoading();
 };

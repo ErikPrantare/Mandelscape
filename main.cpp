@@ -44,18 +44,22 @@ renderScene()
 static void
 updateScene()
 {
-    float constexpr zoomVelocity = 0.02f;
+    float constexpr zoomVelocity = .01f;
+    
+    static float deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME);
+    deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME) - deltaMilliseconds;
 
-    zoomAmount += 1.f * persistentZoomDirection;
+    float deltaSeconds = deltaMilliseconds / 1000.f;
+    
     if(autoZoom) {
-        zoom = 1/terrain->heightAt({camera.getPos().x, camera.getPos().z});
-        camera.move(2.0f/zoom*velocity);
+        zoom = 1.f/terrain->heightAt({camera.getPos().x, camera.getPos().z});
     }
     else {
-        zoom *= 1 + zoomVelocity * zoomAmount;
-        camera.move(5.0f/zoom*velocity);
+        zoomAmount += persistentZoomDirection;
+        zoom *= 1.f + zoomVelocity * deltaSeconds * zoomAmount;
     }
 
+    camera.move((1.f/zoom)*deltaSeconds*velocity);
     terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
 
     Pipeline world;
@@ -64,7 +68,8 @@ updateScene()
                                              camera.getPos().z}));
     world.setCamera(camera);
     Matrix4f const transformationMatrix = world.getTrans(); 
-    glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &transformationMatrix.m[0][0]);
+    glUniformMatrix4fv(worldLocation, 1, GL_TRUE,
+                       &transformationMatrix.m[0][0]);
     glutPostRedisplay();
 
     zoomAmount = 0.f;
