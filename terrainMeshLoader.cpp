@@ -81,11 +81,11 @@ TerrainMeshLoader::getMeshPoints(double x, double z, double scale)
     m_scale = scale;
     m_changeParams.unlock();
 
-    std::unique_lock<std::mutex> lock(m_loadMutex, std::defer_lock);
-    if(lock.try_lock()) {
+    if(m_loadMutex.try_lock()) {
         m_currentMeshPoints = m_loadingMeshPoints;
-        lock.unlock();
+        m_loadMutex.unlock();
     }
+
 
     m_readyToLoad = true;
     m_loadCond.notify_all();
