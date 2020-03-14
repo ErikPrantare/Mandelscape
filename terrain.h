@@ -11,9 +11,6 @@ class
 Terrain final
 {
 public:
-    static constexpr int granularity = 100;
-    static constexpr int iterations = 100;
-
     Terrain();
     ~Terrain();
 
