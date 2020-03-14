@@ -64,7 +64,8 @@ updateScene()
                                              camera.getPos().z}));
     world.setCamera(camera);
     Matrix4f const transformationMatrix = world.getTrans(); 
-    glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &transformationMatrix.m[0][0]);
+    glUniformMatrix4fv(worldLocation, 1, GL_TRUE,
+                       &transformationMatrix.m[0][0]);
     glutPostRedisplay();
 
     zoomAmount = 0.f;
