@@ -16,7 +16,7 @@ Terrain::Terrain()
     glGenBuffers(1, &IBO);
 
     std::vector<Vector3f> terrainMesh = 
-        m_meshLoader.getMeshPoints(m_x, m_z, m_scale);
+        m_meshLoader.updateMeshPoints(m_x, m_z, m_scale);
     
     m_meshLoader.m_VBO = VBO;
     glBindBuffer(GL_ARRAY_BUFFER, m_meshLoader.m_VBO);
@@ -86,8 +86,7 @@ Terrain::createIndexBuffer()
 void
 Terrain::createVertexBuffer()
 {
-    std::vector<Vector3f> terrainMesh = 
-        m_meshLoader.getMeshPoints(m_x, m_z, m_scale);
+    m_meshLoader.updateMeshPoints(m_x, m_z, m_scale);
 }
 
 

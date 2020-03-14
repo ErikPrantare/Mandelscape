@@ -20,14 +20,14 @@ public:
     ~TerrainMeshLoader();
 
     const std::vector<Vector3f>&
-    getMeshPoints(double, double, double);
+    updateMeshPoints(double, double, double);
 
     std::vector<GLuint>
     getMeshIndices();
 
     static double
     heightAt(const std::complex<double>&);
-    static constexpr int granularity = 1000;
+    static constexpr int granularity = 200;
     static constexpr int iterations = 100;
     GLuint m_VBO;
     GLuint m_loadingVBO;
