@@ -24,6 +24,7 @@ bool autoZoom = false;
 float zoomAmount = 0;
 float persistentZoomDirection = 0;
 float zoom = 1.0f;
+float constexpr G_MOVEMENT_SPEED = 1.f;
 
 Terrain* terrain = nullptr;
 
@@ -44,10 +45,12 @@ renderScene()
 static void
 updateScene()
 {
-    float constexpr zoomVelocity = .01f;
+    float constexpr zoomVelocity = 1.f;
+   
+    static float lastTimeStep =  glutGet(GLUT_ELAPSED_TIME);
     
-    static float deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME);
-    deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME) - deltaMilliseconds;
+    float deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME) - lastTimeStep;
+    lastTimeStep = glutGet(GLUT_ELAPSED_TIME);
 
     float deltaSeconds = deltaMilliseconds / 1000.f;
     
@@ -80,16 +83,16 @@ handleInputDown(unsigned char c, int, int)
 {
     switch(c) {
     case 'w':
-        velocity.z += 0.01f;
+        velocity.z += G_MOVEMENT_SPEED;
         break;
     case 'a':
-        velocity.x += -0.01f;
+        velocity.x += -G_MOVEMENT_SPEED;
         break;
     case 's':
-        velocity.z += -0.01f;
+        velocity.z += -G_MOVEMENT_SPEED;
         break;
     case 'd':
-        velocity.x += 0.01f;
+        velocity.x += G_MOVEMENT_SPEED;
         break;
     case 'j':
         persistentZoomDirection += 1.f;
@@ -116,16 +119,16 @@ handleInputUp(unsigned char c, int, int)
 {
     switch(c) {
     case 'w':
-        velocity.z += -0.01f;
+        velocity.z += -G_MOVEMENT_SPEED;
         break;
     case 'a':
-        velocity.x += 0.01f;
+        velocity.x += G_MOVEMENT_SPEED;
         break;
     case 's':
-        velocity.z += 0.01f;
+        velocity.z += G_MOVEMENT_SPEED;
         break;
     case 'd':
-        velocity.x += -0.01f;
+        velocity.x += -G_MOVEMENT_SPEED;
         break;
     case 'j':
         persistentZoomDirection += -1.f;
