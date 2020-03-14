@@ -27,8 +27,10 @@ public:
 
     static double
     heightAt(const std::complex<double>&);
-    static constexpr int granularity = 100;
+    static constexpr int granularity = 1000;
     static constexpr int iterations = 100;
+    GLuint m_VBO;
+    GLuint m_loadingVBO;
 private:
     
     std::vector<GLuint> m_meshIndices;
@@ -41,7 +43,10 @@ private:
     std::mutex m_changeParams;
     std::condition_variable m_loadCond;
     bool m_readyToLoad = false;
+    bool m_readyToSwap = false;
     bool m_destruct = false;
+    bool m_doneLoading = false;
+    unsigned int m_loadIndex = 0;
 
     double m_x = 0.0;
     double m_z = 0.0; 

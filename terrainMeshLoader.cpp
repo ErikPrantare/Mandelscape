@@ -47,6 +47,7 @@ TerrainMeshLoader::meshLoading()
 
         *m_loadingMeshPoints = mesh(x, z, scale);
 
+        m_readyToSwap = true;
         m_readyToLoad = false;
     }
 }
@@ -82,14 +83,47 @@ TerrainMeshLoader::getMeshPoints(double x, double z, double scale)
     m_scale = scale;
     m_changeParams.unlock();
 
-    std::unique_lock<std::mutex> lock(m_loadMutex, std::defer_lock);
-    if(lock.try_lock()) {
+    if(m_doneLoading && m_readyToSwap && m_loadMutex.try_lock()) {
         m_currentMeshPoints = m_loadingMeshPoints;
-        lock.unlock();
+        m_readyToSwap = false;
+        m_doneLoading = false;
+        m_loadIndex = 0;
+        m_loadMutex.unlock();
     }
 
-    m_readyToLoad = true;
+    /*glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(
+            GL_ARRAY_BUFFER,
+            m_currentMeshPoints->size()*sizeof(Vector3f),
+            m_currentMeshPoints->data(),
+            GL_STATIC_DRAW);
+            */
+
+    if(!m_doneLoading) {
+        Vector3f *position = 
+            m_currentMeshPoints->data() + m_loadIndex;
+        
+        int chunkSize = 
+            std::min(30'000, int(m_currentMeshPoints->size() - m_loadIndex));
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
+        glBufferSubData(
+                GL_ARRAY_BUFFER,
+                m_loadIndex*sizeof(Vector3f),
+                chunkSize*sizeof(Vector3f),
+                position);
+
+        m_loadIndex += chunkSize;
+        
+        if(m_loadIndex == m_currentMeshPoints->size()) {
+            m_readyToLoad = true;
+            m_doneLoading = true; 
+            std::swap(m_VBO, m_loadingVBO);
+        }
+    }
+
     m_loadCond.notify_all();
+
     return *m_currentMeshPoints;
 }
 
