@@ -9,3 +9,6 @@ Makefile
 out/
 
 build/
+
+#Config files
+compile_commands.json
