@@ -26,6 +26,8 @@ if(WNOUNUSEDPARAMETER)
   add_definitions("-Wno-unused-parameter")
 endif()
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
 file(GLOB src "*.h" "*.cpp")
 
 add_executable(app main.cpp ${src})
