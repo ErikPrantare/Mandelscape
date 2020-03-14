@@ -21,10 +21,10 @@ Camera::uvn() const
     const Vector3f V = normalize(cross(N, U));
 
     float m[4][4] = {
-        U.x, U.y, U.z, 0.0f,
-        V.x, V.y, V.z, 0.0f,
-        N.x, N.y, N.z, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f};
+        {U.x, U.y, U.z, 0.0f},
+        {V.x, V.y, V.z, 0.0f},
+        {N.x, N.y, N.z, 0.0f},
+        {0.0f, 0.0f, 0.0f, 1.0f}};
     return Matrix4f(m);
 }
 
@@ -37,10 +37,10 @@ Camera::projectionTransformation() const
 
 
     float m[4][4] = {
-        1.0f/(tanHalfFOV*ar), 0.0, 0.0, 0.0,
-        0.0, 1.0f/tanHalfFOV, 0.0, 0.0,
-        0.0, 0.0, (-m_zNear - m_zFar) / zRange, 2.0f*m_zNear*m_zFar/zRange,
-        0.0, 0.0, 1.0, 0.0};
+        {1.0f/(tanHalfFOV*ar), 0.0, 0.0, 0.0},
+        {0.0, 1.0f/tanHalfFOV, 0.0, 0.0},
+        {0.0, 0.0, (-m_zNear - m_zFar) / zRange, 2.0f*m_zNear*m_zFar/zRange},
+        {0.0, 0.0, 1.0, 0.0}};
 
     Matrix4f translation = translationMatrix({-m_pos.x, -m_pos.y, -m_pos.z});
 
