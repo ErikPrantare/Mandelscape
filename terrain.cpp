@@ -94,7 +94,7 @@ void
 Terrain::render()
 {
     int vertexCount = std::pow((TerrainMeshLoader::granularity-1), 2)*3*2;
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_meshLoader.m_VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
