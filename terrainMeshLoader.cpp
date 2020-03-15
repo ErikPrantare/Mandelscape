@@ -53,7 +53,7 @@ TerrainMeshLoader::meshLoading()
     }
 }
 
-#include <iostream>
+
 static std::vector<Vector3f>
 mesh(double _x, double _z, double _scale)
 {
@@ -69,7 +69,6 @@ mesh(double _x, double _z, double _scale)
             int(_z*discScale*TerrainMeshLoader::granularity)
             / TerrainMeshLoader::granularity/discScale;
 
-        std::cout << discX << std::endl;
 
         double xPos = 
             (x/(TerrainMeshLoader::granularity/32.0)-16.0)/discScale + discX;
