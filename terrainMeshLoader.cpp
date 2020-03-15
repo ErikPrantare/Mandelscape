@@ -9,7 +9,7 @@
 #include "terrainMeshLoader.h"
 
 void
-mesh(double, double, double, std::vector<Vector3f>*);
+loadMesh(double, double, double, std::vector<Vector3f>*);
 
 TerrainMeshLoader::TerrainMeshLoader() :
   m_x{ 0.0 }, m_z{ 0.0 }, m_scale{ 1.0 },
@@ -18,12 +18,12 @@ TerrainMeshLoader::TerrainMeshLoader() :
 {
     m_loadingProcess = std::async(
                 std::launch::async, 
-                mesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+                loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
     m_loadingProcess.wait();
     std::swap(m_currentMeshPoints, m_loadingMeshPoints);
     m_loadingProcess = std::async(
                 std::launch::async, 
-                mesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+                loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
     m_doneLoading = true;
 }
 
@@ -34,7 +34,7 @@ TerrainMeshLoader::~TerrainMeshLoader()
 
 
 void
-mesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
+loadMesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
 {
     constexpr int granularity = TerrainMeshLoader::granularity;
 
@@ -48,7 +48,7 @@ mesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
     double xOffset = int(_x*scaleFactor)/scaleFactor;
     xOffset -= granularity/2.0/scaleFactor;
 
-    double zOffset = int(_x*scaleFactor)/scaleFactor;
+    double zOffset = int(_z*scaleFactor)/scaleFactor;
     zOffset -= granularity/2.0/scaleFactor;
 
     for(int x = 0; x < granularity; x++)
@@ -83,7 +83,7 @@ TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
 
         m_loadingProcess = std::async(
                     std::launch::async, 
-                    mesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+                    loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
     }
 
     if(!m_doneLoading) {
