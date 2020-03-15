@@ -16,9 +16,37 @@ TerrainMeshLoader::TerrainMeshLoader() :
   m_currentMeshPoints{ std::make_shared<std::vector<Vector3f>>() },
   m_loadingMeshPoints{ std::make_shared<std::vector<Vector3f>>() }
 {
+    loadMesh(m_x, m_z, m_scale, m_currentMeshPoints.get());
+    loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
+
+    glGenBuffers(1, &m_VBO);
+    glGenBuffers(1, &m_IBO);
+    glGenBuffers(1, &m_loadingVBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(
+            GL_ARRAY_BUFFER,
+            m_currentMeshPoints->size()*sizeof(Vector3f),
+            m_currentMeshPoints->data(),
+            GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
+    glBufferData(
+            GL_ARRAY_BUFFER,
+            m_loadingMeshPoints->size()*sizeof(Vector3f),
+            m_loadingMeshPoints->data(),
+            GL_STATIC_DRAW);
+
     startLoading();
-    m_loadingProcess.wait();
-    m_doneLoading = true;
+    m_doneLoading = false;
+}
+
+
+TerrainMeshLoader::~TerrainMeshLoader()
+{
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteBuffers(1, &m_IBO);
+    glDeleteBuffers(1, &m_loadingVBO);
 }
 
 
@@ -162,7 +190,16 @@ TerrainMeshLoader::heightAt(const std::complex<double>& c)
         }
     }
 
-    return 0;
+    return 0.0;
 }
 
 
+void
+TerrainMeshLoader::render()
+{
+    int vertexCount = std::pow((granularity-1), 2)*3*2;
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+}

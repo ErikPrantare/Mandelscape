@@ -20,6 +20,7 @@ public:
     static constexpr int granularity = 400;
 
     TerrainMeshLoader();
+    ~TerrainMeshLoader();
 
     const std::vector<Vector3f>&
     updateMeshPoints(double, double, double);
@@ -29,8 +30,11 @@ public:
 
     static double
     heightAt(const std::complex<double>&);
-    GLuint m_VBO;
-    GLuint m_loadingVBO;
+
+    void
+    render();
+
+    GLuint m_VBO, m_loadingVBO, m_IBO;
 private:
     static constexpr int iterations = 100;
 

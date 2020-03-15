@@ -11,9 +11,6 @@ class
 Terrain final
 {
 public:
-    Terrain();
-    ~Terrain();
-
     static double
     heightAt(const std::complex<double>& c);
 
