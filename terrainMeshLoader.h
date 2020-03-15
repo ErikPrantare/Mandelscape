@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <complex>
+#include <future>
 
 #include <GL/glew.h>
 
@@ -32,12 +33,7 @@ public:
     GLuint m_VBO;
     GLuint m_loadingVBO;
 private:
-    std::thread m_worker;
-    std::mutex m_loadMutex;
-    std::condition_variable m_loadCond;
-    bool m_readyToLoad = false;
-    bool m_readyToSwap = false;
-    bool m_destruct = false;
+    std::future<void> m_loadingProcess;
     bool m_doneLoading = false;
     unsigned int m_loadIndex = 0;
 

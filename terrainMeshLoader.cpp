@@ -8,48 +8,39 @@
 
 #include "terrainMeshLoader.h"
 
-static std::vector<Vector3f>
-mesh(double, double, double);
+void
+mesh(double, double, double, std::vector<Vector3f>*);
 
 TerrainMeshLoader::TerrainMeshLoader() :
-  m_worker{ &TerrainMeshLoader::meshLoading, this },
   m_x{ 0.0 }, m_z{ 0.0 }, m_scale{ 1.0 },
-  m_currentMeshPoints{
-    std::make_shared<std::vector<Vector3f>>(mesh(m_x, m_z, m_scale))},
+  m_currentMeshPoints{ std::make_shared<std::vector<Vector3f>>() },
   m_loadingMeshPoints{ std::make_shared<std::vector<Vector3f>>() }
-{}
+{
+    m_loadingProcess = std::async(
+                std::launch::async, 
+                mesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+    m_loadingProcess.wait();
+    std::swap(m_currentMeshPoints, m_loadingMeshPoints);
+    m_loadingProcess = std::async(
+                std::launch::async, 
+                mesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+    m_doneLoading = true;
+}
 
 
 TerrainMeshLoader::~TerrainMeshLoader()
 {
-    m_destruct = true;
-    m_loadCond.notify_all();
-    m_worker.join();
 }
 
 
 void
-TerrainMeshLoader::meshLoading()
+mesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
 {
-    while(!m_destruct) {
-        std::unique_lock<std::mutex> lock(m_loadMutex);
-        m_loadCond.wait(lock, [this]{return m_readyToLoad || m_destruct;});
-
-        m_loadingMeshPoints = std::make_shared<std::vector<Vector3f>>();
-        *m_loadingMeshPoints = mesh(m_x, m_z, m_scale);
-
-        m_readyToSwap = true;
-        m_readyToLoad = false;
-    }
-}
-
-
-static std::vector<Vector3f>
-mesh(double _x, double _z, double _scale)
-{
-    std::vector<Vector3f> ps;
-
     constexpr int granularity = TerrainMeshLoader::granularity;
+
+    if(buffer->size() != granularity*granularity) {
+        buffer->resize(granularity*granularity);
+    }
 
     for(int x = 0; x < granularity; x++)
     for(int z = 0; z < granularity; z++) {
@@ -62,27 +53,34 @@ mesh(double _x, double _z, double _scale)
         double xPos = (x - granularity/2.0)/scaleFactor + discX;
         double zPos = (z - granularity/2.0)/scaleFactor + discZ;
 
-        ps.emplace_back(xPos, TerrainMeshLoader::heightAt({xPos, zPos}), zPos);
+        (*buffer)[x*granularity + z] =
+            Vector3f(xPos, TerrainMeshLoader::heightAt({xPos, zPos}), zPos);
     }
+}
 
-    return ps;
+
+static bool
+isDone(const std::future<auto>& f)
+{
+    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
 
 const std::vector<Vector3f>&
 TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
 {
-    if(m_doneLoading && m_readyToSwap && m_loadMutex.try_lock()) {
-        m_currentMeshPoints = m_loadingMeshPoints;
+    m_x = x;
+    m_z = z;
+    m_scale = scale;
 
-        m_x = x;
-        m_z = z;
-        m_scale = scale;
-        m_readyToSwap = false;
+    if(m_doneLoading && isDone(m_loadingProcess)) {
+        m_currentMeshPoints.swap(m_loadingMeshPoints);
+
         m_doneLoading = false;
 
-        m_loadIndex = 0;
-        m_loadMutex.unlock();
+        m_loadingProcess = std::async(
+                    std::launch::async, 
+                    mesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
     }
 
     if(!m_doneLoading) {
@@ -90,7 +88,7 @@ TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
             m_currentMeshPoints->data() + m_loadIndex;
         
         int chunkSize = 
-            std::min(30'000, int(m_currentMeshPoints->size() - m_loadIndex));
+            std::min(90'000, int(m_currentMeshPoints->size() - m_loadIndex));
 
         glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
         glBufferSubData(
@@ -102,13 +100,11 @@ TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
         m_loadIndex += chunkSize;
         
         if(m_loadIndex == m_currentMeshPoints->size()) {
-            m_readyToLoad = true;
             m_doneLoading = true; 
+            m_loadIndex = 0;
             std::swap(m_VBO, m_loadingVBO);
         }
     }
-
-    m_loadCond.notify_all();
 
     return *m_currentMeshPoints;
 }
