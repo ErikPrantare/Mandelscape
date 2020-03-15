@@ -59,21 +59,18 @@ mesh(double _x, double _z, double _scale)
 {
     std::vector<Vector3f> ps;
 
-    for(int x = 0; x < TerrainMeshLoader::granularity; x++)
-    for(int z = 0; z < TerrainMeshLoader::granularity; z++) {
+    constexpr int granularity = TerrainMeshLoader::granularity;
+
+    for(int x = 0; x < granularity; x++)
+    for(int z = 0; z < granularity; z++) {
         double discScale = std::pow(2.0, int(log2(_scale)));
-        double discX = 
-            int(_x*discScale*TerrainMeshLoader::granularity)
-            / TerrainMeshLoader::granularity/discScale;
-        double discZ = 
-            int(_z*discScale*TerrainMeshLoader::granularity)
-            / TerrainMeshLoader::granularity/discScale;
+        double scaleFactor = TerrainMeshLoader::granularity*discScale;
 
+        double discX = int(_x*scaleFactor)/scaleFactor;
+        double discZ = int(_z*scaleFactor)/scaleFactor;
 
-        double xPos = 
-            (x/(TerrainMeshLoader::granularity/32.0)-16.0)/discScale + discX;
-        double zPos = 
-            (z/(TerrainMeshLoader::granularity/32.0)-16.0)/discScale + discZ;
+        double xPos = 8.0*(4.0*x/granularity-2.0)/discScale + discX;
+        double zPos = 8.0*(4.0*z/granularity-2.0)/discScale + discZ;
 
         ps.emplace_back(xPos, TerrainMeshLoader::heightAt({xPos, zPos}), zPos);
     }
