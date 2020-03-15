@@ -37,14 +37,6 @@ Terrain::populateBuffers()
 void
 Terrain::createIndexBuffer()
 {
-    std::vector<GLuint> terrainIndices = m_meshLoader.getMeshIndices();
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_meshLoader.m_IBO);
-    glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            terrainIndices.size()*sizeof(GLuint),
-            terrainIndices.data(),
-            GL_STATIC_DRAW);
 }
 
 

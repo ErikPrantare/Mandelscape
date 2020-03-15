@@ -37,6 +37,15 @@ TerrainMeshLoader::TerrainMeshLoader() :
             m_loadingMeshPoints->data(),
             GL_STATIC_DRAW);
 
+    auto meshIndices = getMeshIndices();
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+    glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            meshIndices.size()*sizeof(meshIndices[0]),
+            meshIndices.data(),
+            GL_STATIC_DRAW);
+
     startLoading();
     m_doneLoading = false;
 }

@@ -34,9 +34,10 @@ public:
     void
     render();
 
-    GLuint m_VBO, m_loadingVBO, m_IBO;
 private:
     static constexpr int iterations = 100;
+
+    GLuint m_VBO, m_loadingVBO, m_IBO;
 
     std::future<void> m_loadingProcess;
     bool m_doneLoading = false;
