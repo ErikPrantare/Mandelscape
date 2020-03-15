@@ -13,7 +13,7 @@ mesh(double, double, double);
 
 TerrainMeshLoader::TerrainMeshLoader() :
   m_worker{ &TerrainMeshLoader::meshLoading, this },
-  m_x{}, m_z{}, m_scale{},
+  m_x{ 0.0 }, m_z{ 0.0 }, m_scale{ 1.0 },
   m_currentMeshPoints{
     std::make_shared<std::vector<Vector3f>>(mesh(m_x, m_z, m_scale))},
   m_loadingMeshPoints{ std::make_shared<std::vector<Vector3f>>() }
