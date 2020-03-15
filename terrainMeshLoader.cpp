@@ -125,7 +125,7 @@ std::vector<GLuint>
 TerrainMeshLoader::getMeshIndices()
 {
     std::vector<GLuint> meshIndices; 
-    meshIndices.reserve(granularity*granularity);
+    meshIndices.reserve(granularity*granularity*6);
 
     for(int x = 0; x < granularity-1; x++)
         for(int z = 0; z < granularity-1; z++) {
