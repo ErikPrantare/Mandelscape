@@ -16,20 +16,18 @@ TerrainMeshLoader::TerrainMeshLoader() :
   m_currentMeshPoints{ std::make_shared<std::vector<Vector3f>>() },
   m_loadingMeshPoints{ std::make_shared<std::vector<Vector3f>>() }
 {
-    m_loadingProcess = std::async(
-                std::launch::async, 
-                loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+    startLoading();
     m_loadingProcess.wait();
-    std::swap(m_currentMeshPoints, m_loadingMeshPoints);
-    m_loadingProcess = std::async(
-                std::launch::async, 
-                loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
     m_doneLoading = true;
 }
 
 
-TerrainMeshLoader::~TerrainMeshLoader()
+void
+TerrainMeshLoader::startLoading()
 {
+    m_loadingProcess = std::async(
+                std::launch::async, 
+                loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
 }
 
 
