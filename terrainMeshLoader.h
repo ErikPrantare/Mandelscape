@@ -42,9 +42,9 @@ private:
     bool m_doneLoading = false;
     unsigned int m_loadIndex = 0;
 
-    double m_x = 0.0;
-    double m_z = 0.0; 
-    double m_scale = 1.0;
+    double m_x;
+    double m_z; 
+    double m_scale;
     
     std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
     std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
