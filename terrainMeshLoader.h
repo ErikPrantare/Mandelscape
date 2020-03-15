@@ -43,8 +43,6 @@ private:
     
     std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
     std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
-
-    void meshLoading();
 };
 
 
