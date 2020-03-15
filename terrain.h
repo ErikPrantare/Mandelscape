@@ -14,9 +14,6 @@ public:
     static double
     heightAt(const std::complex<double>& c);
 
-    void 
-    populateBuffers();
-
     void
     updateBuffers(float x, float y, float scale);
 
@@ -24,17 +21,7 @@ public:
     render();
 
 private:
-    float m_x = 0.0f, 
-          m_z = 0.0f, 
-          m_scale = 1.0f;
-
     TerrainMeshLoader m_meshLoader;
-
-    void
-    createVertexBuffer();
-
-    void
-    createIndexBuffer();
 };
 
 #endif

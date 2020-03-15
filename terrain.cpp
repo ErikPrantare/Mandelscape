@@ -16,34 +16,9 @@ Terrain::heightAt(const std::complex<double>& c)
 
 
 void
-Terrain::updateBuffers(float x, float y, float scale)
+Terrain::updateBuffers(float x, float z, float scale)
 {
-    m_x = x;
-    m_z = y;
-    m_scale = scale;
-
-    createVertexBuffer();
-}
-
-
-void
-Terrain::populateBuffers()
-{
-    createVertexBuffer();
-    createIndexBuffer();
-}
-
-
-void
-Terrain::createIndexBuffer()
-{
-}
-
-
-void
-Terrain::createVertexBuffer()
-{
-    m_meshLoader.updateMeshPoints(m_x, m_z, m_scale);
+    m_meshLoader.updateMeshPoints(x, z, scale);
 }
 
 

@@ -47,7 +47,6 @@ TerrainMeshLoader::TerrainMeshLoader() :
             GL_STATIC_DRAW);
 
     startLoading();
-    m_doneLoading = false;
 }
 
 
@@ -65,6 +64,8 @@ TerrainMeshLoader::startLoading()
     m_loadingProcess = std::async(
                 std::launch::async, 
                 loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+
+    m_doneLoading = false;
 }
 
 
@@ -114,11 +115,7 @@ TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
     if(m_doneLoading && isDone(m_loadingProcess)) {
         m_currentMeshPoints.swap(m_loadingMeshPoints);
 
-        m_doneLoading = false;
-
-        m_loadingProcess = std::async(
-                    std::launch::async, 
-                    loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
+        startLoading();
     }
 
     if(!m_doneLoading) {

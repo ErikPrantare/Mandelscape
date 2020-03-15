@@ -327,7 +327,6 @@ main(int argc, char **argv)
     glClearDepth(100.0f);
 
     terrain = new Terrain();
-    terrain->populateBuffers();
 
     compileShaders();
 
