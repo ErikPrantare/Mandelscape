@@ -73,6 +73,7 @@ void
 loadMesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
 {
     constexpr int granularity = TerrainMeshLoader::granularity;
+    std::vector<Vector3f> ps;
 
     if(buffer->size() != granularity*granularity) {
         buffer->resize(granularity*granularity);
