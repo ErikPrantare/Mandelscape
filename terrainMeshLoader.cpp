@@ -18,6 +18,8 @@ TerrainMeshLoader::TerrainMeshLoader()
     m_currentMeshPoints = std::make_shared<std::vector<Vector3f>>();
     m_loadingMeshPoints = std::make_shared<std::vector<Vector3f>>();
     *m_currentMeshPoints = mesh(m_x, m_z, m_scale);
+
+
 }
 
 
@@ -62,9 +64,9 @@ mesh(double _x, double _z, double _scale)
         double discX = int(_x*discScale/8)/discScale*8;
         double discZ = int(_z*discScale/8)/discScale*8;
         double xPos = 
-            (x/(TerrainMeshLoader::granularity/32.0d)-16.0d)/discScale + discX;
+            (x/(TerrainMeshLoader::granularity/32.0)-16.0)/discScale + discX;
         double zPos = 
-            (z/(TerrainMeshLoader::granularity/32.0d)-16.0d)/discScale + discZ;
+            (z/(TerrainMeshLoader::granularity/32.0)-16.0)/discScale + discZ;
 
         ps.emplace_back(xPos, TerrainMeshLoader::heightAt({xPos, zPos}), zPos);
     }
@@ -122,30 +124,29 @@ TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
 std::vector<GLuint>
 TerrainMeshLoader::getMeshIndices()
 {
-    if(m_meshIndices.size() != 0) return m_meshIndices;
-
-    std::vector<GLuint> indices;
+    std::vector<GLuint> meshIndices; 
+    meshIndices.reserve(granularity*granularity);
 
     for(int x = 0; x < granularity-1; x++)
         for(int z = 0; z < granularity-1; z++) {
-            indices.push_back(z+x*granularity);
-            indices.push_back(z+(x+1)*granularity);
-            indices.push_back((z+1)+x*granularity);
+            meshIndices.push_back(z+x*granularity);
+            meshIndices.push_back(z+(x+1)*granularity);
+            meshIndices.push_back((z+1)+x*granularity);
 
-            indices.push_back((z+1)+x*granularity);
-            indices.push_back(z+(x+1)*granularity);
-            indices.push_back((z+1)+(x+1)*granularity);
+            meshIndices.push_back((z+1)+x*granularity);
+            meshIndices.push_back(z+(x+1)*granularity);
+            meshIndices.push_back((z+1)+(x+1)*granularity);
         }
 
-    return m_meshIndices = indices;
+    return meshIndices;
 }
 
 
 double
 TerrainMeshLoader::heightAt(const std::complex<double>& c)
 {
-    std::complex<double> z(0.0d, 0.0d); 
-    std::complex<double> dz(0.0d, 0.0d);
+    std::complex<double> z(0.0, 0.0); 
+    std::complex<double> dz(0.0, 0.0);
     
     //main cardioid check
     double q = pow(c.real()-0.25d, 2.0d) + c.imag()*c.imag();
