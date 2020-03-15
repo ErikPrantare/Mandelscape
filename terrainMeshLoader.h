@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <complex>
+#include <future>
 
 #include <GL/glew.h>
 
@@ -16,6 +17,8 @@ class
 TerrainMeshLoader
 {
 public:
+    static constexpr int granularity = 400;
+
     TerrainMeshLoader();
     ~TerrainMeshLoader();
 
@@ -27,18 +30,16 @@ public:
 
     static double
     heightAt(const std::complex<double>&);
-    static constexpr int granularity = 400;
-    static constexpr int iterations = 100;
-    GLuint m_VBO;
-    GLuint m_loadingVBO;
+
+    void
+    render();
+
 private:
-    std::thread m_worker;
-    std::mutex m_loadMutex;
-    std::mutex m_changeParams;
-    std::condition_variable m_loadCond;
-    bool m_readyToLoad = false;
-    bool m_readyToSwap = false;
-    bool m_destruct = false;
+    static constexpr int iterations = 100;
+
+    GLuint m_VBO, m_loadingVBO, m_IBO;
+
+    std::future<void> m_loadingProcess;
     bool m_doneLoading = false;
     unsigned int m_loadIndex = 0;
 
@@ -49,7 +50,8 @@ private:
     std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
     std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
 
-    void meshLoading();
+    void
+    startLoading();
 };
 
 

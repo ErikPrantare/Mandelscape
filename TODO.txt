@@ -5,8 +5,6 @@ Make terrain mesh more dense near middle
 
 Make camera not stutter when walking on rugged ground
 
-rename Terrain::iters
 rename Camera::setSize (name clash)
 
-
-Move terrain update to own thread
+Make Terrain and TerrainMeshLoader one class
