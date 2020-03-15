@@ -42,17 +42,20 @@ mesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
         buffer->resize(granularity*granularity);
     }
 
+    double discScale = std::pow(2.0, int(log2(_scale)));
+    double scaleFactor = TerrainMeshLoader::granularity*discScale/32.0;
+
+    double xOffset = int(_x*scaleFactor)/scaleFactor;
+    xOffset -= granularity/2.0/scaleFactor;
+
+    double zOffset = int(_x*scaleFactor)/scaleFactor;
+    zOffset -= granularity/2.0/scaleFactor;
+
     for(int x = 0; x < granularity; x++)
-    for(int z = 0; z < granularity; z++) {
-        double discScale = std::pow(2.0, int(log2(_scale)));
-        double scaleFactor = TerrainMeshLoader::granularity*discScale/32.0;
-
-        double discX = int(_x*scaleFactor)/scaleFactor;
-        double discZ = int(_z*scaleFactor)/scaleFactor;
-
-        double xPos = (x - granularity/2.0)/scaleFactor + discX;
-        double zPos = (z - granularity/2.0)/scaleFactor + discZ;
-
+      for(int z = 0; z < granularity; z++) {
+        double xPos = x/scaleFactor + xOffset;
+        double zPos = z/scaleFactor + zOffset;
+ 
         (*buffer)[x*granularity + z] =
             Vector3f(xPos, TerrainMeshLoader::heightAt({xPos, zPos}), zPos);
     }
