@@ -55,7 +55,7 @@ mesh(double _x, double _z, double _scale)
 {
     std::vector<Vector3f> ps;
 
-    constexpr int granularity = TerrainMeshLoader::granularity;
+    int constexpr granularity = TerrainMeshLoader::granularity;
 
     double discScale = std::pow(2.0, int(log2(_scale)));
     double scaleFactor = TerrainMeshLoader::granularity*discScale/32.0;
