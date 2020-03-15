@@ -19,7 +19,6 @@ TerrainMeshLoader::TerrainMeshLoader() :
   m_loadingMeshPoints{ std::make_shared<std::vector<Vector3f>>() }
 {}
 
-
 TerrainMeshLoader::~TerrainMeshLoader()
 {
     m_destruct = true;
@@ -58,17 +57,19 @@ mesh(double _x, double _z, double _scale)
 
     constexpr int granularity = TerrainMeshLoader::granularity;
 
+    double discScale = std::pow(2.0, int(log2(_scale)));
+    double scaleFactor = TerrainMeshLoader::granularity*discScale/32.0;
+
+    double discX = -granularity/2.0/scaleFactor+
+                   int(_x*scaleFactor)/scaleFactor;
+    double discZ = -granularity/2.0/scaleFactor+
+                   int(_z*scaleFactor)/scaleFactor;
+
     for(int x = 0; x < granularity; x++)
-    for(int z = 0; z < granularity; z++) {
-        double discScale = std::pow(2.0, int(log2(_scale)));
-        double scaleFactor = TerrainMeshLoader::granularity*discScale/32.0;
-
-        double discX = int(_x*scaleFactor)/scaleFactor;
-        double discZ = int(_z*scaleFactor)/scaleFactor;
-
-        double xPos = (x - granularity/2.0)/scaleFactor + discX;
-        double zPos = (z - granularity/2.0)/scaleFactor + discZ;
-
+      for(int z = 0; z < granularity; z++) {
+        double xPos = x/scaleFactor + discX;
+        double zPos = z/scaleFactor + discZ;
+ 
         ps.emplace_back(xPos, TerrainMeshLoader::heightAt({xPos, zPos}), zPos);
     }
 
