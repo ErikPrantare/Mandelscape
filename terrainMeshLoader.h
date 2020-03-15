@@ -32,9 +32,6 @@ public:
     GLuint m_VBO;
     GLuint m_loadingVBO;
 private:
-    std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
-    std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
-
     std::thread m_worker;
     std::mutex m_loadMutex;
     std::mutex m_changeParams;
@@ -49,6 +46,9 @@ private:
     double m_z = 0.0; 
     double m_scale = 1.0;
     
+    std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
+    std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
+
     void meshLoading();
 };
 

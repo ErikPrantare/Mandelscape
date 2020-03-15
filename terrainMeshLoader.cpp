@@ -11,16 +11,13 @@
 static std::vector<Vector3f>
 mesh(double, double, double);
 
-TerrainMeshLoader::TerrainMeshLoader()
-{
-    m_worker = std::thread(&TerrainMeshLoader::meshLoading, this);
-
-    m_currentMeshPoints = std::make_shared<std::vector<Vector3f>>();
-    m_loadingMeshPoints = std::make_shared<std::vector<Vector3f>>();
-    *m_currentMeshPoints = mesh(m_x, m_z, m_scale);
-
-
-}
+TerrainMeshLoader::TerrainMeshLoader() :
+  m_worker{ &TerrainMeshLoader::meshLoading, this },
+  m_x{}, m_z{}, m_scale{},
+  m_currentMeshPoints{
+    std::make_shared<std::vector<Vector3f>>(mesh(m_x, m_z, m_scale))},
+  m_loadingMeshPoints{ std::make_shared<std::vector<Vector3f>>() }
+{}
 
 
 TerrainMeshLoader::~TerrainMeshLoader()
