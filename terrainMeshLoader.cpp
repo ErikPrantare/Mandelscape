@@ -36,14 +36,7 @@ TerrainMeshLoader::meshLoading()
         m_loadCond.wait(lock, [this]{return m_readyToLoad || m_destruct;});
 
         m_loadingMeshPoints = std::make_shared<std::vector<Vector3f>>();
-        
-        m_changeParams.lock();
-        double x = m_x;
-        double z = m_z;
-        double scale = m_scale;
-        m_changeParams.unlock();
-
-        *m_loadingMeshPoints = mesh(x, z, scale);
+        *m_loadingMeshPoints = mesh(m_x, m_z, m_scale);
 
         m_readyToSwap = true;
         m_readyToLoad = false;
@@ -79,16 +72,15 @@ mesh(double _x, double _z, double _scale)
 const std::vector<Vector3f>&
 TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
 {
-    m_changeParams.lock();
-    m_x = x;
-    m_z = z;
-    m_scale = scale;
-    m_changeParams.unlock();
-
     if(m_doneLoading && m_readyToSwap && m_loadMutex.try_lock()) {
         m_currentMeshPoints = m_loadingMeshPoints;
+
+        m_x = x;
+        m_z = z;
+        m_scale = scale;
         m_readyToSwap = false;
         m_doneLoading = false;
+
         m_loadIndex = 0;
         m_loadMutex.unlock();
     }

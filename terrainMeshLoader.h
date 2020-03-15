@@ -34,7 +34,6 @@ public:
 private:
     std::thread m_worker;
     std::mutex m_loadMutex;
-    std::mutex m_changeParams;
     std::condition_variable m_loadCond;
     bool m_readyToLoad = false;
     bool m_readyToSwap = false;
