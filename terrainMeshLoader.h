@@ -25,9 +25,6 @@ public:
     const std::vector<Vector3f>&
     updateMeshPoints(double, double, double);
 
-    std::vector<GLuint>
-    getMeshIndices();
-
     static double
     heightAt(const std::complex<double>&);
 
@@ -52,6 +49,9 @@ private:
 
     void
     startLoading();
+
+    std::vector<GLuint>
+    getMeshIndices();
 };
 
 
