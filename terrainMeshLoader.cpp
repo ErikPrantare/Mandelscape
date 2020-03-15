@@ -50,20 +50,24 @@ TerrainMeshLoader::meshLoading()
     }
 }
 
+
 static std::vector<Vector3f>
 mesh(double _x, double _z, double _scale)
 {
     std::vector<Vector3f> ps;
 
-    for(int x = 0; x < TerrainMeshLoader::granularity; x++)
-    for(int z = 0; z < TerrainMeshLoader::granularity; z++) {
+    constexpr int granularity = TerrainMeshLoader::granularity;
+
+    for(int x = 0; x < granularity; x++)
+    for(int z = 0; z < granularity; z++) {
         double discScale = std::pow(2.0, int(log2(_scale)));
-        double discX = int(_x*discScale/8)/discScale*8;
-        double discZ = int(_z*discScale/8)/discScale*8;
-        double xPos = 
-            (x/(TerrainMeshLoader::granularity/32.0)-16.0)/discScale + discX;
-        double zPos = 
-            (z/(TerrainMeshLoader::granularity/32.0)-16.0)/discScale + discZ;
+        double scaleFactor = TerrainMeshLoader::granularity*discScale;
+
+        double discX = int(_x*scaleFactor)/scaleFactor;
+        double discZ = int(_z*scaleFactor)/scaleFactor;
+
+        double xPos = 8.0*(4.0*x/granularity-2.0)/discScale + discX;
+        double zPos = 8.0*(4.0*z/granularity-2.0)/discScale + discZ;
 
         ps.emplace_back(xPos, TerrainMeshLoader::heightAt({xPos, zPos}), zPos);
     }
@@ -122,7 +126,7 @@ std::vector<GLuint>
 TerrainMeshLoader::getMeshIndices()
 {
     std::vector<GLuint> meshIndices; 
-    meshIndices.reserve(granularity*granularity*6);
+    meshIndices.reserve(granularity*granularity);
 
     for(int x = 0; x < granularity-1; x++)
         for(int z = 0; z < granularity-1; z++) {
