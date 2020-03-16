@@ -93,6 +93,31 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     }
 }
 
+size_t
+loadMeshChunk(const std::vector<Vector3f>& sourceMesh,
+              const GLuint& destinationVBO,
+              const size_t& index, const size_t& maxChunkSize)
+{
+    if(index == sourceMesh.size()) {
+        return index;
+    }
+
+    const Vector3f* position = 
+        sourceMesh.data() + index;
+
+    int chunkSize = 
+        std::min(maxChunkSize, sourceMesh.size() - index);
+
+    glBindBuffer(GL_ARRAY_BUFFER, destinationVBO);
+    glBufferSubData(
+        GL_ARRAY_BUFFER,
+        index*sizeof(Vector3f),
+        chunkSize*sizeof(Vector3f),
+        position);
+
+    return index + chunkSize;
+}
+
 const std::vector<Vector3f>&
 Terrain::updateMesh(double x, double z, double scale)
 {
@@ -103,27 +128,16 @@ Terrain::updateMesh(double x, double z, double scale)
     if(isDone(m_loadingProcess)) {
         m_currentMeshPoints.swap(m_loadingMeshPoints);
 
-        startLoading();
+        if(m_loadIndex == 0)
+            startLoading();
+    }
 
-        Vector3f *position = 
-            m_currentMeshPoints->data() + m_loadIndex;
+    m_loadIndex = loadMeshChunk(*m_currentMeshPoints, m_loadingVBO,
+                                m_loadIndex, 90'000);
 
-        int chunkSize = 
-            std::min(90'000, int(m_currentMeshPoints->size() - m_loadIndex));
-
-        glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
-        glBufferSubData(
-                GL_ARRAY_BUFFER,
-                m_loadIndex*sizeof(Vector3f),
-                chunkSize*sizeof(Vector3f),
-                position);
-
-        m_loadIndex += chunkSize;
-
-        if(m_loadIndex == m_currentMeshPoints->size()) {
-            m_loadIndex = 0;
-            std::swap(m_VBO, m_loadingVBO);
-        }
+    if(m_loadIndex == m_currentMeshPoints->size()) {
+        m_loadIndex = 0;
+        std::swap(m_VBO, m_loadingVBO);
     }
 
     return *m_currentMeshPoints;
