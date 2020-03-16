@@ -68,10 +68,11 @@ void
 Terrain::loadMesh(double _x, double _z, double _scale, 
                   std::vector<Vector3f>* buffer)
 {
-    constexpr int granularity = Terrain::granularity;
+    constexpr size_t granularity = Terrain::granularity;
+    constexpr size_t nrIndices = granularity * granularity * 6;
 
-    if(buffer->size() != granularity*granularity) {
-        buffer->resize(granularity*granularity);
+    if(buffer->size() != nrIndices) {
+        buffer->resize(nrIndices);
     }
 
     double discScale = std::pow(2.0, int(log2(_scale)));
@@ -83,8 +84,8 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     double zOffset = int(_z*scaleFactor)/scaleFactor;
     zOffset -= granularity/2.0/scaleFactor;
 
-    for(int x = 0; x < granularity; x++)
-      for(int z = 0; z < granularity; z++) {
+    for(size_t x = 0; x < granularity; x++)
+      for(size_t z = 0; z < granularity; z++) {
         double xPos = x/scaleFactor + xOffset;
         double zPos = z/scaleFactor + zOffset;
  
@@ -154,8 +155,8 @@ Terrain::generateMeshIndices()
     std::vector<GLuint> meshIndices; 
     meshIndices.reserve(granularity*granularity*6);
 
-    for(int x = 0; x < granularity-1; x++)
-        for(int z = 0; z < granularity-1; z++) {
+    for(size_t x = 0; x < granularity-1; x++)
+        for(size_t z = 0; z < granularity-1; z++) {
             meshIndices.push_back(z+x*granularity);
             meshIndices.push_back(z+(x+1)*granularity);
             meshIndices.push_back((z+1)+x*granularity);
@@ -186,8 +187,7 @@ Terrain::heightAt(const std::complex<double>& c)
         return 0.0;
     }
 
-    int i = 0;
-    for(; i < iterations; ++i) {
+    for(size_t i = 0; i < iterations; ++i) {
         dz = 2.0*z*dz + 1.0;
         z = z*z + c;
 
