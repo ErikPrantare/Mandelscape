@@ -2,26 +2,56 @@
 #define MANDELLANDSCAPE_TERRAIN_H
 
 #include <vector>
+#include <memory>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #include <complex>
+#include <future>
+
+#include <GL/glew.h>
 
 #include "math3d.h"
-#include "terrainMeshLoader.h"
 
 class
-Terrain final
+Terrain
 {
 public:
-    static double
-    heightAt(const std::complex<double>& c);
+    Terrain();
+    ~Terrain();
 
-    void
-    updateBuffers(float x, float y, float scale);
+    const std::vector<Vector3f>&
+    updateMesh(double, double, double);
+
+    static double
+    heightAt(const std::complex<double>&);
 
     void
     render();
 
+    static constexpr int granularity = 400;
 private:
-    TerrainMeshLoader m_meshLoader;
+    static constexpr int iterations = 100;
+
+    GLuint m_VBO, m_loadingVBO, m_IBO;
+
+    std::future<void> m_loadingProcess;
+    bool m_doneLoading = false;
+    unsigned int m_loadIndex = 0;
+
+    double m_x;
+    double m_z; 
+    double m_scale;
+    
+    std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
+    std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
+
+    void
+    startLoading();
+
+    std::vector<GLuint>
+    getMeshIndices();
 };
+
 
 #endif

@@ -63,7 +63,7 @@ updateScene()
     }
 
     camera.move((1.f/zoom)*deltaSeconds*velocity);
-    terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
+    terrain->updateMesh(camera.getPos().x, camera.getPos().z, zoom);
 
     Pipeline world;
     camera.setSize(1.0f/zoom);
@@ -104,7 +104,7 @@ handleInputDown(unsigned char c, int, int)
         autoZoom = !autoZoom;
         break;
     case 'r':
-        terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
+        terrain->updateMesh(camera.getPos().x, camera.getPos().z, zoom);
         break;
     case 'q':
         exit(0);
