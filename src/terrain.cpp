@@ -88,6 +88,10 @@ Terrain::loadMesh(double _x, double _z, double _scale,
         double xPos = x/scaleFactor + xOffset;
         double zPos = z/scaleFactor + zOffset;
  
+        if(x < granularity/4) {
+            xPos -= 4*(granularity/4.0 - x)/scaleFactor;
+        }
+
         (*buffer)[x*granularity + z] =
             Vector3f(xPos, Terrain::heightAt({xPos, zPos}), zPos);
     }
