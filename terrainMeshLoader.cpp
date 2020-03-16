@@ -99,14 +99,6 @@ loadMesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
     }
 }
 
-
-static bool
-isDone(const std::future<auto>& f)
-{
-    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-}
-
-
 const std::vector<Vector3f>&
 TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
 {
