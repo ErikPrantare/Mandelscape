@@ -17,16 +17,11 @@ class
 TerrainMeshLoader
 {
 public:
-    static constexpr int granularity = 400;
-
     TerrainMeshLoader();
     ~TerrainMeshLoader();
 
     const std::vector<Vector3f>&
     updateMeshPoints(double, double, double);
-
-    std::vector<GLuint>
-    getMeshIndices();
 
     static double
     heightAt(const std::complex<double>&);
@@ -35,6 +30,7 @@ public:
     render();
 
 private:
+    static constexpr int granularity = 400;
     static constexpr int iterations = 100;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
@@ -46,6 +42,9 @@ private:
     double m_z; 
     double m_scale;
     
+    std::vector<GLuint>
+    getMeshIndices();
+
     std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
     std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
 
