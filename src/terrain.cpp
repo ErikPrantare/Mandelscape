@@ -69,7 +69,7 @@ Terrain::loadMesh(double _x, double _z, double _scale,
                   std::vector<Vector3f>* buffer)
 {
     constexpr size_t granularity = Terrain::granularity;
-    constexpr size_t nrIndices = granularity * granularity * 6;
+    constexpr size_t nrIndices = granularity * granularity;
 
     if(buffer->size() != nrIndices) {
         buffer->resize(nrIndices);
