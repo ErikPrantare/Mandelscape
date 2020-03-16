@@ -8,9 +8,6 @@
 
 #include "terrain.h"
 
-void
-loadMesh(double, double, double, std::vector<Vector3f>*);
-
 Terrain::Terrain() :
   m_x{ 0.0 }, m_z{ 0.0 }, m_scale{ 1.0 },
   m_currentMeshPoints{ std::make_shared<std::vector<Vector3f>>() },
@@ -64,13 +61,11 @@ Terrain::startLoading()
     m_loadingProcess = std::async(
                 std::launch::async, 
                 loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
-
-    m_doneLoading = false;
 }
 
 
 void
-loadMesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
+Terrain::loadMesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
 {
     constexpr int granularity = Terrain::granularity;
 
@@ -97,14 +92,6 @@ loadMesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
     }
 }
 
-
-static bool
-isDone(const std::future<auto>& f)
-{
-    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-}
-
-
 const std::vector<Vector3f>&
 Terrain::updateMesh(double x, double z, double scale)
 {
@@ -112,13 +99,11 @@ Terrain::updateMesh(double x, double z, double scale)
     m_z = z;
     m_scale = scale;
 
-    if(m_doneLoading && isDone(m_loadingProcess)) {
+    if(isDone(m_loadingProcess)) {
         m_currentMeshPoints.swap(m_loadingMeshPoints);
 
         startLoading();
-    }
 
-    if(!m_doneLoading) {
         Vector3f *position = 
             m_currentMeshPoints->data() + m_loadIndex;
         
@@ -135,7 +120,6 @@ Terrain::updateMesh(double x, double z, double scale)
         m_loadIndex += chunkSize;
         
         if(m_loadIndex == m_currentMeshPoints->size()) {
-            m_doneLoading = true; 
             m_loadIndex = 0;
             std::swap(m_VBO, m_loadingVBO);
         }

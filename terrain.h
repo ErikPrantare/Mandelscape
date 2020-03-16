@@ -29,14 +29,13 @@ public:
     void
     render();
 
-    static constexpr int granularity = 400;
 private:
+    static constexpr int granularity = 400;
     static constexpr int iterations = 100;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
     std::future<void> m_loadingProcess;
-    bool m_doneLoading = false;
     unsigned int m_loadIndex = 0;
 
     double m_x;
@@ -51,7 +50,17 @@ private:
 
     std::vector<GLuint>
     getMeshIndices();
+    
+    static void
+    loadMesh(double, double, double, std::vector<Vector3f>*);
+
 };
 
+template<typename T>
+static bool
+isDone(const std::future<T>& f)
+{
+    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+}
 
 #endif

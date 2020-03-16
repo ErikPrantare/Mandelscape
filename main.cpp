@@ -26,7 +26,7 @@ float persistentZoomDirection = 0;
 float zoom = 1.0f;
 float constexpr G_MOVEMENT_SPEED = 1.f;
 
-TerrainMeshLoader* terrain = nullptr;
+Terrain* terrain = nullptr;
 
 static void
 renderScene()
@@ -326,7 +326,7 @@ main(int argc, char **argv)
     glDepthFunc(GL_LESS);
     glClearDepth(100.0f);
 
-    terrain = new TerrainMeshLoader();
+    terrain = new Terrain();
 
     compileShaders();
 
