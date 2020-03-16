@@ -64,8 +64,6 @@ TerrainMeshLoader::startLoading()
     m_loadingProcess = std::async(
                 std::launch::async, 
                 loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
-
-    m_doneLoading = false;
 }
 
 
@@ -105,13 +103,11 @@ TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
     m_z = z;
     m_scale = scale;
 
-    if(m_doneLoading && isDone(m_loadingProcess)) {
+    if(isDone(m_loadingProcess)) {
         m_currentMeshPoints.swap(m_loadingMeshPoints);
 
         startLoading();
-    }
 
-    if(!m_doneLoading) {
         Vector3f *position = 
             m_currentMeshPoints->data() + m_loadIndex;
         
@@ -128,7 +124,6 @@ TerrainMeshLoader::updateMeshPoints(double x, double z, double scale)
         m_loadIndex += chunkSize;
         
         if(m_loadIndex == m_currentMeshPoints->size()) {
-            m_doneLoading = true; 
             m_loadIndex = 0;
             std::swap(m_VBO, m_loadingVBO);
         }
