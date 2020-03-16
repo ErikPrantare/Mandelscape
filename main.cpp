@@ -26,7 +26,7 @@ float persistentZoomDirection = 0;
 float zoom = 1.0f;
 float constexpr G_MOVEMENT_SPEED = 1.f;
 
-Terrain* terrain = nullptr;
+TerrainMeshLoader* terrain = nullptr;
 
 static void
 renderScene()
@@ -63,7 +63,7 @@ updateScene()
     }
 
     camera.move((1.f/zoom)*deltaSeconds*velocity);
-    terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
+    terrain->updateMeshPoints(camera.getPos().x, camera.getPos().z, zoom);
 
     Pipeline world;
     camera.setSize(1.0f/zoom);
@@ -104,7 +104,7 @@ handleInputDown(unsigned char c, int, int)
         autoZoom = !autoZoom;
         break;
     case 'r':
-        terrain->updateBuffers(camera.getPos().x, camera.getPos().z, zoom);
+        terrain->updateMeshPoints(camera.getPos().x, camera.getPos().z, zoom);
         break;
     case 'q':
         exit(0);
@@ -326,7 +326,7 @@ main(int argc, char **argv)
     glDepthFunc(GL_LESS);
     glClearDepth(100.0f);
 
-    terrain = new Terrain();
+    terrain = new TerrainMeshLoader();
 
     compileShaders();
 

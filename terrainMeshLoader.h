@@ -17,8 +17,6 @@ class
 TerrainMeshLoader
 {
 public:
-    static constexpr int granularity = 400;
-
     TerrainMeshLoader();
     ~TerrainMeshLoader();
 
@@ -32,18 +30,21 @@ public:
     render();
 
 private:
+    static constexpr int granularity = 400;
     static constexpr int iterations = 100;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
     std::future<void> m_loadingProcess;
-    bool m_doneLoading = false;
     unsigned int m_loadIndex = 0;
 
     double m_x;
     double m_z; 
     double m_scale;
     
+    std::vector<GLuint>
+    getMeshIndices();
+
     std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
     std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
 
@@ -54,5 +55,11 @@ private:
     getMeshIndices();
 };
 
+template<typename T>
+static bool
+isDone(const std::future<T>& f)
+{
+    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+}
 
 #endif
