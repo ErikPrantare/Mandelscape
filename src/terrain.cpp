@@ -85,10 +85,10 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     zOffset -= granularity/2.0/scaleFactor;
 
     for(size_t x = 0; x < granularity; x++)
-      for(size_t z = 0; z < granularity; z++) {
+    for(size_t z = 0; z < granularity; z++) {
         double xPos = x/scaleFactor + xOffset;
         double zPos = z/scaleFactor + zOffset;
- 
+
         if(x < granularity/4) {
             xPos -= 4*(granularity/4.0 - x)/scaleFactor;
         }
@@ -156,15 +156,15 @@ Terrain::generateMeshIndices()
     meshIndices.reserve(granularity*granularity*6);
 
     for(size_t x = 0; x < granularity-1; x++)
-        for(size_t z = 0; z < granularity-1; z++) {
-            meshIndices.push_back(z+x*granularity);
-            meshIndices.push_back(z+(x+1)*granularity);
-            meshIndices.push_back((z+1)+x*granularity);
+    for(size_t z = 0; z < granularity-1; z++) {
+        meshIndices.push_back(z+x*granularity);
+        meshIndices.push_back(z+(x+1)*granularity);
+        meshIndices.push_back((z+1)+x*granularity);
 
-            meshIndices.push_back((z+1)+x*granularity);
-            meshIndices.push_back(z+(x+1)*granularity);
-            meshIndices.push_back((z+1)+(x+1)*granularity);
-        }
+        meshIndices.push_back((z+1)+x*granularity);
+        meshIndices.push_back(z+(x+1)*granularity);
+        meshIndices.push_back((z+1)+(x+1)*granularity);
+    }
 
     return meshIndices;
 }
