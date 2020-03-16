@@ -34,7 +34,7 @@ Terrain::Terrain() :
             m_loadingMeshPoints->data(),
             GL_STATIC_DRAW);
 
-    auto meshIndices = getMeshIndices();
+    auto meshIndices = generateMeshIndices();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
     glBufferData(
@@ -65,7 +65,8 @@ Terrain::startLoading()
 
 
 void
-Terrain::loadMesh(double _x, double _z, double _scale, std::vector<Vector3f> *buffer)
+Terrain::loadMesh(double _x, double _z, double _scale, 
+                  std::vector<Vector3f>* buffer)
 {
     constexpr int granularity = Terrain::granularity;
 
@@ -106,7 +107,7 @@ Terrain::updateMesh(double x, double z, double scale)
 
         Vector3f *position = 
             m_currentMeshPoints->data() + m_loadIndex;
-        
+
         int chunkSize = 
             std::min(90'000, int(m_currentMeshPoints->size() - m_loadIndex));
 
@@ -118,7 +119,7 @@ Terrain::updateMesh(double x, double z, double scale)
                 position);
 
         m_loadIndex += chunkSize;
-        
+
         if(m_loadIndex == m_currentMeshPoints->size()) {
             m_loadIndex = 0;
             std::swap(m_VBO, m_loadingVBO);
@@ -130,7 +131,7 @@ Terrain::updateMesh(double x, double z, double scale)
 
 
 std::vector<GLuint>
-Terrain::getMeshIndices()
+Terrain::generateMeshIndices()
 {
     std::vector<GLuint> meshIndices; 
     meshIndices.reserve(granularity*granularity);

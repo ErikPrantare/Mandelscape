@@ -49,7 +49,7 @@ private:
     startLoading();
 
     std::vector<GLuint>
-    getMeshIndices();
+    generateMeshIndices();
     
     static void
     loadMesh(double, double, double, std::vector<Vector3f>*);
