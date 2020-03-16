@@ -1,4 +1,7 @@
-Move source files to src
+-----------------------------------------------------------------------------
+----------------------------------TODO---------------------------------------
+-----------------------------------------------------------------------------
+
 Move window resolution to global variable
 
 Make terrain mesh more dense near middle
@@ -10,3 +13,8 @@ rename Camera::setSize (name clash)
 Make Terrain and TerrainMeshLoader one class
 
 Add a .clang-format to resolve formatting issues
+
+-----------------------------------------------------------------------------
+-------------------------------COMPLETED-------------------------------------
+-----------------------------------------------------------------------------
+Move source files to src
