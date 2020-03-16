@@ -40,7 +40,6 @@ private:
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
     std::future<void> m_loadingProcess;
-    bool m_doneLoading = false;
     unsigned int m_loadIndex = 0;
 
     double m_x;
