@@ -68,8 +68,7 @@ void
 Terrain::loadMesh(double _x, double _z, double _scale, 
                   std::vector<Vector3f>* buffer)
 {
-    constexpr size_t granularity = Terrain::granularity;
-    constexpr size_t nrIndices = granularity * granularity;
+    constexpr int nrIndices = granularity * granularity;
 
     if(buffer->size() != nrIndices) {
         buffer->resize(nrIndices);
@@ -79,19 +78,22 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     double scaleFactor = Terrain::granularity*discScale/32.0;
 
     double xOffset = int(_x*scaleFactor)/scaleFactor;
-    xOffset -= granularity/2.0/scaleFactor;
-
     double zOffset = int(_z*scaleFactor)/scaleFactor;
-    zOffset -= granularity/2.0/scaleFactor;
 
-    for(size_t x = 0; x < granularity; x++)
-    for(size_t z = 0; z < granularity; z++) {
-        double xPos = x/scaleFactor + xOffset;
-        double zPos = z/scaleFactor + zOffset;
+    int indexOffset = granularity/2;
 
-        if(x < granularity/4) {
-            xPos -= 4*(granularity/4.0 - x)/scaleFactor;
-        }
+    for(int x = 0; x < granularity; x++)
+    for(int z = 0; z < granularity; z++) {
+        double xPos = 
+            (x-indexOffset)
+            * std::pow(1.05,std::abs(x-indexOffset))
+            / scaleFactor 
+            + xOffset;
+        double zPos = 
+            (z-indexOffset)
+            * std::pow(1.05,std::abs(z-indexOffset))
+            / scaleFactor 
+            + zOffset;
 
         (*buffer)[x*granularity + z] =
             Vector3f(xPos, Terrain::heightAt({xPos, zPos}), zPos);
