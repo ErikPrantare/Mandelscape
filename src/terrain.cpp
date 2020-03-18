@@ -68,8 +68,8 @@ void
 Terrain::loadMesh(double _x, double _z, double _scale, 
                   std::vector<Vector3f>* buffer)
 {
-    constexpr size_t granularity = Terrain::granularity;
-    constexpr size_t nrIndices = granularity * granularity;
+    constexpr int granularity = Terrain::granularity;
+    constexpr int nrIndices = granularity * granularity;
 
     if(buffer->size() != nrIndices) {
         buffer->resize(nrIndices);
@@ -84,8 +84,8 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     double zOffset = int(_z*scaleFactor)/scaleFactor;
     zOffset -= granularity/2.0/scaleFactor;
 
-    for(size_t x = 0; x < granularity; x++)
-    for(size_t z = 0; z < granularity; z++) {
+    for(int x = 0; x < granularity; x++)
+    for(int z = 0; z < granularity; z++) {
         double xPos = x/scaleFactor + xOffset;
         double zPos = z/scaleFactor + zOffset;
 
@@ -98,13 +98,13 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     }
 }
 
-size_t
+bool
 uploadMeshChunk(const std::vector<Vector3f>& sourceMesh,
               const GLuint& destinationVBO,
               const size_t& index, const size_t& maxChunkSize)
 {
-    if(index == sourceMesh.size()) {
-        return index;
+    if(index >= sourceMesh.size()) {
+        return true;
     }
 
     const Vector3f* position = 
@@ -120,7 +120,7 @@ uploadMeshChunk(const std::vector<Vector3f>& sourceMesh,
         chunkSize*sizeof(Vector3f),
         position);
 
-    return index + chunkSize;
+    return (index + chunkSize) >= sourceMesh.size();
 }
 
 const std::vector<Vector3f>&
@@ -130,15 +130,17 @@ Terrain::updateMesh(double x, double z, double scale)
     m_z = z;
     m_scale = scale;
 
-    const bool uploadingDone = m_loadIndex == 0;
+    const bool uploadingDone = 
+        uploadMeshChunk(*m_currentMeshPoints, m_loadingVBO,
+                        m_loadIndex, uploadChunkSize);
+
 
     if(isDone(m_loadingProcess) && uploadingDone) {
         m_currentMeshPoints.swap(m_loadingMeshPoints);
         startLoading();
     }
 
-    m_loadIndex = uploadMeshChunk(*m_currentMeshPoints, m_loadingVBO,
-                                  m_loadIndex, 90'000);
+    m_loadIndex = uploadChunkSize;
 
     if(m_loadIndex == m_currentMeshPoints->size()) {
         m_loadIndex = 0;
@@ -155,8 +157,8 @@ Terrain::generateMeshIndices()
     std::vector<GLuint> meshIndices; 
     meshIndices.reserve(granularity*granularity*6);
 
-    for(size_t x = 0; x < granularity-1; x++)
-    for(size_t z = 0; z < granularity-1; z++) {
+    for(int x = 0; x < granularity-1; x++)
+    for(int z = 0; z < granularity-1; z++) {
         meshIndices.push_back(z+x*granularity);
         meshIndices.push_back(z+(x+1)*granularity);
         meshIndices.push_back((z+1)+x*granularity);
@@ -168,7 +170,6 @@ Terrain::generateMeshIndices()
 
     return meshIndices;
 }
-
 
 double
 Terrain::heightAt(const std::complex<double>& c)
@@ -187,7 +188,7 @@ Terrain::heightAt(const std::complex<double>& c)
         return 0.0;
     }
 
-    for(size_t i = 0; i < iterations; ++i) {
+    for(int i = 0; i < iterations; ++i) {
         dz = 2.0*z*dz + 1.0;
         z = z*z + c;
 
@@ -201,7 +202,6 @@ Terrain::heightAt(const std::complex<double>& c)
 
     return 0.0;
 }
-
 
 void
 Terrain::render()

@@ -30,8 +30,9 @@ public:
     render();
 
 private:
-    static constexpr size_t granularity = 400;
-    static constexpr size_t iterations = 100;
+    static constexpr int granularity = 400;
+    static constexpr int iterations = 100;
+    static constexpr int uploadChunkSize = 90'000;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
