@@ -140,9 +140,9 @@ Terrain::updateMesh(double x, double z, double scale)
         startLoading();
     }
 
-    m_loadIndex = uploadChunkSize;
+    m_loadIndex += uploadChunkSize;
 
-    if(m_loadIndex == m_currentMeshPoints->size()) {
+    if(uploadingDone) {
         m_loadIndex = 0;
         std::swap(m_VBO, m_loadingVBO);
     }
