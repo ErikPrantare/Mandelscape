@@ -63,6 +63,7 @@ Terrain::startLoading()
                 loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
 }
 
+#include <iostream>
 
 void
 Terrain::loadMesh(double _x, double _z, double _scale, 
@@ -77,26 +78,34 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     double discScale = std::pow(2.0, int(log2(_scale)));
     double scaleFactor = Terrain::granularity*discScale/32.0;
 
-    double xOffset = int(_x*scaleFactor)/scaleFactor;
-    double zOffset = int(_z*scaleFactor)/scaleFactor;
+    constexpr int doubleIndex = 40;
+    constexpr int doubleOffset = 0;
+    std::vector<double> stepSizes;
+    for(int i = 0; i < granularity; ++i) {
+        stepSizes.emplace_back(
+                std::pow(2.0, std::abs(i-granularity/2)/doubleIndex-doubleOffset));
+    }
 
-    int indexOffset = granularity/2;
+    double stepSum = 0.0;
+    for(double s : stepSizes) stepSum += s;
+    stepSum /= scaleFactor;
 
-    for(int x = 0; x < granularity; x++)
-    for(int z = 0; z < granularity; z++) {
-        double xPos = 
-            (x-indexOffset)
-            * std::pow(1.05,std::abs(x-indexOffset))
-            / scaleFactor 
-            + xOffset;
-        double zPos = 
-            (z-indexOffset)
-            * std::pow(1.05,std::abs(z-indexOffset))
-            / scaleFactor 
-            + zOffset;
+    std::cout << stepSum << std::endl;
+    double xPos = -stepSum/2 + _x;
+    for(int x = 0; x < granularity; ++x) {
+        double xQuant = 
+            int(xPos/stepSizes[x]*scaleFactor)*stepSizes[x]/scaleFactor;
 
-        (*buffer)[x*granularity + z] =
-            Vector3f(xPos, Terrain::heightAt({xPos, zPos}), zPos);
+        double zPos = -stepSum/2 + _z;
+        for(int z = 0; z < granularity; ++z) {
+            double zQuant = 
+                int(zPos/stepSizes[z]*scaleFactor)*stepSizes[z]/scaleFactor;
+            (*buffer)[x*granularity + z] =
+                Vector3f(xQuant, Terrain::heightAt({xQuant, zQuant}), zQuant);
+
+            zPos += stepSizes[z]/scaleFactor;
+        }
+        xPos += stepSizes[x]/scaleFactor;
     }
 }
 
