@@ -249,8 +249,8 @@ compileShaders()
         exit(1);
     }
 
-    std::string vs = readFile("shader.vs");
-    std::string fs = readFile("shader.fs");
+    std::string vs = readFile("shader.vert");
+    std::string fs = readFile("shader.frag");
 
     addShader(shaderProgram, vs.c_str(), GL_VERTEX_SHADER);
     addShader(shaderProgram, fs.c_str(), GL_FRAGMENT_SHADER);
