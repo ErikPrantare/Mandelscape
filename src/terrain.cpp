@@ -74,38 +74,41 @@ Terrain::loadMesh(double _x, double _z, double _scale,
         buffer->resize(nrIndices);
     }
 
-    double discScale = std::pow(2.0, int(log2(_scale)));
-    double scaleFactor = Terrain::granularity*discScale/32.0;
+    const double discScale = std::pow(2.0, int(log2(_scale)));
+    const double scaleFactor = Terrain::granularity*discScale;
 
-    constexpr int doubleIndex = 40;
-    constexpr int doubleOffset = 0;
-    std::vector<double> stepSizes;
+    constexpr int doublingInterval = 40;
+    constexpr int exponentOffset = -5;
 
-    const auto& stepAt = [](int i) {
+    const auto& stepSize = [scaleFactor](int i) {
         return std::pow(
                 2.0, 
-                std::abs(i-granularity/2)/doubleIndex-doubleOffset)
+                std::abs(i-granularity/2)/doublingInterval-exponentOffset)
             / scaleFactor;
     };
 
-    double stepSum = 0.0;
-    for(int i = 0; i < granularity; ++i) stepSum += stepAt(i);
+    const auto& quantized = [](double x, double stepSize) {
+        return std::floor(x/stepSize)*stepSize;
+    };
 
-    double xPos = -stepSum/2 + _x;
+    double meshSpan = 0.0;
+    for(int i = 0; i < granularity; ++i) {
+        meshSpan += stepSize(i);
+    }
+
+    double xPos = _x - meshSpan/2;
     for(int x = 0; x < granularity; ++x) {
-        double xQuant = 
-            int(xPos/stepAt(x))*stepAt(x);
+        double xQuant = quantized(xPos, stepSize(x));
 
-        double zPos = -stepSum/2 + _z;
+        double zPos = _z - meshSpan/2;
         for(int z = 0; z < granularity; ++z) {
-            double zQuant = 
-                int(zPos/stepAt(z))*stepAt(z);
+            double zQuant = quantized(zPos, stepSize(z));
             (*buffer)[x*granularity + z] =
                 Vector3f(xQuant, Terrain::heightAt({xQuant, zQuant}), zQuant);
 
-            zPos += stepAt(z);
+            zPos += stepSize(z);
         }
-        xPos += stepAt(x);
+        xPos += stepSize(x);
     }
 }
 
