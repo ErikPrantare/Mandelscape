@@ -84,28 +84,28 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     const auto& stepAt = [](int i) {
         return std::pow(
                 2.0, 
-                std::abs(i-granularity/2)/doubleIndex-doubleOffset);
+                std::abs(i-granularity/2)/doubleIndex-doubleOffset)
+            / scaleFactor;
     };
 
     double stepSum = 0.0;
     for(int i = 0; i < granularity; ++i) stepSum += stepAt(i);
-    stepSum /= scaleFactor;
 
     double xPos = -stepSum/2 + _x;
     for(int x = 0; x < granularity; ++x) {
         double xQuant = 
-            int(xPos/stepAt(x)*scaleFactor)*stepAt(x)/scaleFactor;
+            int(xPos/stepAt(x))*stepAt(x);
 
         double zPos = -stepSum/2 + _z;
         for(int z = 0; z < granularity; ++z) {
             double zQuant = 
-                int(zPos/stepAt(z)*scaleFactor)*stepAt(z)/scaleFactor;
+                int(zPos/stepAt(z))*stepAt(z);
             (*buffer)[x*granularity + z] =
                 Vector3f(xQuant, Terrain::heightAt({xQuant, zQuant}), zQuant);
 
-            zPos += stepAt(z)/scaleFactor;
+            zPos += stepAt(z);
         }
-        xPos += stepAt(x)/scaleFactor;
+        xPos += stepAt(x);
     }
 }
 
