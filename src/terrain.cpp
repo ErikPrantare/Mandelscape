@@ -63,7 +63,6 @@ Terrain::startLoading()
                 loadMesh, m_x, m_z, m_scale, m_loadingMeshPoints.get());
 }
 
-#include <iostream>
 
 void
 Terrain::loadMesh(double _x, double _z, double _scale, 
