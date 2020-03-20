@@ -13,5 +13,5 @@ void main()
     gl_Position = world * vec4(pos, 1.0);
     color = vec4(pos.y, pos.x, pos.z, 1.0);
     position = pos;
-    distance = gl_Position.w;
+    distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
 }

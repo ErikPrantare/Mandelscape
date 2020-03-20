@@ -320,7 +320,7 @@ main(int argc, char **argv)
 
     std::cout << "GL version: " << glGetString(GL_VERSION) << std::endl;
 
-    glClearColor(0, 0, 0, 0);
+    glClearColor(1, 1, 1, 0);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);

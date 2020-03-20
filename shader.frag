@@ -7,7 +7,12 @@ out mediump vec4 fragColor;
 
 void main()
 {
-    fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    mediump float fogHardStart = 100.0;
+    mediump float fogHardEnd = 150.0;
+    mediump float fog = 1.0-pow(0.98, distance);
+    fog += clamp((distance-fogHardStart)/(fogHardEnd-fogHardStart), 0.0, 1.0);
+    fog = pow(fog, 2.0);
+    fragColor = vec4(fog, fog, fog, 1.0);
 
     mediump vec2 c = position.xz;
     mediump vec2 z = vec2(0.0, 0.0);
@@ -19,7 +24,7 @@ void main()
     }
 
     //period-2 bulb check
-    if((c.x+1.0f)*(c.x+1.0f) + c.y*c.y < 0.25*0.25) {
+    if((c.x+1.0f)*(c.x+1.0f) + c.y*c.y < 0.25f*0.25f) {
         return;
     }
 
@@ -27,14 +32,12 @@ void main()
         z = vec2(z.x*z.x - z.y*z.y, 2.0*z.x*z.y) + c;
         if(dot(z, z) > 256.0f*256.0f) {
             mediump float colorVal = float(i) - log2(log2(dot(z, z)));
-            fragColor = vec4(
+            fragColor = vec4(1.0,1.0,1.0,2.0) - (1.0-fog)*vec4(
                 0.5f*sin(colorVal*0.1f)+0.5f, 
                 0.5f*sin(colorVal*0.13f+1.0f)+0.5f, 
                 0.5f*sin(colorVal*0.15f+2.0f)+0.5f,
                 1.0f);
-            break;
+            return;
         }
     }
-    
-    fragColor = vec4(1.0,1.0,1.0,2.0) - pow(0.975, distance)*fragColor;
 }
