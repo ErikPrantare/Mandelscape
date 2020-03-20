@@ -80,32 +80,32 @@ Terrain::loadMesh(double _x, double _z, double _scale,
     constexpr int doubleIndex = 40;
     constexpr int doubleOffset = 0;
     std::vector<double> stepSizes;
-    for(int i = 0; i < granularity; ++i) {
-        stepSizes.emplace_back(
-                std::pow(
-                    2.0, 
-                    std::abs(i-granularity/2)/doubleIndex-doubleOffset));
-    }
+
+    const auto& stepAt = [](int i) {
+        return std::pow(
+                2.0, 
+                std::abs(i-granularity/2)/doubleIndex-doubleOffset);
+    };
 
     double stepSum = 0.0;
-    for(double s : stepSizes) stepSum += s;
+    for(int i = 0; i < granularity; ++i) stepSum += stepAt(i);
     stepSum /= scaleFactor;
 
     double xPos = -stepSum/2 + _x;
     for(int x = 0; x < granularity; ++x) {
         double xQuant = 
-            int(xPos/stepSizes[x]*scaleFactor)*stepSizes[x]/scaleFactor;
+            int(xPos/stepAt(x)*scaleFactor)*stepAt(x)/scaleFactor;
 
         double zPos = -stepSum/2 + _z;
         for(int z = 0; z < granularity; ++z) {
             double zQuant = 
-                int(zPos/stepSizes[z]*scaleFactor)*stepSizes[z]/scaleFactor;
+                int(zPos/stepAt(z)*scaleFactor)*stepAt(z)/scaleFactor;
             (*buffer)[x*granularity + z] =
                 Vector3f(xQuant, Terrain::heightAt({xQuant, zQuant}), zQuant);
 
-            zPos += stepSizes[z]/scaleFactor;
+            zPos += stepAt(z)/scaleFactor;
         }
-        xPos += stepSizes[x]/scaleFactor;
+        xPos += stepAt(x)/scaleFactor;
     }
 }
 
@@ -195,7 +195,7 @@ Terrain::heightAt(const std::complex<double>& c)
     }
 
     //period-2 bulb check
-    if((c.real()+1.0)*c.real()+1.0 + c.imag()*c.imag() < 0.625) {
+    if((c.real()+1.0)*(c.real()+1.0) + c.imag()*c.imag() < 0.25*0.25) {
         return 0.0;
     }
 

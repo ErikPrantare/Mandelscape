@@ -19,7 +19,7 @@ void main()
     }
 
     //period-2 bulb check
-    if((c.x+1.0f)*c.x+1.0f + c.y*c.y < 0.625f) {
+    if((c.x+1.0f)*(c.x+1.0f) + c.y*c.y < 0.25*0.25) {
         return;
     }
 
@@ -32,7 +32,9 @@ void main()
                 0.5f*sin(colorVal*0.13f+1.0f)+0.5f, 
                 0.5f*sin(colorVal*0.15f+2.0f)+0.5f,
                 1.0f);
-            return;
+            break;
         }
     }
+    
+    fragColor = vec4(1.0,1.0,1.0,2.0) - pow(0.975, distance)*fragColor;
 }
