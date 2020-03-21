@@ -10,11 +10,13 @@ Make camera not stutter when walking on rugged ground
 
 rename Camera::setSize (name clash)
 
-Make Terrain and TerrainMeshLoader one class
-
-Add a .clang-format to resolve formatting issues
-
 -----------------------------------------------------------------------------
 -------------------------------COMPLETED-------------------------------------
 -----------------------------------------------------------------------------
-Move source files to src
+Move source files to src/
+
+Add a .clang-format to resolve formatting issues
+
+Make Terrain and TerrainMeshLoader one class
+
+Move shader files into shaders/
