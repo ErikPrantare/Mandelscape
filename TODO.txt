@@ -6,6 +6,8 @@ Make terrain mesh more dense near middle
 
 Make camera not stutter when walking on rugged ground
 
+Rename global variables in main.cpp
+
 -----------------------------------------------------------------------------
 -------------------------------COMPLETED-------------------------------------
 -----------------------------------------------------------------------------
