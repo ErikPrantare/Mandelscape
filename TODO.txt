@@ -2,8 +2,6 @@
 ----------------------------------TODO---------------------------------------
 -----------------------------------------------------------------------------
 
-Move window resolution to global variable
-
 Make terrain mesh more dense near middle
 
 Make camera not stutter when walking on rugged ground
@@ -20,3 +18,5 @@ Make Terrain and TerrainMeshLoader one class
 Move shader files into shaders/
 
 rename Camera::setSize (name clash)
+
+Move window resolution to global variable
