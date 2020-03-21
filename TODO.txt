@@ -16,6 +16,21 @@ Comments and suggestions:
     ->Move all setting into an update(zoom, velocity, height, deltaTime)
       function and remove the rest from the public interface
 
+->Merge Pipeline class functionality into Camera class
+The Pipeline class is created, given Camera state and destroyed every
+frame. There is no reason to keep it around. The Camera class' public
+interface should be cleaned first to make it easier to merge.
+Status: To do
+Depends on:
+    ->Fix camera.h public interface
+Affected files:
+    ->src/pipeline.h
+    ->src/pipeline.cpp
+    ->src/camera.h
+    ->src/camera.cpp
+    ->src/main.cpp
+Comments and suggestions:
+
 Make camera not stutter when walking on rugged ground
 
 -----------------------------------------------------------------------------
