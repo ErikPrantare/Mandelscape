@@ -15,21 +15,21 @@
 #include "camera.h"
 #include "terrain.h"
 
-GLuint worldLocation;
+GLuint G_WORLD_LOCATION;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
 
-Camera camera;
-Vector3f velocity(0.0f, 0.0f, 0.0f);
+Camera G_CAMERA;
+Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
 
-bool autoZoom                    = false;
-float zoomAmount                 = 0;
-float persistentZoomDirection    = 0;
-float zoom                       = 1.0f;
-float constexpr G_MOVEMENT_SPEED = 1.f;
+bool G_AUTO_ZOOM                  = false;
+float G_ZOOM_AMOUNT               = 0;
+float G_PERSISTENT_ZOOM_DIRECTION = 0;
+float G_ZOOM                      = 1.0f;
+float constexpr G_MOVEMENT_SPEED  = 1.f;
 
-Terrain* terrain = nullptr;
+Terrain* G_TERRAIN = nullptr;
 
 static void
 renderScene()
@@ -38,7 +38,7 @@ renderScene()
 
     glEnableVertexAttribArray(0);
 
-    terrain->render();
+    G_TERRAIN->render();
 
     glDisableVertexAttribArray(0);
 
@@ -57,32 +57,34 @@ updateScene()
 
     float deltaSeconds = deltaMilliseconds / 1000.f;
 
-    if(autoZoom) {
-        zoom = 1.f / terrain->heightAt({camera.getPos().x, camera.getPos().z});
+    if(G_AUTO_ZOOM) {
+        G_ZOOM =
+            1.f
+            / G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z});
     }
     else {
-        zoomAmount += persistentZoomDirection;
-        zoom *= 1.f + zoomVelocity * deltaSeconds * zoomAmount;
+        G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
+        G_ZOOM *= 1.f + zoomVelocity * deltaSeconds * G_ZOOM_AMOUNT;
     }
 
-    camera.move((1.f / zoom) * deltaSeconds * velocity);
-    terrain->updateMesh(camera.getPos().x, camera.getPos().z, zoom);
+    G_CAMERA.move((1.f / G_ZOOM) * deltaSeconds * G_VELOCITY);
+    G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
 
     Pipeline world;
-    camera.setSize(1.0f / zoom);
-    camera.setY(
-        1.0f / zoom
-        + terrain->heightAt({camera.getPos().x, camera.getPos().z}));
-    world.setCamera(camera);
+    G_CAMERA.setSize(1.0f / G_ZOOM);
+    G_CAMERA.setY(
+        1.0f / G_ZOOM
+        + G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z}));
+    world.setCamera(G_CAMERA);
     Matrix4f const transformationMatrix = world.getTrans();
     glUniformMatrix4fv(
-        worldLocation,
+        G_WORLD_LOCATION,
         1,
         GL_TRUE,
         &transformationMatrix.m[0][0]);
     glutPostRedisplay();
 
-    zoomAmount = 0.f;
+    G_ZOOM_AMOUNT = 0.f;
 }
 
 static void
@@ -90,28 +92,28 @@ handleInputDown(unsigned char c, int, int)
 {
     switch(c) {
     case 'w':
-        velocity.z += G_MOVEMENT_SPEED;
+        G_VELOCITY.z += G_MOVEMENT_SPEED;
         break;
     case 'a':
-        velocity.x += -G_MOVEMENT_SPEED;
+        G_VELOCITY.x += -G_MOVEMENT_SPEED;
         break;
     case 's':
-        velocity.z += -G_MOVEMENT_SPEED;
+        G_VELOCITY.z += -G_MOVEMENT_SPEED;
         break;
     case 'd':
-        velocity.x += G_MOVEMENT_SPEED;
+        G_VELOCITY.x += G_MOVEMENT_SPEED;
         break;
     case 'j':
-        persistentZoomDirection += 1.f;
+        G_PERSISTENT_ZOOM_DIRECTION += 1.f;
         break;
     case 'k':
-        persistentZoomDirection += -1.f;
+        G_PERSISTENT_ZOOM_DIRECTION += -1.f;
         break;
     case 'o':
-        autoZoom = !autoZoom;
+        G_AUTO_ZOOM = !G_AUTO_ZOOM;
         break;
     case 'r':
-        terrain->updateMesh(camera.getPos().x, camera.getPos().z, zoom);
+        G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
         break;
     case 'q':
         exit(0);
@@ -126,22 +128,22 @@ handleInputUp(unsigned char c, int, int)
 {
     switch(c) {
     case 'w':
-        velocity.z += -G_MOVEMENT_SPEED;
+        G_VELOCITY.z += -G_MOVEMENT_SPEED;
         break;
     case 'a':
-        velocity.x += G_MOVEMENT_SPEED;
+        G_VELOCITY.x += G_MOVEMENT_SPEED;
         break;
     case 's':
-        velocity.z += G_MOVEMENT_SPEED;
+        G_VELOCITY.z += G_MOVEMENT_SPEED;
         break;
     case 'd':
-        velocity.x += -G_MOVEMENT_SPEED;
+        G_VELOCITY.x += -G_MOVEMENT_SPEED;
         break;
     case 'j':
-        persistentZoomDirection += -1.f;
+        G_PERSISTENT_ZOOM_DIRECTION += -1.f;
         break;
     case 'k':
-        persistentZoomDirection += 1.f;
+        G_PERSISTENT_ZOOM_DIRECTION += 1.f;
         break;
     default:
         break;
@@ -167,7 +169,7 @@ handleMouseMove(int x, int y)
                       * rotationMatrix({rotationY, 0.0f, 0.0f})
                       * Vector3f(0.0f, 0.0f, 1.0f);
 
-    camera.lookAt(lookAt);
+    G_CAMERA.lookAt(lookAt);
     if(x != 512 || y != 512) {
         glutWarpPointer(512, 512);
         mouseX = 512;
@@ -184,12 +186,12 @@ handleMouseButtons(int button, int state, int x, int y)
     switch(button) {
     case wheelUp:
         if(state == GLUT_DOWN) {
-            zoomAmount += 1.f;
+            G_ZOOM_AMOUNT += 1.f;
         }
         break;
     case wheelDown:
         if(state == GLUT_DOWN) {
-            zoomAmount += -1.f;
+            G_ZOOM_AMOUNT += -1.f;
         }
         break;
     default:
@@ -280,8 +282,8 @@ compileShaders()
 
     glUseProgram(shaderProgram);
 
-    worldLocation = glGetUniformLocation(shaderProgram, "world");
-    if(worldLocation == 0xFFFFFFFF) {
+    G_WORLD_LOCATION = glGetUniformLocation(shaderProgram, "world");
+    if(G_WORLD_LOCATION == 0xFFFFFFFF) {
         std::cerr << "Failed to find variable world" << std::endl;
         exit(1);
     }
@@ -297,12 +299,12 @@ main(int argc, char** argv)
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
 
-    camera.setDimensions(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
-    camera.setClip(0.1, 10'000'000);
-    camera.setFOV(pi / 2);
-    camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
-    camera.setUp(Vector3f(0.0f, 1.0f, 0.0f));
-    camera.setPos({1.0f, 0, 1.0f});
+    G_CAMERA.setDimensions(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
+    G_CAMERA.setClip(0.1, 10'000'000);
+    G_CAMERA.setFOV(pi / 2);
+    G_CAMERA.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
+    G_CAMERA.setUp(Vector3f(0.0f, 1.0f, 0.0f));
+    G_CAMERA.setPos({1.0f, 0, 1.0f});
 
     initializeGlutCallbacks();
 
@@ -320,7 +322,7 @@ main(int argc, char** argv)
     glDepthFunc(GL_LESS);
     glClearDepth(10'000'000.0f);
 
-    terrain = new Terrain();
+    G_TERRAIN = new Terrain();
 
     compileShaders();
 

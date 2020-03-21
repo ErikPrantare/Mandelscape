@@ -6,8 +6,6 @@ Make terrain mesh more dense near middle
 
 Make camera not stutter when walking on rugged ground
 
-Rename global variables in main.cpp
-
 -----------------------------------------------------------------------------
 -------------------------------COMPLETED-------------------------------------
 -----------------------------------------------------------------------------
@@ -22,3 +20,5 @@ Move shader files into shaders/
 rename Camera::setSize (name clash)
 
 Move window resolution to global variable
+
+Rename global variables in main.cpp
