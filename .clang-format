@@ -27,6 +27,7 @@ AlwaysBreakTemplateDeclarations:                Yes
 BinPackArguments:                               false
 BinPackParameters:                              false
 
+BreakBeforeBraces:                              Custom
 BraceWrapping:
     AfterCaseLabel:                             false
     AfterClass:                                 false
@@ -41,13 +42,12 @@ BraceWrapping:
     BeforeCatch:                                true
     BeforeElse:                                 true
     
-    IndentBraces:                               true
+    IndentBraces:                               false
     SplitEmptyFunction:                         true
     SplitEmptyRecord:                           true
     SplitEmptyNamespace:                        true
 
 BreakBeforeBinaryOperators:                     NonAssignment
-BreakBeforeBraces:                              Stroustrup
 BreakBeforeTernaryOperators:                    true
 BreakConstructorInitializers:                   AfterColon
 BreakInheritanceList:                           AfterColon

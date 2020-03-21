@@ -6,8 +6,7 @@ in mediump float distance;
 out mediump vec4 fragColor;
 
 void
-main()
-{
+main() {
     mediump float fogHardStart = 100.0;
     mediump float fogHardEnd   = 150.0;
     mediump float fog          = 1.0 - pow(0.98, distance);

@@ -3,17 +3,14 @@
 #include <algorithm>
 #include <cmath>
 
-Matrix4f::Matrix4f() : m{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}
-{
+Matrix4f::Matrix4f() : m{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {
 }
 
-Matrix4f::Matrix4f(float _m[4][4])
-{
+Matrix4f::Matrix4f(float _m[4][4]) {
     std::copy(&_m[0][0], &_m[0][0] + 4 * 4, &m[0][0]);
 }
 
-Matrix4f operator*(const Matrix4f& a, const Matrix4f& b)
-{
+Matrix4f operator*(const Matrix4f& a, const Matrix4f& b) {
     float res[4][4];
 
     for(int i = 0; i < 4; ++i)
@@ -25,13 +22,11 @@ Matrix4f operator*(const Matrix4f& a, const Matrix4f& b)
     return Matrix4f(res);
 }
 
-Vector3f operator*(float a, const Vector3f& v)
-{
+Vector3f operator*(float a, const Vector3f& v) {
     return Vector3f(a * v.x, a * v.y, a * v.z);
 }
 
-Vector3f operator*(const Matrix4f& m, const Vector3f& v)
-{
+Vector3f operator*(const Matrix4f& m, const Vector3f& v) {
     return Vector3f(
         m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3],
         m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[0][3],
@@ -39,39 +34,33 @@ Vector3f operator*(const Matrix4f& m, const Vector3f& v)
 }
 
 Vector3f
-operator+(const Vector3f& a, const Vector3f& b)
-{
+operator+(const Vector3f& a, const Vector3f& b) {
     return Vector3f(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
 Vector3f
-operator-(const Vector3f& a)
-{
+operator-(const Vector3f& a) {
     return Vector3f(-a.x, -a.y, -a.z);
 }
 
 Vector3f
-operator-(const Vector3f& a, const Vector3f& b)
-{
+operator-(const Vector3f& a, const Vector3f& b) {
     return a + (-b);
 }
 
 Vector3f&
-operator+=(Vector3f& a, const Vector3f& b)
-{
+operator+=(Vector3f& a, const Vector3f& b) {
     a = a + b;
     return a;
 }
 
 float
-dot(const Vector3f& a, const Vector3f& b)
-{
+dot(const Vector3f& a, const Vector3f& b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 Vector3f
-cross(const Vector3f& a, const Vector3f& b)
-{
+cross(const Vector3f& a, const Vector3f& b) {
     return Vector3f(
         a.y * b.z - a.z * b.y,
         a.z * b.x - a.x * b.z,
@@ -79,14 +68,12 @@ cross(const Vector3f& a, const Vector3f& b)
 }
 
 Vector3f
-normalize(const Vector3f& x)
-{
+normalize(const Vector3f& x) {
     return (1 / std::sqrt(dot(x, x))) * x;
 }
 
 Matrix4f
-translationMatrix(const Vector3f& translation)
-{
+translationMatrix(const Vector3f& translation) {
     float m[4][4] = {1.0f,
                      0.0f,
                      0.0f,
@@ -108,8 +95,7 @@ translationMatrix(const Vector3f& translation)
 }
 
 Matrix4f
-scaleMatrix(const Vector3f& scale)
-{
+scaleMatrix(const Vector3f& scale) {
     float m[4][4] = {scale.x,
                      0.0f,
                      0.0f,
@@ -131,8 +117,7 @@ scaleMatrix(const Vector3f& scale)
 }
 
 Matrix4f
-rotationMatrix(const Vector3f& rotation)
-{
+rotationMatrix(const Vector3f& rotation) {
     float mx[4][4] = {1.0f,
                       0.0f,
                       0.0f,
@@ -188,13 +173,11 @@ rotationMatrix(const Vector3f& rotation)
 }
 
 float
-toRadians(float x)
-{
+toRadians(float x) {
     return x * pi / 180;
 }
 
 float
-toDegrees(float x)
-{
+toDegrees(float x) {
     return x / pi * 180;
 }
