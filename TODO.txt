@@ -2,13 +2,26 @@
 ----------------------------------TODO---------------------------------------
 -----------------------------------------------------------------------------
 
-Make terrain mesh more dense near middle
+->Fix camera.h public interface
+The public interface of the camera class is a mess, most of it should be
+private or the functionality should be accessed through a more specialized
+function.
+Status: To do
+Depends on:
+Affected files:
+    ->src/camera.h
+    ->src/camera.cpp
+    ->src/main.cpp
+Comments and suggestions:
+    ->Move all setting into an update(zoom, velocity, height, deltaTime)
+      function and remove the rest from the public interface
 
 Make camera not stutter when walking on rugged ground
 
 -----------------------------------------------------------------------------
--------------------------------COMPLETED-------------------------------------
+----------------------------------DONE---------------------------------------
 -----------------------------------------------------------------------------
+
 Move source files to src/
 
 Add a .clang-format to resolve formatting issues
@@ -22,3 +35,5 @@ rename Camera::setSize (name clash)
 Move window resolution to global variable
 
 Rename global variables in main.cpp
+
+Make terrain mesh more dense near middle
