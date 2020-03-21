@@ -17,6 +17,9 @@
 
 GLuint worldLocation;
 
+GLuint constexpr G_WINDOW_SIZE_X = 1366;
+GLuint constexpr G_WINDOW_SIZE_Y = 768;
+
 Camera camera;
 Vector3f velocity(0.0f, 0.0f, 0.0f);
 
@@ -289,12 +292,12 @@ main(int argc, char** argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(1024, 1024);
+    glutInitWindowSize(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
 
-    camera.setSize(1024, 1024);
+    camera.setSize(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
     camera.setClip(0.1, 10'000'000);
     camera.setFOV(pi / 2);
     camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));

@@ -2,7 +2,6 @@
 ----------------------------------TODO---------------------------------------
 -----------------------------------------------------------------------------
 
-Move window resolution to global variable
 
 Make terrain mesh more dense near middle
 
@@ -22,3 +21,5 @@ Add a .clang-format to resolve formatting issues
 Make Terrain and TerrainMeshLoader one class
 
 Move shader files into shaders/
+
+Move window resolution to global variable
