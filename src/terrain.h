@@ -13,9 +13,7 @@
 
 #include "math3d.h"
 
-class
-Terrain
-{
+class Terrain {
 public:
     Terrain();
     ~Terrain();
@@ -30,8 +28,8 @@ public:
     render();
 
 private:
-    static constexpr int granularity = 400;
-    static constexpr int iterations = 100;
+    static constexpr int granularity     = 400;
+    static constexpr int iterations      = 100;
     static constexpr int uploadChunkSize = 90'000;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
@@ -40,9 +38,9 @@ private:
     unsigned int m_loadIndex = 0;
 
     double m_x;
-    double m_z; 
+    double m_z;
     double m_scale;
-    
+
     std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
     std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
 
@@ -51,10 +49,9 @@ private:
 
     std::vector<GLuint>
     generateMeshIndices();
-    
+
     static void
     loadMesh(double, double, double, std::vector<Vector3f>*);
-
 };
 
 template<typename T>
