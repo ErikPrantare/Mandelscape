@@ -21,7 +21,7 @@ public:
     }
 
     void
-    setSize(float width, float height)
+    setDimensions(float width, float height)
     {
         m_width  = width;
         m_height = height;

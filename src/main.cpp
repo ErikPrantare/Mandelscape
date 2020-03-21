@@ -297,7 +297,7 @@ main(int argc, char** argv)
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
 
-    camera.setSize(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
+    camera.setDimensions(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
     camera.setClip(0.1, 10'000'000);
     camera.setFOV(pi / 2);
     camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
