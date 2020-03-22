@@ -24,26 +24,26 @@ Terrain::Terrain() :
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(
-        GL_ARRAY_BUFFER,
-        m_currentMeshPoints->size() * sizeof(Vector3f),
-        m_currentMeshPoints->data(),
-        GL_STATIC_DRAW);
+            GL_ARRAY_BUFFER,
+            m_currentMeshPoints->size() * sizeof(Vector3f),
+            m_currentMeshPoints->data(),
+            GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
     glBufferData(
-        GL_ARRAY_BUFFER,
-        m_loadingMeshPoints->size() * sizeof(Vector3f),
-        m_loadingMeshPoints->data(),
-        GL_STATIC_DRAW);
+            GL_ARRAY_BUFFER,
+            m_loadingMeshPoints->size() * sizeof(Vector3f),
+            m_loadingMeshPoints->data(),
+            GL_STATIC_DRAW);
 
     auto meshIndices = generateMeshIndices();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
     glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        meshIndices.size() * sizeof(meshIndices[0]),
-        meshIndices.data(),
-        GL_STATIC_DRAW);
+            GL_ELEMENT_ARRAY_BUFFER,
+            meshIndices.size() * sizeof(meshIndices[0]),
+            meshIndices.data(),
+            GL_STATIC_DRAW);
 
     startLoading();
 }
@@ -59,20 +59,20 @@ void
 Terrain::startLoading()
 {
     m_loadingProcess = std::async(
-        std::launch::async,
-        loadMesh,
-        m_x,
-        m_z,
-        m_scale,
-        m_loadingMeshPoints.get());
+            std::launch::async,
+            loadMesh,
+            m_x,
+            m_z,
+            m_scale,
+            m_loadingMeshPoints.get());
 }
 
 void
 Terrain::loadMesh(
-    double _x,
-    double _z,
-    double _scale,
-    std::vector<Vector3f>* buffer)
+        double _x,
+        double _z,
+        double _scale,
+        std::vector<Vector3f>* buffer)
 {
     constexpr int nrIndices = granularity * granularity;
 
@@ -88,9 +88,9 @@ Terrain::loadMesh(
 
     const auto& stepSize = [scaleFactor](int i) {
         return std::pow(
-                   2.0,
-                   std::abs(i - granularity / 2) / doublingInterval
-                       - exponentOffset)
+                       2.0,
+                       std::abs(i - granularity / 2) / doublingInterval
+                               - exponentOffset)
                / scaleFactor;
     };
 
@@ -109,9 +109,11 @@ Terrain::loadMesh(
 
         double zPos = _z - meshSpan / 2;
         for(int z = 0; z < granularity; ++z) {
-            double zQuant = quantized(zPos, stepSize(z));
-            (*buffer)[x * granularity + z] =
-                Vector3f(xQuant, Terrain::heightAt({xQuant, zQuant}), zQuant);
+            double zQuant                  = quantized(zPos, stepSize(z));
+            (*buffer)[x * granularity + z] = Vector3f(
+                    xQuant,
+                    Terrain::heightAt({xQuant, zQuant}),
+                    zQuant);
 
             zPos += stepSize(z);
         }
@@ -121,10 +123,10 @@ Terrain::loadMesh(
 
 bool
 uploadMeshChunk(
-    const std::vector<Vector3f>& sourceMesh,
-    const GLuint& destinationVBO,
-    const size_t& index,
-    const size_t& maxChunkSize)
+        const std::vector<Vector3f>& sourceMesh,
+        const GLuint& destinationVBO,
+        const size_t& index,
+        const size_t& maxChunkSize)
 {
     if(index >= sourceMesh.size()) {
         return true;
@@ -136,10 +138,10 @@ uploadMeshChunk(
 
     glBindBuffer(GL_ARRAY_BUFFER, destinationVBO);
     glBufferSubData(
-        GL_ARRAY_BUFFER,
-        index * sizeof(Vector3f),
-        chunkSize * sizeof(Vector3f),
-        position);
+            GL_ARRAY_BUFFER,
+            index * sizeof(Vector3f),
+            chunkSize * sizeof(Vector3f),
+            position);
 
     return (index + chunkSize) >= sourceMesh.size();
 }
@@ -152,10 +154,10 @@ Terrain::updateMesh(double x, double z, double scale)
     m_scale = scale;
 
     const bool uploadingDone = uploadMeshChunk(
-        *m_currentMeshPoints,
-        m_loadingVBO,
-        m_loadIndex,
-        uploadChunkSize);
+            *m_currentMeshPoints,
+            m_loadingVBO,
+            m_loadIndex,
+            uploadChunkSize);
 
     if(isDone(m_loadingProcess) && uploadingDone) {
         m_currentMeshPoints.swap(m_loadingMeshPoints);

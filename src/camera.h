@@ -21,14 +21,13 @@ public:
         m_zFar  = zFar;
     }
 
-    Camera(
-        double const& Xdimension,
-        double const& Ydimension,
-        float const& clippingPlaneNear,
-        float const& clippingPlaneFar,
-        float const& FOV,
-        Vector3f const& startPosition = {1.0f, 0.0f, 1.0f},
-        Vector3f const& worldUp       = {0.0f, 1.0f, 0.0f});
+    Camera(double const& Xdimension,
+           double const& Ydimension,
+           float const& clippingPlaneNear,
+           float const& clippingPlaneFar,
+           float const& FOV,
+           Vector3f const& startPosition = {1.0f, 0.0f, 1.0f},
+           Vector3f const& worldUp       = {0.0f, 1.0f, 0.0f});
 
     void
     setDimensions(float width, float height)

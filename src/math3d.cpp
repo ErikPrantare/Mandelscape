@@ -32,9 +32,9 @@ Vector3f operator*(float a, const Vector3f& v)
 Vector3f operator*(const Matrix4f& m, const Vector3f& v)
 {
     return Vector3f(
-        m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3],
-        m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[0][3],
-        m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[0][3]);
+            m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3],
+            m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[0][3],
+            m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[0][3]);
 }
 
 Vector3f
@@ -72,9 +72,9 @@ Vector3f
 cross(const Vector3f& a, const Vector3f& b)
 {
     return Vector3f(
-        a.y * b.z - a.z * b.y,
-        a.z * b.x - a.x * b.z,
-        a.x * b.y - a.y * b.x);
+            a.y * b.z - a.z * b.y,
+            a.z * b.x - a.x * b.z,
+            a.x * b.y - a.y * b.x);
 }
 
 Vector3f

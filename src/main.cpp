@@ -26,11 +26,11 @@ float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
 float constexpr G_FOV = pi / 2;
 
 Camera G_CAMERA(
-    G_WINDOW_SIZE_X,
-    G_WINDOW_SIZE_Y,
-    G_CLIPPING_PLANE_NEAR,
-    G_CLIPPING_PLANE_FAR,
-    G_FOV);
+        G_WINDOW_SIZE_X,
+        G_WINDOW_SIZE_Y,
+        G_CLIPPING_PLANE_NEAR,
+        G_CLIPPING_PLANE_FAR,
+        G_FOV);
 
 Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
 
@@ -70,7 +70,7 @@ updateScene()
     if(G_AUTO_ZOOM) {
         G_ZOOM = 1.f
                  / G_TERRAIN->heightAt(
-                     {G_CAMERA.position().x, G_CAMERA.position().z});
+                         {G_CAMERA.position().x, G_CAMERA.position().z});
     }
     else {
         G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
@@ -81,17 +81,17 @@ updateScene()
     G_CAMERA.move(dt * G_VELOCITY);
 
     G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
-    G_CAMERA.setCameraHeight(
-        G_TERRAIN->heightAt({G_CAMERA.position().x, G_CAMERA.position().z}));
+    G_CAMERA.setCameraHeight(G_TERRAIN->heightAt(
+            {G_CAMERA.position().x, G_CAMERA.position().z}));
 
     Pipeline world;
     world.setCamera(G_CAMERA);
     Matrix4f const transformationMatrix = world.getTrans();
     glUniformMatrix4fv(
-        G_WORLD_LOCATION,
-        1,
-        GL_TRUE,
-        &transformationMatrix.m[0][0]);
+            G_WORLD_LOCATION,
+            1,
+            GL_TRUE,
+            &transformationMatrix.m[0][0]);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
@@ -124,9 +124,9 @@ handleInputDown(unsigned char c, int, int)
         break;
     case 'r':
         G_TERRAIN->updateMesh(
-            G_CAMERA.position().x,
-            G_CAMERA.position().z,
-            G_ZOOM);
+                G_CAMERA.position().x,
+                G_CAMERA.position().z,
+                G_ZOOM);
         break;
     case 'q':
         exit(0);
@@ -225,9 +225,9 @@ initializeGlutCallbacks()
 
 static void
 addShader(
-    GLuint shaderProgram,
-    const std::string& shaderCode,
-    GLenum shaderType)
+        GLuint shaderProgram,
+        const std::string& shaderCode,
+        GLenum shaderType)
 {
     GLuint shaderObj = glCreateShader(shaderType);
 
