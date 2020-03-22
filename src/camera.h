@@ -14,49 +14,58 @@ public:
     move(const Vector3f& movement);
 
     void
-    setClip(float zNear, float zFar) {
+    setClip(float zNear, float zFar)
+    {
         m_zNear = zNear;
         m_zFar  = zFar;
     }
 
     void
-    setDimensions(float width, float height) {
+    setDimensions(float width, float height)
+    {
         m_width  = width;
         m_height = height;
     }
 
     void
-    setFOV(float FOV) {
+    setFOV(float FOV)
+    {
         m_FOV = FOV;
     }
 
     void
-    lookAt(Vector3f z) {
+    lookAt(Vector3f z)
+    {
         m_lookAt = normalize(z);
     }
 
     void
-    setUp(Vector3f up) {
+    setUp(Vector3f up)
+    {
         m_up = normalize(up);
     }
 
     void
-    setPos(Vector3f pos) {
+    setPos(Vector3f pos)
+    {
         m_pos = pos;
     }
 
     void
-    setY(float y) {
+    setY(float y)
+    {
         m_pos.y = y;
     }
 
     void
-    setSize(float size) {
+    setSize(float size)
+    {
         m_size = size;
     }
 
     const Vector3f&
-    getPos() const {
+    getPos() const
+    {
         return m_pos;
     }
 

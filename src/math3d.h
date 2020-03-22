@@ -6,7 +6,8 @@ constexpr long double pi = 3.141592653589793238462643383279502884;
 struct Vector3f {
     float x, y, z;
     Vector3f() = default;
-    Vector3f(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {
+    Vector3f(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
+    {
     }
 };
 

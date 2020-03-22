@@ -4,7 +4,8 @@
 #include "utils.h"
 
 std::string
-readFile(const std::string& fileName) {
+readFile(const std::string& fileName)
+{
     std::ifstream in(fileName);
     std::string output;
 

@@ -5,7 +5,8 @@
 #include "math3d.h"
 
 void
-Camera::move(const Vector3f& movement) {
+Camera::move(const Vector3f& movement)
+{
     m_pos += movement.y * m_up;
     m_pos += movement.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
     Vector3f right = cross(m_up, m_lookAt);
@@ -13,7 +14,8 @@ Camera::move(const Vector3f& movement) {
 }
 
 Matrix4f
-Camera::uvn() const {
+Camera::uvn() const
+{
     const Vector3f N = normalize(m_lookAt);
     const Vector3f U = normalize(cross(m_up, N));
     const Vector3f V = normalize(cross(N, U));
@@ -26,7 +28,8 @@ Camera::uvn() const {
 }
 
 Matrix4f
-Camera::projectionTransformation() const {
+Camera::projectionTransformation() const
+{
     const float ar         = m_width / m_height;
     const float zRange     = m_zNear - m_zFar;
     const float tanHalfFOV = std::tan(m_FOV / 2.0);

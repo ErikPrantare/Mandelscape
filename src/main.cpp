@@ -32,7 +32,8 @@ float constexpr G_MOVEMENT_SPEED  = 1.f;
 Terrain* G_TERRAIN = nullptr;
 
 static void
-renderScene() {
+renderScene()
+{
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnableVertexAttribArray(0);
@@ -45,7 +46,8 @@ renderScene() {
 }
 
 static void
-updateScene() {
+updateScene()
+{
     float constexpr zoomVelocity = 1.f;
 
     static float lastTimeStep = glutGet(GLUT_ELAPSED_TIME);
@@ -86,7 +88,8 @@ updateScene() {
 }
 
 static void
-handleInputDown(unsigned char c, int, int) {
+handleInputDown(unsigned char c, int, int)
+{
     switch(c) {
     case 'w':
         G_VELOCITY.z += G_MOVEMENT_SPEED;
@@ -121,7 +124,8 @@ handleInputDown(unsigned char c, int, int) {
 }
 
 static void
-handleInputUp(unsigned char c, int, int) {
+handleInputUp(unsigned char c, int, int)
+{
     switch(c) {
     case 'w':
         G_VELOCITY.z += -G_MOVEMENT_SPEED;
@@ -147,7 +151,8 @@ handleInputUp(unsigned char c, int, int) {
 }
 
 static void
-handleMouseMove(int x, int y) {
+handleMouseMove(int x, int y)
+{
     static int mouseX = 0, mouseY = 0;
     int deltaX = x - mouseX;
     int deltaY = y - mouseY;
@@ -173,7 +178,8 @@ handleMouseMove(int x, int y) {
 }
 
 static void
-handleMouseButtons(int button, int state, int x, int y) {
+handleMouseButtons(int button, int state, int x, int y)
+{
     int constexpr wheelUp   = 3;
     int constexpr wheelDown = 4;
 
@@ -194,7 +200,8 @@ handleMouseButtons(int button, int state, int x, int y) {
 }
 
 static void
-initializeGlutCallbacks() {
+initializeGlutCallbacks()
+{
     glutDisplayFunc(renderScene);
     glutIdleFunc(updateScene);
     glutKeyboardFunc(handleInputDown);
@@ -207,7 +214,8 @@ static void
 addShader(
     GLuint shaderProgram,
     const std::string& shaderCode,
-    GLenum shaderType) {
+    GLenum shaderType)
+{
     GLuint shaderObj = glCreateShader(shaderType);
 
     if(shaderObj == 0) {
@@ -236,7 +244,8 @@ addShader(
 }
 
 static void
-compileShaders() {
+compileShaders()
+{
     GLuint shaderProgram = glCreateProgram();
 
     if(shaderProgram == 0) {
@@ -281,7 +290,8 @@ compileShaders() {
 }
 
 int
-main(int argc, char** argv) {
+main(int argc, char** argv)
+{
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
