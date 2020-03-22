@@ -57,7 +57,7 @@ ColumnLimit:                                    80
 CompactNamespaces:                              false
 
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ConstructorInitializerIndentWidth:              8
+ConstructorInitializerIndentWidth:              12
 ContinuationIndentWidth:                        8
 
 Cpp11BracedListStyle:                           true

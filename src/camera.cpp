@@ -16,15 +16,15 @@ Camera::Camera(
         float const& FOV,
         Vector3f const& startPosition,
         Vector3f const& worldUp) :
-        m_width(Xdimension),
-        m_height(Ydimension),
-        m_zNear(clippingPlaneNear),
-        m_zFar(clippingPlaneFar),
-        m_FOV(FOV),
-        m_pos(startPosition),
-        m_up(worldUp),
-        m_lookAt({0.0f, 0.0f, 1.0f}),
-        m_worldScale(1.0f)
+            m_width(Xdimension),
+            m_height(Ydimension),
+            m_zNear(clippingPlaneNear),
+            m_zFar(clippingPlaneFar),
+            m_FOV(FOV),
+            m_pos(startPosition),
+            m_up(worldUp),
+            m_lookAt({0.0f, 0.0f, 1.0f}),
+            m_worldScale(1.0f)
 {}
 
 void

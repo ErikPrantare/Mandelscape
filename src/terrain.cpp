@@ -9,11 +9,11 @@
 #include "terrain.h"
 
 Terrain::Terrain() :
-        m_x{0.0},
-        m_z{0.0},
-        m_scale{1.0},
-        m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
-        m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()}
+            m_x{0.0},
+            m_z{0.0},
+            m_scale{1.0},
+            m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
+            m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()}
 {
     loadMesh(m_x, m_z, m_scale, m_currentMeshPoints.get());
     loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
