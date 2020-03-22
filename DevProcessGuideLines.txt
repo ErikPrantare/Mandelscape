@@ -4,6 +4,8 @@
 #Merge into develop with rebase
 
 #Follow template in Trello to add task
+#Add Story Points power up to represent a rough linear scale of time where
+#1 is real quick and 10 is a BIG task
 
 #Add a comment with the branch name when you move task to REVIEW
 
