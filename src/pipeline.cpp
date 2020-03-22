@@ -5,8 +5,7 @@ Pipeline::Pipeline() :
         m_position(Vector3f(0.0, 0.0, 0.0)),
         m_rotation(Vector3f(0.0, 0.0, 0.0)),
         m_scale(Vector3f(1.0, 1.0, 1.0))
-{
-}
+{}
 
 void
 Pipeline::setPos(float x, float y, float z)

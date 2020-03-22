@@ -43,9 +43,9 @@ BraceWrapping:
     BeforeElse:                                 true
     
     IndentBraces:                               false
-    SplitEmptyFunction:                         true
-    SplitEmptyRecord:                           true
-    SplitEmptyNamespace:                        true
+    SplitEmptyFunction:                         false
+    SplitEmptyRecord:                           false
+    SplitEmptyNamespace:                        false
 
 BreakBeforeBinaryOperators:                     NonAssignment
 BreakBeforeTernaryOperators:                    true

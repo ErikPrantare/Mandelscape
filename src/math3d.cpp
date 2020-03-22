@@ -3,9 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
-Matrix4f::Matrix4f() : m{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}
-{
-}
+Matrix4f::Matrix4f() : m{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}
+{}
 
 Matrix4f::Matrix4f(float _m[4][4])
 {
