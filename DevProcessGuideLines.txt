@@ -14,7 +14,8 @@ TODO process template:
 
 ->{Short description of task}
 {More in depth description}
-Status: Being reviewed/Pending review/Being worked on by {Contributor}/To do
+Status: Being reviewed/Pending review on {Branch}/
+        Being worked on by {Contributor}/To do
 Depends on:
     ->{Other tasks short description}
     ->{Other other tasks short description}
