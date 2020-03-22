@@ -9,11 +9,12 @@
 #include "terrain.h"
 
 Terrain::Terrain() :
-    m_x{0.0},
-    m_z{0.0},
-    m_scale{1.0},
-    m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
-    m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()} {
+        m_x{0.0},
+        m_z{0.0},
+        m_scale{1.0},
+        m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
+        m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()}
+{
     loadMesh(m_x, m_z, m_scale, m_currentMeshPoints.get());
     loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
 
@@ -47,14 +48,16 @@ Terrain::Terrain() :
     startLoading();
 }
 
-Terrain::~Terrain() {
+Terrain::~Terrain()
+{
     glDeleteBuffers(1, &m_VBO);
     glDeleteBuffers(1, &m_IBO);
     glDeleteBuffers(1, &m_loadingVBO);
 }
 
 void
-Terrain::startLoading() {
+Terrain::startLoading()
+{
     m_loadingProcess = std::async(
         std::launch::async,
         loadMesh,
@@ -69,7 +72,8 @@ Terrain::loadMesh(
     double _x,
     double _z,
     double _scale,
-    std::vector<Vector3f>* buffer) {
+    std::vector<Vector3f>* buffer)
+{
     constexpr int nrIndices = granularity * granularity;
 
     if(buffer->size() != nrIndices) {
@@ -120,7 +124,8 @@ uploadMeshChunk(
     const std::vector<Vector3f>& sourceMesh,
     const GLuint& destinationVBO,
     const size_t& index,
-    const size_t& maxChunkSize) {
+    const size_t& maxChunkSize)
+{
     if(index >= sourceMesh.size()) {
         return true;
     }
@@ -140,7 +145,8 @@ uploadMeshChunk(
 }
 
 const std::vector<Vector3f>&
-Terrain::updateMesh(double x, double z, double scale) {
+Terrain::updateMesh(double x, double z, double scale)
+{
     m_x     = x;
     m_z     = z;
     m_scale = scale;
@@ -167,7 +173,8 @@ Terrain::updateMesh(double x, double z, double scale) {
 }
 
 std::vector<GLuint>
-Terrain::generateMeshIndices() {
+Terrain::generateMeshIndices()
+{
     std::vector<GLuint> meshIndices;
     meshIndices.reserve(granularity * granularity * 6);
 
@@ -186,7 +193,8 @@ Terrain::generateMeshIndices() {
 }
 
 double
-Terrain::heightAt(const std::complex<double>& c) {
+Terrain::heightAt(const std::complex<double>& c)
+{
     std::complex<double> z(0.0, 0.0);
     std::complex<double> dz(0.0, 0.0);
 
@@ -220,7 +228,8 @@ Terrain::heightAt(const std::complex<double>& c) {
 }
 
 void
-Terrain::render() {
+Terrain::render()
+{
     int vertexCount = std::pow((granularity - 1), 2) * 3 * 2;
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);

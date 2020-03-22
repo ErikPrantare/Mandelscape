@@ -23,7 +23,8 @@ public:
     rotate(const Vector3f& rotation);
 
     void
-    setCamera(Camera camera) {
+    setCamera(Camera camera)
+    {
         m_camera = camera;
     };
 
