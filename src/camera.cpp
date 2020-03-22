@@ -1,8 +1,31 @@
 #include <cmath>
 #include <iostream>
+#include <tuple>
 
 #include "camera.h"
 #include "math3d.h"
+
+Camera::Camera() : Camera(1366, 768, 0.1f, 10'000'000.0f, pi) {
+}
+
+Camera::Camera(
+    double const& Xdimension,
+    double const& Ydimension,
+    float const& clippingPlaneNear,
+    float const& clippingPlaneFar,
+    float const& FOV,
+    Vector3f const& startPosition,
+    Vector3f const& worldUp) :
+    m_width(Xdimension),
+    m_height(Ydimension),
+    m_zNear(clippingPlaneNear),
+    m_zFar(clippingPlaneFar),
+    m_FOV(FOV),
+    m_pos(startPosition),
+    m_up(worldUp),
+    m_lookAt({0.0f, 0.0f, 1.0f}),
+    m_size(1.0f) {
+}
 
 void
 Camera::move(const Vector3f& movement) {
