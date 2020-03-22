@@ -1,43 +1,6 @@
-TODO process template:
 #Prefer smaller tasks
 #Do development in seperate branch, merge into develop after passing review
 #Final commit should be done with short description as commit message
 #Merge into develop with rebase
 
-#Tab width is 4, DO NOT USE TAB SYMBOL
-
-#Words or senteces wrapped with {} are placeholders
-
------------------------------------------------------------------------------
-----------------------------------TODO---------------------------------------
------------------------------------------------------------------------------
-
-->{Short description of task}
-{More in depth description}
-Status: Being reviewed/Pending review on {Branch}/
-        Being worked on by {Contributor}/To do
-Depends on:
-    ->{Other tasks short description}
-    ->{Other other tasks short description}
-Affected files:
-    ->{Files}
-    ->{that}
-    ->{will be}
-    ->{modified}
-Comments and suggestions:
-    ->{Suggestion}
-    ->{Long suggestion...                                                  ...
-      ...}
-    ->{Suggestion}
-
-->{Task2...
-
-
-...}
-
------------------------------------------------------------------------------
-------------------------------------DONE-------------------------------------
------------------------------------------------------------------------------
-
-->{Date of merge - 21/03/2020}
-{Cut and pasted task from TODO}
+#Follow template in Trello to add task
