@@ -1,16 +1,42 @@
 #include <cmath>
 #include <iostream>
+#include <tuple>
 
 #include "camera.h"
 #include "math3d.h"
 
+Camera::Camera() : Camera(1366, 768, 0.1f, 10'000'000.0f, pi)
+{}
+
+Camera::Camera(
+    double const& Xdimension,
+    double const& Ydimension,
+    float const& clippingPlaneNear,
+    float const& clippingPlaneFar,
+    float const& FOV,
+    Vector3f const& startPosition,
+    Vector3f const& worldUp) :
+        m_width(Xdimension),
+        m_height(Ydimension),
+        m_zNear(clippingPlaneNear),
+        m_zFar(clippingPlaneFar),
+        m_FOV(FOV),
+        m_pos(startPosition),
+        m_up(worldUp),
+        m_lookAt({0.0f, 0.0f, 1.0f}),
+        m_worldScale(1.0f)
+{}
+
 void
 Camera::move(const Vector3f& movement)
 {
-    m_pos += movement.y * m_up;
-    m_pos += movement.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
+    Vector3f const adjustedMovement = m_worldScale * movement;
+
+    m_pos += adjustedMovement.y * m_up;
+    m_pos +=
+        adjustedMovement.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
     Vector3f right = cross(m_up, m_lookAt);
-    m_pos += movement.x * normalize(Vector3f(right.x, 0.0f, right.z));
+    m_pos += adjustedMovement.x * normalize(Vector3f(right.x, 0.0f, right.z));
 }
 
 Matrix4f
@@ -44,6 +70,25 @@ Camera::projectionTransformation() const
 
     Matrix4f translation = translationMatrix({-m_pos.x, -m_pos.y, -m_pos.z});
 
-    return Matrix4f(m) * scaleMatrix({1 / m_size, 1 / m_size, 1 / m_size})
+    return Matrix4f(m)
+           * scaleMatrix({1 / m_worldScale, 1 / m_worldScale, 1 / m_worldScale})
            * uvn() * translation;
+}
+
+void
+Camera::setScale(float scale)
+{
+    m_worldScale = scale;
+}
+
+void
+Camera::setCameraHeight(float meshHeight)
+{
+    m_pos.y = m_worldScale + meshHeight;
+}
+
+const Vector3f&
+Camera::position() const
+{
+    return m_pos;
 }

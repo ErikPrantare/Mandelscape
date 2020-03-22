@@ -20,7 +20,18 @@ GLuint G_WORLD_LOCATION;
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
 
-Camera G_CAMERA;
+float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
+float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
+
+float constexpr G_FOV = pi / 2;
+
+Camera G_CAMERA(
+    G_WINDOW_SIZE_X,
+    G_WINDOW_SIZE_Y,
+    G_CLIPPING_PLANE_NEAR,
+    G_CLIPPING_PLANE_FAR,
+    G_FOV);
+
 Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
 
 bool G_AUTO_ZOOM                  = false;
@@ -50,31 +61,30 @@ updateScene()
 {
     float constexpr zoomVelocity = 1.f;
 
-    static float lastTimeStep = glutGet(GLUT_ELAPSED_TIME);
+    static float lastTimepoint = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
+    float currentTimepoint     = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
 
-    float deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME) - lastTimeStep;
-    lastTimeStep            = glutGet(GLUT_ELAPSED_TIME);
-
-    float deltaSeconds = deltaMilliseconds / 1000.f;
+    float dt      = currentTimepoint - lastTimepoint;
+    lastTimepoint = currentTimepoint;
 
     if(G_AUTO_ZOOM) {
-        G_ZOOM =
-            1.f
-            / G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z});
+        G_ZOOM = 1.f
+                 / G_TERRAIN->heightAt(
+                     {G_CAMERA.position().x, G_CAMERA.position().z});
     }
     else {
         G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
-        G_ZOOM *= 1.f + zoomVelocity * deltaSeconds * G_ZOOM_AMOUNT;
+        G_ZOOM *= 1.f + dt * zoomVelocity * G_ZOOM_AMOUNT;
     }
 
-    G_CAMERA.move((1.f / G_ZOOM) * deltaSeconds * G_VELOCITY);
-    G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
+    G_CAMERA.setScale(1.0f / G_ZOOM);
+    G_CAMERA.move(dt * G_VELOCITY);
+
+    G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
+    G_CAMERA.setCameraHeight(
+        G_TERRAIN->heightAt({G_CAMERA.position().x, G_CAMERA.position().z}));
 
     Pipeline world;
-    G_CAMERA.setSize(1.0f / G_ZOOM);
-    G_CAMERA.setY(
-        1.0f / G_ZOOM
-        + G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z}));
     world.setCamera(G_CAMERA);
     Matrix4f const transformationMatrix = world.getTrans();
     glUniformMatrix4fv(
@@ -113,7 +123,10 @@ handleInputDown(unsigned char c, int, int)
         G_AUTO_ZOOM = !G_AUTO_ZOOM;
         break;
     case 'r':
-        G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
+        G_TERRAIN->updateMesh(
+            G_CAMERA.position().x,
+            G_CAMERA.position().z,
+            G_ZOOM);
         break;
     case 'q':
         exit(0);
@@ -298,13 +311,6 @@ main(int argc, char** argv)
     glutInitWindowPosition(100, 100);
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
-
-    G_CAMERA.setDimensions(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
-    G_CAMERA.setClip(0.1, 10'000'000);
-    G_CAMERA.setFOV(pi / 2);
-    G_CAMERA.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
-    G_CAMERA.setUp(Vector3f(0.0f, 1.0f, 0.0f));
-    G_CAMERA.setPos({1.0f, 0, 1.0f});
 
     initializeGlutCallbacks();
 

@@ -1,17 +1,18 @@
 #ifndef MANDELLANDSCAPE_CAMERA_H
 #define MANDELLANDSCAPE_CAMERA_H
+#include <tuple>
 
 #include "math3d.h"
 
 class Camera {
 public:
-    Matrix4f
-    uvn() const;
-    Matrix4f
-    projectionTransformation() const;
+    Camera();
 
     void
     move(const Vector3f& movement);
+
+    Matrix4f
+    projectionTransformation() const;
 
     void
     setClip(float zNear, float zFar)
@@ -19,6 +20,15 @@ public:
         m_zNear = zNear;
         m_zFar  = zFar;
     }
+
+    Camera(
+        double const& Xdimension,
+        double const& Ydimension,
+        float const& clippingPlaneNear,
+        float const& clippingPlaneFar,
+        float const& FOV,
+        Vector3f const& startPosition = {1.0f, 0.0f, 1.0f},
+        Vector3f const& worldUp       = {0.0f, 1.0f, 0.0f});
 
     void
     setDimensions(float width, float height)
@@ -33,6 +43,9 @@ public:
         m_FOV = FOV;
     }
 
+    const Vector3f&
+    position() const;
+
     void
     lookAt(Vector3f z)
     {
@@ -44,6 +57,9 @@ public:
     {
         m_up = normalize(up);
     }
+
+    void
+    setScale(float scale);
 
     void
     setPos(Vector3f pos)
@@ -58,10 +74,7 @@ public:
     }
 
     void
-    setSize(float size)
-    {
-        m_size = size;
-    }
+    setCameraHeight(float meshHeight);
 
     const Vector3f&
     getPos() const
@@ -70,11 +83,16 @@ public:
     }
 
 private:
-    float m_zNear, m_zFar;
+    Matrix4f
+    uvn() const;
+
     float m_width, m_height;
+    float m_zNear, m_zFar;
     float m_FOV;
-    float m_size = 1.0f;
-    Vector3f m_up, m_lookAt, m_pos;
+    Vector3f m_pos;
+    Vector3f m_up;
+    Vector3f m_lookAt;
+    float m_worldScale;
 };
 
 #endif
