@@ -24,15 +24,18 @@ Camera::Camera(
     m_pos(startPosition),
     m_up(worldUp),
     m_lookAt({0.0f, 0.0f, 1.0f}),
-    m_size(1.0f) {
+    m_worldScale(1.0f) {
 }
 
 void
-Camera::move(const Vector3f& movement) {
-    m_pos += movement.y * m_up;
-    m_pos += movement.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
+Camera::move(const Vector3f& velocity, const float& deltaSeconds) {
+    Vector3f const adjustedVelocity = m_worldScale * deltaSeconds * velocity;
+
+    m_pos += adjustedVelocity.y * m_up;
+    m_pos +=
+        adjustedVelocity.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
     Vector3f right = cross(m_up, m_lookAt);
-    m_pos += movement.x * normalize(Vector3f(right.x, 0.0f, right.z));
+    m_pos += adjustedVelocity.x * normalize(Vector3f(right.x, 0.0f, right.z));
 }
 
 Matrix4f
@@ -64,6 +67,27 @@ Camera::projectionTransformation() const {
 
     Matrix4f translation = translationMatrix({-m_pos.x, -m_pos.y, -m_pos.z});
 
-    return Matrix4f(m) * scaleMatrix({1 / m_size, 1 / m_size, 1 / m_size})
+    return Matrix4f(m)
+           * scaleMatrix({1 / m_worldScale, 1 / m_worldScale, 1 / m_worldScale})
            * uvn() * translation;
+}
+
+void
+Camera::lookAt(Vector3f direction) {
+    m_lookAt = normalize(direction);
+}
+
+void
+Camera::setScale(float scale) {
+    m_worldScale = scale;
+}
+
+void
+Camera::setCameraHeight(float meshHeight) {
+    m_pos.y = m_worldScale + meshHeight;
+}
+
+const Vector3f&
+Camera::position() const {
+    return m_pos;
 }

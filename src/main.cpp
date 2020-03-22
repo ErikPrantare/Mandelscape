@@ -67,23 +67,21 @@ updateScene() {
     float deltaSeconds = deltaMilliseconds / 1000.f;
 
     if(G_AUTO_ZOOM) {
-        G_ZOOM =
-            1.f
-            / G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z});
+        G_ZOOM = 1.f
+                 / G_TERRAIN->heightAt(
+                     {G_CAMERA.position().x, G_CAMERA.position().z});
     }
     else {
         G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
         G_ZOOM *= 1.f + zoomVelocity * deltaSeconds * G_ZOOM_AMOUNT;
     }
 
-    G_CAMERA.move((1.f / G_ZOOM) * deltaSeconds * G_VELOCITY);
+    G_CAMERA.setScale(1.0f / G_ZOOM);
+    G_CAMERA.move(G_VELOCITY, deltaSeconds);
 
-    G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
-
-    G_CAMERA.setSize(1.0f / G_ZOOM);
-    G_CAMERA.setY(
-        1.0f / G_ZOOM
-        + G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z}));
+    G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
+    G_CAMERA.setCameraHeight(
+        G_TERRAIN->heightAt({G_CAMERA.position().x, G_CAMERA.position().z}));
 
     Pipeline world;
     world.setCamera(G_CAMERA);
@@ -123,7 +121,10 @@ handleInputDown(unsigned char c, int, int) {
         G_AUTO_ZOOM = !G_AUTO_ZOOM;
         break;
     case 'r':
-        G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
+        G_TERRAIN->updateMesh(
+            G_CAMERA.position().x,
+            G_CAMERA.position().z,
+            G_ZOOM);
         break;
     case 'q':
         exit(0);

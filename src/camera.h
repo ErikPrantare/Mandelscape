@@ -18,61 +18,26 @@ public:
         Vector3f const& worldUp       = {0.0f, 1.0f, 0.0f});
 
     Matrix4f
-    uvn() const;
-
-    Matrix4f
     projectionTransformation() const;
 
-    void
-    lookAt(Vector3f z) {
-        m_lookAt = normalize(z);
-    }
-
     const Vector3f&
-    getPos() const {
-        return m_pos;
-    }
+    position() const;
 
     void
-    move(const Vector3f& movement);
+    lookAt(Vector3f direction);
 
     void
-    setY(float y) {
-        m_pos.y = y;
-    }
+    setScale(float scale);
 
     void
-    setSize(float size) {
-        m_size = size;
-    }
+    move(const Vector3f& velocity, const float& deltaSeconds);
+
+    void
+    setCameraHeight(float meshHeight);
 
 private:
-    void
-    setClip(float zNear, float zFar) {
-        m_zNear = zNear;
-        m_zFar  = zFar;
-    }
-
-    void
-    setDimensions(float width, float height) {
-        m_width  = width;
-        m_height = height;
-    }
-
-    void
-    setFOV(float FOV) {
-        m_FOV = FOV;
-    }
-
-    void
-    setUp(Vector3f up) {
-        m_up = normalize(up);
-    }
-
-    void
-    setPos(Vector3f pos) {
-        m_pos = pos;
-    }
+    Matrix4f
+    uvn() const;
 
     float m_width, m_height;
     float m_zNear, m_zFar;
@@ -80,7 +45,7 @@ private:
     Vector3f m_pos;
     Vector3f m_up;
     Vector3f m_lookAt;
-    float m_size;
+    float m_worldScale;
 };
 
 #endif
