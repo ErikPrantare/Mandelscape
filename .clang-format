@@ -56,7 +56,7 @@ BreakStringLiterals:                            false
 ColumnLimit:                                    80
 CompactNamespaces:                              false
 
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth:              4
 ContinuationIndentWidth:                        4
 
