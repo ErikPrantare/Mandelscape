@@ -4,3 +4,6 @@
 #Merge into develop with rebase
 
 #Follow template in Trello to add task
+
+#Add a comment with the branch name when you move task to REVIEW
+
