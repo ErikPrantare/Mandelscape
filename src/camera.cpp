@@ -28,14 +28,14 @@ Camera::Camera(
 }
 
 void
-Camera::move(const Vector3f& velocity, const float& deltaSeconds) {
-    Vector3f const adjustedVelocity = m_worldScale * deltaSeconds * velocity;
+Camera::move(const Vector3f& movement) {
+    Vector3f const adjustedMovement = m_worldScale * movement;
 
-    m_pos += adjustedVelocity.y * m_up;
+    m_pos += adjustedMovement.y * m_up;
     m_pos +=
-        adjustedVelocity.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
+        adjustedMovement.z * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
     Vector3f right = cross(m_up, m_lookAt);
-    m_pos += adjustedVelocity.x * normalize(Vector3f(right.x, 0.0f, right.z));
+    m_pos += adjustedMovement.x * normalize(Vector3f(right.x, 0.0f, right.z));
 }
 
 Matrix4f

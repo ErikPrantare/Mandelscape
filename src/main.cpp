@@ -59,12 +59,11 @@ static void
 updateScene() {
     float constexpr zoomVelocity = 1.f;
 
-    static float lastTimeStep = glutGet(GLUT_ELAPSED_TIME);
+    static float lastTimepoint = glutGet(GLUT_ELAPSED_TIME)/1000.f;
+    float currentTimepoint = glutGet(GLUT_ELAPSED_TIME)/1000.f;
 
-    float deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME) - lastTimeStep;
-    lastTimeStep            = glutGet(GLUT_ELAPSED_TIME);
-
-    float deltaSeconds = deltaMilliseconds / 1000.f;
+    float dt = currentTimepoint - lastTimepoint;
+    lastTimepoint = currentTimepoint;
 
     if(G_AUTO_ZOOM) {
         G_ZOOM = 1.f
@@ -73,11 +72,11 @@ updateScene() {
     }
     else {
         G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
-        G_ZOOM *= 1.f + zoomVelocity * deltaSeconds * G_ZOOM_AMOUNT;
+        G_ZOOM *= 1.f + dt*zoomVelocity * G_ZOOM_AMOUNT;
     }
 
     G_CAMERA.setScale(1.0f / G_ZOOM);
-    G_CAMERA.move(G_VELOCITY, deltaSeconds);
+    G_CAMERA.move(dt*G_VELOCITY);
 
     G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
     G_CAMERA.setCameraHeight(

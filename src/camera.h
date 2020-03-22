@@ -30,7 +30,7 @@ public:
     setScale(float scale);
 
     void
-    move(const Vector3f& velocity, const float& deltaSeconds);
+    move(const Vector3f& movement);
 
     void
     setCameraHeight(float meshHeight);
