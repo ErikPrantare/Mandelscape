@@ -6,7 +6,7 @@
 The public interface of the camera class is a mess, most of it should be
 private or the functionality should be accessed through a more specialized
 function.
-Status: To do
+Status: Being worked on by ElderTwig
 Depends on:
 Affected files:
     ->src/camera.h
