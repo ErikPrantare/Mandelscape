@@ -76,6 +76,12 @@ Camera::projectionTransformation() const
 }
 
 void
+Camera::lookAt(Vector3f direction)
+{
+    m_lookAt = normalize(direction);
+}
+
+void
 Camera::setScale(float scale)
 {
     m_worldScale = scale;
