@@ -16,6 +16,9 @@
 #include "camera.h"
 #include "terrain.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 GLuint G_WORLD_LOCATION;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
