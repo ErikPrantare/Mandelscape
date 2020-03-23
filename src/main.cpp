@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -56,6 +57,21 @@ renderScene()
     glutSwapBuffers();
 }
 
+class LPFilter {
+public:
+    float
+    filter(float value)
+    {
+        m_filteredValue *= m_filterAmount;
+        m_filteredValue += (1.0f - m_filterAmount) * value;
+        return m_filteredValue;
+    }
+
+private:
+    float m_filterAmount  = 0.9f;
+    float m_filteredValue = 0.0f;
+};
+
 static void
 updateScene()
 {
@@ -81,8 +97,11 @@ updateScene()
     G_CAMERA.move(dt * G_VELOCITY);
 
     G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
-    G_CAMERA.setCameraHeight(G_TERRAIN->heightAt(
-            {G_CAMERA.position().x, G_CAMERA.position().z}));
+
+    static LPFilter heightFilter;
+
+    G_CAMERA.setCameraHeight(heightFilter.filter(G_TERRAIN->heightAt(
+            {G_CAMERA.position().x, G_CAMERA.position().z})));
 
     Pipeline world;
     world.setCamera(G_CAMERA);
