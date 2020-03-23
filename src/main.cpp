@@ -176,7 +176,10 @@ handleMouseMove(int x, int y)
     rotationX += deltaX / 100.0f;
     static float rotationY = 0.0f;
     rotationY += deltaY / 100.f;
-    rotationY = std::clamp(rotationY, float(-pi / 2), float(pi / 2));
+    rotationY = std::clamp(
+            rotationY,
+            float(-pi / 2 + 0.001),
+            float(pi / 2 - 0.001));
 
     Vector3f lookAt = rotationMatrix({0.0f, -rotationX, 0.0f})
                       * rotationMatrix({rotationY, 0.0f, 0.0f})
