@@ -205,10 +205,10 @@ handleMouseMove(int x, int y)
                       * Vector3f(0.0f, 0.0f, 1.0f);
 
     G_CAMERA.lookAt(lookAt);
-    if(x != 512 || y != 512) {
-        glutWarpPointer(512, 512);
-        mouseX = 512;
-        mouseY = 512;
+    if(x != G_WINDOW_SIZE_X / 2 || y != G_WINDOW_SIZE_Y / 2) {
+        glutWarpPointer(G_WINDOW_SIZE_X / 2, G_WINDOW_SIZE_Y / 2);
+        mouseX = G_WINDOW_SIZE_X / 2;
+        mouseY = G_WINDOW_SIZE_Y / 2;
     }
 }
 
