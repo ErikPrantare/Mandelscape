@@ -57,10 +57,10 @@ renderScene()
     glutSwapBuffers();
 }
 
-class LPFilter {
+class LowPassFilter {
 public:
-    float
-    filter(float value)
+    [[nodiscard]] float
+    operator()(float const& value)
     {
         m_filteredValue *= m_filterAmount;
         m_filteredValue += (1.0f - m_filterAmount) * value;
@@ -68,8 +68,8 @@ public:
     }
 
 private:
-    float m_filterAmount  = 0.9f;
-    float m_filteredValue = 0.0f;
+    static float constexpr m_filterAmount = 0.9f;
+    float m_filteredValue                 = 0.0f;
 };
 
 static void
@@ -98,9 +98,9 @@ updateScene()
 
     G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
 
-    static LPFilter heightFilter;
+    static LowPassFilter filterHeight;
 
-    G_CAMERA.setCameraHeight(heightFilter.filter(G_TERRAIN->heightAt(
+    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt(
             {G_CAMERA.position().x, G_CAMERA.position().z})));
 
     Pipeline world;
