@@ -5,6 +5,10 @@ project(MandelLandscape CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/compile_commands.json 
+    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
+    COPYONLY)
 
 include(CheckCXXCompilerFlag)
 
