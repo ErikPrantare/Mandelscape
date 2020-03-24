@@ -1,6 +1,5 @@
 #version 300 es
 
-in mediump vec4 color;
 in mediump vec3 position;
 in mediump float distance;
 out mediump vec4 fragColor;

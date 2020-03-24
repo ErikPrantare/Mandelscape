@@ -54,7 +54,7 @@ Camera::uvn() const
 }
 
 Matrix4f
-Camera::projectionTransformation() const
+Camera::projection() const
 {
     const float aspectRatio = m_width / m_height;
     const float zRange      = m_zNear - m_zFar;
@@ -68,12 +68,17 @@ Camera::projectionTransformation() const
                       2.0f * m_zNear * m_zFar / zRange},
                      {0.0, 0.0, 1.0, 0.0}};
 
+    return Matrix4f(m);
+}
+
+Matrix4f
+Camera::cameraSpace() const
+{
     Matrix4f translation = translationMatrix({-m_pos.x, -m_pos.y, -m_pos.z});
 
-    return Matrix4f(m)
-           * scaleMatrix({1 / m_worldScale,
+    return scaleMatrix({1 / m_worldScale,
                           1 / m_worldScale,
-                          1 / (m_worldScale * aspectRatio)})
+                          1 / m_worldScale})
            * uvn() * translation;
 }
 

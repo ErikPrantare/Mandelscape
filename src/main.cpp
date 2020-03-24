@@ -15,7 +15,8 @@
 #include "camera.h"
 #include "terrain.h"
 
-GLuint G_WORLD_LOCATION;
+GLuint G_CAMERA_SPACE;
+GLuint G_PROJECTION;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
@@ -102,12 +103,18 @@ updateScene()
     G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt(
             {G_CAMERA.position().x, G_CAMERA.position().z})));
 
-    Matrix4f const transformationMatrix = G_CAMERA.projectionTransformation();
+    Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
+    Matrix4f const projection = G_CAMERA.projection();
     glUniformMatrix4fv(
-            G_WORLD_LOCATION,
+            G_CAMERA_SPACE,
             1,
             GL_TRUE,
-            &transformationMatrix.m[0][0]);
+            &cameraSpace.m[0][0]);
+    glUniformMatrix4fv(
+            G_PROJECTION,
+            1,
+            GL_TRUE,
+            &projection.m[0][0]);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
@@ -314,9 +321,14 @@ compileShaders()
 
     glUseProgram(shaderProgram);
 
-    G_WORLD_LOCATION = glGetUniformLocation(shaderProgram, "world");
-    if(G_WORLD_LOCATION == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable world" << std::endl;
+    G_CAMERA_SPACE = glGetUniformLocation(shaderProgram, "cameraSpace");
+    if(G_CAMERA_SPACE == 0xFFFFFFFF) {
+        std::cerr << "Failed to find variable cameraSpace" << std::endl;
+        exit(1);
+    }
+    G_PROJECTION = glGetUniformLocation(shaderProgram, "projection");
+    if(G_PROJECTION == 0xFFFFFFFF) {
+        std::cerr << "Failed to find variable projection" << std::endl;
         exit(1);
     }
 }
