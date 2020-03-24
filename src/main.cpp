@@ -12,7 +12,6 @@
 
 #include "math3d.h"
 #include "utils.h"
-#include "pipeline.h"
 #include "camera.h"
 #include "terrain.h"
 
@@ -103,9 +102,7 @@ updateScene()
     G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt(
             {G_CAMERA.position().x, G_CAMERA.position().z})));
 
-    Pipeline world;
-    world.setCamera(G_CAMERA);
-    Matrix4f const transformationMatrix = world.getTrans();
+    Matrix4f const transformationMatrix = G_CAMERA.projectionTransformation();
     glUniformMatrix4fv(
             G_WORLD_LOCATION,
             1,
