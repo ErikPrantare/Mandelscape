@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json)
+#file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json)
 
 configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json 
