@@ -333,6 +333,7 @@ main(int argc, char** argv)
     glutInitWindowPosition(100, 100);
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
+    glutSetCursor(GLUT_CURSOR_NONE);
 
     initializeGlutCallbacks();
 
