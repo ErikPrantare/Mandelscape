@@ -5,6 +5,10 @@ in mediump vec3 position;
 in mediump float distance;
 out mediump vec4 fragColor;
 
+uniform sampler2D tex;
+
+#define pi 3.1415926535897932384626433832795
+
 void
 main()
 {
@@ -36,8 +40,10 @@ main()
         z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
         if(dot(z, z) > 256.0f * 256.0f) {
             mediump float colorVal = float(i) - log2(log2(dot(z, z)));
-            fragColor              = vec4(1.0, 1.0, 1.0, 2.0)
-                        - (1.0 - fog)
+            mediump float angle = atan(z.x, z.y)/pi;
+            fragColor = fog*vec4(1.0, 1.0, 1.0, 1.0)
+                        + (1.0-fog)
+                              * texture(tex, vec2(0.0, colorVal))
                               * vec4(
                                   0.5f * sin(colorVal * 0.1f) + 0.5f,
                                   0.5f * sin(colorVal * 0.13f + 1.0f) + 0.5f,

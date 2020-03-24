@@ -20,6 +20,7 @@
 #include "stb_image.h"
 
 GLuint G_WORLD_LOCATION;
+GLuint G_TEXTURE_LOCATION;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
@@ -53,6 +54,7 @@ renderScene()
 
     glEnableVertexAttribArray(0);
 
+    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
     G_TERRAIN->render();
 
     glDisableVertexAttribArray(0);
@@ -316,12 +318,27 @@ compileShaders()
     }
 
     glUseProgram(shaderProgram);
-
     G_WORLD_LOCATION = glGetUniformLocation(shaderProgram, "world");
     if(G_WORLD_LOCATION == 0xFFFFFFFF) {
         std::cerr << "Failed to find variable world" << std::endl;
         exit(1);
     }
+
+    int width, height, nrChannels;
+    unsigned char * const data = 
+        stbi_load("texture.png", &width, &height, &nrChannels, 4);
+    if(!data) {
+        std::cout << "Failed to load texture" << std::endl;
+        exit(1);
+    }
+
+    glGenTextures(1, &G_TEXTURE_LOCATION);
+    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_image_free(data);
 }
 
 int
