@@ -8,4 +8,4 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
-clang-format-9 -i ${DIR}/src/* || clang-format -i ${DIR}/src/*
+clang-format-9 -i ${DIR}/src/* 2>/dev/null || clang-format -i ${DIR}/src/*
