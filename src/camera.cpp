@@ -54,13 +54,13 @@ Camera::uvn() const
 }
 
 Matrix4f
-Camera::projectionTransformation() const
+Camera::projection() const
 {
-    const float ar         = m_width / m_height;
-    const float zRange     = m_zNear - m_zFar;
-    const float tanHalfFOV = std::tan(m_FOV / 2.0);
+    const float aspectRatio = m_width / m_height;
+    const float zRange      = m_zNear - m_zFar;
+    const float tanHalfFOV  = std::tan(m_FOV / 2.0);
 
-    float m[4][4] = {{1.0f / (tanHalfFOV * ar), 0.0, 0.0, 0.0},
+    float m[4][4] = {{1.0f / (tanHalfFOV * aspectRatio), 0.0, 0.0, 0.0},
                      {0.0, 1.0f / tanHalfFOV, 0.0, 0.0},
                      {0.0,
                       0.0,
@@ -68,10 +68,15 @@ Camera::projectionTransformation() const
                       2.0f * m_zNear * m_zFar / zRange},
                      {0.0, 0.0, 1.0, 0.0}};
 
+    return Matrix4f(m);
+}
+
+Matrix4f
+Camera::cameraSpace() const
+{
     Matrix4f translation = translationMatrix({-m_pos.x, -m_pos.y, -m_pos.z});
 
-    return Matrix4f(m)
-           * scaleMatrix({1 / m_worldScale, 1 / m_worldScale, 1 / m_worldScale})
+    return scaleMatrix({1 / m_worldScale, 1 / m_worldScale, 1 / m_worldScale})
            * uvn() * translation;
 }
 

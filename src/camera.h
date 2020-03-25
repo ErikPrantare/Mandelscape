@@ -17,7 +17,10 @@ public:
            Vector3f const& worldUp       = {0.0f, 1.0f, 0.0f});
 
     Matrix4f
-    projectionTransformation() const;
+    projection() const;
+
+    Matrix4f
+    cameraSpace() const;
 
     const Vector3f&
     position() const;

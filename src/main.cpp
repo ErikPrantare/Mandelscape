@@ -12,15 +12,15 @@
 
 #include "math3d.h"
 #include "utils.h"
-#include "pipeline.h"
 #include "camera.h"
 #include "terrain.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-GLuint G_WORLD_LOCATION;
 GLuint G_TEXTURE_LOCATION;
+GLuint G_CAMERA_SPACE;
+GLuint G_PROJECTION;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
@@ -62,10 +62,10 @@ renderScene()
     glutSwapBuffers();
 }
 
-class LPFilter {
+class LowPassFilter {
 public:
-    float
-    filter(float value)
+    [[nodiscard]] float
+    operator()(float const& value)
     {
         m_filteredValue *= m_filterAmount;
         m_filteredValue += (1.0f - m_filterAmount) * value;
@@ -73,8 +73,8 @@ public:
     }
 
 private:
-    float m_filterAmount  = 0.9f;
-    float m_filteredValue = 0.0f;
+    static float constexpr m_filterAmount = 0.9f;
+    float m_filteredValue                 = 0.0f;
 };
 
 static void
@@ -103,19 +103,15 @@ updateScene()
 
     G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
 
-    static LPFilter heightFilter;
+    static LowPassFilter filterHeight;
 
-    G_CAMERA.setCameraHeight(heightFilter.filter(G_TERRAIN->heightAt(
+    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt(
             {G_CAMERA.position().x, G_CAMERA.position().z})));
 
-    Pipeline world;
-    world.setCamera(G_CAMERA);
-    Matrix4f const transformationMatrix = world.getTrans();
-    glUniformMatrix4fv(
-            G_WORLD_LOCATION,
-            1,
-            GL_TRUE,
-            &transformationMatrix.m[0][0]);
+    Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
+    Matrix4f const projection  = G_CAMERA.projection();
+    glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
+    glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
@@ -190,27 +186,37 @@ handleInputUp(unsigned char c, int, int)
 static void
 handleMouseMove(int x, int y)
 {
-    static int mouseX = 0, mouseY = 0;
+    int constexpr halfWindowSizeX = G_WINDOW_SIZE_X / 2;
+    int constexpr halfWindowSizeY = G_WINDOW_SIZE_Y / 2;
+
+    static int mouseX = halfWindowSizeX;
+    static int mouseY = halfWindowSizeY;
+
     int deltaX = x - mouseX;
     int deltaY = y - mouseY;
     mouseX     = x;
     mouseY     = y;
 
-    static float rotationX = 0.0f;
+    static float rotationX = 16.75997f;
+    static float rotationY = 0.94000f;
+
     rotationX += deltaX / 100.0f;
-    static float rotationY = 0.0f;
     rotationY += deltaY / 100.f;
-    rotationY = std::clamp(rotationY, float(-pi / 2), float(pi / 2));
+    rotationY = std::clamp(
+            rotationY,
+            float(-pi / 2 + 0.001),
+            float(pi / 2 - 0.001));
 
     Vector3f lookAt = rotationMatrix({0.0f, -rotationX, 0.0f})
                       * rotationMatrix({rotationY, 0.0f, 0.0f})
                       * Vector3f(0.0f, 0.0f, 1.0f);
 
     G_CAMERA.lookAt(lookAt);
-    if(x != 512 || y != 512) {
-        glutWarpPointer(512, 512);
-        mouseX = 512;
-        mouseY = 512;
+
+    if(x != halfWindowSizeX || y != halfWindowSizeY) {
+        glutWarpPointer(halfWindowSizeX, halfWindowSizeY);
+        mouseX = halfWindowSizeX;
+        mouseY = halfWindowSizeY;
     }
 }
 
@@ -318,15 +324,21 @@ compileShaders()
     }
 
     glUseProgram(shaderProgram);
-    G_WORLD_LOCATION = glGetUniformLocation(shaderProgram, "world");
-    if(G_WORLD_LOCATION == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable world" << std::endl;
+
+    G_CAMERA_SPACE = glGetUniformLocation(shaderProgram, "cameraSpace");
+    if(G_CAMERA_SPACE == 0xFFFFFFFF) {
+        std::cerr << "Failed to find variable cameraSpace" << std::endl;
+        exit(1);
+    }
+    G_PROJECTION = glGetUniformLocation(shaderProgram, "projection");
+    if(G_PROJECTION == 0xFFFFFFFF) {
+        std::cerr << "Failed to find variable projection" << std::endl;
         exit(1);
     }
 
     int width, height, nrChannels;
-    unsigned char * const data = 
-        stbi_load("texture.png", &width, &height, &nrChannels, 4);
+    unsigned char* const data =
+            stbi_load("texture.png", &width, &height, &nrChannels, 4);
     if(!data) {
         std::cout << "Failed to load texture" << std::endl;
         exit(1);
@@ -334,7 +346,16 @@ compileShaders()
 
     glGenTextures(1, &G_TEXTURE_LOCATION);
     glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            width,
+            height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            data);
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -350,6 +371,7 @@ main(int argc, char** argv)
     glutInitWindowPosition(100, 100);
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
+    glutSetCursor(GLUT_CURSOR_NONE);
 
     initializeGlutCallbacks();
 
@@ -371,6 +393,7 @@ main(int argc, char** argv)
 
     compileShaders();
 
+    glutWarpPointer(G_WINDOW_SIZE_X / 2, G_WINDOW_SIZE_Y / 2);
     glutMainLoop();
 
     return 0;
