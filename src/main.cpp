@@ -189,15 +189,21 @@ handleInputUp(unsigned char c, int, int)
 static void
 handleMouseMove(int x, int y)
 {
-    static int mouseX = 0, mouseY = 0;
+    int constexpr halfWindowSizeX = G_WINDOW_SIZE_X / 2;
+    int constexpr halfWindowSizeY = G_WINDOW_SIZE_Y / 2;
+
+    static int mouseX = halfWindowSizeX;
+    static int mouseY = halfWindowSizeY;
+
     int deltaX = x - mouseX;
     int deltaY = y - mouseY;
     mouseX     = x;
     mouseY     = y;
 
-    static float rotationX = 0.0f;
+    static float rotationX = 16.75997f;
+    static float rotationY = 0.94000f;
+
     rotationX += deltaX / 100.0f;
-    static float rotationY = 0.0f;
     rotationY += deltaY / 100.f;
     rotationY = std::clamp(
             rotationY,
@@ -209,10 +215,11 @@ handleMouseMove(int x, int y)
                       * Vector3f(0.0f, 0.0f, 1.0f);
 
     G_CAMERA.lookAt(lookAt);
-    if(x != G_WINDOW_SIZE_X / 2 || y != G_WINDOW_SIZE_Y / 2) {
-        glutWarpPointer(G_WINDOW_SIZE_X / 2, G_WINDOW_SIZE_Y / 2);
-        mouseX = G_WINDOW_SIZE_X / 2;
-        mouseY = G_WINDOW_SIZE_Y / 2;
+
+    if(x != halfWindowSizeX || y != halfWindowSizeY) {
+        glutWarpPointer(halfWindowSizeX, halfWindowSizeY);
+        mouseX = halfWindowSizeX;
+        mouseY = halfWindowSizeY;
     }
 }
 
@@ -364,6 +371,7 @@ main(int argc, char** argv)
 
     compileShaders();
 
+    glutWarpPointer(G_WINDOW_SIZE_X / 2, G_WINDOW_SIZE_Y / 2);
     glutMainLoop();
 
     return 0;
