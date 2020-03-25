@@ -2,7 +2,6 @@
 
 precision mediump float;
 
-in vec4 color;
 in vec3 position;
 in float distance;
 out vec4 fragColor;
