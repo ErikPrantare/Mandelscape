@@ -1,12 +1,14 @@
 #version 300 es
 
+precision mediump float;
+
 layout(location = 0) in vec3 pos;
 
 uniform mat4 world;
 
-out mediump vec4 color;
-out mediump vec3 position;
-out mediump float distance;
+out vec4 color;
+out vec3 position;
+out float distance;
 
 void
 main()
