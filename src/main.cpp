@@ -104,17 +104,9 @@ updateScene()
             {G_CAMERA.position().x, G_CAMERA.position().z})));
 
     Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
-    Matrix4f const projection = G_CAMERA.projection();
-    glUniformMatrix4fv(
-            G_CAMERA_SPACE,
-            1,
-            GL_TRUE,
-            &cameraSpace.m[0][0]);
-    glUniformMatrix4fv(
-            G_PROJECTION,
-            1,
-            GL_TRUE,
-            &projection.m[0][0]);
+    Matrix4f const projection  = G_CAMERA.projection();
+    glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
+    glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
