@@ -338,7 +338,7 @@ compileShaders()
 
     int width, height, nrChannels;
     unsigned char* const data =
-            stbi_load("texture.png", &width, &height, &nrChannels, 4);
+            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
     if(!data) {
         std::cout << "Failed to load texture" << std::endl;
         exit(1);
