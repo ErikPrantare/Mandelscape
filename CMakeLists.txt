@@ -6,7 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json)
+if(CMAKE_VERSION VERSION_LESS 3.12.4)
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json "")
+else()
+    file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json)
+endif(CMAKE_VERSION VERSION_LESS 3.12.4)
 
 configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json 
