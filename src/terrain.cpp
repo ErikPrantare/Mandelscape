@@ -27,14 +27,14 @@ Terrain::Terrain() :
             GL_ARRAY_BUFFER,
             m_currentMeshPoints->size() * sizeof(Vector3f),
             m_currentMeshPoints->data(),
-            GL_STATIC_DRAW);
+            GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
     glBufferData(
             GL_ARRAY_BUFFER,
             m_loadingMeshPoints->size() * sizeof(Vector3f),
             m_loadingMeshPoints->data(),
-            GL_STATIC_DRAW);
+            GL_DYNAMIC_DRAW);
 
     auto meshIndices = generateMeshIndices();
 
