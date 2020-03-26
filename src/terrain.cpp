@@ -111,9 +111,9 @@ Terrain::loadMesh(
         for(int z = 0; z < granularity; ++z) {
             double zQuant                  = quantized(zPos, stepSize(z));
             (*buffer)[x * granularity + z] = Vector3f(
-                    xQuant,
+                    xPos - _x,
                     Terrain::heightAt({xQuant, zQuant}),
-                    zQuant);
+                    zQuant - _z);
 
             zPos += stepSize(z);
         }

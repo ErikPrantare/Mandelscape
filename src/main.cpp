@@ -21,6 +21,7 @@
 GLuint G_TEXTURE_LOCATION;
 GLuint G_CAMERA_SPACE;
 GLuint G_PROJECTION;
+GLuint G_OFFSET;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
@@ -112,6 +113,7 @@ updateScene()
     Matrix4f const projection  = G_CAMERA.projection();
     glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
     glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
+    glUniform2f(G_OFFSET, G_CAMERA.position().x, G_CAMERA.position().z);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
@@ -333,6 +335,11 @@ compileShaders()
     G_PROJECTION = glGetUniformLocation(shaderProgram, "projection");
     if(G_PROJECTION == 0xFFFFFFFF) {
         std::cerr << "Failed to find variable projection" << std::endl;
+        exit(1);
+    }
+    G_OFFSET = glGetUniformLocation(shaderProgram, "offset");
+    if(G_OFFSET == 0xFFFFFFFF) {
+        std::cerr << "Failed to find variable offset" << std::endl;
         exit(1);
     }
 

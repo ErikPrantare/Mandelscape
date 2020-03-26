@@ -7,8 +7,10 @@ in float distance;
 out vec4 fragColor;
 
 uniform sampler2D tex;
+uniform vec2 offset;
 
 #define pi 3.1415926535897932384626433832795
+#define complexMul(a, b) vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
 
 void
 main()
@@ -23,8 +25,7 @@ main()
     fog       = pow(fog, 2.0);
     fragColor = vec4(fog, fog, fog, 1.0);
 
-    vec2 c = position.xz;
-    vec2 z = vec2(0.0, 0.0);
+    vec2 c = position.xz + offset;
 
     // main cardioid check
     float q = pow(c.x - 0.25f, 2.0f) + c.y * c.y;
@@ -37,8 +38,16 @@ main()
         return;
     }
 
-    for(int i = 0; i < 100; ++i) {
-        z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
+    vec4 pc = vec4(offset, position.xz);
+    vec2 z = vec2(0.0, 0.0);
+    vec2 zlo = vec2(0.0, 0.0);
+    vec2 zhi = vec2(0.0, 0.0);
+
+    for(int i = 0; i < 200; ++i) {
+        vec2 add = 2.0 * complexMul(zhi, zlo);
+        zhi = complexMul(zhi, zhi)       + pc.xy;
+        zlo = complexMul(zlo, zlo) + add + pc.zw; 
+        z = zhi + zlo;
         if(dot(z, z) > 256.0f * 256.0f) {
             float colorVal = float(i) - log2(log2(dot(z, z)));
             fragColor = fog*vec4(1.0, 1.0, 1.0, 1.0)
