@@ -60,5 +60,9 @@ main()
                                   1.0f);
             return;
         }
+        if (dot(zlo, zlo) / dot(zhi, zhi) > 0.5) {
+            zlo = vec2(0.0);
+            zhi = z;
+        }
     }
 }
