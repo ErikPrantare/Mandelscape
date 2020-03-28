@@ -67,9 +67,6 @@ Terrain::startLoading()
             m_loadingMeshPoints.get());
 }
 
-double loadedX;
-double loadedZ;
-
 void
 Terrain::loadMesh(
         double _x,
@@ -122,9 +119,6 @@ Terrain::loadMesh(
         }
         xPos += stepSize(x);
     }
-
-    loadedX = _x;
-    loadedZ = _z;
 }
 
 bool
@@ -152,17 +146,9 @@ uploadMeshChunk(
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-bool readyToSwitch = false;
-double oldX = 0.0;
-double oldZ = 0.0;
-
 const std::vector<Vector3f>&
 Terrain::updateMesh(double x, double z, double scale)
 {
-    m_x     = x;
-    m_z     = z;
-    m_scale = scale;
-
     const bool uploadingDone = uploadMeshChunk(
             *m_currentMeshPoints,
             m_loadingVBO,
@@ -171,19 +157,27 @@ Terrain::updateMesh(double x, double z, double scale)
 
     m_loadIndex += uploadChunkSize;
 
-    if(isDone(m_loadingProcess) && uploadingDone && !readyToSwitch) {
-        m_loadIndex = 0;
-        readyToSwitch = true;
+    if(uploadingDone)
+    switch(m_state) {
+    case State::Loading: if(isDone(m_loadingProcess)) {
         std::swap(m_currentMeshPoints, m_loadingMeshPoints);
-    }
+        m_loadIndex = 0;
 
-    if(uploadingDone && readyToSwitch) {
-        readyToSwitch = false;
-        m_callback(oldX, oldZ);
-        oldX = loadedX;
-        oldZ = loadedZ;
+        m_state = State::Uploading;
+    }   break;
+    
+    case State::Uploading: {
+        m_callback(m_x, m_z);
         std::swap(m_VBO, m_loadingVBO);
+
+        m_x     = x;
+        m_z     = z;
+        m_scale = scale;
+
         startLoading();
+
+        m_state = State::Loading;
+    }   break;
     }
 
     return *m_currentMeshPoints;

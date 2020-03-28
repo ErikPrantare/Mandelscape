@@ -30,6 +30,9 @@ public:
     void
     render();
 private:
+    enum class State {Loading, Uploading};
+    State m_state = State::Loading;
+
     static constexpr int granularity     = 400;
     static constexpr int iterations      = 100;
     static constexpr int uploadChunkSize = 90'000;
