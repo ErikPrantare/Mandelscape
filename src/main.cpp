@@ -113,7 +113,7 @@ updateScene()
     Matrix4f const projection  = G_CAMERA.projection();
     glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
     glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
-    glUniform2f(G_OFFSET, G_CAMERA.position().x, G_CAMERA.position().z);
+    glUniform2f(G_OFFSET, G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
@@ -327,21 +327,17 @@ compileShaders()
 
     glUseProgram(shaderProgram);
 
-    G_CAMERA_SPACE = glGetUniformLocation(shaderProgram, "cameraSpace");
-    if(G_CAMERA_SPACE == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable cameraSpace" << std::endl;
-        exit(1);
-    }
-    G_PROJECTION = glGetUniformLocation(shaderProgram, "projection");
-    if(G_PROJECTION == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable projection" << std::endl;
-        exit(1);
-    }
-    G_OFFSET = glGetUniformLocation(shaderProgram, "offset");
-    if(G_OFFSET == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable offset" << std::endl;
-        exit(1);
-    }
+    auto loadShader = [&shaderProgram](std::string name, GLuint& loc) {
+        loc = glGetUniformLocation(shaderProgram, name.c_str());
+        if(loc == 0xFFFFFFFF) {
+            std::cerr << "Failed to find variable " << loc << std::endl;
+            exit(1);
+        }
+    };
+
+    loadShader("cameraSpace", G_CAMERA_SPACE);
+    loadShader("projection", G_PROJECTION);
+    loadShader("offset", G_OFFSET);
 
     int width, height, nrChannels;
     unsigned char* const data =

@@ -74,7 +74,7 @@ Camera::projection() const
 Matrix4f
 Camera::cameraSpace() const
 {
-    Matrix4f translation = translationMatrix({0.0, -m_pos.y, 0.0});
+    Matrix4f translation = translationMatrix(-m_pos);
 
     return scaleMatrix({1 / m_worldScale, 1 / m_worldScale, 1 / m_worldScale})
            * uvn() * translation;

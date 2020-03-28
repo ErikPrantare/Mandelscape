@@ -67,6 +67,9 @@ Terrain::startLoading()
             m_loadingMeshPoints.get());
 }
 
+double loadedX;
+double loadedZ;
+
 void
 Terrain::loadMesh(
         double _x,
@@ -94,31 +97,34 @@ Terrain::loadMesh(
                / scaleFactor;
     };
 
-    const auto& quantized = [](double x, double stepSize) {
+    /*const auto& quantized = [](double x, double stepSize) {
         return std::floor(x / stepSize) * stepSize;
-    };
+    };*/
 
     double meshSpan = 0.0;
     for(int i = 0; i < granularity; ++i) {
         meshSpan += stepSize(i);
     }
 
-    double xPos = _x - meshSpan / 2;
+    double xPos = -meshSpan / 2;
     for(int x = 0; x < granularity; ++x) {
-        double xQuant = quantized(xPos, stepSize(x));
+        //double xQuant = quantized(xPos, stepSize(x));
 
-        double zPos = _z - meshSpan / 2;
+        double zPos = -meshSpan / 2;
         for(int z = 0; z < granularity; ++z) {
-            double zQuant                  = quantized(zPos, stepSize(z));
+            //double zQuant                  = quantized(zPos, stepSize(z));
             (*buffer)[x * granularity + z] = Vector3f(
-                    xPos - _x,
-                    Terrain::heightAt({xQuant, zQuant}),
-                    zQuant - _z);
+                    xPos,
+                    Terrain::heightAt({xPos + _x, zPos + _z}),
+                    zPos);
 
             zPos += stepSize(z);
         }
         xPos += stepSize(x);
     }
+
+    loadedX = _x;
+    loadedZ = _z;
 }
 
 bool
@@ -146,6 +152,11 @@ uploadMeshChunk(
     return (index + chunkSize) >= sourceMesh.size();
 }
 
+bool readyToSwitch = false;
+double oldX = 0.0;
+double oldZ = 0.0;
+#include <iostream>
+
 const std::vector<Vector3f>&
 Terrain::updateMesh(double x, double z, double scale)
 {
@@ -159,16 +170,23 @@ Terrain::updateMesh(double x, double z, double scale)
             m_loadIndex,
             uploadChunkSize);
 
-    if(isDone(m_loadingProcess) && uploadingDone) {
-        m_currentMeshPoints.swap(m_loadingMeshPoints);
-        startLoading();
-    }
-
     m_loadIndex += uploadChunkSize;
 
-    if(uploadingDone) {
+    if(isDone(m_loadingProcess) && uploadingDone && !readyToSwitch) {
         m_loadIndex = 0;
+        readyToSwitch = true;
+        std::swap(m_currentMeshPoints, m_loadingMeshPoints);
+    }
+
+    if(uploadingDone && readyToSwitch) {
+        readyToSwitch = false;
+        std::cout << loadedX << " " << G_MESH_OFFSET_X << std::endl;
+        G_MESH_OFFSET_X = oldX;
+        G_MESH_OFFSET_Z = oldZ;
+        oldX = loadedX;
+        oldZ = loadedZ;
         std::swap(m_VBO, m_loadingVBO);
+        startLoading();
     }
 
     return *m_currentMeshPoints;

@@ -13,6 +13,9 @@
 
 #include "math3d.h"
 
+inline float G_MESH_OFFSET_X = 0.0;
+inline float G_MESH_OFFSET_Z = 0.0;
+
 class Terrain {
 public:
     Terrain();
