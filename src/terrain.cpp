@@ -158,27 +158,29 @@ Terrain::updateMesh(double x, double z, double scale)
     m_loadIndex += uploadChunkSize;
 
     if(uploadingDone)
-    switch(m_state) {
-    case State::Loading: if(isDone(m_loadingProcess)) {
-        std::swap(m_currentMeshPoints, m_loadingMeshPoints);
-        m_loadIndex = 0;
+        switch(m_state) {
+        case State::Loading:
+            if(isDone(m_loadingProcess)) {
+                std::swap(m_currentMeshPoints, m_loadingMeshPoints);
+                m_loadIndex = 0;
 
-        m_state = State::Uploading;
-    }   break;
-    
-    case State::Uploading: {
-        m_callback(m_x, m_z);
-        std::swap(m_VBO, m_loadingVBO);
+                m_state = State::Uploading;
+            }
+            break;
 
-        m_x     = x;
-        m_z     = z;
-        m_scale = scale;
+        case State::Uploading: {
+            m_callback(m_x, m_z);
+            std::swap(m_VBO, m_loadingVBO);
 
-        startLoading();
+            m_x     = x;
+            m_z     = z;
+            m_scale = scale;
 
-        m_state = State::Loading;
-    }   break;
-    }
+            startLoading();
+
+            m_state = State::Loading;
+        } break;
+        }
 
     return *m_currentMeshPoints;
 }

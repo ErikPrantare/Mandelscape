@@ -111,8 +111,7 @@ updateScene()
 
     static LowPassFilter filterHeight;
 
-    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt(
-            {posX, posZ})));
+    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt({posX, posZ})));
 
     Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
     Matrix4f const projection  = G_CAMERA.projection();
@@ -397,12 +396,12 @@ main(int argc, char** argv)
     glDepthFunc(GL_LESS);
     glClearDepth(10'000'000.0f);
 
-    G_TERRAIN = new Terrain();
-    G_TERRAIN->m_callback = [](double x, double z){
+    G_TERRAIN             = new Terrain();
+    G_TERRAIN->m_callback = [](double x, double z) {
         float dx = x - G_MESH_OFFSET_X;
         float dz = z - G_MESH_OFFSET_Z;
-        G_CAMERA.position({G_CAMERA.position().x - dx, 0.0,
-                G_CAMERA.position().z - dz});
+        G_CAMERA.position(
+                {G_CAMERA.position().x - dx, 0.0, G_CAMERA.position().z - dz});
         G_MESH_OFFSET_X = x;
         G_MESH_OFFSET_Z = z;
     };

@@ -29,8 +29,9 @@ public:
 
     void
     render();
+
 private:
-    enum class State {Loading, Uploading};
+    enum class State { Loading, Uploading };
     State m_state = State::Loading;
 
     static constexpr int granularity     = 400;
