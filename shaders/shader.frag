@@ -43,7 +43,7 @@ main()
     vec2 zlo = vec2(0.0, 0.0);
     vec2 zhi = vec2(0.0, 0.0);
 
-    for(int i = 0; i < 200; ++i) {
+    for(int i = 0; i < 100; ++i) {
         vec2 add = 2.0 * complexMul(zhi, zlo);
         zhi = complexMul(zhi, zhi)       + pc.xy;
         zlo = complexMul(zlo, zlo) + add + pc.zw; 

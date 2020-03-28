@@ -46,6 +46,9 @@ float G_PERSISTENT_ZOOM_DIRECTION = 0;
 float G_ZOOM                      = 1.0f;
 float constexpr G_MOVEMENT_SPEED  = 1.f;
 
+float G_MESH_OFFSET_X = 0;
+float G_MESH_OFFSET_Z = 0;
+
 Terrain* G_TERRAIN = nullptr;
 
 static void
@@ -101,13 +104,15 @@ updateScene()
 
     G_CAMERA.setScale(1.0f / G_ZOOM);
     G_CAMERA.move(dt * G_VELOCITY);
+    float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
+    float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
 
-    G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
+    G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
 
     static LowPassFilter filterHeight;
 
     G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt(
-            {G_CAMERA.position().x, G_CAMERA.position().z})));
+            {posX, posZ})));
 
     Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
     Matrix4f const projection  = G_CAMERA.projection();
@@ -393,6 +398,14 @@ main(int argc, char** argv)
     glClearDepth(10'000'000.0f);
 
     G_TERRAIN = new Terrain();
+    G_TERRAIN->m_callback = [](double x, double z){
+        float dx = x - G_MESH_OFFSET_X;
+        float dz = z - G_MESH_OFFSET_Z;
+        G_CAMERA.position({G_CAMERA.position().x - dx, 0.0,
+                G_CAMERA.position().z - dz});
+        G_MESH_OFFSET_X = x;
+        G_MESH_OFFSET_Z = z;
+    };
 
     compileShaders();
 

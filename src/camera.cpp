@@ -103,3 +103,9 @@ Camera::position() const
 {
     return m_pos;
 }
+
+void
+Camera::position(Vector3f pos)
+{
+    m_pos = pos;
+}

@@ -155,7 +155,6 @@ uploadMeshChunk(
 bool readyToSwitch = false;
 double oldX = 0.0;
 double oldZ = 0.0;
-#include <iostream>
 
 const std::vector<Vector3f>&
 Terrain::updateMesh(double x, double z, double scale)
@@ -180,9 +179,7 @@ Terrain::updateMesh(double x, double z, double scale)
 
     if(uploadingDone && readyToSwitch) {
         readyToSwitch = false;
-        std::cout << loadedX << " " << G_MESH_OFFSET_X << std::endl;
-        G_MESH_OFFSET_X = oldX;
-        G_MESH_OFFSET_Z = oldZ;
+        m_callback(oldX, oldZ);
         oldX = loadedX;
         oldZ = loadedZ;
         std::swap(m_VBO, m_loadingVBO);

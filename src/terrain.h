@@ -8,16 +8,16 @@
 #include <condition_variable>
 #include <complex>
 #include <future>
+#include <functional>
 
 #include <GL/glew.h>
 
 #include "math3d.h"
 
-inline float G_MESH_OFFSET_X = 0.0;
-inline float G_MESH_OFFSET_Z = 0.0;
-
 class Terrain {
 public:
+    std::function<void(double, double)> m_callback;
+
     Terrain();
     ~Terrain();
 
@@ -29,10 +29,9 @@ public:
 
     void
     render();
-
 private:
     static constexpr int granularity     = 400;
-    static constexpr int iterations      = 200;
+    static constexpr int iterations      = 100;
     static constexpr int uploadChunkSize = 90'000;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
