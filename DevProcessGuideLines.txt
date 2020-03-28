@@ -1,11 +1,15 @@
 #Prefer smaller tasks
 #Do development in seperate branch, merge into develop after passing review
-#Final commit should be done with short description as commit message
-#Merge into develop with rebase
+#Merge into develop with --no-ff flag to preserve correct timestamp
 
 #Follow template in Trello to add task
 #Add Story Points power up to represent a rough linear scale of time where
 #1 is real quick and 10 is a BIG task
 
-#Add a comment with the branch name when you move task to REVIEW
+#Use git rebase ONLY with offline branches
+#NEVER force push to remote repositories
+#In general, do not cause history changes in remotes
+
+#At the end of each sprint, remove dead/finished/inactive branches
+#Only change formating at the beginning of a sprint
 
