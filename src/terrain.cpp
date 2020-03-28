@@ -97,26 +97,26 @@ Terrain::loadMesh(
                / scaleFactor;
     };
 
-    /*const auto& quantized = [](double x, double stepSize) {
+    const auto& quantized = [](double x, double stepSize) {
         return std::floor(x / stepSize) * stepSize;
-    };*/
+    };
 
     double meshSpan = 0.0;
     for(int i = 0; i < granularity; ++i) {
         meshSpan += stepSize(i);
     }
 
-    double xPos = -meshSpan / 2;
+    double xPos = -meshSpan / 2 + _x;
     for(int x = 0; x < granularity; ++x) {
-        //double xQuant = quantized(xPos, stepSize(x));
+        double xQuant = quantized(xPos, stepSize(x));
 
-        double zPos = -meshSpan / 2;
+        double zPos = -meshSpan / 2 + _z;
         for(int z = 0; z < granularity; ++z) {
-            //double zQuant                  = quantized(zPos, stepSize(z));
+            double zQuant                  = quantized(zPos, stepSize(z));
             (*buffer)[x * granularity + z] = Vector3f(
-                    xPos,
-                    Terrain::heightAt({xPos + _x, zPos + _z}),
-                    zPos);
+                    xQuant - _x,
+                    Terrain::heightAt({xQuant, zQuant}),
+                    zQuant - _z);
 
             zPos += stepSize(z);
         }
