@@ -159,14 +159,14 @@ Terrain::updateMesh(double x, double z, double scale)
 
     if(uploadingDone)
         switch(m_state) {
-        case State::Loading:
+        case State::Loading: {
             if(isDone(m_loadingProcess)) {
                 std::swap(m_currentMeshPoints, m_loadingMeshPoints);
                 m_loadIndex = 0;
 
                 m_state = State::Uploading;
             }
-            break;
+        } break;
 
         case State::Uploading: {
             m_callback(m_x, m_z);
