@@ -400,7 +400,7 @@ main(int argc, char** argv)
     G_TERRAIN->m_callback = [](double x, double z) {
         float dx = x - G_MESH_OFFSET_X;
         float dz = z - G_MESH_OFFSET_Z;
-        G_CAMERA.position(
+        G_CAMERA.setPosition(
                 {G_CAMERA.position().x - dx, 0.0, G_CAMERA.position().z - dz});
         G_MESH_OFFSET_X = x;
         G_MESH_OFFSET_Z = z;

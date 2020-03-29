@@ -105,7 +105,7 @@ Camera::position() const
 }
 
 void
-Camera::position(Vector3f pos)
+Camera::setPosition(Vector3f pos)
 {
     m_pos = pos;
 }
