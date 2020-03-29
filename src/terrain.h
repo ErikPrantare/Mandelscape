@@ -16,9 +16,7 @@
 
 class Terrain {
 public:
-    std::function<void(double, double)> m_callback;
-
-    Terrain();
+    Terrain(std::function<void(double, double)> const& callback);
     ~Terrain();
 
     const std::vector<Vector3f>&
@@ -38,10 +36,13 @@ private:
     static constexpr int iterations      = 100;
     static constexpr int uploadChunkSize = 90'000;
 
+    std::function<void(double, double)> m_callback;
+
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
-    std::future<void> m_loadingProcess;
     unsigned int m_loadIndex = 0;
+
+    std::future<void> m_loadingProcess;
 
     double m_x;
     double m_z;

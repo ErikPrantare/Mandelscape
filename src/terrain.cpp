@@ -8,7 +8,8 @@
 
 #include "terrain.h"
 
-Terrain::Terrain() :
+Terrain::Terrain(std::function<void(double, double)> const& callback) :
+            m_callback{callback},
             m_x{0.0},
             m_z{0.0},
             m_scale{1.0},
