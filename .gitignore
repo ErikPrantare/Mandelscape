@@ -10,5 +10,6 @@ out/
 
 build/
 
-#Config files
+#Config files and folders
 compile_commands.json
+.clangd/

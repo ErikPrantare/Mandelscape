@@ -8,12 +8,17 @@
 
 #include "terrain.h"
 
-Terrain::Terrain() :
-    m_x{0.0},
-    m_z{0.0},
-    m_scale{1.0},
-    m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
-    m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()} {
+Terrain::Terrain() : Terrain([](double, double) {})
+{}
+
+Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
+            m_setMeshOffset{setMeshOffset},
+            m_x{0.0},
+            m_z{0.0},
+            m_scale{1.0},
+            m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
+            m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()}
+{
     loadMesh(m_x, m_z, m_scale, m_currentMeshPoints.get());
     loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
 
@@ -23,53 +28,56 @@ Terrain::Terrain() :
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(
-        GL_ARRAY_BUFFER,
-        m_currentMeshPoints->size() * sizeof(Vector3f),
-        m_currentMeshPoints->data(),
-        GL_STATIC_DRAW);
+            GL_ARRAY_BUFFER,
+            m_currentMeshPoints->size() * sizeof(Vector3f),
+            m_currentMeshPoints->data(),
+            GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
     glBufferData(
-        GL_ARRAY_BUFFER,
-        m_loadingMeshPoints->size() * sizeof(Vector3f),
-        m_loadingMeshPoints->data(),
-        GL_STATIC_DRAW);
+            GL_ARRAY_BUFFER,
+            m_loadingMeshPoints->size() * sizeof(Vector3f),
+            m_loadingMeshPoints->data(),
+            GL_DYNAMIC_DRAW);
 
     auto meshIndices = generateMeshIndices();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
     glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        meshIndices.size() * sizeof(meshIndices[0]),
-        meshIndices.data(),
-        GL_STATIC_DRAW);
+            GL_ELEMENT_ARRAY_BUFFER,
+            meshIndices.size() * sizeof(meshIndices[0]),
+            meshIndices.data(),
+            GL_STATIC_DRAW);
 
     startLoading();
 }
 
-Terrain::~Terrain() {
+Terrain::~Terrain()
+{
     glDeleteBuffers(1, &m_VBO);
     glDeleteBuffers(1, &m_IBO);
     glDeleteBuffers(1, &m_loadingVBO);
 }
 
 void
-Terrain::startLoading() {
+Terrain::startLoading()
+{
     m_loadingProcess = std::async(
-        std::launch::async,
-        loadMesh,
-        m_x,
-        m_z,
-        m_scale,
-        m_loadingMeshPoints.get());
+            std::launch::async,
+            loadMesh,
+            m_x,
+            m_z,
+            m_scale,
+            m_loadingMeshPoints.get());
 }
 
 void
 Terrain::loadMesh(
-    double _x,
-    double _z,
-    double _scale,
-    std::vector<Vector3f>* buffer) {
+        double _x,
+        double _z,
+        double _scale,
+        std::vector<Vector3f>* buffer)
+{
     constexpr int nrIndices = granularity * granularity;
 
     if(buffer->size() != nrIndices) {
@@ -84,9 +92,9 @@ Terrain::loadMesh(
 
     const auto& stepSize = [scaleFactor](int i) {
         return std::pow(
-                   2.0,
-                   std::abs(i - granularity / 2) / doublingInterval
-                       - exponentOffset)
+                       2.0,
+                       std::abs(i - granularity / 2) / doublingInterval
+                               - exponentOffset)
                / scaleFactor;
     };
 
@@ -99,15 +107,17 @@ Terrain::loadMesh(
         meshSpan += stepSize(i);
     }
 
-    double xPos = _x - meshSpan / 2;
+    double xPos = -meshSpan / 2 + _x;
     for(int x = 0; x < granularity; ++x) {
         double xQuant = quantized(xPos, stepSize(x));
 
-        double zPos = _z - meshSpan / 2;
+        double zPos = -meshSpan / 2 + _z;
         for(int z = 0; z < granularity; ++z) {
-            double zQuant = quantized(zPos, stepSize(z));
-            (*buffer)[x * granularity + z] =
-                Vector3f(xQuant, Terrain::heightAt({xQuant, zQuant}), zQuant);
+            double zQuant                  = quantized(zPos, stepSize(z));
+            (*buffer)[x * granularity + z] = Vector3f(
+                    xQuant - _x,
+                    Terrain::heightAt({xQuant, zQuant}),
+                    zQuant - _z);
 
             zPos += stepSize(z);
         }
@@ -117,10 +127,11 @@ Terrain::loadMesh(
 
 bool
 uploadMeshChunk(
-    const std::vector<Vector3f>& sourceMesh,
-    const GLuint& destinationVBO,
-    const size_t& index,
-    const size_t& maxChunkSize) {
+        const std::vector<Vector3f>& sourceMesh,
+        const GLuint& destinationVBO,
+        const size_t& index,
+        const size_t& maxChunkSize)
+{
     if(index >= sourceMesh.size()) {
         return true;
     }
@@ -131,43 +142,56 @@ uploadMeshChunk(
 
     glBindBuffer(GL_ARRAY_BUFFER, destinationVBO);
     glBufferSubData(
-        GL_ARRAY_BUFFER,
-        index * sizeof(Vector3f),
-        chunkSize * sizeof(Vector3f),
-        position);
+            GL_ARRAY_BUFFER,
+            index * sizeof(Vector3f),
+            chunkSize * sizeof(Vector3f),
+            position);
 
     return (index + chunkSize) >= sourceMesh.size();
 }
 
 const std::vector<Vector3f>&
-Terrain::updateMesh(double x, double z, double scale) {
-    m_x     = x;
-    m_z     = z;
-    m_scale = scale;
-
+Terrain::updateMesh(double x, double z, double scale)
+{
     const bool uploadingDone = uploadMeshChunk(
-        *m_currentMeshPoints,
-        m_loadingVBO,
-        m_loadIndex,
-        uploadChunkSize);
-
-    if(isDone(m_loadingProcess) && uploadingDone) {
-        m_currentMeshPoints.swap(m_loadingMeshPoints);
-        startLoading();
-    }
+            *m_currentMeshPoints,
+            m_loadingVBO,
+            m_loadIndex,
+            uploadChunkSize);
 
     m_loadIndex += uploadChunkSize;
 
-    if(uploadingDone) {
-        m_loadIndex = 0;
-        std::swap(m_VBO, m_loadingVBO);
-    }
+    if(uploadingDone)
+        switch(m_state) {
+        case State::Loading: {
+            if(isDone(m_loadingProcess)) {
+                std::swap(m_currentMeshPoints, m_loadingMeshPoints);
+                m_loadIndex = 0;
+
+                m_state = State::Uploading;
+            }
+        } break;
+
+        case State::Uploading: {
+            m_setMeshOffset(m_x, m_z);
+            std::swap(m_VBO, m_loadingVBO);
+
+            m_x     = x;
+            m_z     = z;
+            m_scale = scale;
+
+            startLoading();
+
+            m_state = State::Loading;
+        } break;
+        }
 
     return *m_currentMeshPoints;
 }
 
 std::vector<GLuint>
-Terrain::generateMeshIndices() {
+Terrain::generateMeshIndices()
+{
     std::vector<GLuint> meshIndices;
     meshIndices.reserve(granularity * granularity * 6);
 
@@ -186,7 +210,8 @@ Terrain::generateMeshIndices() {
 }
 
 double
-Terrain::heightAt(const std::complex<double>& c) {
+Terrain::heightAt(const std::complex<double>& c)
+{
     std::complex<double> z(0.0, 0.0);
     std::complex<double> dz(0.0, 0.0);
 
@@ -220,7 +245,8 @@ Terrain::heightAt(const std::complex<double>& c) {
 }
 
 void
-Terrain::render() {
+Terrain::render()
+{
     int vertexCount = std::pow((granularity - 1), 2) * 3 * 2;
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);

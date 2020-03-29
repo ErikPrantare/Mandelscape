@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -11,16 +12,32 @@
 
 #include "math3d.h"
 #include "utils.h"
-#include "pipeline.h"
 #include "camera.h"
 #include "terrain.h"
 
-GLuint G_WORLD_LOCATION;
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+GLuint G_TEXTURE_LOCATION;
+GLuint G_CAMERA_SPACE;
+GLuint G_PROJECTION;
+GLuint G_OFFSET;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
 
-Camera G_CAMERA;
+float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
+float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
+
+float constexpr G_FOV = pi / 2;
+
+Camera G_CAMERA(
+        G_WINDOW_SIZE_X,
+        G_WINDOW_SIZE_Y,
+        G_CLIPPING_PLANE_NEAR,
+        G_CLIPPING_PLANE_FAR,
+        G_FOV);
+
 Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
 
 bool G_AUTO_ZOOM                  = false;
@@ -29,14 +46,19 @@ float G_PERSISTENT_ZOOM_DIRECTION = 0;
 float G_ZOOM                      = 1.0f;
 float constexpr G_MOVEMENT_SPEED  = 1.f;
 
+float G_MESH_OFFSET_X = 0;
+float G_MESH_OFFSET_Z = 0;
+
 Terrain* G_TERRAIN = nullptr;
 
 static void
-renderScene() {
+renderScene()
+{
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnableVertexAttribArray(0);
 
+    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
     G_TERRAIN->render();
 
     glDisableVertexAttribArray(0);
@@ -44,49 +66,66 @@ renderScene() {
     glutSwapBuffers();
 }
 
+class LowPassFilter {
+public:
+    [[nodiscard]] float
+    operator()(float const& value)
+    {
+        m_filteredValue *= m_filterAmount;
+        m_filteredValue += (1.0f - m_filterAmount) * value;
+        return m_filteredValue;
+    }
+
+private:
+    static float constexpr m_filterAmount = 0.9f;
+    float m_filteredValue                 = 0.0f;
+};
+
 static void
-updateScene() {
+updateScene()
+{
     float constexpr zoomVelocity = 1.f;
 
-    static float lastTimeStep = glutGet(GLUT_ELAPSED_TIME);
+    static float lastTimepoint = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
+    float currentTimepoint     = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
 
-    float deltaMilliseconds = glutGet(GLUT_ELAPSED_TIME) - lastTimeStep;
-    lastTimeStep            = glutGet(GLUT_ELAPSED_TIME);
-
-    float deltaSeconds = deltaMilliseconds / 1000.f;
+    float dt      = currentTimepoint - lastTimepoint;
+    lastTimepoint = currentTimepoint;
 
     if(G_AUTO_ZOOM) {
-        G_ZOOM =
-            1.f
-            / G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z});
+        G_ZOOM = 1.f
+                 / G_TERRAIN->heightAt(
+                         {G_CAMERA.position().x, G_CAMERA.position().z});
     }
     else {
         G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
-        G_ZOOM *= 1.f + zoomVelocity * deltaSeconds * G_ZOOM_AMOUNT;
+        G_ZOOM *= 1.f + dt * zoomVelocity * G_ZOOM_AMOUNT;
     }
 
-    G_CAMERA.move((1.f / G_ZOOM) * deltaSeconds * G_VELOCITY);
-    G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
+    G_CAMERA.setScale(1.0f / G_ZOOM);
+    G_CAMERA.move(dt * G_VELOCITY);
+    float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
+    float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
 
-    Pipeline world;
-    G_CAMERA.setSize(1.0f / G_ZOOM);
-    G_CAMERA.setY(
-        1.0f / G_ZOOM
-        + G_TERRAIN->heightAt({G_CAMERA.getPos().x, G_CAMERA.getPos().z}));
-    world.setCamera(G_CAMERA);
-    Matrix4f const transformationMatrix = world.getTrans();
-    glUniformMatrix4fv(
-        G_WORLD_LOCATION,
-        1,
-        GL_TRUE,
-        &transformationMatrix.m[0][0]);
+    G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
+
+    static LowPassFilter filterHeight;
+
+    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt({posX, posZ})));
+
+    Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
+    Matrix4f const projection  = G_CAMERA.projection();
+    glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
+    glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
+    glUniform2f(G_OFFSET, G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
 }
 
 static void
-handleInputDown(unsigned char c, int, int) {
+handleInputDown(unsigned char c, int, int)
+{
     switch(c) {
     case 'w':
         G_VELOCITY.z += G_MOVEMENT_SPEED;
@@ -110,7 +149,10 @@ handleInputDown(unsigned char c, int, int) {
         G_AUTO_ZOOM = !G_AUTO_ZOOM;
         break;
     case 'r':
-        G_TERRAIN->updateMesh(G_CAMERA.getPos().x, G_CAMERA.getPos().z, G_ZOOM);
+        G_TERRAIN->updateMesh(
+                G_CAMERA.position().x,
+                G_CAMERA.position().z,
+                G_ZOOM);
         break;
     case 'q':
         exit(0);
@@ -121,7 +163,8 @@ handleInputDown(unsigned char c, int, int) {
 }
 
 static void
-handleInputUp(unsigned char c, int, int) {
+handleInputUp(unsigned char c, int, int)
+{
     switch(c) {
     case 'w':
         G_VELOCITY.z += -G_MOVEMENT_SPEED;
@@ -147,33 +190,45 @@ handleInputUp(unsigned char c, int, int) {
 }
 
 static void
-handleMouseMove(int x, int y) {
-    static int mouseX = 0, mouseY = 0;
+handleMouseMove(int x, int y)
+{
+    int constexpr halfWindowSizeX = G_WINDOW_SIZE_X / 2;
+    int constexpr halfWindowSizeY = G_WINDOW_SIZE_Y / 2;
+
+    static int mouseX = halfWindowSizeX;
+    static int mouseY = halfWindowSizeY;
+
     int deltaX = x - mouseX;
     int deltaY = y - mouseY;
     mouseX     = x;
     mouseY     = y;
 
-    static float rotationX = 0.0f;
+    static float rotationX = 16.75997f;
+    static float rotationY = 0.94000f;
+
     rotationX += deltaX / 100.0f;
-    static float rotationY = 0.0f;
     rotationY += deltaY / 100.f;
-    rotationY = std::clamp(rotationY, float(-pi / 2), float(pi / 2));
+    rotationY = std::clamp(
+            rotationY,
+            float(-pi / 2 + 0.001),
+            float(pi / 2 - 0.001));
 
     Vector3f lookAt = rotationMatrix({0.0f, -rotationX, 0.0f})
                       * rotationMatrix({rotationY, 0.0f, 0.0f})
                       * Vector3f(0.0f, 0.0f, 1.0f);
 
     G_CAMERA.lookAt(lookAt);
-    if(x != 512 || y != 512) {
-        glutWarpPointer(512, 512);
-        mouseX = 512;
-        mouseY = 512;
+
+    if(x != halfWindowSizeX || y != halfWindowSizeY) {
+        glutWarpPointer(halfWindowSizeX, halfWindowSizeY);
+        mouseX = halfWindowSizeX;
+        mouseY = halfWindowSizeY;
     }
 }
 
 static void
-handleMouseButtons(int button, int state, int x, int y) {
+handleMouseButtons(int button, int state, int x, int y)
+{
     int constexpr wheelUp   = 3;
     int constexpr wheelDown = 4;
 
@@ -194,7 +249,8 @@ handleMouseButtons(int button, int state, int x, int y) {
 }
 
 static void
-initializeGlutCallbacks() {
+initializeGlutCallbacks()
+{
     glutDisplayFunc(renderScene);
     glutIdleFunc(updateScene);
     glutKeyboardFunc(handleInputDown);
@@ -205,9 +261,10 @@ initializeGlutCallbacks() {
 
 static void
 addShader(
-    GLuint shaderProgram,
-    const std::string& shaderCode,
-    GLenum shaderType) {
+        GLuint shaderProgram,
+        const std::string& shaderCode,
+        GLenum shaderType)
+{
     GLuint shaderObj = glCreateShader(shaderType);
 
     if(shaderObj == 0) {
@@ -236,7 +293,8 @@ addShader(
 }
 
 static void
-compileShaders() {
+compileShaders()
+{
     GLuint shaderProgram = glCreateProgram();
 
     if(shaderProgram == 0) {
@@ -273,28 +331,54 @@ compileShaders() {
 
     glUseProgram(shaderProgram);
 
-    G_WORLD_LOCATION = glGetUniformLocation(shaderProgram, "world");
-    if(G_WORLD_LOCATION == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable world" << std::endl;
+    auto loadShader = [&shaderProgram](std::string name, GLuint& loc) {
+        loc = glGetUniformLocation(shaderProgram, name.c_str());
+        if(loc == 0xFFFFFFFF) {
+            std::cerr << "Failed to find variable " << loc << std::endl;
+            exit(1);
+        }
+    };
+
+    loadShader("cameraSpace", G_CAMERA_SPACE);
+    loadShader("projection", G_PROJECTION);
+    loadShader("offset", G_OFFSET);
+
+    int width, height, nrChannels;
+    unsigned char* const data =
+            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
+    if(!data) {
+        std::cout << "Failed to load texture" << std::endl;
         exit(1);
     }
+
+    glGenTextures(1, &G_TEXTURE_LOCATION);
+    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
+    glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            width,
+            height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_image_free(data);
 }
 
 int
-main(int argc, char** argv) {
+main(int argc, char** argv)
+{
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
-
-    G_CAMERA.setDimensions(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
-    G_CAMERA.setClip(0.1, 10'000'000);
-    G_CAMERA.setFOV(pi / 2);
-    G_CAMERA.lookAt(Vector3f(0.0f, 0.0f, 1.0f));
-    G_CAMERA.setUp(Vector3f(0.0f, 1.0f, 0.0f));
-    G_CAMERA.setPos({1.0f, 0, 1.0f});
+    glutSetCursor(GLUT_CURSOR_NONE);
 
     initializeGlutCallbacks();
 
@@ -312,10 +396,20 @@ main(int argc, char** argv) {
     glDepthFunc(GL_LESS);
     glClearDepth(10'000'000.0f);
 
-    G_TERRAIN = new Terrain();
+    auto const setMeshOffset = [](double x, double z) {
+        float dx = x - G_MESH_OFFSET_X;
+        float dz = z - G_MESH_OFFSET_Z;
+        G_CAMERA.setPosition(
+                {G_CAMERA.position().x - dx, 0.0, G_CAMERA.position().z - dz});
+        G_MESH_OFFSET_X = x;
+        G_MESH_OFFSET_Z = z;
+    };
+
+    G_TERRAIN = new Terrain(setMeshOffset);
 
     compileShaders();
 
+    glutWarpPointer(G_WINDOW_SIZE_X / 2, G_WINDOW_SIZE_Y / 2);
     glutMainLoop();
 
     return 0;

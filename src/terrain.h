@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <complex>
 #include <future>
+#include <functional>
 
 #include <GL/glew.h>
 
@@ -16,6 +17,7 @@
 class Terrain {
 public:
     Terrain();
+    Terrain(std::function<void(double, double)> const& setMeshOffset);
     ~Terrain();
 
     const std::vector<Vector3f>&
@@ -28,14 +30,20 @@ public:
     render();
 
 private:
+    enum class State { Loading, Uploading };
+    State m_state = State::Loading;
+
     static constexpr int granularity     = 400;
     static constexpr int iterations      = 100;
     static constexpr int uploadChunkSize = 90'000;
 
+    std::function<void(double, double)> m_setMeshOffset;
+
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
-    std::future<void> m_loadingProcess;
     unsigned int m_loadIndex = 0;
+
+    std::future<void> m_loadingProcess;
 
     double m_x;
     double m_z;
@@ -56,7 +64,8 @@ private:
 
 template<typename T>
 static bool
-isDone(const std::future<T>& f) {
+isDone(const std::future<T>& f)
+{
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
