@@ -14,11 +14,10 @@ out float distance;
 void
 main()
 {
-    gl_Position = cameraSpace 
-                * vec4(pos, 1.0);
+    gl_Position = cameraSpace * vec4(pos, 1.0);
 
-    position    = pos;
-    distance    = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
+    position = pos;
+    distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
 
     gl_Position = projection * gl_Position;
 }
