@@ -8,7 +8,11 @@
 
 #include "terrain.h"
 
-Terrain::Terrain() :
+Terrain::Terrain() : Terrain([](double, double) {})
+{}
+
+Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
+            m_setMeshOffset{setMeshOffset},
             m_x{0.0},
             m_z{0.0},
             m_scale{1.0},
@@ -103,17 +107,17 @@ Terrain::loadMesh(
         meshSpan += stepSize(i);
     }
 
-    double xPos = _x - meshSpan / 2;
+    double xPos = -meshSpan / 2 + _x;
     for(int x = 0; x < granularity; ++x) {
         double xQuant = quantized(xPos, stepSize(x));
 
-        double zPos = _z - meshSpan / 2;
+        double zPos = -meshSpan / 2 + _z;
         for(int z = 0; z < granularity; ++z) {
             double zQuant                  = quantized(zPos, stepSize(z));
             (*buffer)[x * granularity + z] = Vector3f(
-                    xQuant,
+                    xQuant - _x,
                     Terrain::heightAt({xQuant, zQuant}),
-                    zQuant);
+                    zQuant - _z);
 
             zPos += stepSize(z);
         }
@@ -149,27 +153,38 @@ uploadMeshChunk(
 const std::vector<Vector3f>&
 Terrain::updateMesh(double x, double z, double scale)
 {
-    m_x     = x;
-    m_z     = z;
-    m_scale = scale;
-
     const bool uploadingDone = uploadMeshChunk(
             *m_currentMeshPoints,
             m_loadingVBO,
             m_loadIndex,
             uploadChunkSize);
 
-    if(isDone(m_loadingProcess) && uploadingDone) {
-        m_currentMeshPoints.swap(m_loadingMeshPoints);
-        startLoading();
-    }
-
     m_loadIndex += uploadChunkSize;
 
-    if(uploadingDone) {
-        m_loadIndex = 0;
-        std::swap(m_VBO, m_loadingVBO);
-    }
+    if(uploadingDone)
+        switch(m_state) {
+        case State::Loading: {
+            if(isDone(m_loadingProcess)) {
+                std::swap(m_currentMeshPoints, m_loadingMeshPoints);
+                m_loadIndex = 0;
+
+                m_state = State::Uploading;
+            }
+        } break;
+
+        case State::Uploading: {
+            m_setMeshOffset(m_x, m_z);
+            std::swap(m_VBO, m_loadingVBO);
+
+            m_x     = x;
+            m_z     = z;
+            m_scale = scale;
+
+            startLoading();
+
+            m_state = State::Loading;
+        } break;
+        }
 
     return *m_currentMeshPoints;
 }

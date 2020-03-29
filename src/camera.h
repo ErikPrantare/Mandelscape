@@ -25,6 +25,8 @@ public:
     const Vector3f&
     position() const;
 
+    void setPosition(Vector3f);
+
     void
     lookAt(Vector3f direction);
 

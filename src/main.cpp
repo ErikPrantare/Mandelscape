@@ -21,6 +21,7 @@
 GLuint G_TEXTURE_LOCATION;
 GLuint G_CAMERA_SPACE;
 GLuint G_PROJECTION;
+GLuint G_OFFSET;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;
@@ -44,6 +45,9 @@ float G_ZOOM_AMOUNT               = 0;
 float G_PERSISTENT_ZOOM_DIRECTION = 0;
 float G_ZOOM                      = 1.0f;
 float constexpr G_MOVEMENT_SPEED  = 1.f;
+
+float G_MESH_OFFSET_X = 0;
+float G_MESH_OFFSET_Z = 0;
 
 Terrain* G_TERRAIN = nullptr;
 
@@ -100,18 +104,20 @@ updateScene()
 
     G_CAMERA.setScale(1.0f / G_ZOOM);
     G_CAMERA.move(dt * G_VELOCITY);
+    float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
+    float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
 
-    G_TERRAIN->updateMesh(G_CAMERA.position().x, G_CAMERA.position().z, G_ZOOM);
+    G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
 
     static LowPassFilter filterHeight;
 
-    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt(
-            {G_CAMERA.position().x, G_CAMERA.position().z})));
+    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt({posX, posZ})));
 
     Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
     Matrix4f const projection  = G_CAMERA.projection();
     glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
     glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
+    glUniform2f(G_OFFSET, G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
     glutPostRedisplay();
 
     G_ZOOM_AMOUNT = 0.f;
@@ -325,16 +331,17 @@ compileShaders()
 
     glUseProgram(shaderProgram);
 
-    G_CAMERA_SPACE = glGetUniformLocation(shaderProgram, "cameraSpace");
-    if(G_CAMERA_SPACE == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable cameraSpace" << std::endl;
-        exit(1);
-    }
-    G_PROJECTION = glGetUniformLocation(shaderProgram, "projection");
-    if(G_PROJECTION == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable projection" << std::endl;
-        exit(1);
-    }
+    auto loadShader = [&shaderProgram](std::string name, GLuint& loc) {
+        loc = glGetUniformLocation(shaderProgram, name.c_str());
+        if(loc == 0xFFFFFFFF) {
+            std::cerr << "Failed to find variable " << loc << std::endl;
+            exit(1);
+        }
+    };
+
+    loadShader("cameraSpace", G_CAMERA_SPACE);
+    loadShader("projection", G_PROJECTION);
+    loadShader("offset", G_OFFSET);
 
     int width, height, nrChannels;
     unsigned char* const data =
@@ -389,7 +396,16 @@ main(int argc, char** argv)
     glDepthFunc(GL_LESS);
     glClearDepth(10'000'000.0f);
 
-    G_TERRAIN = new Terrain();
+    auto const setMeshOffset = [](double x, double z) {
+        float dx = x - G_MESH_OFFSET_X;
+        float dz = z - G_MESH_OFFSET_Z;
+        G_CAMERA.setPosition(
+                {G_CAMERA.position().x - dx, 0.0, G_CAMERA.position().z - dz});
+        G_MESH_OFFSET_X = x;
+        G_MESH_OFFSET_Z = z;
+    };
+
+    G_TERRAIN = new Terrain(setMeshOffset);
 
     compileShaders();
 
