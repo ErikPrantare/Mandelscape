@@ -8,8 +8,11 @@
 
 #include "terrain.h"
 
-Terrain::Terrain(std::function<void(double, double)> const& callback) :
-            m_callback{callback},
+Terrain::Terrain() : Terrain([](double, double) {})
+{}
+
+Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
+            m_setMeshOffset{setMeshOffset},
             m_x{0.0},
             m_z{0.0},
             m_scale{1.0},
@@ -170,7 +173,7 @@ Terrain::updateMesh(double x, double z, double scale)
         } break;
 
         case State::Uploading: {
-            m_callback(m_x, m_z);
+            m_setMeshOffset(m_x, m_z);
             std::swap(m_VBO, m_loadingVBO);
 
             m_x     = x;

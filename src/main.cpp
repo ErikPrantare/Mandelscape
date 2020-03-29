@@ -396,14 +396,16 @@ main(int argc, char** argv)
     glDepthFunc(GL_LESS);
     glClearDepth(10'000'000.0f);
 
-    G_TERRAIN = new Terrain([](double x, double z) {
+    auto const setMeshOffset = [](double x, double z) {
         float dx = x - G_MESH_OFFSET_X;
         float dz = z - G_MESH_OFFSET_Z;
         G_CAMERA.setPosition(
                 {G_CAMERA.position().x - dx, 0.0, G_CAMERA.position().z - dz});
         G_MESH_OFFSET_X = x;
         G_MESH_OFFSET_Z = z;
-    });
+    };
+
+    G_TERRAIN = new Terrain(setMeshOffset);
 
     compileShaders();
 

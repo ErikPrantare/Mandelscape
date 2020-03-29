@@ -16,7 +16,8 @@
 
 class Terrain {
 public:
-    Terrain(std::function<void(double, double)> const& callback);
+    Terrain();
+    Terrain(std::function<void(double, double)> const& setMeshOffset);
     ~Terrain();
 
     const std::vector<Vector3f>&
@@ -36,7 +37,7 @@ private:
     static constexpr int iterations      = 100;
     static constexpr int uploadChunkSize = 90'000;
 
-    std::function<void(double, double)> m_callback;
+    std::function<void(double, double)> m_setMeshOffset;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
