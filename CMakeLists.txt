@@ -1,60 +1,12 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10...3.17)
 
-project(MandelLandscape CXX)
-
-set(CMAKE_CXX_STANDARD 17)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-if(CMAKE_VERSION VERSION_LESS 3.12.4)
-    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json "")
-else()
-    file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json)
-endif(CMAKE_VERSION VERSION_LESS 3.12.4)
-
-configure_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json 
-    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-    COPYONLY)
-
-include(CheckCXXCompilerFlag)
-
-CHECK_CXX_COMPILER_FLAG(-Wall WALL)
-if(WALL)
-  add_definitions("-Wall")
-endif()
-
-CHECK_CXX_COMPILER_FLAG(-Werror WERROR)
-if(WERROR)
-  add_definitions("-Werror")
-endif()
-
-CHECK_CXX_COMPILER_FLAG(-Wextra WEXTRA)
-if(WEXTRA)
-  add_definitions("-Wextra")
-endif()
-
-CHECK_CXX_COMPILER_FLAG(-Wno-unused-parameter WNOUNUSEDPARAMETER)
-if(WNOUNUSEDPARAMETER)
-  add_definitions("-Wno-unused-parameter")
-endif()
-
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
-AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/src/ SRC)
-
-add_executable(app ${SRC})
+project(MandelLandscape LANGUAGES CXX)
 
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
+
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(Threads REQUIRED)
 
-target_include_directories(app
-  PRIVATE ${OPENGL_INCLUDE_DIRS} 
-  PRIVATE ${GLUT_INCLUDE_DIRS}
-  PRIVATE ${GLEW_INCLUDE_DIRS})
-target_link_libraries(app 
-  PRIVATE ${OPENGL_gl_LIBRARY} 
-  PRIVATE ${GLUT_LIBRARY}
-  PRIVATE ${GLEW_LIBRARIES})
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
