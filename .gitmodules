@@ -1,0 +1,3 @@
+[submodule "extern/FreeGLUT"]
+	path = extern/FreeGLUT
+	url = ../../dcnieho/FreeGLUT
