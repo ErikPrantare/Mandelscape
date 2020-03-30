@@ -8,7 +8,7 @@ Makefile
 .vs/
 out/
 
-build/
+build*/
 
 #Config files and folders
 compile_commands.json
