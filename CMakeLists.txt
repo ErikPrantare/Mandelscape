@@ -20,8 +20,6 @@ add_subdirectory(extern/FreeGLUT/freeglut/freeglut)
 
 add_subdirectory(extern/glew-cmake)
 
-find_package(OpenGL REQUIRED)
-
 find_package(Threads REQUIRED)
 
 add_subdirectory(src)

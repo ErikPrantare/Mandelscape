@@ -13,12 +13,10 @@ add_dependencies(MandelLandscape
     libglew_shared)
 
 target_include_directories(MandelLandscape
-    PRIVATE OpenGL::GL
     PRIVATE freeglut
     PRIVATE libglew_shared)
 
 target_link_libraries(MandelLandscape
-    PRIVATE OpenGL::GL
     PRIVATE freeglut
     PRIVATE libglew_shared
     PRIVATE Threads::Threads)
