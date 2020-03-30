@@ -18,9 +18,11 @@ add_subdirectory(extern)
 
 set(OpenGL_GL_PREFERENCE LEGACY)
 set(FREEGLUT_BUILD_DEMOS OFF)
+set(FREEGLUT_BUILD_SHARED_LIBS OFF)
 add_subdirectory(extern/FreeGLUT/freeglut/freeglut)
 
 set(ONLY_LIBS ON)
+set(glew-cmake_BUILD_SHARED OFF)
 add_subdirectory(extern/glew-cmake)
 
 find_package(Threads REQUIRED)
