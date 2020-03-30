@@ -2,5 +2,5 @@
 	path = extern/FreeGLUT
 	url = ../../dcnieho/FreeGLUT
 [submodule "external/glew"]
-	path = external/glew
+	path = extern/glew
 	url = ../../nigels-com/glew
