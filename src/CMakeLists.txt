@@ -16,7 +16,7 @@ target_include_directories(MandelLandscape
 target_link_libraries(MandelLandscape
     PRIVATE OpenGL::GL
     PRIVATE GLUT::GLUT
-    PRIVATE GLEW::glew
+    PRIVATE GLEW::GLEW
     PRIVATE Threads::Threads)
 
 target_compile_options(MandelLandscape
