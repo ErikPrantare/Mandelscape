@@ -13,6 +13,8 @@ configure_file(${CMAKE_BINARY_DIR}/compile_commands.json
   ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
   COPYONLY)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/extern)
+
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
 
