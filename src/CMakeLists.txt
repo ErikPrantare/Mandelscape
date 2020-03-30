@@ -9,17 +9,18 @@ add_executable(MandelLandscape
     ${SRC})
 
 add_dependencies(MandelLandscape
-    freeglut)
+    freeglut
+    libglew_shared)
 
 target_include_directories(MandelLandscape
     PRIVATE OpenGL::GL
-    PRIVATE FreeGLUT::freeglut
-    PRIVATE GLEW::glew)
+    PRIVATE freeglut
+    PRIVATE libglew_shared)
 
 target_link_libraries(MandelLandscape
     PRIVATE OpenGL::GL
     PRIVATE freeglut
-    PRIVATE GLEW::GLEW
+    PRIVATE libglew_shared
     PRIVATE Threads::Threads)
 
 target_compile_options(MandelLandscape
