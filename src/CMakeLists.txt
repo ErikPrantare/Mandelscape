@@ -8,14 +8,17 @@ file(GLOB
 add_executable(MandelLandscape
     ${SRC})
 
+add_dependencies(MandelLandscape
+    freeglut)
+
 target_include_directories(MandelLandscape
     PRIVATE OpenGL::GL
-    PRIVATE GLUT::GLUT
+    PRIVATE FreeGLUT::freeglut
     PRIVATE GLEW::glew)
 
 target_link_libraries(MandelLandscape
     PRIVATE OpenGL::GL
-    PRIVATE GLUT::GLUT
+    PRIVATE freeglut
     PRIVATE GLEW::GLEW
     PRIVATE Threads::Threads)
 

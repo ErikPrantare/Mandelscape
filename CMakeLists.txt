@@ -5,9 +5,9 @@ project(MandelLandscape LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(CMAKE_VERSION VERSION_LESS 3.12)
-    file(APPEND compile_commands.json "")
+    file(APPEND ${CMAKE_BINARY_DIR}/compile_commands.json "")
 else()
-    file(TOUCH compile_commands.json)
+    file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
 endif()
 configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
   compile_commands.json
@@ -16,6 +16,8 @@ configure_file(${CMAKE_BINARY_DIR}/compile_commands.json
 add_subdirectory(extern)
 
 set(OpenGL_GL_PREFERENCE LEGACY)
+add_subdirectory(extern/FreeGLUT/freeglut/freeglut)
+
 find_package(OpenGL REQUIRED)
 
 find_package(GLUT REQUIRED)
