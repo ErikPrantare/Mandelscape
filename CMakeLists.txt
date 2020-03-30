@@ -9,6 +9,7 @@ if(CMAKE_VERSION VERSION_LESS 3.12)
 else()
     file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
 endif()
+
 configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
   compile_commands.json
   COPYONLY)
@@ -16,8 +17,10 @@ configure_file(${CMAKE_BINARY_DIR}/compile_commands.json
 add_subdirectory(extern)
 
 set(OpenGL_GL_PREFERENCE LEGACY)
+set(FREEGLUT_BUILD_DEMOS OFF)
 add_subdirectory(extern/FreeGLUT/freeglut/freeglut)
 
+set(ONLY_LIBS ON)
 add_subdirectory(extern/glew-cmake)
 
 find_package(Threads REQUIRED)
