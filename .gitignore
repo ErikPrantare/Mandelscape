@@ -1,14 +1,24 @@
-app
+#Build artefacts
+build*/
+
+#CMake
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
+
+#Make
 Makefile
 
-#Visual Studio junk
-.vs/
-out/
+#Ninja
+.ninja*
+*.ninja
 
-build/
+#freeglut
+freeglut.pc
+ 
+#glew-cmake
+lib/
+config.h
 
 #Config files and folders
 compile_commands.json
