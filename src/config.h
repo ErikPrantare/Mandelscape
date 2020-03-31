@@ -1,44 +1,38 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <variant>
-#include <string>
-#include <vector>
-
-enum class Setting { NAME, STATE1, STATE2, STATE3, STATE4_but_forgot_type };
-
-namespace {
-template<Setting setting>
-struct SettingType {};
-
-#define GenSettingType(SettingName, Type)          \
-    namespace {                                    \
-        template<>                                 \
-        struct SettingType<Setting::SettingName> { \
-            using type = Type;                     \
-        };                                         \
-    }
-}    // namespace
-
-GenSettingType(NAME, std::string);
-GenSettingType(STATE1, int);
-GenSettingType(STATE2, double);
-GenSettingType(STATE3, std::vector<int>);
+#include <type_traits>
+#include <map>
+#include <any>
 
 class Config {
 public:
     Config() = default;
 
     template<
-            Setting setting,
-            typename T = typename SettingType<setting>::type,
+            typename Setting,
+            typename T = typename Setting::type,
             typename   = typename std::enable_if_t<
-                    std::is_same_v<typename SettingType<setting>::type, T>>>
+                    Setting::isSetting
+                    && std::is_same_v<typename Setting::type, T>>>
     void
-    change_setting(T const& newValue)
-    {}
+    set(T newValue)
+    {
+        m_settings[Setting::uid] = std::any(std::move(newValue));
+    }
+
+    template<
+            typename Setting,
+            typename ReturnType = typename Setting::type,
+            typename            = typename std::enable_if_t<Setting::isSetting>>
+    ReturnType
+    get()
+    {
+        return std::any_cast<ReturnType>(m_settings[Setting::uid]);
+    }
 
 private:
+    std::map<int, std::any> m_settings;
 };
 
 #endif    // CONFIG_H
