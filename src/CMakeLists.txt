@@ -10,7 +10,8 @@ add_executable(MandelLandscape
 
 add_dependencies(MandelLandscape
     freeglut_static
-    libglew_static)
+    libglew_static
+    stb)
 
 target_include_directories(MandelLandscape
     PRIVATE freeglut_static
@@ -19,7 +20,8 @@ target_include_directories(MandelLandscape
 target_link_libraries(MandelLandscape
     PRIVATE freeglut_static
     PRIVATE libglew_static
-    PRIVATE Threads::Threads)
+    PRIVATE Threads::Threads
+    PRIVATE stb)
 
 target_compile_options(MandelLandscape
     PRIVATE -Wall
