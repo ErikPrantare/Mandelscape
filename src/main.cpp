@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "camera.h"
 #include "terrain.h"
+#include "config.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -22,6 +23,8 @@ GLuint G_TEXTURE_LOCATION;
 GLuint G_CAMERA_SPACE;
 GLuint G_PROJECTION;
 GLuint G_OFFSET;
+
+Config G_CONFIG;
 
 GLuint constexpr G_WINDOW_SIZE_X = 1366;
 GLuint constexpr G_WINDOW_SIZE_Y = 768;

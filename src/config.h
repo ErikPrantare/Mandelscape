@@ -17,7 +17,7 @@ public:
             typename Setting,
             typename = typename std::enable_if_t<Setting::isSetting>>
     void
-    set(T newValue)
+    set(typename Setting::type newValue)
     {
         m_settings[Setting::uid] = std::any(std::move(newValue));
         std::any const& value    = m_settings[Setting::uid];
@@ -30,7 +30,7 @@ public:
     template<
             typename Setting,
             typename = typename std::enable_if_t<Setting::isSetting>>
-    Setting::type
+    typename Setting::type
     get()
     {
         return std::any_cast<Setting::type>(m_settings[Setting::uid]);
@@ -38,11 +38,15 @@ public:
 
     template<
             typename Setting,
+            typename Function,
             typename = typename std::enable_if_t<Setting::isSetting>>
     void
-    subscribe_with(FunctionSig const callback)
+    subscribe_with(Function const callback)
     {
-        m_callbacks[Setting::uid].push_back(std::move(callback));
+        m_callbacks[Setting::uid].push_back(
+                std::function([callback](std::any v){
+                        callback(std::any_cast<Setting::type>(v));
+                    }));
     }
 
 private:
