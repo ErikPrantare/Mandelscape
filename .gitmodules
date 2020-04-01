@@ -4,3 +4,6 @@
 [submodule "extern/glew-cmake"]
 	path = extern/glew-cmake
 	url = ../../Perlmint/glew-cmake
+[submodule "extern/stb"]
+	path = extern/stb
+	url = ../../nothings/stb
