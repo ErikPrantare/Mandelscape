@@ -11,8 +11,8 @@ else()
 endif()
 
 configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
-  compile_commands.json
-  COPYONLY)
+    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
+    COPYONLY)
 
 add_subdirectory(extern)
 
