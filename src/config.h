@@ -44,10 +44,7 @@ public:
 
     template<
             typename Setting,
-            typename T = typename Setting::type,
-            typename   = typename std::enable_if_t<
-                    Setting::isSetting
-                    && std::is_same_v<typename Setting::type, T>>>
+            typename = typename std::enable_if_t<Setting::isSetting>>
     void
     subscribe_with(FunctionSig const callback)
     {
