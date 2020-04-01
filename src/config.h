@@ -15,39 +15,30 @@ public:
 
     template<
             typename Setting,
-            typename T = typename Setting::type,
-            typename   = typename std::enable_if_t<
-                    Setting::isSetting
-                    && std::is_same_v<typename Setting::type, T>>>
+            typename = typename std::enable_if_t<Setting::isSetting>>
     void
     set(T newValue)
     {
         m_settings[Setting::uid] = std::any(std::move(newValue));
         std::any const& value    = m_settings[Setting::uid];
 
-        std::vector<FunctionSig> const& callbacks = m_callbacks[Setting::uid];
-        std::for_each(
-                std::cbegin(callbacks),
-                std::cend(callbacks),
-                [&value](FunctionSig const& func) { func(value); });
+        for(const auto& cb : m_callbacks[Setting::uid]) {
+            cb(value);
+        }
     }
 
     template<
             typename Setting,
-            typename ReturnType = typename Setting::type,
-            typename            = typename std::enable_if_t<Setting::isSetting>>
-    ReturnType
+            typename = typename std::enable_if_t<Setting::isSetting>>
+    Setting::type
     get()
     {
-        return std::any_cast<ReturnType>(m_settings[Setting::uid]);
+        return std::any_cast<Setting::type>(m_settings[Setting::uid]);
     }
 
     template<
             typename Setting,
-            typename T = typename Setting::type,
-            typename   = typename std::enable_if_t<
-                    Setting::isSetting
-                    && std::is_same_v<typename Setting::type, T>>>
+            typename = typename std::enable_if_t<Setting::isSetting>>
     void
     subscribe_with(FunctionSig const callback)
     {
