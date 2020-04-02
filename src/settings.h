@@ -9,7 +9,7 @@ namespace Settings {
 struct Secret {
 private:
     friend Config;
-    struct Token{};
+    struct Token {};
     template<typename, int, typename>
     friend struct Setting;
 };

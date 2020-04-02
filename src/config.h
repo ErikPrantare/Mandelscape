@@ -11,17 +11,14 @@
 
 class Config {
     using FunctionSig = std::function<void(std::any const&)>;
-    template<typename T1, typename T2>
-    using enable_if_same_t = std::enable_if_t<std::is_same_v<T1, T2>>;
+    template<typename T>
+    using enable_if_setting_t = std::enable_if_t<
+            std::is_same_v<typename T::Token, Settings::Secret::Token>>;
 
 public:
     Config() = default;
 
-    template<
-            typename Setting,
-            typename = enable_if_same_t<
-                    typename Setting::Token,
-                    Settings::Secret::Token>>
+    template<typename Setting, typename = enable_if_setting_t<Setting>>
     void
     set(typename Setting::Type newValue)
     {
@@ -33,23 +30,17 @@ public:
         }
     }
 
-    template<
-            typename Setting,
-            typename = enable_if_same_t<
-                    typename Setting::Token,
-                    Settings::Secret::Token>>
-    typename Setting::Type
+    template<typename Setting, typename = enable_if_setting_t<Setting>>
+    typename Setting::Type&
     get()
     {
-        return std::any_cast<typename Setting::Type>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::Type&>(m_settings[Setting::uid]);
     }
 
     template<
             typename Setting,
             typename Function,
-            typename = enable_if_same_t<
-                    typename Setting::Token,
-                    Settings::Secret::Token>>
+            typename = enable_if_setting_t<Setting>>
     void
     subscribe(Function const& callback)
     {
@@ -62,9 +53,7 @@ public:
     template<
             typename Setting,
             typename Function,
-            typename = enable_if_same_t<
-                    typename Setting::Token,
-                    Settings::Secret::Token>>
+            typename = enable_if_setting_t<Setting>>
     void
     on(Function const& f)
     {
