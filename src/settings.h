@@ -26,8 +26,9 @@ public:
     using Token              = Secret::Token;
 };
 
-// Only create Setting s in here
-#define GenSetting(Name, Type) using Name = Setting<Type, __LINE__>;
+// Only create settings here. __LINE__ is to give each setting a unique id
+using WindowHeight = Setting<int, __LINE__>;
+using WindowWidth  = Setting<int, __LINE__>;
 
 }    // namespace Settings
 

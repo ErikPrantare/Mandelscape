@@ -23,7 +23,7 @@ public:
                     typename Setting::Token,
                     Settings::Secret::Token>>
     void
-    set(typename Setting::type newValue)
+    set(typename Setting::Type newValue)
     {
         std::any const value     = std::any(newValue);
         m_settings[Setting::uid] = value;
@@ -38,10 +38,10 @@ public:
             typename = enable_if_same_t<
                     typename Setting::Token,
                     Settings::Secret::Token>>
-    typename Setting::type
+    typename Setting::Type
     get()
     {
-        return std::any_cast<Setting::type>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::Type>(m_settings[Setting::uid]);
     }
 
     template<
@@ -55,7 +55,7 @@ public:
     {
         m_callbacks[Setting::uid].push_back(
                 std::function([callback](std::any v) {
-                    callback(std::any_cast<Setting::type>(v));
+                    callback(std::any_cast<Setting::Type>(v));
                 }));
     }
 
