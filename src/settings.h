@@ -1,19 +1,29 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef MANDELLANDSCAPE_SETTINGS_H
+#define MANDELLANDSCAPE_SETTINGS_H
 
 #include <type_traits>
 
+class Config;
+
 namespace Settings {
+struct Secret {
+private:
+    friend Config;
+    using Token = int;
+    template<typename, int, typename>
+    friend struct Setting;
+};
 
 template<
-        typename Type,
-        int UID,
-        typename = typename std::enable_if_t<
-                std::is_default_constructible_v<Type>>>
+        typename T,
+        int _uid,
+        typename =
+                typename std::enable_if_t<std::is_default_constructible_v<T>>>
 struct Setting {
-    using type = Type;
-    enum { uid = UID };
-    static bool constexpr isSetting = true;
+public:
+    using Type               = T;
+    static constexpr int uid = _uid;
+    using Token              = Secret::Token;
 };
 
 // Only create Setting s in here
