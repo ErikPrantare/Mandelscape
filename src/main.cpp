@@ -405,12 +405,12 @@ main(int argc, char** argv)
     glDepthFunc(GL_LESS);
     glClearDepth(10'000'000.0f);
 
-    G_CAMERA = Camera(
-            G_CONFIG.get<Settings::WindowWidth>(),
-            G_CONFIG.get<Settings::WindowHeight>(),
-            G_CLIPPING_PLANE_NEAR,
-            G_CLIPPING_PLANE_FAR,
-            G_FOV);
+    G_CAMERA =
+            Camera(G_CONFIG.get<Settings::WindowWidth>(),
+                   G_CONFIG.get<Settings::WindowHeight>(),
+                   G_CLIPPING_PLANE_NEAR,
+                   G_CLIPPING_PLANE_FAR,
+                   G_FOV);
 
     auto const setMeshOffset = [](double x, double z) {
         float dx = x - G_MESH_OFFSET_X;
@@ -425,7 +425,9 @@ main(int argc, char** argv)
 
     compileShaders();
 
-    glutWarpPointer(G_CONFIG.get<Settings::WindowWidth>() / 2, G_CONFIG.get<Settings::WindowHeight>() / 2);
+    glutWarpPointer(
+            G_CONFIG.get<Settings::WindowWidth>() / 2,
+            G_CONFIG.get<Settings::WindowHeight>() / 2);
     glutMainLoop();
 
     return 0;

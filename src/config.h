@@ -59,6 +59,18 @@ public:
                 }));
     }
 
+    template<
+            typename Setting,
+            typename Function,
+            typename = enable_if_same_t<
+                    typename Setting::Token,
+                    Settings::Secret::Token>>
+    void
+    on(Function const& f)
+    {
+        set<Setting>(f(get<Setting>()));
+    }
+
 private:
     std::map<int, std::any> m_settings;
     std::map<int, std::vector<FunctionSig>> m_callbacks;
