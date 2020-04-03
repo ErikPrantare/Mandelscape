@@ -24,16 +24,16 @@ public:
         std::any const value     = std::any(newValue);
         m_settings[Setting::uid] = value;
 
-        for(const auto& callback : m_callbacks[Setting::uid]) {
+        for(auto const& callback : m_callbacks[Setting::uid]) {
             callback(value);
         }
     }
 
     template<typename Setting, typename = Secret::enable_if_setting_t<Setting>>
-    typename Setting::type&
+    typename Setting::type
     get()
     {
-        return std::any_cast<typename Setting::type&>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::type>(m_settings[Setting::uid]);
     }
 
     template<
