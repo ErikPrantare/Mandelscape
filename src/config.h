@@ -12,13 +12,12 @@
 namespace Settings {
 
 class Config {
-    template<typename Callable, typename T>
-    static bool constexpr returns_argument_type_v =
-            std::is_same_v<T, std::invoke_result_t<Callable, T>>;
+    template<typename Callable, typename Arg>
+    static bool constexpr returns =
+            std::is_same_v<Arg, std::invoke_result_t<Callable, Arg>>;
 
     template<typename Callable, typename SettingType>
-    using RequireCallable =
-            std::enable_if_t<returns_argument_type_v<Callable, SettingType>>;
+    using RequireCallable = std::enable_if_t<returns<Callable, SettingType>>;
 
 public:
     Config() = default;
