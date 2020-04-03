@@ -380,8 +380,8 @@ main(int argc, char** argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(
-            G_CONFIG.get<Settings::WindowHeight>(),
-            G_CONFIG.get<Settings::WindowWidth>());
+            G_CONFIG.get<Settings::WindowWidth>(),
+            G_CONFIG.get<Settings::WindowHeight>());
     glutInitWindowPosition(100, 100);
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
