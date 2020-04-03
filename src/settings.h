@@ -7,17 +7,17 @@ namespace Settings {
 class Secret {
     struct Token {};
 
-    template<typename, int, typename>
+    template<typename T, int uid, typename>
     friend struct Setting;
 
 public:
     template<
             typename T,
-            typename = typename std::enable_if_t<std::is_same_v<
+            typename = std::enable_if_t<std::is_same_v<
                     typename T::Token,
                     typename Settings::Secret::Token>>>
     struct enable_if_setting {
-        using type = T;
+        using type = typename T::type;
     };
 
     template<typename T>
@@ -27,10 +27,8 @@ public:
 template<
         typename T,
         int _uid,
-        typename =
-                typename std::enable_if_t<std::is_default_constructible_v<T>>>
+        typename = std::enable_if_t<std::is_default_constructible_v<T>>>
 struct Setting {
-public:
     using type               = T;
     static constexpr int uid = _uid;
     using Token              = Secret::Token;

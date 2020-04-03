@@ -14,6 +14,14 @@ namespace Settings {
 class Config {
     using FunctionSig = std::function<void(std::any const&)>;
 
+    template<typename Callable, typename T>
+    static bool constexpr returns_argument_type_v =
+            std::is_same_v<T, std::invoke_result_t<Callable, T>>;
+
+    template<typename Callable, typename SettingType>
+    using enable_if_callable_t =
+            std::enable_if_t<returns_argument_type_v<Callable, SettingType>>;
+
 public:
     Config() = default;
 
@@ -38,25 +46,26 @@ public:
 
     template<
             typename Setting,
-            typename Function,
-            typename = Secret::enable_if_setting_t<Setting>>
+            typename Callable,
+            typename = Secret::enable_if_setting_t<Setting>,
+            typename = enable_if_callable_t<Callable, typename Setting::type>>
     void
-    subscribe(Function const& callback)
+    subscribe(Callable const callback)
     {
-        m_callbacks[Setting::uid].push_back(
-                std::function([callback](std::any v) {
-                    callback(std::any_cast<Setting::type>(v));
-                }));
+        m_callbacks[Setting::uid].push_back([callback](std::any const& value) {
+            callback(std::any_cast<typename Setting::type>(value));
+        });
     }
 
     template<
             typename Setting,
-            typename Function,
-            typename = Secret::enable_if_setting_t<Setting>>
+            typename Callable,
+            typename = Secret::enable_if_setting_t<Setting>,
+            typename = enable_if_callable_t<Callable, typename Setting::type>>
     void
-    on(Function const& f)
+    on(Callable const& callable)
     {
-        set<Setting>(f(get<Setting>()));
+        set<Setting>(callable(m_settings[Setting::uid]));
     }
 
 private:
