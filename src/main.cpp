@@ -87,20 +87,18 @@ updateScene()
     float dt      = currentTimepoint - lastTimepoint;
     lastTimepoint = currentTimepoint;
 
+    G_CAMERA.setScale(1.0f / G_ZOOM);
+    G_CAMERA.move(dt * G_VELOCITY);
+    float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
+    float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
+
     if(G_AUTO_ZOOM) {
-        G_ZOOM = 1.f
-                 / G_TERRAIN->heightAt(
-                         {G_CAMERA.position().x, G_CAMERA.position().z});
+        G_ZOOM = 1.f / G_TERRAIN->heightAt({posX, posZ});
     }
     else {
         G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
         G_ZOOM *= 1.f + dt * zoomVelocity * G_ZOOM_AMOUNT;
     }
-
-    G_CAMERA.setScale(1.0f / G_ZOOM);
-    G_CAMERA.move(dt * G_VELOCITY);
-    float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
-    float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
 
     G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
 
