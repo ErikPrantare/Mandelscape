@@ -24,7 +24,7 @@ public:
 
     template<typename Setting, typename = Secret::RequireSetting<Setting>>
     void
-    set(typename Setting::type newValue)
+    set(typename Setting::Type newValue)
     {
         std::any const value     = std::any(newValue);
         m_settings[Setting::uid] = value;
@@ -35,10 +35,10 @@ public:
     }
 
     template<typename Setting, typename = Secret::RequireSetting<Setting>>
-    typename Setting::type
+    typename Setting::Type
     get()
     {
-        return std::any_cast<typename Setting::type>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::Type>(m_settings[Setting::uid]);
     }
 
     template<
@@ -50,7 +50,7 @@ public:
     subscribe(Callable const callback)
     {
         m_callbacks[Setting::uid].push_back([callback](std::any const& value) {
-            callback(std::any_cast<typename Setting::type>(value));
+            callback(std::any_cast<typename Setting::Type>(value));
         });
     }
 
@@ -58,7 +58,7 @@ public:
             typename Setting,
             typename Callable,
             typename = Secret::RequireSetting<Setting>,
-            typename = RequireCallable<Callable, typename Setting::type>>
+            typename = RequireCallable<Callable, typename Setting::Type>>
     void
     on(Callable const& callable)
     {
