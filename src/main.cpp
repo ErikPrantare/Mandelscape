@@ -24,7 +24,7 @@ GLuint G_CAMERA_SPACE;
 GLuint G_PROJECTION;
 GLuint G_OFFSET;
 
-Config G_CONFIG;
+Settings::Config G_CONFIG;
 
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
@@ -364,10 +364,10 @@ compileShaders()
     stbi_image_free(data);
 }
 
-Config
+Settings::Config
 initConfig()
 {
-    Config conf;
+    Settings::Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
 

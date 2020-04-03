@@ -9,18 +9,17 @@
 
 #include "settings.h"
 
+namespace Settings {
+
 class Config {
     using FunctionSig = std::function<void(std::any const&)>;
-    template<typename T>
-    using enable_if_setting_t = std::enable_if_t<
-            std::is_same_v<typename T::Token, Settings::Secret::Token>>;
 
 public:
     Config() = default;
 
-    template<typename Setting, typename = enable_if_setting_t<Setting>>
+    template<typename Setting, typename = Secret::enable_if_setting_t<Setting>>
     void
-    set(typename Setting::Type newValue)
+    set(typename Setting::type newValue)
     {
         std::any const value     = std::any(newValue);
         m_settings[Setting::uid] = value;
@@ -30,30 +29,30 @@ public:
         }
     }
 
-    template<typename Setting, typename = enable_if_setting_t<Setting>>
-    typename Setting::Type&
+    template<typename Setting, typename = Secret::enable_if_setting_t<Setting>>
+    typename Setting::type&
     get()
     {
-        return std::any_cast<typename Setting::Type&>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::type&>(m_settings[Setting::uid]);
     }
 
     template<
             typename Setting,
             typename Function,
-            typename = enable_if_setting_t<Setting>>
+            typename = Secret::enable_if_setting_t<Setting>>
     void
     subscribe(Function const& callback)
     {
         m_callbacks[Setting::uid].push_back(
                 std::function([callback](std::any v) {
-                    callback(std::any_cast<Setting::Type>(v));
+                    callback(std::any_cast<Setting::type>(v));
                 }));
     }
 
     template<
             typename Setting,
             typename Function,
-            typename = enable_if_setting_t<Setting>>
+            typename = Secret::enable_if_setting_t<Setting>>
     void
     on(Function const& f)
     {
@@ -65,4 +64,6 @@ private:
     std::map<int, std::vector<FunctionSig>> m_callbacks;
 };
 
-#endif    // CONFIG_H
+}    // namespace Settings
+
+#endif    // MANDELLANDSCAPE_CONFIG_H
