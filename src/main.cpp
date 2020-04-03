@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "camera.h"
 #include "terrain.h"
+#include "config.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -23,20 +24,14 @@ GLuint G_CAMERA_SPACE;
 GLuint G_PROJECTION;
 GLuint G_OFFSET;
 
-GLuint constexpr G_WINDOW_SIZE_X = 1366;
-GLuint constexpr G_WINDOW_SIZE_Y = 768;
+Settings::Config G_CONFIG;
 
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
 
 float constexpr G_FOV = pi / 2;
 
-Camera G_CAMERA(
-        G_WINDOW_SIZE_X,
-        G_WINDOW_SIZE_Y,
-        G_CLIPPING_PLANE_NEAR,
-        G_CLIPPING_PLANE_FAR,
-        G_FOV);
+Camera G_CAMERA;
 
 Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
 
@@ -192,8 +187,8 @@ handleInputUp(unsigned char c, int, int)
 static void
 handleMouseMove(int x, int y)
 {
-    int constexpr halfWindowSizeX = G_WINDOW_SIZE_X / 2;
-    int constexpr halfWindowSizeY = G_WINDOW_SIZE_Y / 2;
+    int halfWindowSizeX = G_CONFIG.get<Settings::WindowWidth>() / 2;
+    int halfWindowSizeY = G_CONFIG.get<Settings::WindowHeight>() / 2;
 
     static int mouseX = halfWindowSizeX;
     static int mouseY = halfWindowSizeY;
@@ -369,12 +364,26 @@ compileShaders()
     stbi_image_free(data);
 }
 
+Settings::Config
+initConfig()
+{
+    Settings::Config conf;
+    conf.set<Settings::WindowWidth>(1366);
+    conf.set<Settings::WindowHeight>(768);
+
+    return conf;
+}
+
 int
 main(int argc, char** argv)
 {
+    G_CONFIG = initConfig();
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(G_WINDOW_SIZE_X, G_WINDOW_SIZE_Y);
+    glutInitWindowSize(
+            G_CONFIG.get<Settings::WindowHeight>(),
+            G_CONFIG.get<Settings::WindowWidth>());
     glutInitWindowPosition(100, 100);
     glutCreateWindow("test");
     glutSetKeyRepeat(false);
@@ -396,6 +405,13 @@ main(int argc, char** argv)
     glDepthFunc(GL_LESS);
     glClearDepth(10'000'000.0f);
 
+    G_CAMERA =
+            Camera(G_CONFIG.get<Settings::WindowWidth>(),
+                   G_CONFIG.get<Settings::WindowHeight>(),
+                   G_CLIPPING_PLANE_NEAR,
+                   G_CLIPPING_PLANE_FAR,
+                   G_FOV);
+
     auto const setMeshOffset = [](double x, double z) {
         float dx = x - G_MESH_OFFSET_X;
         float dz = z - G_MESH_OFFSET_Z;
@@ -409,7 +425,9 @@ main(int argc, char** argv)
 
     compileShaders();
 
-    glutWarpPointer(G_WINDOW_SIZE_X / 2, G_WINDOW_SIZE_Y / 2);
+    glutWarpPointer(
+            G_CONFIG.get<Settings::WindowWidth>() / 2,
+            G_CONFIG.get<Settings::WindowHeight>() / 2);
     glutMainLoop();
 
     return 0;
