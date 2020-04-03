@@ -10,8 +10,7 @@ class Secret {
     template<typename, int, typename>
     friend struct Setting;
 
-    friend class Config;
-
+public:
     template<
             typename T,
             typename = typename std::enable_if_t<std::is_same_v<
