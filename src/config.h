@@ -12,20 +12,18 @@
 namespace Settings {
 
 class Config {
-    using FunctionSig = std::function<void(std::any const&)>;
-
     template<typename Callable, typename T>
     static bool constexpr returns_argument_type_v =
             std::is_same_v<T, std::invoke_result_t<Callable, T>>;
 
     template<typename Callable, typename SettingType>
-    using enable_if_callable_t =
+    using RequireCallable =
             std::enable_if_t<returns_argument_type_v<Callable, SettingType>>;
 
 public:
     Config() = default;
 
-    template<typename Setting, typename = Secret::enable_if_setting_t<Setting>>
+    template<typename Setting, typename = Secret::RequireSetting<Setting>>
     void
     set(typename Setting::type newValue)
     {
@@ -37,7 +35,7 @@ public:
         }
     }
 
-    template<typename Setting, typename = Secret::enable_if_setting_t<Setting>>
+    template<typename Setting, typename = Secret::RequireSetting<Setting>>
     typename Setting::type
     get()
     {
@@ -47,8 +45,8 @@ public:
     template<
             typename Setting,
             typename Callable,
-            typename = Secret::enable_if_setting_t<Setting>,
-            typename = enable_if_callable_t<Callable, typename Setting::type>>
+            typename = Secret::RequireSetting<Setting>,
+            typename = RequireCallable<Callable, typename Setting::type>>
     void
     subscribe(Callable const callback)
     {
@@ -60,15 +58,17 @@ public:
     template<
             typename Setting,
             typename Callable,
-            typename = Secret::enable_if_setting_t<Setting>,
-            typename = enable_if_callable_t<Callable, typename Setting::type>>
+            typename = Secret::RequireSetting<Setting>,
+            typename = RequireCallable<Callable, typename Setting::type>>
     void
     on(Callable const& callable)
     {
-        set<Setting>(callable(m_settings[Setting::uid]));
+        set<Setting>(callable(get<Setting>()));
     }
 
 private:
+    using FunctionSig = std::function<void(std::any const&)>;
+
     std::map<int, std::any> m_settings;
     std::map<int, std::vector<FunctionSig>> m_callbacks;
 };
