@@ -17,7 +17,11 @@ class Config {
             std::is_same_v<Arg, std::invoke_result_t<Callable, Arg>>;
 
     template<typename Callable, typename SettingType>
-    using RequireCallable = std::enable_if_t<returns<Callable, SettingType>>;
+    using RequireEndomorphismOf =
+            std::enable_if_t<returns<Callable, SettingType>>;
+
+    template<typename Callable, typename Arg>
+    using RequireCallableWith = std::invoke_result_t<Callable, Arg>;
 
 public:
     Config() = default;
@@ -30,7 +34,9 @@ public:
         m_settings[Setting::uid] = value;
 
         for(auto const& callback : m_callbacks[Setting::uid]) {
+            std::cout << "aye" << std::endl;
             callback(value);
+            std::cout << "gaye" << std::endl;
         }
     }
 
@@ -45,12 +51,14 @@ public:
             typename Setting,
             typename Callable,
             typename = RequireSetting<Setting>,
-            typename = RequireCallable<Callable, typename Setting::type>>
+            typename = RequireCallableWith<Callable, typename Setting::Type>>
     void
-    subscribe(Callable const callback)
+    onStateChange(Callable const callback)
     {
         m_callbacks[Setting::uid].push_back([callback](std::any const& value) {
-            callback(std::any_cast<typename Setting::Type>(value));
+            auto a = std::any_cast<typename Setting::Type>(value);
+            std::cout << "hey ponano" << std::endl;
+            callback(a);
         });
     }
 
@@ -58,7 +66,7 @@ public:
             typename Setting,
             typename Callable,
             typename = RequireSetting<Setting>,
-            typename = RequireCallable<Callable, typename Setting::Type>>
+            typename = RequireEndomorphismOf<Callable, typename Setting::Type>>
     void
     on(Callable const& callable)
     {

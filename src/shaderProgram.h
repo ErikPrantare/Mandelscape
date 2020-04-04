@@ -1,6 +1,7 @@
 #ifndef MANDELLANDSCAPE_SHADERPROGRAM_H
 #define MANDELLANDSCAPE_SHADERPROGRAM_H
 
+#include <map>
 #include <GL/glew.h>
 
 #include "shader.h"
@@ -24,6 +25,8 @@ private:
 
     GLuint
     locationOf(const std::string& name) const;
+
+    std::map<GLenum, GLuint> m_shaders;
 };
 
 #endif

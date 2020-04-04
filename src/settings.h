@@ -21,8 +21,9 @@ template<typename S>
 using RequireSetting = std::enable_if_t<isSetting<S>>;
 
 // Only create settings here. __LINE__ is to give each setting a unique id
-using WindowHeight = Setting<int, __LINE__>;
-using WindowWidth  = Setting<int, __LINE__>;
+using WindowHeight  = Setting<int, __LINE__>;
+using WindowWidth   = Setting<int, __LINE__>;
+using UseDeepShader = Setting<bool, __LINE__>;
 }    // namespace Settings
 
 #endif    // MANDELLANDSCAPE_SETTINGS_H

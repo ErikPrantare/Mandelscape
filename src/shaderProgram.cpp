@@ -15,7 +15,12 @@ ShaderProgram::ShaderProgram() : m_location(glCreateProgram())
 void
 ShaderProgram::useShader(const Shader& shader)
 {
+    if(m_shaders.count(shader.m_type)) {
+        glDetachShader(m_location, m_shaders[shader.m_type]);
+    }
+
     glAttachShader(m_location, shader.m_location);
+    m_shaders[shader.m_type] = shader.m_location;
 }
 
 extern GLuint G_OFFSET, G_TEXTURE_LOCATION;

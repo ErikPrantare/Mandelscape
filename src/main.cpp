@@ -150,6 +150,9 @@ handleInputDown(unsigned char c, int, int)
                 G_CAMERA.position().z,
                 G_ZOOM);
         break;
+    case 'h':
+        G_CONFIG.on<Settings::UseDeepShader>(invert);
+        break;
     case 'q':
         exit(0);
         break;
@@ -273,12 +276,33 @@ compileShaders()
     G_SHADER_PROGRAM = new ShaderProgram(program);
 }
 
+void
+f(bool deep)
+{
+    static Shader shallowShader;
+    shallowShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+    static Shader deepShader;
+    deepShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+    if(deep) {
+        G_SHADER_PROGRAM->useShader(deepShader);
+    }
+    else {
+        G_SHADER_PROGRAM->useShader(shallowShader);
+    }
+
+    G_SHADER_PROGRAM->compile();
+}
+
 Settings::Config
 initConfig()
 {
     Settings::Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
+    conf.set<Settings::UseDeepShader>(false);
+
+    conf.onStateChange<Settings::UseDeepShader>(f);
 
     return conf;
 }

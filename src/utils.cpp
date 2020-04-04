@@ -16,3 +16,9 @@ readFile(const std::string& fileName)
     in.close();
     return output;
 }
+
+bool
+invert(bool b)
+{
+    return !b;
+}
