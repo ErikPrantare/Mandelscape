@@ -282,7 +282,7 @@ f(bool deep)
     static Shader shallowShader;
     shallowShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
     static Shader deepShader;
-    deepShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+    deepShader.loadFromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
 
     if(deep) {
         G_SHADER_PROGRAM->useShader(deepShader);

@@ -34,9 +34,7 @@ public:
         m_settings[Setting::uid] = value;
 
         for(auto const& callback : m_callbacks[Setting::uid]) {
-            std::cout << "aye" << std::endl;
             callback(value);
-            std::cout << "gaye" << std::endl;
         }
     }
 
@@ -57,7 +55,6 @@ public:
     {
         m_callbacks[Setting::uid].push_back([callback](std::any const& value) {
             auto a = std::any_cast<typename Setting::Type>(value);
-            std::cout << "hey ponano" << std::endl;
             callback(a);
         });
     }

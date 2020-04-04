@@ -41,10 +41,16 @@ main()
         return;
     }
 
+    vec4 pc  = vec4(offset, position.xz);
     vec2 z   = vec2(0.0, 0.0);
+    vec2 zlo = vec2(0.0, 0.0);
+    vec2 zhi = vec2(0.0, 0.0);
 
     for(int i = 0; i < 100; ++i) {
-        z = complexMultiplication(z, z) + c;
+        vec2 add = 2.0 * complexMultiplication(zhi, zlo);
+        zhi      = complexMultiplication(zhi, zhi) + pc.xy;
+        zlo      = complexMultiplication(zlo, zlo) + add + pc.zw;
+        z        = zhi + zlo;
         if(dot(z, z) > 256.0f * 256.0f) {
             float colorVal = float(i) - log2(log2(dot(z, z)));
             fragColor =
@@ -56,6 +62,10 @@ main()
                               0.5f * sin(colorVal * 0.15f + 2.0f) + 0.5f,
                               1.0f);
             return;
+        }
+        if(dot(zlo, zlo) / dot(zhi, zhi) > 0.5) {
+            zlo = vec2(0.0);
+            zhi = z;
         }
     }
 }
