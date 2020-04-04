@@ -22,11 +22,14 @@
 #include <stb_image.h>
 
 GLuint G_TEXTURE_LOCATION;
-GLuint G_CAMERA_SPACE;
-GLuint G_PROJECTION;
 GLuint G_OFFSET;
 
 Settings::Config G_CONFIG;
+
+// XXX: Gives segmentation fault if not pointer
+// Let it be pointer for now, and just remove it from
+// global namespace when we switch to GLFW
+ShaderProgram* G_SHADER_PROGRAM;
 
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
@@ -108,10 +111,8 @@ updateScene()
 
     G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt({posX, posZ})));
 
-    Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
-    Matrix4f const projection  = G_CAMERA.projection();
-    glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
-    glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
+    G_SHADER_PROGRAM->setUniform("cameraSpace", G_CAMERA.cameraSpace());
+    G_SHADER_PROGRAM->setUniform("projection", G_CAMERA.projection());
     glUniform2f(G_OFFSET, G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
     glutPostRedisplay();
 
@@ -268,6 +269,8 @@ compileShaders()
     program.useShader(vertexShader);
     program.useShader(fragmentShader);
     program.compile();
+
+    G_SHADER_PROGRAM = new ShaderProgram(program);
 }
 
 Settings::Config

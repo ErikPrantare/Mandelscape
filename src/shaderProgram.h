@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 
 #include "shader.h"
+#include "math3d.h"
 
 class ShaderProgram {
 public:
@@ -15,8 +16,14 @@ public:
     void
     compile();
 
+    void
+    setUniform(const std::string& name, const Matrix4f& value);
+
 private:
     GLuint m_location;
+
+    GLuint
+    locationOf(const std::string& name) const;
 };
 
 #endif

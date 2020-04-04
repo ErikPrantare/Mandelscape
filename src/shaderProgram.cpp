@@ -18,7 +18,7 @@ ShaderProgram::useShader(const Shader& shader)
     glAttachShader(m_location, shader.m_location);
 }
 
-extern GLuint G_CAMERA_SPACE, G_PROJECTION, G_OFFSET, G_TEXTURE_LOCATION;
+extern GLuint G_OFFSET, G_TEXTURE_LOCATION;
 
 void
 ShaderProgram::compile()
@@ -50,12 +50,10 @@ ShaderProgram::compile()
         loc = glGetUniformLocation(m_location, name.c_str());
         if(loc == 0xFFFFFFFF) {
             std::cerr << "Failed to find variable " << loc << std::endl;
-            exit(1);
+            throw;
         }
     };
 
-    loadShader("cameraSpace", G_CAMERA_SPACE);
-    loadShader("projection", G_PROJECTION);
     loadShader("offset", G_OFFSET);
 
     int width, height, nrChannels;
@@ -63,7 +61,7 @@ ShaderProgram::compile()
             stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
     if(!data) {
         std::cout << "Failed to load texture" << std::endl;
-        exit(1);
+        throw;
     }
 
     glGenTextures(1, &G_TEXTURE_LOCATION);
@@ -82,4 +80,21 @@ ShaderProgram::compile()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     stbi_image_free(data);
+}
+
+void
+ShaderProgram::setUniform(const std::string& name, const Matrix4f& value)
+{
+    glUniformMatrix4fv(locationOf(name), 1, GL_TRUE, &value.m[0][0]);
+}
+
+GLuint
+ShaderProgram::locationOf(const std::string& name) const
+{
+    GLuint loc = glGetUniformLocation(m_location, name.c_str());
+    if(loc == 0xFFFFFFFF) {
+        std::cerr << "Failed to find variable " << name << std::endl;
+        throw;
+    }
+    return loc;
 }
