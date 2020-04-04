@@ -1,18 +1,23 @@
 #ifndef MANDELLANDSCAPE_SHADER_H
 #define MANDELLANDSCAPE_SHADER_H
 
+#include <string>
+
 #include <GL/glew.h>
 
 class Shader {
 public:
     void
-    setProgram(GLuint program);
+    loadFromFile(const std::string& filename, GLenum shaderType);
 
     void
-    addShader(const std::string& shaderCode, GLenum shaderType);
+    loadFromCode(const std::string& code, GLenum shaderType);
 
 private:
-    GLuint m_shaderProgram;
+    friend class ShaderProgram;
+
+    GLenum m_type;
+    GLuint m_location;
 };
 
 #endif

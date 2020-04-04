@@ -2,38 +2,39 @@
 #include <iostream>
 
 #include "shader.h"
+#include "utils.h"
 
 void
-Shader::setProgram(GLuint program)
+Shader::loadFromFile(const std::string& filename, GLenum shaderType)
 {
-    m_shaderProgram = program;
+    loadFromCode(readFile(filename), shaderType);
 }
 
 void
-Shader::addShader(const std::string& shaderCode, GLenum shaderType)
+Shader::loadFromCode(const std::string& code, GLenum shaderType)
 {
-    GLuint shaderObj = glCreateShader(shaderType);
+    m_location = glCreateShader(shaderType);
+    m_type     = shaderType;
 
-    if(shaderObj == 0) {
+    if(m_location == 0) {
         std::cerr << "Error creating shader type " << shaderType << std::endl;
         exit(1);
     }
 
     const GLchar* p[1];
-    p[0] = shaderCode.c_str();
+    p[0] = code.c_str();
     GLint lengths[1];
-    lengths[0] = shaderCode.size();
-    glShaderSource(shaderObj, 1, p, lengths);
-    glCompileShader(shaderObj);
+    lengths[0] = code.size();
+    glShaderSource(m_location, 1, p, lengths);
+    glCompileShader(m_location);
     GLint success;
-    glGetShaderiv(shaderObj, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(m_location, GL_COMPILE_STATUS, &success);
     if(!success) {
         GLchar infoLog[1024];
-        glGetShaderInfoLog(shaderObj, sizeof(infoLog), nullptr, infoLog);
+        glGetShaderInfoLog(m_location, sizeof(infoLog), nullptr, infoLog);
         std::cerr << "Error compiling shader type " << shaderType << ": "
                   << "'" << infoLog << "'" << std::endl;
 
         exit(1);
     }
-    glAttachShader(m_shaderProgram, shaderObj);
 }

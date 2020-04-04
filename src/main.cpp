@@ -16,6 +16,7 @@
 #include "terrain.h"
 #include "config.h"
 #include "shader.h"
+#include "shaderProgram.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -256,80 +257,17 @@ initializeGlutCallbacks()
 static void
 compileShaders()
 {
-    GLuint shaderProgram = glCreateProgram();
-    Shader shader;
-    shader.setProgram(shaderProgram);
+    ShaderProgram program;
 
-    if(shaderProgram == 0) {
-        std::cerr << "Error creating shader program" << std::endl;
-        exit(1);
-    }
+    Shader vertexShader;
+    vertexShader.loadFromFile("shaders/shader.vert", GL_VERTEX_SHADER);
 
-    std::string vs = readFile("shaders/shader.vert");
-    std::string fs = readFile("shaders/shader.frag");
+    Shader fragmentShader;
+    fragmentShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
-    shader.addShader(vs.c_str(), GL_VERTEX_SHADER);
-    shader.addShader(fs.c_str(), GL_FRAGMENT_SHADER);
-
-    GLint success         = 0;
-    GLchar errorLog[1024] = {0};
-
-    glLinkProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if(!success) {
-        glGetProgramInfoLog(shaderProgram, sizeof(errorLog), nullptr, errorLog);
-
-        std::cerr << "Error linking shader program: " << errorLog << std::endl;
-        exit(1);
-    }
-
-    glValidateProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &success);
-    if(!success) {
-        glGetProgramInfoLog(shaderProgram, sizeof(errorLog), nullptr, errorLog);
-
-        std::cerr << "Invalid shader program: " << errorLog << std::endl;
-        exit(1);
-    }
-
-    glUseProgram(shaderProgram);
-
-    auto loadShader = [&shaderProgram](std::string name, GLuint& loc) {
-        loc = glGetUniformLocation(shaderProgram, name.c_str());
-        if(loc == 0xFFFFFFFF) {
-            std::cerr << "Failed to find variable " << loc << std::endl;
-            exit(1);
-        }
-    };
-
-    loadShader("cameraSpace", G_CAMERA_SPACE);
-    loadShader("projection", G_PROJECTION);
-    loadShader("offset", G_OFFSET);
-
-    int width, height, nrChannels;
-    unsigned char* const data =
-            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
-    if(!data) {
-        std::cout << "Failed to load texture" << std::endl;
-        exit(1);
-    }
-
-    glGenTextures(1, &G_TEXTURE_LOCATION);
-    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            width,
-            height,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_image_free(data);
+    program.useShader(vertexShader);
+    program.useShader(fragmentShader);
+    program.compile();
 }
 
 Settings::Config
