@@ -15,6 +15,7 @@
 #include "camera.h"
 #include "terrain.h"
 #include "config.h"
+#include "shader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -253,42 +254,11 @@ initializeGlutCallbacks()
 }
 
 static void
-addShader(
-        GLuint shaderProgram,
-        const std::string& shaderCode,
-        GLenum shaderType)
-{
-    GLuint shaderObj = glCreateShader(shaderType);
-
-    if(shaderObj == 0) {
-        std::cerr << "Error creating shader type " << shaderType << std::endl;
-        exit(1);
-    }
-
-    const GLchar* p[1];
-    p[0] = shaderCode.c_str();
-    GLint lengths[1];
-    lengths[0] = shaderCode.size();
-    glShaderSource(shaderObj, 1, p, lengths);
-    glCompileShader(shaderObj);
-    GLint success;
-    glGetShaderiv(shaderObj, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        GLchar infoLog[1024];
-        glGetShaderInfoLog(shaderObj, sizeof(infoLog), nullptr, infoLog);
-        std::cerr << "Error compiling shader type " << shaderType << ": "
-                  << "'" << infoLog << "'" << std::endl;
-
-        exit(1);
-    }
-
-    glAttachShader(shaderProgram, shaderObj);
-}
-
-static void
 compileShaders()
 {
     GLuint shaderProgram = glCreateProgram();
+    Shader shader;
+    shader.setProgram(shaderProgram);
 
     if(shaderProgram == 0) {
         std::cerr << "Error creating shader program" << std::endl;
@@ -298,8 +268,8 @@ compileShaders()
     std::string vs = readFile("shaders/shader.vert");
     std::string fs = readFile("shaders/shader.frag");
 
-    addShader(shaderProgram, vs.c_str(), GL_VERTEX_SHADER);
-    addShader(shaderProgram, fs.c_str(), GL_FRAGMENT_SHADER);
+    shader.addShader(vs.c_str(), GL_VERTEX_SHADER);
+    shader.addShader(fs.c_str(), GL_FRAGMENT_SHADER);
 
     GLint success         = 0;
     GLchar errorLog[1024] = {0};
