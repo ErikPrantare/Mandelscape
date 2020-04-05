@@ -260,11 +260,10 @@ compileShaders()
 {
     ShaderProgram program;
 
-    Shader vertexShader;
-    vertexShader.loadFromFile("shaders/shader.vert", GL_VERTEX_SHADER);
-
-    Shader fragmentShader;
-    fragmentShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+    Shader vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+    Shader fragmentShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
     program.useShader(vertexShader);
     program.useShader(fragmentShader);
@@ -292,18 +291,12 @@ initConfig()
     conf.set<Settings::UseDeepShader>(false);
 
     conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
-        static Shader shallowShader;
-        shallowShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-        static Shader deepShader;
-        deepShader.loadFromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+        static Shader shallowShader =
+                Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+        static Shader deepShader =
+                Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
 
-        if(deep) {
-            G_SHADER_PROGRAM->useShader(deepShader);
-        }
-        else {
-            G_SHADER_PROGRAM->useShader(shallowShader);
-        }
-
+        G_SHADER_PROGRAM->useShader(deep ? deepShader : shallowShader);
         G_SHADER_PROGRAM->compile();
     });
 

@@ -7,13 +7,14 @@
 
 class Shader {
 public:
-    void
-    loadFromFile(const std::string& filename, GLenum shaderType);
+    static Shader
+    fromFile(const std::string& filename, GLenum shaderType);
 
-    void
-    loadFromCode(const std::string& code, GLenum shaderType);
+    static Shader
+    fromCode(const std::string& code, GLenum shaderType);
 
 private:
+    Shader() = default;
     friend class ShaderProgram;
 
     GLenum m_type;
