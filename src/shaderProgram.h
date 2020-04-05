@@ -20,8 +20,23 @@ public:
     void
     setUniform(const std::string& name, const Matrix4f& value);
 
+    void
+    setUniform(const std::string& name, float, float);
+
+    void
+    setTexture(
+            unsigned char* const image,
+            int width,
+            int height,
+            int nrChannels);
+
+    void
+    bindTexture();
+
 private:
     GLuint m_location;
+    GLuint m_textureLocation;
+    bool m_textureLoaded = false;
 
     GLuint
     locationOf(const std::string& name) const;

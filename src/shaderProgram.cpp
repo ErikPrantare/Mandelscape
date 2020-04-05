@@ -10,6 +10,7 @@ ShaderProgram::ShaderProgram() : m_location(glCreateProgram())
         std::cerr << "Error creating shader program" << std::endl;
         throw;
     }
+    glGenTextures(1, &m_textureLocation);
 }
 
 void
@@ -22,8 +23,6 @@ ShaderProgram::useShader(const Shader& shader)
     glAttachShader(m_location, shader.m_location);
     m_shaders[shader.m_type] = shader.m_location;
 }
-
-extern GLuint G_OFFSET, G_TEXTURE_LOCATION;
 
 void
 ShaderProgram::compile()
@@ -51,26 +50,28 @@ ShaderProgram::compile()
     }
 
     glUseProgram(m_location);
-    auto loadShader = [this](std::string name, GLuint& loc) {
-        loc = glGetUniformLocation(m_location, name.c_str());
-        if(loc == 0xFFFFFFFF) {
-            std::cerr << "Failed to find variable " << loc << std::endl;
-            throw;
-        }
-    };
+}
 
-    loadShader("offset", G_OFFSET);
+void
+ShaderProgram::setUniform(const std::string& name, const Matrix4f& value)
+{
+    glUniformMatrix4fv(locationOf(name), 1, GL_TRUE, &value.m[0][0]);
+}
 
-    int width, height, nrChannels;
-    unsigned char* const data =
-            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
-    if(!data) {
-        std::cout << "Failed to load texture" << std::endl;
-        throw;
-    }
+void
+ShaderProgram::setUniform(const std::string& name, float x, float y)
+{
+    glUniform2f(locationOf(name), x, y);
+}
 
-    glGenTextures(1, &G_TEXTURE_LOCATION);
-    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
+void
+ShaderProgram::setTexture(
+        unsigned char* const image,
+        int width,
+        int height,
+        int nrChannels)
+{
+    glBindTexture(GL_TEXTURE_2D, m_textureLocation);
     glTexImage2D(
             GL_TEXTURE_2D,
             0,
@@ -80,17 +81,16 @@ ShaderProgram::compile()
             0,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            data);
+            image);
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_image_free(data);
 }
 
 void
-ShaderProgram::setUniform(const std::string& name, const Matrix4f& value)
+ShaderProgram::bindTexture()
 {
-    glUniformMatrix4fv(locationOf(name), 1, GL_TRUE, &value.m[0][0]);
+    glBindTexture(GL_TEXTURE_2D, m_textureLocation);
 }
 
 GLuint

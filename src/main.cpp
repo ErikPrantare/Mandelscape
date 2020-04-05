@@ -21,9 +21,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-GLuint G_TEXTURE_LOCATION;
-GLuint G_OFFSET;
-
 Settings::Config G_CONFIG;
 
 // XXX: Gives segmentation fault if not pointer
@@ -58,7 +55,7 @@ renderScene()
 
     glEnableVertexAttribArray(0);
 
-    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
+    G_SHADER_PROGRAM->bindTexture();
     G_TERRAIN->render();
 
     glDisableVertexAttribArray(0);
@@ -113,9 +110,9 @@ updateScene()
 
     G_SHADER_PROGRAM->setUniform("cameraSpace", G_CAMERA.cameraSpace());
     G_SHADER_PROGRAM->setUniform("projection", G_CAMERA.projection());
-    glUniform2f(G_OFFSET, G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
-    glutPostRedisplay();
+    G_SHADER_PROGRAM->setUniform("offset", G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
 
+    glutPostRedisplay();
     G_ZOOM_AMOUNT = 0.f;
 }
 
@@ -271,27 +268,19 @@ compileShaders()
 
     program.useShader(vertexShader);
     program.useShader(fragmentShader);
+
+    int width, height, nrChannels;
+    unsigned char* const image =
+            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
+    if(!image) {
+        std::cout << "Failed to load texture" << std::endl;
+        throw;
+    }
+    program.setTexture(image, width, height, nrChannels);
+    stbi_image_free(image);
     program.compile();
 
     G_SHADER_PROGRAM = new ShaderProgram(program);
-}
-
-void
-f(bool deep)
-{
-    static Shader shallowShader;
-    shallowShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-    static Shader deepShader;
-    deepShader.loadFromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
-
-    if(deep) {
-        G_SHADER_PROGRAM->useShader(deepShader);
-    }
-    else {
-        G_SHADER_PROGRAM->useShader(shallowShader);
-    }
-
-    G_SHADER_PROGRAM->compile();
 }
 
 Settings::Config
@@ -302,7 +291,21 @@ initConfig()
     conf.set<Settings::WindowHeight>(768);
     conf.set<Settings::UseDeepShader>(false);
 
-    conf.onStateChange<Settings::UseDeepShader>(f);
+    conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
+        static Shader shallowShader;
+        shallowShader.loadFromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+        static Shader deepShader;
+        deepShader.loadFromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+
+        if(deep) {
+            G_SHADER_PROGRAM->useShader(deepShader);
+        }
+        else {
+            G_SHADER_PROGRAM->useShader(shallowShader);
+        }
+
+        G_SHADER_PROGRAM->compile();
+    });
 
     return conf;
 }
