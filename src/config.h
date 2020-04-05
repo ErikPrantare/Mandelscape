@@ -22,7 +22,7 @@ class Config {
 public:
     Config() = default;
 
-    template<typename Setting, typename = Secret::RequireSetting<Setting>>
+    template<typename Setting, typename = RequireSetting<Setting>>
     void
     set(typename Setting::Type newValue)
     {
@@ -34,7 +34,7 @@ public:
         }
     }
 
-    template<typename Setting, typename = Secret::RequireSetting<Setting>>
+    template<typename Setting, typename = RequireSetting<Setting>>
     typename Setting::Type
     get()
     {
@@ -44,7 +44,7 @@ public:
     template<
             typename Setting,
             typename Callable,
-            typename = Secret::RequireSetting<Setting>,
+            typename = RequireSetting<Setting>,
             typename = RequireCallable<Callable, typename Setting::type>>
     void
     subscribe(Callable const callback)
@@ -57,7 +57,7 @@ public:
     template<
             typename Setting,
             typename Callable,
-            typename = Secret::RequireSetting<Setting>,
+            typename = RequireSetting<Setting>,
             typename = RequireCallable<Callable, typename Setting::Type>>
     void
     on(Callable const& callable)
