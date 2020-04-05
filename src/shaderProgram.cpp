@@ -13,6 +13,12 @@ ShaderProgram::ShaderProgram() : m_location(glCreateProgram())
     glGenTextures(1, &m_textureLocation);
 }
 
+ShaderProgram::~ShaderProgram()
+{
+    glDeleteProgram(m_location);
+    glDeleteTextures(1, &m_textureLocation);
+}
+
 void
 ShaderProgram::useShader(const Shader& shader)
 {

@@ -10,6 +10,11 @@
 class ShaderProgram {
 public:
     ShaderProgram();
+    ~ShaderProgram();
+
+    ShaderProgram(const ShaderProgram&) = delete;
+    ShaderProgram
+    operator=(const ShaderProgram&) = delete;
 
     void
     useShader(const Shader& shader);

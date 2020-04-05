@@ -7,6 +7,13 @@
 
 class Shader {
 public:
+    Shader()              = delete;
+    Shader(const Shader&) = delete;
+    Shader&
+    operator=(const Shader&) = delete;
+
+    ~Shader();
+
     static Shader
     fromFile(const std::string& filename, GLenum shaderType);
 
@@ -14,7 +21,7 @@ public:
     fromCode(const std::string& code, GLenum shaderType);
 
 private:
-    Shader() = default;
+    Shader(GLenum location, GLenum type);
     friend class ShaderProgram;
 
     GLenum m_type;

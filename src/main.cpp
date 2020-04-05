@@ -258,15 +258,14 @@ initializeGlutCallbacks()
 static void
 compileShaders()
 {
-    ShaderProgram program;
-
+    G_SHADER_PROGRAM = new ShaderProgram;
     Shader vertexShader =
             Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
     Shader fragmentShader =
             Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
-    program.useShader(vertexShader);
-    program.useShader(fragmentShader);
+    G_SHADER_PROGRAM->useShader(vertexShader);
+    G_SHADER_PROGRAM->useShader(fragmentShader);
 
     int width, height, nrChannels;
     unsigned char* const image =
@@ -275,11 +274,9 @@ compileShaders()
         std::cout << "Failed to load texture" << std::endl;
         throw;
     }
-    program.setTexture(image, width, height, nrChannels);
+    G_SHADER_PROGRAM->setTexture(image, width, height, nrChannels);
     stbi_image_free(image);
-    program.compile();
-
-    G_SHADER_PROGRAM = new ShaderProgram(program);
+    G_SHADER_PROGRAM->compile();
 }
 
 Settings::Config
