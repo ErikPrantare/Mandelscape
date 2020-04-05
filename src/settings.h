@@ -4,19 +4,6 @@
 #include <type_traits>
 
 namespace Settings {
-class Secret {
-    struct Token {};
-
-    template<typename T, int uid, typename>
-    friend struct Setting;
-
-public:
-    template<typename T>
-    using RequireSetting = std::enable_if_t<std::is_same_v<
-            typename T::Token,
-            typename Settings::Secret::Token>>;
-};
-
 template<
         typename T,
         int _uid,
@@ -24,8 +11,14 @@ template<
 struct Setting {
     using Type               = T;
     static constexpr int uid = _uid;
-    using Token              = Secret::Token;
 };
+
+template<typename S>
+inline bool constexpr isSetting =
+        std::is_same_v<S, Setting<typename S::Type, S::uid>>;
+
+template<typename S>
+using RequireSetting = std::enable_if_t<isSetting<S>>;
 
 // Only create settings here. __LINE__ is to give each setting a unique id
 using WindowHeight = Setting<int, __LINE__>;
