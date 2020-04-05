@@ -23,3 +23,7 @@ config.h
 #Config files and folders
 compile_commands.json
 .clangd/
+
+#Custom build/run files
+build.sh
+run.sh
