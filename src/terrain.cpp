@@ -84,18 +84,10 @@ Terrain::loadMesh(
         buffer->resize(nrIndices);
     }
 
-    const double discScale   = std::pow(2.0, int(log2(_scale)));
-    const double scaleFactor = Terrain::granularity * discScale;
-
     constexpr int doublingInterval = 40;
-    constexpr int exponentOffset   = -5;
 
-    const auto& stepSize = [scaleFactor](int i) {
-        return std::pow(
-                       2.0,
-                       std::abs(i - granularity / 2) / doublingInterval
-                               - exponentOffset)
-               / scaleFactor;
+    const auto stepSize = [](int i) {
+        return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 
     const auto& quantized = [](double x, double stepSize) {
@@ -107,21 +99,29 @@ Terrain::loadMesh(
         meshSpan += stepSize(i);
     }
 
-    double xPos = -meshSpan / 2 + _x;
-    for(int x = 0; x < granularity; ++x) {
-        double xQuant = quantized(xPos, stepSize(x));
+    const double discScale    = std::pow(2.0, int(log2(_scale)));
+    const double normMeshSpan = 300.0 / discScale;
 
-        double zPos = -meshSpan / 2 + _z;
+    const double normFactor = normMeshSpan / meshSpan;
+    const auto normStepSize = [normFactor, stepSize](int i) {
+        return normFactor * stepSize(i);
+    };
+
+    double xPos = -normMeshSpan / 2 + _x;
+    for(int x = 0; x < granularity; ++x) {
+        const double xQuant = quantized(xPos, normStepSize(x));
+
+        double zPos = -normMeshSpan / 2 + _z;
         for(int z = 0; z < granularity; ++z) {
-            double zQuant                  = quantized(zPos, stepSize(z));
+            const double zQuant            = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = Vector3f(
                     xQuant - _x,
                     Terrain::heightAt({xQuant, zQuant}),
                     zQuant - _z);
 
-            zPos += stepSize(z);
+            zPos += normStepSize(z);
         }
-        xPos += stepSize(x);
+        xPos += normStepSize(x);
     }
 }
 
