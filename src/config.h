@@ -1,28 +1,17 @@
 #ifndef MANDELLANDSCAPE_CONFIG_H
 #define MANDELLANDSCAPE_CONFIG_H
 
-#include <type_traits>
 #include <map>
 #include <vector>
 #include <any>
 #include <functional>
 
+#include "mandelTypeTraits.h"
 #include "settings.h"
 
 namespace Settings {
 
 class Config {
-    template<typename Callable, typename Arg>
-    static bool constexpr returns =
-            std::is_same_v<Arg, std::invoke_result_t<Callable, Arg>>;
-
-    template<typename Callable, typename SettingType>
-    using RequireEndomorphismOf =
-            std::enable_if_t<returns<Callable, SettingType>>;
-
-    template<typename Callable, typename Arg>
-    using RequireCallableWith = std::invoke_result_t<Callable, Arg>;
-
 public:
     Config() = default;
 
