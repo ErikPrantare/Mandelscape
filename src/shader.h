@@ -2,30 +2,47 @@
 #define MANDELLANDSCAPE_SHADER_H
 
 #include <string>
+#include <memory>
+#include <filesystem>
+#include <iostream>
 
 #include <GL/glew.h>
 
+#include "utils.h"
+
+struct ShaderLocation {
+    GLuint const location;
+
+    explicit ShaderLocation(GLuint const shaderLocation) :
+                location(shaderLocation)
+    {}
+
+    ShaderLocation(ShaderLocation const&) = delete;
+    ShaderLocation(ShaderLocation&&)      = delete;
+
+    operator GLuint() const
+    {
+        return location;
+    }
+
+    ~ShaderLocation()
+    {
+        glDeleteShader(location);
+    }
+};
+
 class Shader {
 public:
-    Shader()              = delete;
-    Shader(const Shader&) = delete;
-    Shader&
-    operator=(const Shader&) = delete;
+    Shader() = delete;
 
-    ~Shader();
+    Shader(std::string const& filePath, GLenum const shaderType);
 
-    static Shader
-    fromFile(const std::string& filename, GLenum shaderType);
-
-    static Shader
-    fromCode(const std::string& code, GLenum shaderType);
+    std::shared_ptr<ShaderLocation const> const location;
+    GLenum const type;
 
 private:
-    Shader(GLenum location, GLenum type);
-    friend class ShaderProgram;
-
-    GLenum m_type;
-    GLuint m_location;
+    static std::shared_ptr<ShaderLocation const>
+    createShader(std::string const& source, GLenum shaderType);
 };
 
 #endif
