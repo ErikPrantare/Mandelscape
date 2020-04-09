@@ -15,8 +15,8 @@ ShaderProgram::ShaderProgram(
     }
     glGenTextures(1, &m_textureLocation);
 
-    useShader(vertexShader, GL_VERTEX_SHADER);
-    useShader(fragmentShader, GL_FRAGMENT_SHADER);
+    attatchShader(vertexShader, GL_VERTEX_SHADER);
+    attatchShader(fragmentShader, GL_FRAGMENT_SHADER);
     compile();
 }
 
@@ -35,7 +35,7 @@ ShaderProgram::getLocation(std::string const& path, GLenum const shaderType)
     return m_shaders.find(path)->second.location();
 }
 void
-ShaderProgram::useShader(std::string const& path, GLenum const shaderType)
+ShaderProgram::attatchShader(std::string const& path, GLenum const shaderType)
 {
     static GLuint currentVertexShader   = 0;
     static GLuint currentFragmentShader = 0;
@@ -46,6 +46,7 @@ ShaderProgram::useShader(std::string const& path, GLenum const shaderType)
         currentVertexShader = getLocation(path, shaderType);
         glAttachShader(m_location, currentVertexShader);
     } break;
+
     case GL_FRAGMENT_SHADER: {
         glDetachShader(m_location, currentFragmentShader);
         currentFragmentShader = getLocation(path, shaderType);
@@ -85,13 +86,13 @@ ShaderProgram::compile()
 void
 ShaderProgram::setUniform(const std::string& name, const Matrix4f& value)
 {
-    glUniformMatrix4fv(locationOf(name), 1, GL_TRUE, &value.m[0][0]);
+    glUniformMatrix4fv(uniformLocation(name), 1, GL_TRUE, &value.m[0][0]);
 }
 
 void
 ShaderProgram::setUniform(const std::string& name, float x, float y)
 {
-    glUniform2f(locationOf(name), x, y);
+    glUniform2f(uniformLocation(name), x, y);
 }
 
 void
@@ -124,12 +125,12 @@ ShaderProgram::bindTexture()
 }
 
 GLuint
-ShaderProgram::locationOf(const std::string& name) const
+ShaderProgram::uniformLocation(const std::string& name) const
 {
-    GLuint loc = glGetUniformLocation(m_location, name.c_str());
-    if(loc == 0xFFFFFFFF) {
+    GLuint location = glGetUniformLocation(m_location, name.c_str());
+    if(location == 0xFFFFFFFF) {
         std::cerr << "Failed to find variable " << name << std::endl;
         throw;
     }
-    return loc;
+    return location;
 }

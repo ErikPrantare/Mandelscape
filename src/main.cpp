@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <vector>
+#include <memory>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -15,7 +16,6 @@
 #include "camera.h"
 #include "terrain.h"
 #include "config.h"
-#include "shader.h"
 #include "shaderProgram.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -26,7 +26,7 @@ Settings::Config G_CONFIG;
 // XXX: Gives segmentation fault if not pointer
 // Let it be pointer for now, and just remove it from
 // global namespace when we switch to GLFW
-ShaderProgram* G_SHADER_PROGRAM;
+std::unique_ptr<ShaderProgram> G_SHADER_PROGRAM;
 
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
@@ -46,7 +46,7 @@ float constexpr G_MOVEMENT_SPEED  = 1.f;
 float G_MESH_OFFSET_X = 0;
 float G_MESH_OFFSET_Z = 0;
 
-Terrain* G_TERRAIN = nullptr;
+std::unique_ptr<Terrain> G_TERRAIN = nullptr;
 
 static void
 renderScene()
@@ -148,7 +148,7 @@ handleInputDown(unsigned char c, int, int)
                 G_ZOOM);
         break;
     case 'h':
-        G_CONFIG.on<Settings::UseDeepShader>(invert);
+        G_CONFIG.on<Settings::UseDeepShader>(std::logical_not<bool>());
         break;
     case 'q':
         exit(0);
@@ -258,8 +258,9 @@ initializeGlutCallbacks()
 static void
 compileShaders()
 {
-    G_SHADER_PROGRAM =
-            new ShaderProgram("shaders/shader.vert", "shaders/shader.frag");
+    G_SHADER_PROGRAM = std::make_unique<ShaderProgram>(
+            "shaders/shader.vert",
+            "shaders/shader.frag");
 
     int width, height, nrChannels;
     unsigned char* const image =
@@ -284,7 +285,7 @@ initConfig()
         static std::string const shallowShader = "shaders/shader.frag";
         static std::string const deepShader    = "shaders/deepShader.frag";
 
-        G_SHADER_PROGRAM->useShader(
+        G_SHADER_PROGRAM->attatchShader(
                 deep ? deepShader : shallowShader,
                 GL_FRAGMENT_SHADER);
         G_SHADER_PROGRAM->compile();
@@ -340,7 +341,7 @@ main(int argc, char** argv)
         G_MESH_OFFSET_Z = z;
     };
 
-    G_TERRAIN = new Terrain(setMeshOffset);
+    G_TERRAIN = std::make_unique<Terrain>(setMeshOffset);
 
     compileShaders();
 

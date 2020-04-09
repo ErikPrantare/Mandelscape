@@ -7,12 +7,7 @@
 
 Shader::Shader(std::string const& filePath, GLenum const shaderType) :
             type(shaderType),
-            m_location(
-                    createShader(readFile(filePath), shaderType),
-                    [](GLuint const* location) {
-                        glDeleteShader(*location);
-                        delete location;
-                    })
+            m_location(createShader(readFile(filePath), shaderType))
 {}
 
 GLuint const*

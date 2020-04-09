@@ -26,7 +26,16 @@ public:
     }
 
 private:
-    std::shared_ptr<GLuint const> m_location;
+    struct LocationDeleter {
+        void
+        operator()(GLuint const* location) noexcept
+        {
+            glDeleteShader(*location);
+            delete location;
+        }
+    };
+
+    std::unique_ptr<GLuint const, LocationDeleter> m_location;
 
     static GLuint const*
     createShader(std::string const& source, GLenum shaderType);

@@ -12,10 +12,11 @@ public:
     ShaderProgram(
             std::string const& vertexShader,
             std::string const& fragmentShader);
+
     ~ShaderProgram();
 
     void
-    useShader(std::string const& path, GLenum const shaderType);
+    attatchShader(std::string const& path, GLenum const shaderType);
 
     void
     compile();
@@ -42,7 +43,7 @@ private:
     bool m_textureLoaded = false;
 
     GLuint
-    locationOf(const std::string& name) const;
+    uniformLocation(const std::string& name) const;
 
     GLuint
     getLocation(std::string const& path, GLenum const shaderType);
