@@ -7,23 +7,22 @@
 
 Shader::Shader(std::string const& filePath, GLenum const shaderType) :
             type(shaderType),
-            path(filePath),
             m_location(
                     createShader(readFile(filePath), shaderType),
-                    [](GLuint* location) {
+                    [](GLuint const* location) {
                         glDeleteShader(*location);
                         delete location;
                     })
 {}
 
-GLuint*
+GLuint const*
 Shader::createShader(std::string const& source, GLenum shaderType)
 {
     auto const location = new GLuint(glCreateShader(shaderType));
 
     if(location == 0) {
         std::cerr << "Error creating shader type " << shaderType << std::endl;
-        exit(1);
+        throw;
     }
 
     GLchar const* charSource = source.c_str();

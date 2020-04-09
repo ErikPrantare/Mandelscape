@@ -18,7 +18,6 @@ public:
     Shader(std::string const& filePath, GLenum const shaderType);
 
     GLenum const type;
-    std::string const path;
 
     GLuint
     location()
@@ -27,9 +26,9 @@ public:
     }
 
 private:
-    std::shared_ptr<GLuint> m_location;
+    std::shared_ptr<GLuint const> m_location;
 
-    static GLuint*
+    static GLuint const*
     createShader(std::string const& source, GLenum shaderType);
 };
 
