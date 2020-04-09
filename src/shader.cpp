@@ -6,11 +6,13 @@
 #include "utils.h"
 
 Shader::Shader(std::string const& filePath, GLenum const shaderType) :
-            location(createShader(readFile(filePath), shaderType)),
-            type(shaderType)
+            type(shaderType),
+            path(filePath),
+            location(ShaderLocation{
+                    createShader(readFile(filePath), shaderType)})
 {}
 
-std::shared_ptr<ShaderLocation const>
+GLuint
 Shader::createShader(std::string const& source, GLenum shaderType)
 {
     GLuint const location = glCreateShader(shaderType);
