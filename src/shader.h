@@ -27,50 +27,9 @@ public:
     }
 
 private:
-    struct ShaderLocation {
-        GLuint const value;
+    std::shared_ptr<GLuint> m_location;
 
-        operator GLuint() const
-        {
-            return value;
-        }
-
-        GLuint operator*()
-        {
-            return value;
-        }
-
-        template<
-                typename Null,
-                typename = std::enable_if_t<std::is_null_pointer_v<Null>>>
-        constexpr bool
-        operator==(Null rhs) const
-        {
-            return value > 0;
-        }
-
-        template<
-                typename Null,
-                typename = std::enable_if_t<std::is_null_pointer_v<Null>>>
-        constexpr bool
-        operator!=(Null rhs) const
-        {
-            return !(value == rhs);
-        }
-    };
-
-    struct ShaderDeleter {
-        using pointer = ShaderLocation;
-        void
-        operator()(pointer location) const
-        {
-            glDeleteShader(location);
-        }
-    };
-
-    std::unique_ptr<ShaderLocation, ShaderDeleter> m_location;
-
-    static GLuint
+    static GLuint*
     createShader(std::string const& source, GLenum shaderType);
 };
 

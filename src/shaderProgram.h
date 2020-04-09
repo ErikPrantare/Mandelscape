@@ -9,15 +9,13 @@
 
 class ShaderProgram {
 public:
-    ShaderProgram();
+    ShaderProgram(
+            std::string const& vertexShader,
+            std::string const& fragmentShader);
     ~ShaderProgram();
 
-    ShaderProgram(const ShaderProgram&) = delete;
-    ShaderProgram
-    operator=(const ShaderProgram&) = delete;
-
     void
-    useShader(const Shader& shader);
+    useShader(std::string const& path, GLenum const shaderType);
 
     void
     compile();
@@ -46,7 +44,10 @@ private:
     GLuint
     locationOf(const std::string& name) const;
 
-    std::map<GLenum, GLuint> m_shaders;
+    GLuint
+    getLocation(std::string const& path, GLenum const shaderType);
+
+    std::map<std::string, Shader> m_shaders;
 };
 
 #endif

@@ -16,9 +16,3 @@ readFile(std::string const& filePath)
     in.close();
     return output;
 }
-
-constexpr bool
-invert(bool const b)
-{
-    return !b;
-}

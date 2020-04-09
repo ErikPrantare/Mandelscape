@@ -8,14 +8,18 @@
 Shader::Shader(std::string const& filePath, GLenum const shaderType) :
             type(shaderType),
             path(filePath),
-            location(ShaderLocation{
-                    createShader(readFile(filePath), shaderType)})
+            m_location(
+                    createShader(readFile(filePath), shaderType),
+                    [](GLuint* location) {
+                        glDeleteShader(*location);
+                        delete location;
+                    })
 {}
 
-GLuint
+GLuint*
 Shader::createShader(std::string const& source, GLenum shaderType)
 {
-    GLuint const location = glCreateShader(shaderType);
+    auto const location = new GLuint(glCreateShader(shaderType));
 
     if(location == 0) {
         std::cerr << "Error creating shader type " << shaderType << std::endl;
@@ -24,19 +28,19 @@ Shader::createShader(std::string const& source, GLenum shaderType)
 
     GLchar const* charSource = source.c_str();
     GLint const shaderLength = source.length();
-    glShaderSource(location, 1, &charSource, &shaderLength);
-    glCompileShader(location);
+    glShaderSource(*location, 1, &charSource, &shaderLength);
+    glCompileShader(*location);
 
     GLint success;
-    glGetShaderiv(location, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(*location, GL_COMPILE_STATUS, &success);
     if(!success) {
         GLchar infoLog[1024];
-        glGetShaderInfoLog(location, sizeof(infoLog), nullptr, infoLog);
+        glGetShaderInfoLog(*location, sizeof(infoLog), nullptr, infoLog);
         std::cerr << "Error compiling shader type " << shaderType << ": "
                   << "'" << infoLog << "'" << std::endl;
 
         exit(1);
     }
 
-    return std::make_shared<ShaderLocation const>(location);
+    return location;
 }

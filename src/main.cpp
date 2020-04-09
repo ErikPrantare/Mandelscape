@@ -258,14 +258,8 @@ initializeGlutCallbacks()
 static void
 compileShaders()
 {
-    G_SHADER_PROGRAM = new ShaderProgram;
-    Shader vertexShader =
-            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
-    Shader fragmentShader =
-            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-
-    G_SHADER_PROGRAM->useShader(vertexShader);
-    G_SHADER_PROGRAM->useShader(fragmentShader);
+    G_SHADER_PROGRAM =
+            new ShaderProgram("shaders/shader.vert", "shaders/shader.frag");
 
     int width, height, nrChannels;
     unsigned char* const image =
@@ -276,7 +270,6 @@ compileShaders()
     }
     G_SHADER_PROGRAM->setTexture(image, width, height, nrChannels);
     stbi_image_free(image);
-    G_SHADER_PROGRAM->compile();
 }
 
 Settings::Config
@@ -288,12 +281,12 @@ initConfig()
     conf.set<Settings::UseDeepShader>(false);
 
     conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
-        static Shader shallowShader =
-                Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-        static Shader deepShader =
-                Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+        static std::string const shallowShader = "shaders/shader.frag";
+        static std::string const deepShader    = "shaders/deepShader.frag";
 
-        G_SHADER_PROGRAM->useShader(deep ? deepShader : shallowShader);
+        G_SHADER_PROGRAM->useShader(
+                deep ? deepShader : shallowShader,
+                GL_FRAGMENT_SHADER);
         G_SHADER_PROGRAM->compile();
     });
 

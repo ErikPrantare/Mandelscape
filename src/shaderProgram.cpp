@@ -4,13 +4,20 @@
 
 #include <stb_image.h>
 
-ShaderProgram::ShaderProgram() : m_location(glCreateProgram())
+ShaderProgram::ShaderProgram(
+        std::string const& vertexShader,
+        std::string const& fragmentShader) :
+            m_location(glCreateProgram())
 {
     if(m_location == 0) {
         std::cerr << "Error creating shader program" << std::endl;
         throw;
     }
     glGenTextures(1, &m_textureLocation);
+
+    useShader(vertexShader, GL_VERTEX_SHADER);
+    useShader(fragmentShader, GL_FRAGMENT_SHADER);
+    compile();
 }
 
 ShaderProgram::~ShaderProgram()
@@ -19,15 +26,32 @@ ShaderProgram::~ShaderProgram()
     glDeleteTextures(1, &m_textureLocation);
 }
 
-void
-ShaderProgram::useShader(const Shader& shader)
+GLuint
+ShaderProgram::getLocation(std::string const& path, GLenum const shaderType)
 {
-    if(m_shaders.count(shader.m_type)) {
-        glDetachShader(m_location, m_shaders[shader.m_type]);
-    }
+    if(m_shaders.find(path) == std::end(m_shaders))
+        m_shaders.emplace(path, Shader(path, shaderType));
 
-    glAttachShader(m_location, shader.m_location);
-    m_shaders[shader.m_type] = shader.m_location;
+    return m_shaders.find(path)->second.location();
+}
+void
+ShaderProgram::useShader(std::string const& path, GLenum const shaderType)
+{
+    static GLuint currentVertexShader   = 0;
+    static GLuint currentFragmentShader = 0;
+
+    switch(shaderType) {
+    case GL_VERTEX_SHADER: {
+        glDetachShader(m_location, currentVertexShader);
+        currentVertexShader = getLocation(path, shaderType);
+        glAttachShader(m_location, currentVertexShader);
+    } break;
+    case GL_FRAGMENT_SHADER: {
+        glDetachShader(m_location, currentFragmentShader);
+        currentFragmentShader = getLocation(path, shaderType);
+        glAttachShader(m_location, currentFragmentShader);
+    } break;
+    }
 }
 
 void
