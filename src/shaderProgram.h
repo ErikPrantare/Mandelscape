@@ -23,13 +23,13 @@ public:
     compile() const;
 
     void
-    setUniform(const std::string& name, const GLuint x) const;
+    setUniformMatrix4(const std::string& name, const Matrix4f& value) const;
 
     void
-    setUniform(const std::string& name, const Matrix4f& value) const;
+    setUniformFloat(const std::string& name, float const) const;
 
     void
-    setUniform(const std::string& name, float const, float const) const;
+    setUniformVec2(const std::string& name, float const, float const) const;
 
 private:
     struct ShaderDeleter {

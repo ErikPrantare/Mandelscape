@@ -117,9 +117,12 @@ updateScene()
 
     G_CAMERA.setCameraHeight(filterHeight(elevation, dt));
 
-    G_SHADER_PROGRAM->setUniform("cameraSpace", G_CAMERA.cameraSpace());
-    G_SHADER_PROGRAM->setUniform("projection", G_CAMERA.projection());
-    G_SHADER_PROGRAM->setUniform("offset", G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
+    G_SHADER_PROGRAM->setUniformMatrix4("cameraSpace", G_CAMERA.cameraSpace());
+    G_SHADER_PROGRAM->setUniformMatrix4("projection", G_CAMERA.projection());
+    G_SHADER_PROGRAM->setUniformVec2(
+            "offset",
+            G_MESH_OFFSET_X,
+            G_MESH_OFFSET_Z);
 
     glutPostRedisplay();
     G_ZOOM_AMOUNT = 0.f;
