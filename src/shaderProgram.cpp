@@ -73,19 +73,18 @@ ShaderProgram::compile() const
 
 void
 ShaderProgram::setUniformMatrix4(const std::string& name, const Matrix4f& value)
-        const
 {
     glUniformMatrix4fv(uniformLocation(name), 1, GL_TRUE, &value.m[0][0]);
 }
 
 void
-ShaderProgram::setUniformFloat(const std::string& name, const float x) const
+ShaderProgram::setUniformFloat(const std::string& name, const float x)
 {
     glUniform1f(uniformLocation(name), x);
 }
 
 void
-ShaderProgram::setUniformVec2(const std::string& name, float x, float y) const
+ShaderProgram::setUniformVec2(const std::string& name, float x, float y)
 {
     glUniform2f(uniformLocation(name), x, y);
 }
