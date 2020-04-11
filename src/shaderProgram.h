@@ -16,34 +16,25 @@ public:
     attatchShader(GLuint const shader, GLenum const shaderType) const;
 
     void
-    compile();
+    compile() const;
 
     void
-    setUniform(const std::string& name, const Matrix4f& value);
+    setUniform(const std::string& name, const GLuint x) const;
 
     void
-    setUniform(const std::string& name, float, float);
+    setUniform(const std::string& name, const Matrix4f& value) const;
 
     void
-    setTexture(
-            unsigned char* const image,
-            int width,
-            int height,
-            int nrChannels);
-
-    void
-    bindTexture();
+    setUniform(const std::string& name, float const, float const) const;
 
 private:
     GLuint m_location;
-    GLuint m_textureLocation;
-    bool m_textureLoaded = false;
 
     GLuint
     uniformLocation(const std::string& name) const;
 
     GLuint
-    getLocation(std::string const& path, GLenum const shaderType);
+    getLocation(std::string const& path, GLenum const shaderType) const;
 };
 
 #endif

@@ -2,21 +2,17 @@
 
 #include <iostream>
 
-#include <stb_image.h>
-
 ShaderProgram::ShaderProgram() : m_location(glCreateProgram())
 {
     if(m_location == 0) {
         std::cerr << "Error creating shader program" << std::endl;
         throw;
     }
-    glGenTextures(1, &m_textureLocation);
 }
 
 ShaderProgram::~ShaderProgram()
 {
     glDeleteProgram(m_location);
-    glDeleteTextures(1, &m_textureLocation);
 }
 
 void
@@ -47,7 +43,7 @@ ShaderProgram::attatchShader(GLuint const shader, GLenum const shaderType) const
 }
 
 void
-ShaderProgram::compile()
+ShaderProgram::compile() const
 {
     glLinkProgram(m_location);
 
@@ -75,44 +71,21 @@ ShaderProgram::compile()
 }
 
 void
-ShaderProgram::setUniform(const std::string& name, const Matrix4f& value)
+ShaderProgram::setUniform(const std::string& name, const GLuint x) const
+{
+    glUniform1i(uniformLocation(name), x);
+}
+
+void
+ShaderProgram::setUniform(const std::string& name, const Matrix4f& value) const
 {
     glUniformMatrix4fv(uniformLocation(name), 1, GL_TRUE, &value.m[0][0]);
 }
 
 void
-ShaderProgram::setUniform(const std::string& name, float x, float y)
+ShaderProgram::setUniform(const std::string& name, float x, float y) const
 {
     glUniform2f(uniformLocation(name), x, y);
-}
-
-void
-ShaderProgram::setTexture(
-        unsigned char* const image,
-        int width,
-        int height,
-        int nrChannels)
-{
-    glBindTexture(GL_TEXTURE_2D, m_textureLocation);
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            width,
-            height,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-void
-ShaderProgram::bindTexture()
-{
-    glBindTexture(GL_TEXTURE_2D, m_textureLocation);
 }
 
 GLuint

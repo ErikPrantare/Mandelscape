@@ -18,6 +18,7 @@
 #include "config.h"
 #include "shader.h"
 #include "shaderProgram.h"
+#include "texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -28,6 +29,7 @@ Settings::Config G_CONFIG;
 // Let it be pointer for now, and just remove it from
 // global namespace when we switch to GLFW
 std::unique_ptr<ShaderProgram> G_SHADER_PROGRAM = nullptr;
+std::unique_ptr<Texture> G_TEXTURE              = nullptr;
 
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
@@ -56,7 +58,7 @@ renderScene()
 
     glEnableVertexAttribArray(0);
 
-    G_SHADER_PROGRAM->bindTexture();
+    G_TEXTURE->makeActiveOn(*G_SHADER_PROGRAM, "tex", 0);
     G_TERRAIN->render();
 
     glDisableVertexAttribArray(0);
@@ -269,16 +271,6 @@ compileShaders()
     vertexShader.attachTo(*G_SHADER_PROGRAM);
     fragmentShader.attachTo(*G_SHADER_PROGRAM);
     G_SHADER_PROGRAM->compile();
-
-    int width, height, nrChannels;
-    unsigned char* const image =
-            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
-    if(!image) {
-        std::cout << "Failed to load texture" << std::endl;
-        throw;
-    }
-    G_SHADER_PROGRAM->setTexture(image, width, height, nrChannels);
-    stbi_image_free(image);
 }
 
 Settings::Config
@@ -356,6 +348,7 @@ main(int argc, char** argv)
         G_MESH_OFFSET_Z = z;
     };
 
+    G_TEXTURE = std::make_unique<Texture>("textures/texture.png");
     G_TERRAIN = std::make_unique<Terrain>(setMeshOffset);
 
     compileShaders();
