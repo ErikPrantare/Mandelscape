@@ -26,7 +26,7 @@ Settings::Config G_CONFIG;
 // XXX: Gives segmentation fault if not pointer
 // Let it be pointer for now, and just remove it from
 // global namespace when we switch to GLFW
-std::unique_ptr<ShaderProgram> G_SHADER_PROGRAM;
+std::unique_ptr<ShaderProgram> G_SHADER_PROGRAM = nullptr;
 
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;

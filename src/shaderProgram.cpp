@@ -30,7 +30,7 @@ GLuint
 ShaderProgram::getLocation(std::string const& path, GLenum const shaderType)
 {
     if(m_shaders.find(path) == std::end(m_shaders))
-        m_shaders.emplace(path, Shader(path, shaderType));
+        m_shaders.emplace(path, Shader::fromFile(path, shaderType));
 
     return m_shaders.find(path)->second.location();
 }

@@ -14,7 +14,13 @@ class Shader {
 public:
     Shader() = delete;
 
-    Shader(std::string const& filePath, GLenum const shaderType);
+    Shader(std::string const& sourceCode, GLenum const shaderType);
+
+    static Shader
+    fromFile(std::string const& filePath, GLenum const shaderType);
+
+    static Shader
+    fromCode(std::string const& sourceCode, GLenum const shaderType);
 
     GLenum const type;
 

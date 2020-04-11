@@ -5,11 +5,6 @@
 
 #include "utils.h"
 
-Shader::Shader(std::string const& filePath, GLenum const shaderType) :
-            type(shaderType),
-            m_location(createShader(readFile(filePath), shaderType))
-{}
-
 GLuint const*
 Shader::createShader(std::string const& source, GLenum shaderType)
 {
@@ -37,4 +32,21 @@ Shader::createShader(std::string const& source, GLenum shaderType)
     }
 
     return location;
+}
+
+Shader::Shader(std::string const& sourceCode, GLenum const shaderType) :
+            type(shaderType),
+            m_location(createShader(sourceCode, shaderType))
+{}
+
+Shader
+Shader::fromFile(std::string const& filePath, GLenum const shaderType)
+{
+    return Shader(readFile(filePath), shaderType);
+}
+
+Shader
+Shader::fromCode(std::string const& sourceCode, GLenum const shaderType)
+{
+    return Shader(sourceCode, shaderType);
 }
