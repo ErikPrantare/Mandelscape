@@ -68,17 +68,22 @@ renderScene()
 
 class LowPassFilter {
 public:
-    [[nodiscard]] float
-    operator()(float const& value)
+    LowPassFilter(float init, float amount) :
+                m_filteredValue(init),
+                m_amount(amount){};
+
+    float
+    operator()(float const newValue, float const weight = 1.0f)
     {
-        m_filteredValue *= m_filterAmount;
-        m_filteredValue += (1.0f - m_filterAmount) * value;
+        const float factor = std::pow(m_amount, weight);
+
+        m_filteredValue = factor * m_filteredValue + (1.0f - factor) * newValue;
         return m_filteredValue;
     }
 
 private:
-    static float constexpr m_filterAmount = 0.9f;
-    float m_filteredValue                 = 0.0f;
+    float m_filteredValue;
+    float const m_amount;
 };
 
 static void
@@ -86,19 +91,21 @@ updateScene()
 {
     float constexpr zoomVelocity = 1.f;
 
-    static float lastTimepoint = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
-    float currentTimepoint     = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
+    static float lastTimepoint   = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
+    const float currentTimepoint = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
 
-    float dt      = currentTimepoint - lastTimepoint;
-    lastTimepoint = currentTimepoint;
+    const float dt = currentTimepoint - lastTimepoint;
+    lastTimepoint  = currentTimepoint;
 
     G_CAMERA.setScale(1.0f / G_ZOOM);
     G_CAMERA.move(dt * G_VELOCITY);
-    float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
-    float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
+    const float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
+    const float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
+
+    const float elevation = G_TERRAIN->heightAt({posX, posZ});
 
     if(G_AUTO_ZOOM) {
-        G_ZOOM = 1.f / G_TERRAIN->heightAt({posX, posZ});
+        G_ZOOM = 1.f / elevation;
     }
     else {
         G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
@@ -107,9 +114,9 @@ updateScene()
 
     G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
 
-    static LowPassFilter filterHeight;
+    static LowPassFilter filterHeight(elevation, 0.01f);
 
-    G_CAMERA.setCameraHeight(filterHeight(G_TERRAIN->heightAt({posX, posZ})));
+    G_CAMERA.setCameraHeight(filterHeight(elevation, dt));
 
     G_SHADER_PROGRAM->setUniform("cameraSpace", G_CAMERA.cameraSpace());
     G_SHADER_PROGRAM->setUniform("projection", G_CAMERA.projection());
