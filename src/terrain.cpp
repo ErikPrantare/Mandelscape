@@ -54,6 +54,8 @@ Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
 
 Terrain::~Terrain()
 {
+    while(!isDone(m_loadingProcess))
+        ;
     glDeleteBuffers(1, &m_VBO);
     glDeleteBuffers(1, &m_IBO);
     glDeleteBuffers(1, &m_loadingVBO);
