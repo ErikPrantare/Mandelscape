@@ -1,24 +1,17 @@
 #ifndef MANDELLANDSCAPE_CONFIG_H
 #define MANDELLANDSCAPE_CONFIG_H
 
-#include <type_traits>
 #include <map>
 #include <vector>
 #include <any>
 #include <functional>
 
+#include "mandelTypeTraits.h"
 #include "settings.h"
 
 namespace Settings {
 
 class Config {
-    template<typename Callable, typename Arg>
-    static bool constexpr returns =
-            std::is_same_v<Arg, std::invoke_result_t<Callable, Arg>>;
-
-    template<typename Callable, typename SettingType>
-    using RequireCallable = std::enable_if_t<returns<Callable, SettingType>>;
-
 public:
     Config() = default;
 
@@ -45,12 +38,13 @@ public:
             typename Setting,
             typename Callable,
             typename = RequireSetting<Setting>,
-            typename = RequireCallable<Callable, typename Setting::type>>
+            typename = RequireCallableWith<Callable, typename Setting::Type>>
     void
-    subscribe(Callable const callback)
+    onStateChange(Callable const callback)
     {
         m_callbacks[Setting::uid].push_back([callback](std::any const& value) {
-            callback(std::any_cast<typename Setting::Type>(value));
+            auto a = std::any_cast<typename Setting::Type>(value);
+            callback(a);
         });
     }
 
@@ -58,7 +52,7 @@ public:
             typename Setting,
             typename Callable,
             typename = RequireSetting<Setting>,
-            typename = RequireCallable<Callable, typename Setting::Type>>
+            typename = RequireEndomorphismOf<Callable, typename Setting::Type>>
     void
     on(Callable const& callable)
     {
