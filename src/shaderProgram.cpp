@@ -4,20 +4,13 @@
 
 #include <stb_image.h>
 
-ShaderProgram::ShaderProgram(
-        std::string const& vertexShader,
-        std::string const& fragmentShader) :
-            m_location(glCreateProgram())
+ShaderProgram::ShaderProgram() : m_location(glCreateProgram())
 {
     if(m_location == 0) {
         std::cerr << "Error creating shader program" << std::endl;
         throw;
     }
     glGenTextures(1, &m_textureLocation);
-
-    attatchShader(vertexShader, GL_VERTEX_SHADER);
-    attatchShader(fragmentShader, GL_FRAGMENT_SHADER);
-    compile();
 }
 
 ShaderProgram::~ShaderProgram()
@@ -26,33 +19,31 @@ ShaderProgram::~ShaderProgram()
     glDeleteTextures(1, &m_textureLocation);
 }
 
-GLuint
-ShaderProgram::getLocation(std::string const& path, GLenum const shaderType)
-{
-    if(m_shaders.find(path) == std::end(m_shaders))
-        m_shaders.emplace(path, Shader::fromFile(path, shaderType));
-
-    return m_shaders.find(path)->second.location();
-}
 void
-ShaderProgram::attatchShader(std::string const& path, GLenum const shaderType)
+attachVertexShader(GLuint const program, GLuint const shader)
 {
-    static GLuint currentVertexShader   = 0;
+    static GLuint currentVertexShader = 0;
+    glDetachShader(program, currentVertexShader);
+    glAttachShader(program, shader);
+    currentVertexShader = shader;
+}
+
+void
+attachFragmentShader(GLuint const program, GLuint const shader)
+{
     static GLuint currentFragmentShader = 0;
+    glDetachShader(program, currentFragmentShader);
+    glAttachShader(program, shader);
+    currentFragmentShader = shader;
+}
 
-    switch(shaderType) {
-    case GL_VERTEX_SHADER: {
-        glDetachShader(m_location, currentVertexShader);
-        currentVertexShader = getLocation(path, shaderType);
-        glAttachShader(m_location, currentVertexShader);
-    } break;
-
-    case GL_FRAGMENT_SHADER: {
-        glDetachShader(m_location, currentFragmentShader);
-        currentFragmentShader = getLocation(path, shaderType);
-        glAttachShader(m_location, currentFragmentShader);
-    } break;
-    }
+void
+ShaderProgram::attatchShader(GLuint const shader, GLenum const shaderType) const
+{
+    if(shaderType == GL_VERTEX_SHADER)
+        attachVertexShader(m_location, shader);
+    else
+        attachFragmentShader(m_location, shader);
 }
 
 void

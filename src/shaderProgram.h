@@ -4,19 +4,16 @@
 #include <map>
 #include <GL/glew.h>
 
-#include "shader.h"
 #include "math3d.h"
 
 class ShaderProgram {
 public:
-    ShaderProgram(
-            std::string const& vertexShader,
-            std::string const& fragmentShader);
+    ShaderProgram();
 
     ~ShaderProgram();
 
     void
-    attatchShader(std::string const& path, GLenum const shaderType);
+    attatchShader(GLuint const shader, GLenum const shaderType) const;
 
     void
     compile();
@@ -47,8 +44,6 @@ private:
 
     GLuint
     getLocation(std::string const& path, GLenum const shaderType);
-
-    std::map<std::string, Shader> m_shaders;
 };
 
 #endif

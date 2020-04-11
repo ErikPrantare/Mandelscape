@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 
 #include "utils.h"
+#include "shaderProgram.h"
 
 class Shader {
 public:
@@ -22,13 +23,10 @@ public:
     static Shader
     fromCode(std::string const& sourceCode, GLenum const shaderType);
 
-    GLenum const type;
+    void
+    attachTo(ShaderProgram const& program) const;
 
-    GLuint
-    location()
-    {
-        return *m_location;
-    }
+    GLenum const type;
 
 private:
     struct LocationDeleter {
@@ -43,7 +41,7 @@ private:
     std::unique_ptr<GLuint const, LocationDeleter> m_location;
 
     static GLuint const*
-    createShader(std::string const& source, GLenum shaderType);
+    createShader(std::string const& sourceCode, GLenum shaderType);
 };
 
 #endif

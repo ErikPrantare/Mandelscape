@@ -16,6 +16,7 @@
 #include "camera.h"
 #include "terrain.h"
 #include "config.h"
+#include "shader.h"
 #include "shaderProgram.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -258,9 +259,16 @@ initializeGlutCallbacks()
 static void
 compileShaders()
 {
-    G_SHADER_PROGRAM = std::make_unique<ShaderProgram>(
-            "shaders/shader.vert",
-            "shaders/shader.frag");
+    static Shader const vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+    static Shader const fragmentShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+    G_SHADER_PROGRAM = std::make_unique<ShaderProgram>();
+
+    vertexShader.attachTo(*G_SHADER_PROGRAM);
+    fragmentShader.attachTo(*G_SHADER_PROGRAM);
+    G_SHADER_PROGRAM->compile();
 
     int width, height, nrChannels;
     unsigned char* const image =
@@ -282,12 +290,19 @@ initConfig()
     conf.set<Settings::UseDeepShader>(false);
 
     conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
-        static std::string const shallowShader = "shaders/shader.frag";
-        static std::string const deepShader    = "shaders/deepShader.frag";
-
-        G_SHADER_PROGRAM->attatchShader(
-                deep ? deepShader : shallowShader,
+        static Shader const shallowShader(
+                "shaders/shader.frag",
                 GL_FRAGMENT_SHADER);
+
+        static Shader const deepShader(
+                "shaders/deepShader.frag",
+                GL_FRAGMENT_SHADER);
+
+        if(deep)
+            deepShader.attachTo(*G_SHADER_PROGRAM);
+        else
+            shallowShader.attachTo(*G_SHADER_PROGRAM);
+
         G_SHADER_PROGRAM->compile();
     });
 
