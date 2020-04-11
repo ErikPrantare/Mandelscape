@@ -1,7 +1,7 @@
 #ifndef MANDELLANDSCAPE_SETTINGS_H
 #define MANDELLANDSCAPE_SETTINGS_H
 
-#include <type_traits>
+#include "mandelTypeTraits.h"
 
 namespace Settings {
 template<
@@ -13,16 +13,13 @@ struct Setting {
     static constexpr int uid = _uid;
 };
 
-template<typename S>
-inline bool constexpr isSetting =
-        std::is_same_v<S, Setting<typename S::Type, S::uid>>;
-
-template<typename S>
-using RequireSetting = std::enable_if_t<isSetting<S>>;
+template<typename T>
+using RequireSetting = RequireSame<T, Setting<typename T::Type, T::uid>>;
 
 // Only create settings here. __LINE__ is to give each setting a unique id
-using WindowHeight = Setting<int, __LINE__>;
-using WindowWidth  = Setting<int, __LINE__>;
+using WindowHeight  = Setting<int, __LINE__>;
+using WindowWidth   = Setting<int, __LINE__>;
+using UseDeepShader = Setting<bool, __LINE__>;
 }    // namespace Settings
 
 #endif    // MANDELLANDSCAPE_SETTINGS_H

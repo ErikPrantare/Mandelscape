@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <vector>
+#include <memory>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -15,16 +16,20 @@
 #include "camera.h"
 #include "terrain.h"
 #include "config.h"
+#include "shader.h"
+#include "shaderProgram.h"
+#include "texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-GLuint G_TEXTURE_LOCATION;
-GLuint G_CAMERA_SPACE;
-GLuint G_PROJECTION;
-GLuint G_OFFSET;
-
 Settings::Config G_CONFIG;
+
+// XXX: Gives segmentation fault if not pointer
+// Let it be pointer for now, and just remove it from
+// global namespace when we switch to GLFW
+std::unique_ptr<ShaderProgram> G_SHADER_PROGRAM = nullptr;
+std::unique_ptr<Texture> G_TEXTURE              = nullptr;
 
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
@@ -44,7 +49,7 @@ float constexpr G_MOVEMENT_SPEED  = 1.f;
 float G_MESH_OFFSET_X = 0;
 float G_MESH_OFFSET_Z = 0;
 
-Terrain* G_TERRAIN = nullptr;
+std::unique_ptr<Terrain> G_TERRAIN = nullptr;
 
 static void
 renderScene()
@@ -53,7 +58,7 @@ renderScene()
 
     glEnableVertexAttribArray(0);
 
-    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
+    G_TEXTURE->makeActiveOn(GL_TEXTURE0);
     G_TERRAIN->render();
 
     glDisableVertexAttribArray(0);
@@ -113,13 +118,11 @@ updateScene()
 
     G_CAMERA.setCameraHeight(filterHeight(elevation, dt));
 
-    Matrix4f const cameraSpace = G_CAMERA.cameraSpace();
-    Matrix4f const projection  = G_CAMERA.projection();
-    glUniformMatrix4fv(G_CAMERA_SPACE, 1, GL_TRUE, &cameraSpace.m[0][0]);
-    glUniformMatrix4fv(G_PROJECTION, 1, GL_TRUE, &projection.m[0][0]);
-    glUniform2f(G_OFFSET, G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
-    glutPostRedisplay();
+    G_SHADER_PROGRAM->setUniform("cameraSpace", G_CAMERA.cameraSpace());
+    G_SHADER_PROGRAM->setUniform("projection", G_CAMERA.projection());
+    G_SHADER_PROGRAM->setUniform("offset", G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
 
+    glutPostRedisplay();
     G_ZOOM_AMOUNT = 0.f;
 }
 
@@ -153,6 +156,9 @@ handleInputDown(unsigned char c, int, int)
                 G_CAMERA.position().x,
                 G_CAMERA.position().z,
                 G_ZOOM);
+        break;
+    case 'h':
+        G_CONFIG.on<Settings::UseDeepShader>(std::logical_not<bool>());
         break;
     case 'q':
         exit(0);
@@ -260,113 +266,18 @@ initializeGlutCallbacks()
 }
 
 static void
-addShader(
-        GLuint shaderProgram,
-        const std::string& shaderCode,
-        GLenum shaderType)
-{
-    GLuint shaderObj = glCreateShader(shaderType);
-
-    if(shaderObj == 0) {
-        std::cerr << "Error creating shader type " << shaderType << std::endl;
-        exit(1);
-    }
-
-    const GLchar* p[1];
-    p[0] = shaderCode.c_str();
-    GLint lengths[1];
-    lengths[0] = shaderCode.size();
-    glShaderSource(shaderObj, 1, p, lengths);
-    glCompileShader(shaderObj);
-    GLint success;
-    glGetShaderiv(shaderObj, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        GLchar infoLog[1024];
-        glGetShaderInfoLog(shaderObj, sizeof(infoLog), nullptr, infoLog);
-        std::cerr << "Error compiling shader type " << shaderType << ": "
-                  << "'" << infoLog << "'" << std::endl;
-
-        exit(1);
-    }
-
-    glAttachShader(shaderProgram, shaderObj);
-}
-
-static void
 compileShaders()
 {
-    GLuint shaderProgram = glCreateProgram();
+    static Shader const vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+    static Shader const fragmentShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
-    if(shaderProgram == 0) {
-        std::cerr << "Error creating shader program" << std::endl;
-        exit(1);
-    }
+    G_SHADER_PROGRAM = std::make_unique<ShaderProgram>();
 
-    std::string vs = readFile("shaders/shader.vert");
-    std::string fs = readFile("shaders/shader.frag");
-
-    addShader(shaderProgram, vs.c_str(), GL_VERTEX_SHADER);
-    addShader(shaderProgram, fs.c_str(), GL_FRAGMENT_SHADER);
-
-    GLint success         = 0;
-    GLchar errorLog[1024] = {0};
-
-    glLinkProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if(!success) {
-        glGetProgramInfoLog(shaderProgram, sizeof(errorLog), nullptr, errorLog);
-
-        std::cerr << "Error linking shader program: " << errorLog << std::endl;
-        exit(1);
-    }
-
-    glValidateProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &success);
-    if(!success) {
-        glGetProgramInfoLog(shaderProgram, sizeof(errorLog), nullptr, errorLog);
-
-        std::cerr << "Invalid shader program: " << errorLog << std::endl;
-        exit(1);
-    }
-
-    glUseProgram(shaderProgram);
-
-    auto loadShader = [&shaderProgram](std::string name, GLuint& loc) {
-        loc = glGetUniformLocation(shaderProgram, name.c_str());
-        if(loc == 0xFFFFFFFF) {
-            std::cerr << "Failed to find variable " << loc << std::endl;
-            exit(1);
-        }
-    };
-
-    loadShader("cameraSpace", G_CAMERA_SPACE);
-    loadShader("projection", G_PROJECTION);
-    loadShader("offset", G_OFFSET);
-
-    int width, height, nrChannels;
-    unsigned char* const data =
-            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
-    if(!data) {
-        std::cout << "Failed to load texture" << std::endl;
-        exit(1);
-    }
-
-    glGenTextures(1, &G_TEXTURE_LOCATION);
-    glBindTexture(GL_TEXTURE_2D, G_TEXTURE_LOCATION);
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            width,
-            height,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_image_free(data);
+    vertexShader.attachTo(*G_SHADER_PROGRAM);
+    fragmentShader.attachTo(*G_SHADER_PROGRAM);
+    G_SHADER_PROGRAM->compile();
 }
 
 Settings::Config
@@ -375,6 +286,22 @@ initConfig()
     Settings::Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
+    conf.set<Settings::UseDeepShader>(false);
+
+    conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
+        static Shader const shallowShader =
+                Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+        static Shader const deepShader =
+                Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+
+        if(deep)
+            deepShader.attachTo(*G_SHADER_PROGRAM);
+        else
+            shallowShader.attachTo(*G_SHADER_PROGRAM);
+
+        G_SHADER_PROGRAM->compile();
+    });
 
     return conf;
 }
@@ -426,7 +353,8 @@ main(int argc, char** argv)
         G_MESH_OFFSET_Z = z;
     };
 
-    G_TERRAIN = new Terrain(setMeshOffset);
+    G_TEXTURE = std::make_unique<Texture>("textures/texture.png");
+    G_TERRAIN = std::make_unique<Terrain>(setMeshOffset);
 
     compileShaders();
 
