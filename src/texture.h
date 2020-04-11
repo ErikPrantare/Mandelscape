@@ -8,7 +8,10 @@
 
 class Texture {
 public:
-    Texture() = delete;
+    Texture()               = delete;
+    Texture(Texture const&) = delete;
+    Texture&
+    operator=(Texture const&) = delete;
 
     Texture(std::string const& path);
 
@@ -18,7 +21,7 @@ public:
 private:
     struct TextureDeleter {
         void
-        operator()(GLuint* location)
+        operator()(GLuint* location) noexcept
         {
             glDeleteTextures(1, location);
             delete location;

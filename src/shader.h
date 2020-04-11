@@ -13,7 +13,10 @@
 
 class Shader {
 public:
-    Shader() = delete;
+    Shader()              = delete;
+    Shader(Shader const&) = delete;
+    Shader&
+    operator=(Shader const&) = delete;
 
     static Shader
     fromFile(std::string const& filePath, GLenum const shaderType);

@@ -55,5 +55,5 @@ Shader::fromCode(std::string const& sourceCode, GLenum const shaderType)
 void
 Shader::attachTo(ShaderProgram const& program) const
 {
-    program.attatchShader(*m_location, type);
+    program.attachShader(*m_location, type);
 }

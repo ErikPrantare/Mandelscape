@@ -2,17 +2,18 @@
 
 #include <iostream>
 
-ShaderProgram::ShaderProgram() : m_location(glCreateProgram())
+GLuint*
+createProgram()
+{
+    return new GLuint(glCreateProgram());
+}
+
+ShaderProgram::ShaderProgram() : m_location(createProgram())
 {
     if(m_location == 0) {
         std::cerr << "Error creating shader program" << std::endl;
         throw;
     }
-}
-
-ShaderProgram::~ShaderProgram()
-{
-    glDeleteProgram(m_location);
 }
 
 void
@@ -34,40 +35,40 @@ attachFragmentShader(GLuint const program, GLuint const shader)
 }
 
 void
-ShaderProgram::attatchShader(GLuint const shader, GLenum const shaderType) const
+ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType) const
 {
     if(shaderType == GL_VERTEX_SHADER)
-        attachVertexShader(m_location, shader);
+        attachVertexShader(*m_location, shader);
     else
-        attachFragmentShader(m_location, shader);
+        attachFragmentShader(*m_location, shader);
 }
 
 void
 ShaderProgram::compile() const
 {
-    glLinkProgram(m_location);
+    glLinkProgram(*m_location);
 
     GLint success         = 0;
     GLchar errorLog[1024] = {0};
 
-    glGetProgramiv(m_location, GL_LINK_STATUS, &success);
+    glGetProgramiv(*m_location, GL_LINK_STATUS, &success);
     if(!success) {
-        glGetProgramInfoLog(m_location, sizeof(errorLog), nullptr, errorLog);
+        glGetProgramInfoLog(*m_location, sizeof(errorLog), nullptr, errorLog);
 
         std::cerr << "Error linking shader program: " << errorLog << std::endl;
         throw;
     }
 
-    glValidateProgram(m_location);
-    glGetProgramiv(m_location, GL_VALIDATE_STATUS, &success);
+    glValidateProgram(*m_location);
+    glGetProgramiv(*m_location, GL_VALIDATE_STATUS, &success);
     if(!success) {
-        glGetProgramInfoLog(m_location, sizeof(errorLog), nullptr, errorLog);
+        glGetProgramInfoLog(*m_location, sizeof(errorLog), nullptr, errorLog);
 
         std::cerr << "Invalid shader program: " << errorLog << std::endl;
         throw;
     }
 
-    glUseProgram(m_location);
+    glUseProgram(*m_location);
 }
 
 void
@@ -91,7 +92,7 @@ ShaderProgram::setUniform(const std::string& name, float x, float y) const
 GLuint
 ShaderProgram::uniformLocation(const std::string& name) const
 {
-    GLuint location = glGetUniformLocation(m_location, name.c_str());
+    GLuint location = glGetUniformLocation(*m_location, name.c_str());
     if(location == 0xFFFFFFFF) {
         std::cerr << "Failed to find variable " << name << std::endl;
         throw;

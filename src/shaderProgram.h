@@ -2,6 +2,8 @@
 #define MANDELLANDSCAPE_SHADERPROGRAM_H
 
 #include <map>
+#include <memory>
+
 #include <GL/glew.h>
 
 #include "math3d.h"
@@ -10,10 +12,12 @@ class ShaderProgram {
 public:
     ShaderProgram();
 
-    ~ShaderProgram();
+    ShaderProgram(ShaderProgram const&) = delete;
+    ShaderProgram&
+    operator=(ShaderProgram const&) = delete;
 
     void
-    attatchShader(GLuint const shader, GLenum const shaderType) const;
+    attachShader(GLuint const shader, GLenum const shaderType) const;
 
     void
     compile() const;
@@ -28,7 +32,16 @@ public:
     setUniform(const std::string& name, float const, float const) const;
 
 private:
-    GLuint m_location;
+    struct ShaderDeleter {
+        void
+        operator()(GLuint* location) noexcept
+        {
+            glDeleteProgram(*location);
+            delete location;
+        }
+    };
+
+    std::unique_ptr<GLuint, ShaderDeleter> m_location;
 
     GLuint
     uniformLocation(const std::string& name) const;
