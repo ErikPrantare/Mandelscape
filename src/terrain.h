@@ -3,9 +3,6 @@
 
 #include <vector>
 #include <memory>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <complex>
 #include <future>
 #include <functional>
