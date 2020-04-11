@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 #include <memory>
+#include <functional>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -40,7 +41,6 @@ Camera G_CAMERA;
 
 Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
 
-bool G_AUTO_ZOOM                  = false;
 float G_ZOOM_AMOUNT               = 0;
 float G_PERSISTENT_ZOOM_DIRECTION = 0;
 float G_ZOOM                      = 1.0f;
@@ -104,7 +104,7 @@ updateScene()
 
     const float elevation = G_TERRAIN->heightAt({posX, posZ});
 
-    if(G_AUTO_ZOOM) {
+    if(G_CONFIG.get<Settings::AutoZoom>()) {
         G_ZOOM = 1.f / elevation;
     }
     else {
@@ -149,7 +149,7 @@ handleInputDown(unsigned char c, int, int)
         G_PERSISTENT_ZOOM_DIRECTION += -1.f;
         break;
     case 'o':
-        G_AUTO_ZOOM = !G_AUTO_ZOOM;
+        G_CONFIG.on<Settings::AutoZoom>(std::logical_not<bool>());
         break;
     case 'r':
         G_TERRAIN->updateMesh(
@@ -287,6 +287,7 @@ initConfig()
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
     conf.set<Settings::UseDeepShader>(false);
+    conf.set<Settings::AutoZoom>(false);
 
     conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
         static Shader const shallowShader =
