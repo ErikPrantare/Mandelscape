@@ -8,7 +8,6 @@
 
 #include <GL/glew.h>
 
-#include "utils.h"
 #include "shaderProgram.h"
 
 class Shader {

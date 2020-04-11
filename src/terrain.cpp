@@ -55,7 +55,7 @@ Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
 
 Terrain::~Terrain()
 {
-    while(!isDone(m_loadingProcess))
+    while(!util::isDone(m_loadingProcess))
         ;
     glDeleteBuffers(1, &m_VBO);
     glDeleteBuffers(1, &m_IBO);
@@ -167,7 +167,7 @@ Terrain::updateMesh(double x, double z, double scale)
     if(uploadingDone)
         switch(m_state) {
         case State::Loading: {
-            if(isDone(m_loadingProcess)) {
+            if(util::isDone(m_loadingProcess)) {
                 std::swap(m_currentMeshPoints, m_loadingMeshPoints);
                 m_loadIndex = 0;
 
