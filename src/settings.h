@@ -20,6 +20,7 @@ using RequireSetting = RequireSame<T, Setting<typename T::Type, T::uid>>;
 using WindowHeight  = Setting<int, __LINE__>;
 using WindowWidth   = Setting<int, __LINE__>;
 using UseDeepShader = Setting<bool, __LINE__>;
+using AutoZoom      = Setting<int, __LINE__>;
 }    // namespace Settings
 
 #endif    // MANDELLANDSCAPE_SETTINGS_H
