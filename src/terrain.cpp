@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 
 #include "terrain.h"
+#include "utils.h"
 
 Terrain::Terrain() : Terrain([](double, double) {})
 {}
