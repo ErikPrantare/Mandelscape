@@ -15,8 +15,6 @@ class Shader {
 public:
     Shader() = delete;
 
-    Shader(std::string const& sourceCode, GLenum const shaderType);
-
     static Shader
     fromFile(std::string const& filePath, GLenum const shaderType);
 
@@ -38,10 +36,12 @@ private:
         }
     };
 
+    Shader(std::string const& sourceCode, GLenum const shaderType);
+
     std::unique_ptr<GLuint const, LocationDeleter> m_location;
 
     static GLuint const*
-    createShader(std::string const& sourceCode, GLenum shaderType);
+    createShader(std::string const& sourceCode, GLenum const shaderType);
 };
 
 #endif

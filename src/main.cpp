@@ -58,7 +58,7 @@ renderScene()
 
     glEnableVertexAttribArray(0);
 
-    G_TEXTURE->makeActiveOn(*G_SHADER_PROGRAM, "tex", 0);
+    G_TEXTURE->makeActiveOn(GL_TEXTURE0);
     G_TERRAIN->render();
 
     glDisableVertexAttribArray(0);
@@ -282,13 +282,11 @@ initConfig()
     conf.set<Settings::UseDeepShader>(false);
 
     conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
-        static Shader const shallowShader(
-                "shaders/shader.frag",
-                GL_FRAGMENT_SHADER);
+        static Shader const shallowShader =
+                Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
-        static Shader const deepShader(
-                "shaders/deepShader.frag",
-                GL_FRAGMENT_SHADER);
+        static Shader const deepShader =
+                Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
 
         if(deep)
             deepShader.attachTo(*G_SHADER_PROGRAM);

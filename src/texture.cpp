@@ -6,8 +6,6 @@
 #include <GL/glew.h>
 #include <stb_image.h>
 
-#include "shaderProgram.h"
-
 GLuint*
 generateTexture()
 {
@@ -45,11 +43,8 @@ Texture::Texture(std::string const& path) : m_location(generateTexture())
 }
 
 void
-Texture::makeActiveOn(
-        ShaderProgram const& program,
-        std::string const& samplerName,
-        GLenum const textureUnit) const
+Texture::makeActiveOn(GLenum const textureUnit) const
 {
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    glActiveTexture(textureUnit);
     glBindTexture(GL_TEXTURE_2D, *m_location);
 }

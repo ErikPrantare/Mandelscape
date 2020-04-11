@@ -6,8 +6,6 @@
 
 #include <GL/glew.h>
 
-#include "shaderProgram.h"
-
 class Texture {
 public:
     Texture() = delete;
@@ -15,10 +13,7 @@ public:
     Texture(std::string const& path);
 
     void
-    makeActiveOn(
-            ShaderProgram const& program,
-            std::string const& samplerName,
-            GLenum const textureUnit) const;
+    makeActiveOn(GLenum const textureUnit) const;
 
 private:
     struct TextureDeleter {
