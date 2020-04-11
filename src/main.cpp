@@ -4,7 +4,6 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
-#include <vector>
 #include <memory>
 #include <functional>
 
