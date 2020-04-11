@@ -101,8 +101,8 @@ Terrain::loadMesh(
         meshSpan += stepSize(i);
     }
 
-    const double discScale    = std::pow(2.0, int(log2(_scale)));
-    const double normMeshSpan = 300.0 / discScale;
+    const double discreteScale = std::pow(2.0, int(log2(_scale)));
+    const double normMeshSpan  = 300.0 / discreteScale;
 
     const double normFactor = normMeshSpan / meshSpan;
     const auto normStepSize = [normFactor, stepSize](int i) {
