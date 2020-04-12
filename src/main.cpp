@@ -19,11 +19,12 @@
 #include "shader.h"
 #include "shaderProgram.h"
 #include "texture.h"
+#include "window.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Settings::Config G_CONFIG;
+Config G_CONFIG;
 
 // XXX: Gives segmentation fault if not pointer
 // Let it be pointer for now, and just remove it from
@@ -280,10 +281,10 @@ compileShaders()
     G_SHADER_PROGRAM->compile();
 }
 
-Settings::Config
+Config
 initConfig()
 {
-    Settings::Config conf;
+    Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
     conf.set<Settings::UseDeepShader>(false);
@@ -312,14 +313,7 @@ main(int argc, char** argv)
     G_CONFIG = initConfig();
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(
-            G_CONFIG.get<Settings::WindowWidth>(),
-            G_CONFIG.get<Settings::WindowHeight>());
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("test");
-    glutSetKeyRepeat(false);
-    glutSetCursor(GLUT_CURSOR_NONE);
+    Window window(G_CONFIG);
 
     initializeGlutCallbacks();
 

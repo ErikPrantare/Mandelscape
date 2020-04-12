@@ -9,13 +9,14 @@
 #include "mandelTypeTraits.h"
 #include "settings.h"
 
-namespace Settings {
+using namespace Settings;
 
 class Config {
+private:
 public:
     Config() = default;
 
-    template<typename Setting, typename = RequireSetting<Setting>>
+    template<typename Setting, typename = Settings::RequireSetting<Setting>>
     void
     set(typename Setting::Type newValue)
     {
@@ -29,15 +30,16 @@ public:
 
     template<typename Setting, typename = RequireSetting<Setting>>
     typename Setting::Type
-    get()
+    get() const
     {
-        return std::any_cast<typename Setting::Type>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::Type>(
+                m_settings.at(Setting::uid));
     }
 
     template<
             typename Setting,
             typename Callable,
-            typename = RequireSetting<Setting>,
+            typename = Settings::RequireSetting<Setting>,
             typename = RequireCallableWith<Callable, typename Setting::Type>>
     void
     onStateChange(Callable const callback)
@@ -51,7 +53,7 @@ public:
     template<
             typename Setting,
             typename Callable,
-            typename = RequireSetting<Setting>,
+            typename = Settings::RequireSetting<Setting>,
             typename = RequireEndomorphismOf<Callable, typename Setting::Type>>
     void
     on(Callable const& callable)
@@ -65,7 +67,5 @@ private:
     std::map<int, std::any> m_settings;
     std::map<int, std::vector<FunctionSig>> m_callbacks;
 };
-
-}    // namespace Settings
 
 #endif    // MANDELLANDSCAPE_CONFIG_H
