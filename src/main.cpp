@@ -136,7 +136,7 @@ updateScene()
 }
 
 static void
-handleInputDown(unsigned char c, int, int)
+handleInputDown(unsigned char c)
 {
     switch(c) {
     case 'w':
@@ -178,7 +178,7 @@ handleInputDown(unsigned char c, int, int)
 }
 
 static void
-handleInputUp(unsigned char c, int, int)
+handleInputUp(unsigned char c)
 {
     switch(c) {
     case 'w':
@@ -242,7 +242,7 @@ handleMouseMove(int x, int y)
 }
 
 static void
-handleMouseButtons(int button, int state, int x, int y)
+handleMouseButtons(int button)
 {
     int constexpr wheelUp   = 3;
     int constexpr wheelDown = 4;
@@ -264,16 +264,16 @@ dispatchEvent(Event const& event)
 {
     switch(event.type) {
     case(Event::KeyDown):
-        handleInputDown(event.key.code, -1, -1);
+        handleInputDown(event.key.code);
         break;
     case(Event::KeyUp):
-        handleInputUp(event.key.code, -1, -1);
+        handleInputUp(event.key.code);
         break;
     case(Event::MouseMove):
         handleMouseMove(event.mouseMove.x, event.mouseMove.y);
         break;
     case(Event::MouseUp):
-        handleMouseButtons(event.mouseButton.button, -1, -1, -1);
+        handleMouseButtons(event.mouseButton.button);
         break;
     }
 }
