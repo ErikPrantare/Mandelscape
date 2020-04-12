@@ -317,20 +317,6 @@ main(int argc, char** argv)
 
     initializeGlutCallbacks();
 
-    GLenum res = glewInit();
-    if(res != GLEW_OK) {
-        std::cerr << "Error: " << glewGetErrorString(res) << std::endl;
-        return 1;
-    }
-
-    std::cout << "GL version: " << glGetString(GL_VERSION) << std::endl;
-
-    glClearColor(1, 1, 1, 0);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glClearDepth(10'000'000.0f);
-
     G_CAMERA =
             Camera(G_CONFIG.get<Settings::WindowWidth>(),
                    G_CONFIG.get<Settings::WindowHeight>(),
