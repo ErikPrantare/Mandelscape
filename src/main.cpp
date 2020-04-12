@@ -249,14 +249,10 @@ handleMouseButtons(int button, int state, int x, int y)
 
     switch(button) {
     case wheelUp:
-        if(state == GLUT_DOWN) {
-            G_ZOOM_AMOUNT += 1.f;
-        }
+        G_ZOOM_AMOUNT += 1.f;
         break;
     case wheelDown:
-        if(state == GLUT_DOWN) {
-            G_ZOOM_AMOUNT += -1.f;
-        }
+        G_ZOOM_AMOUNT += -1.f;
         break;
     default:
         break;
@@ -270,6 +266,15 @@ dispatchEvent(Event const& event)
     case(Event::KeyDown):
         handleInputDown(event.key.code, -1, -1);
         break;
+    case(Event::KeyUp):
+        handleInputUp(event.key.code, -1, -1);
+        break;
+    case(Event::MouseMove):
+        handleMouseMove(event.mouseMove.x, event.mouseMove.y);
+        break;
+    case(Event::MouseUp):
+        handleMouseButtons(event.mouseButton.button, -1, -1, -1);
+        break;
     }
 }
 
@@ -278,9 +283,6 @@ initializeGlutCallbacks()
 {
     glutDisplayFunc(renderScene);
     glutIdleFunc(updateScene);
-    glutKeyboardUpFunc(handleInputUp);
-    glutPassiveMotionFunc(handleMouseMove);
-    glutMouseFunc(handleMouseButtons);
 }
 
 static void
