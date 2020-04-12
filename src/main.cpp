@@ -25,7 +25,7 @@
 #include <stb_image.h>
 
 Config G_CONFIG;
-Window* G_WINDOW;
+std::unique_ptr<Window> G_WINDOW = nullptr;
 
 // XXX: Gives segmentation fault if not pointer
 // Let it be pointer for now, and just remove it from
@@ -332,8 +332,7 @@ main(int argc, char** argv)
     G_CONFIG = initConfig();
 
     glutInit(&argc, argv);
-    Window window(G_CONFIG);
-    G_WINDOW = &window;
+    G_WINDOW = std::make_unique<Window>(G_CONFIG);
 
     initializeGlutCallbacks();
 
