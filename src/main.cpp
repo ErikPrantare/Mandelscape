@@ -25,6 +25,7 @@
 #include <stb_image.h>
 
 Config G_CONFIG;
+Window* G_WINDOW;
 
 // XXX: Gives segmentation fault if not pointer
 // Let it be pointer for now, and just remove it from
@@ -87,9 +88,16 @@ private:
     float const m_amount;
 };
 
+void
+dispatchEvent(Event const&);
+
 static void
 updateScene()
 {
+    Event event;
+    while(G_WINDOW->pollEvent(event)) {
+        dispatchEvent(event);
+    }
     float constexpr zoomVelocity = 1.f;
 
     static float lastTimepoint   = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
@@ -255,12 +263,21 @@ handleMouseButtons(int button, int state, int x, int y)
     }
 }
 
+void
+dispatchEvent(Event const& event)
+{
+    switch(event.type) {
+    case(Event::KeyDown):
+        handleInputDown(event.key.code, -1, -1);
+        break;
+    }
+}
+
 static void
 initializeGlutCallbacks()
 {
     glutDisplayFunc(renderScene);
     glutIdleFunc(updateScene);
-    glutKeyboardFunc(handleInputDown);
     glutKeyboardUpFunc(handleInputUp);
     glutPassiveMotionFunc(handleMouseMove);
     glutMouseFunc(handleMouseButtons);
@@ -314,6 +331,7 @@ main(int argc, char** argv)
 
     glutInit(&argc, argv);
     Window window(G_CONFIG);
+    G_WINDOW = &window;
 
     initializeGlutCallbacks();
 
