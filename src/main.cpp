@@ -60,26 +60,6 @@ renderScene()
     glutSwapBuffers();
 }
 
-class LowPassFilter {
-public:
-    LowPassFilter(float init, float amount) :
-                m_filteredValue(init),
-                m_amount(amount){};
-
-    float
-    operator()(float const newValue, float const weight = 1.0f)
-    {
-        const float factor = std::pow(m_amount, weight);
-
-        m_filteredValue = factor * m_filteredValue + (1.0f - factor) * newValue;
-        return m_filteredValue;
-    }
-
-private:
-    float m_filteredValue;
-    float const m_amount;
-};
-
 static void
 updateScene()
 {
@@ -108,7 +88,7 @@ updateScene()
 
     G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
 
-    static LowPassFilter filterHeight(elevation, 0.01f);
+    static util::LowPassFilter filterHeight(elevation, 0.01f);
 
     G_CAMERA.setCameraHeight(filterHeight(elevation, dt));
 
