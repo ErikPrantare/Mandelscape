@@ -14,6 +14,13 @@ class Window {
 public:
     Window(Config const& conf);
 
+    Window(Window const&) = delete;
+    Window(Window&&)      = delete;
+    Window&
+    operator=(Window const&) = delete;
+    Window&
+    operator=(Window&&) = delete;
+
     bool
     pollEvent(Event&);
 
