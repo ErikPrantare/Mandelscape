@@ -276,8 +276,8 @@ initConfig()
     Settings::Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
-    conf.set<Settings::ClippingPlaneNear>(0.1f);
-    conf.set<Settings::ClippingPlaneFar>(10'000'000.0f);
+    conf.set<Settings::ClippingPlaneNear>(0.01f);
+    conf.set<Settings::ClippingPlaneFar>(150.0f);
     conf.set<Settings::FOV>(pi / 2);
     conf.set<Settings::UseDeepShader>(false);
     conf.set<Settings::AutoZoom>(false);
