@@ -17,10 +17,10 @@ public:
     operator=(ShaderProgram const&) = delete;
 
     void
-    attachShader(GLuint const shader, GLenum const shaderType) const;
+    attachShader(GLuint const shader, GLenum const shaderType);
 
     void
-    compile() const;
+    compile();
 
     void
     setUniformMatrix4(const std::string& name, const Matrix4f& value);

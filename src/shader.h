@@ -24,7 +24,7 @@ public:
     fromCode(std::string const& sourceCode, GLenum const shaderType);
 
     void
-    attachTo(ShaderProgram const& program) const;
+    attachTo(ShaderProgram& program) const;
 
     GLenum const type;
 

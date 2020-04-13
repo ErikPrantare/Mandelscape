@@ -18,10 +18,10 @@ public:
     ~Terrain();
 
     const std::vector<Vector3f>&
-    updateMesh(double, double, double);
+    updateMesh(double const, double const, double const);
 
     static double
-    heightAt(const std::complex<double>&);
+    heightAt(std::complex<double> const&);
 
     void
     render();
@@ -56,7 +56,11 @@ private:
     generateMeshIndices();
 
     static void
-    loadMesh(double, double, double, std::vector<Vector3f>*);
+    loadMesh(
+            double const,
+            double const,
+            double const,
+            std::vector<Vector3f>* const);
 };
 
 #endif

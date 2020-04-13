@@ -28,7 +28,7 @@ Camera::Camera(
 {}
 
 void
-Camera::move(const Vector3f& movement)
+Camera::move(Vector3f const& movement)
 {
     Vector3f const adjustedMovement = m_worldScale * movement;
 
@@ -81,19 +81,19 @@ Camera::cameraSpace() const
 }
 
 void
-Camera::lookAt(Vector3f direction)
+Camera::lookAt(Vector3f const& direction)
 {
     m_lookAt = normalize(direction);
 }
 
 void
-Camera::setScale(float scale)
+Camera::setScale(float const scale)
 {
     m_worldScale = scale;
 }
 
 void
-Camera::setCameraHeight(float meshHeight)
+Camera::setCameraHeight(float const meshHeight)
 {
     m_pos.y = m_worldScale + meshHeight;
 }
@@ -105,7 +105,7 @@ Camera::position() const
 }
 
 void
-Camera::setPosition(Vector3f pos)
+Camera::setPosition(Vector3f const& pos)
 {
     m_pos = pos;
 }

@@ -35,7 +35,7 @@ attachFragmentShader(GLuint const program, GLuint const shader)
 }
 
 void
-ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType) const
+ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType)
 {
     if(shaderType == GL_VERTEX_SHADER)
         attachVertexShader(*m_location, shader);
@@ -44,7 +44,7 @@ ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType) const
 }
 
 void
-ShaderProgram::compile() const
+ShaderProgram::compile()
 {
     glLinkProgram(*m_location);
 

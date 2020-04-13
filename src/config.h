@@ -17,7 +17,7 @@ public:
 
     template<typename Setting, typename = RequireSetting<Setting>>
     void
-    set(typename Setting::Type newValue)
+    set(typename Setting::Type const& newValue)
     {
         std::any const value     = std::any(newValue);
         m_settings[Setting::uid] = value;
@@ -29,9 +29,10 @@ public:
 
     template<typename Setting, typename = RequireSetting<Setting>>
     typename Setting::Type
-    get()
+    get() const
     {
-        return std::any_cast<typename Setting::Type>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::Type>(
+                m_settings.at(Setting::uid));
     }
 
     template<
@@ -40,7 +41,7 @@ public:
             typename = RequireSetting<Setting>,
             typename = RequireCallableWith<Callable, typename Setting::Type>>
     void
-    onStateChange(Callable const callback)
+    onStateChange(Callable const& callback)
     {
         m_callbacks[Setting::uid].push_back([callback](std::any const& value) {
             auto a = std::any_cast<typename Setting::Type>(value);

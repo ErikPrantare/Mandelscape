@@ -25,19 +25,20 @@ public:
     const Vector3f&
     position() const;
 
-    void setPosition(Vector3f);
+    void
+    setPosition(Vector3f const&);
 
     void
-    lookAt(Vector3f direction);
+    lookAt(Vector3f const& direction);
 
     void
-    setScale(float scale);
+    setScale(float const scale);
 
     void
-    move(const Vector3f& movement);
+    move(Vector3f const& movement);
 
     void
-    setCameraHeight(float meshHeight);
+    setCameraHeight(float const meshHeight);
 
 private:
     Matrix4f
