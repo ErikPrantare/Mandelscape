@@ -31,11 +31,6 @@ Settings::Config G_CONFIG;
 std::unique_ptr<ShaderProgram> G_SHADER_PROGRAM = nullptr;
 std::unique_ptr<Texture> G_TEXTURE              = nullptr;
 
-float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
-float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
-
-float constexpr G_FOV = pi / 2;
-
 Camera G_CAMERA;
 
 Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
@@ -288,6 +283,9 @@ initConfig()
     Settings::Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
+    conf.set<Settings::ClippingPlaneNear>(0.1f);
+    conf.set<Settings::ClippingPlaneFar>(10'000'000.0f);
+    conf.set<Settings::FOV>(pi / 2);
     conf.set<Settings::UseDeepShader>(false);
     conf.set<Settings::AutoZoom>(false);
 
@@ -343,9 +341,9 @@ main(int argc, char** argv)
     G_CAMERA =
             Camera(G_CONFIG.get<Settings::WindowWidth>(),
                    G_CONFIG.get<Settings::WindowHeight>(),
-                   G_CLIPPING_PLANE_NEAR,
-                   G_CLIPPING_PLANE_FAR,
-                   G_FOV);
+                   G_CONFIG.get<Settings::ClippingPlaneNear>(),
+                   G_CONFIG.get<Settings::ClippingPlaneFar>(),
+                   G_CONFIG.get<Settings::FOV>());
 
     auto const setMeshOffset = [](double x, double z) {
         float dx = x - G_MESH_OFFSET_X;
