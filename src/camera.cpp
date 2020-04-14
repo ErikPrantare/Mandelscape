@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/projection.hpp>
 
 #include "camera.h"
 
@@ -45,11 +46,13 @@ Camera::move(glm::vec3 const& movement)
     glm::vec3 const adjustedMovement = m_worldScale * movement;
 
     m_pos += adjustedMovement.y * m_up;
-    m_pos += adjustedMovement.z
-             * normalize(glm::vec3(m_lookAt.x, 0.0f, m_lookAt.z));
 
-    glm::vec3 const right = cross(m_lookAt, m_up);
-    m_pos += adjustedMovement.x * normalize(glm::vec3(right.x, 0.0f, right.z));
+    glm::vec3 const front =
+            glm::normalize(m_lookAt - glm::proj(m_lookAt, m_up));
+    m_pos += adjustedMovement.z * front;
+
+    glm::vec3 const right = glm::normalize(cross(front, m_up));
+    m_pos += adjustedMovement.x * right;
 }
 
 glm::mat4

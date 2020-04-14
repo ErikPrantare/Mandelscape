@@ -49,7 +49,7 @@ private:
     float m_FOV;
     glm::vec3 m_pos;
     glm::vec3 m_up;
-    glm::vec3 m_forward;
+    glm::vec3 m_lookAt;
     float m_worldScale;
 };
 
