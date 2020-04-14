@@ -25,14 +25,14 @@ Camera::Camera(
             m_FOV(FOV),
             m_pos(startPosition),
             m_up(worldUp),
-            m_forward({0.0f, -1.0f, 1.0f}),
+            m_lookAt({0.0f, -1.0f, 1.0f}),
             m_worldScale(1.0f)
 {}
 
 glm::mat4
 Camera::lookAtMatrix() const
 {
-    glm::vec3 const forward = normalize(m_forward);
+    glm::vec3 const forward = normalize(m_lookAt);
     glm::vec3 const right   = normalize(cross(m_up, forward));
     glm::vec3 const up      = normalize(cross(forward, right));
 
@@ -46,9 +46,9 @@ Camera::move(glm::vec3 const& movement)
 
     m_pos += adjustedMovement.y * m_up;
     m_pos += adjustedMovement.z
-             * normalize(glm::vec3(m_forward.x, 0.0f, m_forward.z));
+             * normalize(glm::vec3(m_lookAt.x, 0.0f, m_lookAt.z));
 
-    glm::vec3 const right = cross(m_forward, m_up);
+    glm::vec3 const right = cross(m_lookAt, m_up);
     m_pos += adjustedMovement.x * normalize(glm::vec3(right.x, 0.0f, right.z));
 }
 
@@ -76,7 +76,7 @@ Camera::position() const
 void
 Camera::lookAt(glm::vec3 const& direction)
 {
-    m_forward = normalize(direction);
+    m_lookAt = normalize(direction);
 }
 
 void
