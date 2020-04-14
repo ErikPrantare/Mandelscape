@@ -7,8 +7,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "math3d.h"
-
 class ShaderProgram {
 public:
     ShaderProgram();

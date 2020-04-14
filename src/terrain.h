@@ -14,8 +14,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "math3d.h"
-
 class Terrain {
 public:
     Terrain();

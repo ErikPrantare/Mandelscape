@@ -4,8 +4,6 @@
 
 #include <glm/glm.hpp>
 
-#include "math3d.h"
-
 class Camera {
 public:
     Camera();
@@ -31,7 +29,7 @@ public:
     position() const;
 
     void
-    forward(glm::vec3 const&);
+    lookAt(glm::vec3 const&);
 
     void
     setPosition(glm::vec3 const&);
@@ -44,7 +42,7 @@ public:
 
 private:
     glm::mat4
-    lookAt() const;
+    lookAtMatrix() const;
 
     float m_width, m_height;
     float m_zNear, m_zFar;
