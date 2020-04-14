@@ -5,8 +5,7 @@
 #include <memory>
 
 #include <GL/glew.h>
-
-#include "math3d.h"
+#include <glm/glm.hpp>
 
 class ShaderProgram {
 public:
@@ -26,7 +25,7 @@ public:
     setUniform(const std::string& name, const GLuint x) const;
 
     void
-    setUniform(const std::string& name, const Matrix4f& value) const;
+    setUniform(const std::string& name, const glm::mat4& value) const;
 
     void
     setUniform(const std::string& name, float const, float const) const;

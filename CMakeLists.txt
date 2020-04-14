@@ -25,6 +25,8 @@ set(ONLY_LIBS ON)
 set(glew-cmake_BUILD_SHARED OFF)
 add_subdirectory(extern/glew-cmake)
 
+add_subdirectory(extern/glm)
+
 find_package(Threads REQUIRED)
 
 add_subdirectory(src)
