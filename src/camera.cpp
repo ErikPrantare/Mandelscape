@@ -2,6 +2,9 @@
 #include <iostream>
 #include <tuple>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "camera.h"
 #include "math3d.h"
 
@@ -14,8 +17,8 @@ Camera::Camera(
         float const& clippingPlaneNear,
         float const& clippingPlaneFar,
         float const& FOV,
-        Vector3f const& startPosition,
-        Vector3f const& worldUp) :
+        glm::vec3 const& startPosition,
+        glm::vec3 const& worldUp) :
             m_width(Xdimension),
             m_height(Ydimension),
             m_zNear(clippingPlaneNear),
@@ -27,63 +30,74 @@ Camera::Camera(
             m_worldScale(1.0f)
 {}
 
-void
-Camera::move(const Vector3f& movement)
+glm::mat4
+Camera::uvn() const
 {
-    Vector3f const adjustedMovement = m_worldScale * movement;
+    glm::vec3 const N = normalize(m_lookAt);
+    glm::vec3 const U = normalize(cross(m_up, N));
+    glm::vec3 const V = normalize(cross(N, U));
+
+    return glm::transpose(glm::mat4(
+            {U.x, U.y, U.z, 0.0f},
+            {V.x, V.y, V.z, 0.0f},
+            {N.x, N.y, N.z, 0.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f}));
+}
+
+void
+Camera::move(glm::vec3 const& movement)
+{
+    glm::vec3 const adjustedMovement = m_worldScale * movement;
 
     m_pos += adjustedMovement.y * m_up;
     m_pos += adjustedMovement.z
-             * normalize(Vector3f(m_lookAt.x, 0.0f, m_lookAt.z));
-    Vector3f right = cross(m_up, m_lookAt);
-    m_pos += adjustedMovement.x * normalize(Vector3f(right.x, 0.0f, right.z));
+             * normalize(glm::vec3(m_lookAt.x, 0.0f, m_lookAt.z));
+    glm::vec3 right = cross(m_up, m_lookAt);
+    m_pos += adjustedMovement.x * normalize(glm::vec3(right.x, 0.0f, right.z));
 }
 
-Matrix4f
-Camera::uvn() const
-{
-    const Vector3f N = normalize(m_lookAt);
-    const Vector3f U = normalize(cross(m_up, N));
-    const Vector3f V = normalize(cross(N, U));
-
-    float m[4][4] = {{U.x, U.y, U.z, 0.0f},
-                     {V.x, V.y, V.z, 0.0f},
-                     {N.x, N.y, N.z, 0.0f},
-                     {0.0f, 0.0f, 0.0f, 1.0f}};
-    return Matrix4f(m);
-}
-
-Matrix4f
+glm::mat4
 Camera::projection() const
 {
-    const float aspectRatio = m_width / m_height;
-    const float zRange      = m_zNear - m_zFar;
-    const float tanHalfFOV  = std::tan(m_FOV / 2.0);
+    float const aspectRatio = m_width / m_height;
+    float const zRange      = m_zNear - m_zFar;
+    float const tanHalfFOV  = std::tan(m_FOV / 2.0);
 
-    float m[4][4] = {{1.0f / (tanHalfFOV * aspectRatio), 0.0, 0.0, 0.0},
-                     {0.0, 1.0f / tanHalfFOV, 0.0, 0.0},
-                     {0.0,
-                      0.0,
-                      (-m_zNear - m_zFar) / zRange,
-                      2.0f * m_zNear * m_zFar / zRange},
-                     {0.0, 0.0, 1.0, 0.0}};
-
-    return Matrix4f(m);
+    return glm::transpose(glm::mat4(
+            {1.0f / (tanHalfFOV * aspectRatio), 0.0, 0.0, 0.0},
+            {0.0, 1.0f / tanHalfFOV, 0.0, 0.0},
+            {0.0,
+             0.0,
+             (-m_zNear - m_zFar) / zRange,
+             2.0f * m_zNear * m_zFar / zRange},
+            {0.0, 0.0, 1.0, 0.0}));
 }
 
-Matrix4f
+glm::mat4
 Camera::cameraSpace() const
 {
-    Matrix4f translation = translationMatrix(-m_pos);
+    glm::mat4 translation = translationMatrix(-m_pos);
 
     return scaleMatrix({1 / m_worldScale, 1 / m_worldScale, 1 / m_worldScale})
            * uvn() * translation;
 }
 
+glm::vec3 const&
+Camera::position() const
+{
+    return m_pos;
+}
+
 void
-Camera::lookAt(Vector3f direction)
+Camera::lookAt(glm::vec3 const& direction)
 {
     m_lookAt = normalize(direction);
+}
+
+void
+Camera::setPosition(glm::vec3 const& pos)
+{
+    m_pos = pos;
 }
 
 void
@@ -98,14 +112,3 @@ Camera::setCameraHeight(float meshHeight)
     m_pos.y = m_worldScale + meshHeight;
 }
 
-const Vector3f&
-Camera::position() const
-{
-    return m_pos;
-}
-
-void
-Camera::setPosition(Vector3f pos)
-{
-    m_pos = pos;
-}

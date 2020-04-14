@@ -10,6 +10,7 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <glm/glm.hpp>
 
 #include "math3d.h"
 #include "utils.h"
@@ -38,7 +39,7 @@ float constexpr G_FOV = pi / 2;
 
 Camera G_CAMERA;
 
-Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
+glm::vec3 G_VELOCITY(0.0f, 0.0f, 0.0f);
 
 bool G_AUTO_ZOOM                  = false;
 float G_ZOOM_AMOUNT               = 0;
@@ -219,9 +220,10 @@ handleMouseMove(int x, int y)
             float(-pi / 2 + 0.001),
             float(pi / 2 - 0.001));
 
-    Vector3f lookAt = rotationMatrix({0.0f, -rotationX, 0.0f})
-                      * rotationMatrix({rotationY, 0.0f, 0.0f})
-                      * Vector3f(0.0f, 0.0f, 1.0f);
+    glm::vec3 lookAt = glm::vec3(
+            rotationMatrix({0.0f, -rotationX, 0.0f})
+            * rotationMatrix({rotationY, 0.0f, 0.0f})
+            * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
     G_CAMERA.lookAt(lookAt);
 

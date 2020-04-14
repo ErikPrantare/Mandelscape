@@ -16,8 +16,8 @@ Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
             m_x{0.0},
             m_z{0.0},
             m_scale{1.0},
-            m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
-            m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()}
+            m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
+            m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
 {
     loadMesh(m_x, m_z, m_scale, m_currentMeshPoints.get());
     loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
@@ -29,14 +29,14 @@ Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            m_currentMeshPoints->size() * sizeof(Vector3f),
+            m_currentMeshPoints->size() * sizeof(glm::vec3),
             m_currentMeshPoints->data(),
             GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            m_loadingMeshPoints->size() * sizeof(Vector3f),
+            m_loadingMeshPoints->size() * sizeof(glm::vec3),
             m_loadingMeshPoints->data(),
             GL_DYNAMIC_DRAW);
 
@@ -78,7 +78,7 @@ Terrain::loadMesh(
         double _x,
         double _z,
         double _scale,
-        std::vector<Vector3f>* buffer)
+        std::vector<glm::vec3>* buffer)
 {
     constexpr int nrIndices = granularity * granularity;
 
@@ -116,7 +116,7 @@ Terrain::loadMesh(
         double zPos = -normMeshSpan / 2 + _z;
         for(int z = 0; z < granularity; ++z) {
             const double zQuant            = quantized(zPos, normStepSize(z));
-            (*buffer)[x * granularity + z] = Vector3f(
+            (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - _x,
                     Terrain::heightAt({xQuant, zQuant}),
                     zQuant - _z);
@@ -129,7 +129,7 @@ Terrain::loadMesh(
 
 bool
 uploadMeshChunk(
-        const std::vector<Vector3f>& sourceMesh,
+        const std::vector<glm::vec3>& sourceMesh,
         const GLuint& destinationVBO,
         const size_t& index,
         const size_t& maxChunkSize)
@@ -138,21 +138,21 @@ uploadMeshChunk(
         return true;
     }
 
-    const Vector3f* position = sourceMesh.data() + index;
+    glm::vec3 const* position = sourceMesh.data() + index;
 
     int chunkSize = std::min(maxChunkSize, sourceMesh.size() - index);
 
     glBindBuffer(GL_ARRAY_BUFFER, destinationVBO);
     glBufferSubData(
             GL_ARRAY_BUFFER,
-            index * sizeof(Vector3f),
-            chunkSize * sizeof(Vector3f),
+            index * sizeof(glm::vec3),
+            chunkSize * sizeof(glm::vec3),
             position);
 
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-const std::vector<Vector3f>&
+std::vector<glm::vec3> const&
 Terrain::updateMesh(double x, double z, double scale)
 {
     const bool uploadingDone = uploadMeshChunk(
