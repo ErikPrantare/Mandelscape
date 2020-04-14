@@ -200,12 +200,12 @@ Terrain::generateMeshIndices()
     for(int x = 0; x < granularity - 1; x++)
         for(int z = 0; z < granularity - 1; z++) {
             meshIndices.push_back(z + x * granularity);
-            meshIndices.push_back(z + (x + 1) * granularity);
             meshIndices.push_back((z + 1) + x * granularity);
+            meshIndices.push_back(z + (x + 1) * granularity);
 
             meshIndices.push_back((z + 1) + x * granularity);
-            meshIndices.push_back(z + (x + 1) * granularity);
             meshIndices.push_back((z + 1) + (x + 1) * granularity);
+            meshIndices.push_back(z + (x + 1) * granularity);
         }
 
     return meshIndices;

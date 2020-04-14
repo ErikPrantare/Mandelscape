@@ -201,8 +201,8 @@ handleInputUp(unsigned char c, int, int)
 static void
 handleMouseMove(int x, int y)
 {
-    int halfWindowSizeX = G_CONFIG.get<Settings::WindowWidth>() / 2;
-    int halfWindowSizeY = G_CONFIG.get<Settings::WindowHeight>() / 2;
+    int const halfWindowSizeX = G_CONFIG.get<Settings::WindowWidth>() / 2;
+    int const halfWindowSizeY = G_CONFIG.get<Settings::WindowHeight>() / 2;
 
     static int mouseX = halfWindowSizeX;
     static int mouseY = halfWindowSizeY;
@@ -222,12 +222,12 @@ handleMouseMove(int x, int y)
             float(-pi / 2 + 0.001),
             float(pi / 2 - 0.001));
 
-    glm::vec3 lookAt = glm::vec3(
+    glm::vec3 const forward = glm::vec3(
             rotationMatrix({0.0f, rotationX, 0.0f})
             * rotationMatrix({rotationY, 0.0f, 0.0f})
             * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-    G_CAMERA.lookAt(lookAt);
+    G_CAMERA.forward(forward);
 
     if(x != halfWindowSizeX || y != halfWindowSizeY) {
         glutWarpPointer(halfWindowSizeX, halfWindowSizeY);

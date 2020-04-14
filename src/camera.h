@@ -31,7 +31,7 @@ public:
     position() const;
 
     void
-    lookAt(glm::vec3 const&);
+    forward(glm::vec3 const&);
 
     void
     setPosition(glm::vec3 const&);
@@ -44,14 +44,14 @@ public:
 
 private:
     glm::mat4
-    viewMatrix() const;
+    lookAt() const;
 
     float m_width, m_height;
     float m_zNear, m_zFar;
     float m_FOV;
     glm::vec3 m_pos;
     glm::vec3 m_up;
-    glm::vec3 m_lookAt;
+    glm::vec3 m_forward;
     float m_worldScale;
 };
 
