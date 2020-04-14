@@ -17,7 +17,7 @@ main()
     gl_Position = cameraSpace * vec4(pos, 1.0);
 
     position = pos;
-    distance = 0.0f;//sqrt(dot(gl_Position.xyz, gl_Position.xyz));
+    distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
 
     gl_Position = projection * gl_Position;
 }
