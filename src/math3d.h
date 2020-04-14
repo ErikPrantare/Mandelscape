@@ -1,56 +1,28 @@
 #ifndef MANDELLANDSCAPE_MATH3D_H
 #define MANDELLANDSCAPE_MATH3D_H
 
-constexpr long double pi = 3.141592653589793238462643383279502884;
+#include <glm/glm.hpp>
+#include <glm/ext/scalar_constants.hpp>
 
-struct Vector3f {
-    float x, y, z;
-    Vector3f() = default;
-    Vector3f(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
-    {}
-};
-
-struct Matrix4f {
-    Matrix4f();
-    Matrix4f(float _m[4][4]);
-    float m[4][4];
-};
-
-Vector3f operator*(float, const Vector3f&);
-
-Matrix4f operator*(const Matrix4f&, const Matrix4f&);
-
-Vector3f operator*(const Matrix4f&, const Vector3f&);
-
-Vector3f
-operator+(const Vector3f&, const Vector3f&);
-
-Vector3f
-operator-(const Vector3f&);
-
-Vector3f
-operator-(const Vector3f&, const Vector3f&);
-
-Vector3f&
-operator+=(Vector3f&, const Vector3f&);
+long double constexpr pi = glm::pi<long double>();
 
 float
-dot(const Vector3f&, const Vector3f&);
+dot(glm::vec3 const&, glm::vec3 const&);
 
-Vector3f
-cross(const Vector3f& a, const Vector3f& b);
+glm::vec3
+cross(glm::vec3 const&, glm::vec3 const&);
 
-Vector3f
-normalize(const Vector3f&);
+glm::vec3
+normalize(glm::vec3 const&);
 
-Matrix4f
-translationMatrix(const Vector3f& translation);
+glm::mat4
+translationMatrix(glm::vec3 const&);
 
-Matrix4f
-scaleMatrix(const Vector3f& scale);
+glm::mat4
+scaleMatrix(glm::vec3 const&);
 
-Matrix4f
-rotationMatrix(const Vector3f& rotation);
+glm::mat4
+rotationMatrix(glm::vec3 const&);
 
 float
 toRadians(float);
