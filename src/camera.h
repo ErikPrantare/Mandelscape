@@ -44,7 +44,7 @@ public:
 
 private:
     glm::mat4
-    uvn() const;
+    viewMatrix() const;
 
     float m_width, m_height;
     float m_zNear, m_zFar;

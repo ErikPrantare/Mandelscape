@@ -35,6 +35,8 @@ std::unique_ptr<Texture> G_TEXTURE              = nullptr;
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
 
+long double constexpr pi = glm::pi<long double>();
+
 float constexpr G_FOV = pi / 2;
 
 Camera G_CAMERA;
@@ -221,7 +223,7 @@ handleMouseMove(int x, int y)
             float(pi / 2 - 0.001));
 
     glm::vec3 lookAt = glm::vec3(
-            rotationMatrix({0.0f, -rotationX, 0.0f})
+            rotationMatrix({0.0f, rotationX, 0.0f})
             * rotationMatrix({rotationY, 0.0f, 0.0f})
             * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 

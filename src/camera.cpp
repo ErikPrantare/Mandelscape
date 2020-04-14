@@ -8,7 +8,7 @@
 #include "camera.h"
 #include "math3d.h"
 
-Camera::Camera() : Camera(1366, 768, 0.1f, 10'000'000.0f, pi)
+Camera::Camera() : Camera(1366, 768, 0.1f, 10'000'000.0f, glm::pi<double>())
 {}
 
 Camera::Camera(
@@ -31,17 +31,13 @@ Camera::Camera(
 {}
 
 glm::mat4
-Camera::uvn() const
+Camera::viewMatrix() const
 {
-    glm::vec3 const N = normalize(m_lookAt);
-    glm::vec3 const U = normalize(cross(m_up, N));
-    glm::vec3 const V = normalize(cross(N, U));
+    glm::vec3 const forward = normalize(m_lookAt);
+    glm::vec3 const right   = normalize(cross(m_up, forward));
+    glm::vec3 const up      = normalize(cross(forward, right));
 
-    return glm::transpose(glm::mat4(
-            {U.x, U.y, U.z, 0.0f},
-            {V.x, V.y, V.z, 0.0f},
-            {N.x, N.y, N.z, 0.0f},
-            {0.0f, 0.0f, 0.0f, 1.0f}));
+    return glm::lookAt(m_pos, m_pos - forward, up);
 }
 
 void
@@ -52,7 +48,8 @@ Camera::move(glm::vec3 const& movement)
     m_pos += adjustedMovement.y * m_up;
     m_pos += adjustedMovement.z
              * normalize(glm::vec3(m_lookAt.x, 0.0f, m_lookAt.z));
-    glm::vec3 right = cross(m_up, m_lookAt);
+
+    glm::vec3 const right = cross(m_up, m_lookAt);
     m_pos += adjustedMovement.x * normalize(glm::vec3(right.x, 0.0f, right.z));
 }
 
@@ -71,15 +68,15 @@ Camera::projection() const
              (-m_zNear - m_zFar) / zRange,
              2.0f * m_zNear * m_zFar / zRange},
             {0.0, 0.0, 1.0, 0.0}));
+
+    // return glm::perspective(glm::pi<float>(), 16.f / 9.f, 0.1f, 100.f);
 }
 
 glm::mat4
 Camera::cameraSpace() const
 {
-    glm::mat4 translation = translationMatrix(-m_pos);
-
-    return scaleMatrix({1 / m_worldScale, 1 / m_worldScale, 1 / m_worldScale})
-           * uvn() * translation;
+    return glm::scale(glm::mat4(1.0f), 1.0f / glm::vec3(m_worldScale))
+           * viewMatrix();
 }
 
 glm::vec3 const&
@@ -111,4 +108,3 @@ Camera::setCameraHeight(float meshHeight)
 {
     m_pos.y = m_worldScale + meshHeight;
 }
-
