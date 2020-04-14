@@ -80,19 +80,19 @@ Terrain::loadMesh(
         double _scale,
         std::vector<glm::vec3>* buffer)
 {
-    constexpr int nrIndices = granularity * granularity;
+    int constexpr nrIndices = granularity * granularity;
 
     if(buffer->size() != nrIndices) {
         buffer->resize(nrIndices);
     }
 
-    constexpr int doublingInterval = 40;
+    int constexpr doublingInterval = 40;
 
-    const auto stepSize = [](int i) {
+    auto const stepSize = [](int i) {
         return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 
-    const auto& quantized = [](double x, double stepSize) {
+    auto const& quantized = [](double x, double stepSize) {
         return std::floor(x / stepSize) * stepSize;
     };
 
@@ -101,21 +101,21 @@ Terrain::loadMesh(
         meshSpan += stepSize(i);
     }
 
-    const double discreteScale = std::pow(2.0, int(log2(_scale)));
-    const double normMeshSpan  = 300.0 / discreteScale;
+    double const discreteScale = std::pow(2.0, int(log2(_scale)));
+    double const normMeshSpan  = 300.0 / discreteScale;
 
-    const double normFactor = normMeshSpan / meshSpan;
-    const auto normStepSize = [normFactor, stepSize](int i) {
+    double const normFactor = normMeshSpan / meshSpan;
+    auto const normStepSize = [normFactor, stepSize](int i) {
         return normFactor * stepSize(i);
     };
 
     double xPos = -normMeshSpan / 2 + _x;
     for(int x = 0; x < granularity; ++x) {
-        const double xQuant = quantized(xPos, normStepSize(x));
+        double const xQuant = quantized(xPos, normStepSize(x));
 
         double zPos = -normMeshSpan / 2 + _z;
         for(int z = 0; z < granularity; ++z) {
-            const double zQuant            = quantized(zPos, normStepSize(z));
+            double const zQuant            = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - _x,
                     Terrain::heightAt({xQuant, zQuant}),

@@ -221,16 +221,16 @@ handleMouseMove(int x, int y)
             float(-pi / 2 + 0.001),
             float(pi / 2 - 0.001));
 
-    auto const forward = glm::rotate(
-                                 glm::rotate(
-                                         glm::mat4(1.0f),
-                                         rotationX,
-                                         {0.0f, -1.0f, 0.0f}),
-                                 rotationY,
-                                 {1.0f, 0.0f, 0.0f})
-                         * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    auto const lookAt = glm::rotate(
+                                glm::rotate(
+                                        glm::mat4(1.0f),
+                                        rotationX,
+                                        {0.0f, -1.0f, 0.0f}),
+                                rotationY,
+                                {1.0f, 0.0f, 0.0f})
+                        * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-    G_CAMERA.lookAt(forward);
+    G_CAMERA.lookAt(lookAt);
 
     if(x != halfWindowSizeX || y != halfWindowSizeY) {
         glutWarpPointer(halfWindowSizeX, halfWindowSizeY);
