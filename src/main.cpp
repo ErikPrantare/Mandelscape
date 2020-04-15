@@ -1,3 +1,4 @@
+#include <functional>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -96,9 +97,10 @@ dispatchEvent(Event const&);
 static void
 updateScene()
 {
-    while(auto const event = G_WINDOW->nextEvent()) {
-        dispatchEvent(*event);
-    }
+    utils::untilNullopt<Event>(
+            [] { return G_WINDOW->nextEvent(); },
+            dispatchEvent);
+
     float constexpr zoomVelocity = 1.f;
 
     static float lastTimepoint   = glutGet(GLUT_ELAPSED_TIME) / 1000.f;

@@ -33,8 +33,19 @@ pop(std::queue<T, Container>& queue)
     return a;
 }
 
-// template<typename T, typename Yielder, typename = Require<>typename Callable,
-// typename = RequireCallableWith<Callable, T>> untilNullopt
+template<
+        typename T,
+        typename Yielder,
+        typename = RequireReturns<Yielder, std::optional<T>>,
+        typename Consumer,
+        typename = RequireCallableWith<Consumer, T>>
+void
+untilNullopt(Yielder&& yielder, Consumer&& consumer)
+{
+    while(auto a = yielder()) {
+        consumer(*a);
+    }
+}
 
 }    // namespace utils
 
