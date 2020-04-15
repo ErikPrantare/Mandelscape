@@ -10,8 +10,8 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <glm/glm.hpp>
 
-#include "math3d.h"
 #include "utils.h"
 #include "camera.h"
 #include "terrain.h"
@@ -36,11 +36,13 @@ std::unique_ptr<Texture> G_TEXTURE              = nullptr;
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
 
+long double constexpr pi = glm::pi<long double>();
+
 float constexpr G_FOV = pi / 2;
 
 Camera G_CAMERA;
 
-Vector3f G_VELOCITY(0.0f, 0.0f, 0.0f);
+glm::vec3 G_VELOCITY(0.0f, 0.0f, 0.0f);
 
 bool G_AUTO_ZOOM                  = false;
 float G_ZOOM_AMOUNT               = 0;
@@ -207,8 +209,8 @@ handleInputUp(unsigned char c)
 static void
 handleMouseMove(int x, int y)
 {
-    int halfWindowSizeX = G_CONFIG.get<Settings::WindowWidth>() / 2;
-    int halfWindowSizeY = G_CONFIG.get<Settings::WindowHeight>() / 2;
+    int const halfWindowSizeX = G_CONFIG.get<Settings::WindowWidth>() / 2;
+    int const halfWindowSizeY = G_CONFIG.get<Settings::WindowHeight>() / 2;
 
     static int mouseX = halfWindowSizeX;
     static int mouseY = halfWindowSizeY;
@@ -228,9 +230,14 @@ handleMouseMove(int x, int y)
             float(-pi / 2 + 0.001),
             float(pi / 2 - 0.001));
 
-    Vector3f lookAt = rotationMatrix({0.0f, -rotationX, 0.0f})
-                      * rotationMatrix({rotationY, 0.0f, 0.0f})
-                      * Vector3f(0.0f, 0.0f, 1.0f);
+    auto const lookAt = glm::rotate(
+                                glm::rotate(
+                                        glm::mat4(1.0f),
+                                        rotationX,
+                                        {0.0f, -1.0f, 0.0f}),
+                                rotationY,
+                                {1.0f, 0.0f, 0.0f})
+                        * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
     G_CAMERA.lookAt(lookAt);
 

@@ -27,3 +27,4 @@ compile_commands.json
 #Custom build/run files
 build.sh
 run.sh
+startup.sh

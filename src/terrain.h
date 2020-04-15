@@ -11,8 +11,8 @@
 #include <functional>
 
 #include <GL/glew.h>
-
-#include "math3d.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 class Terrain {
 public:
@@ -20,7 +20,7 @@ public:
     Terrain(std::function<void(double, double)> const& setMeshOffset);
     ~Terrain();
 
-    const std::vector<Vector3f>&
+    std::vector<glm::vec3> const&
     updateMesh(double, double, double);
 
     static double
@@ -49,8 +49,8 @@ private:
     double m_z;
     double m_scale;
 
-    std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
-    std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
+    std::shared_ptr<std::vector<glm::vec3>> m_currentMeshPoints;
+    std::shared_ptr<std::vector<glm::vec3>> m_loadingMeshPoints;
 
     void
     startLoading();
@@ -59,7 +59,7 @@ private:
     generateMeshIndices();
 
     static void
-    loadMesh(double, double, double, std::vector<Vector3f>*);
+    loadMesh(double, double, double, std::vector<glm::vec3>*);
 };
 
 template<typename T>

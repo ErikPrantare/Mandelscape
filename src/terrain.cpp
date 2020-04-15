@@ -16,8 +16,8 @@ Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
             m_x{0.0},
             m_z{0.0},
             m_scale{1.0},
-            m_currentMeshPoints{std::make_shared<std::vector<Vector3f>>()},
-            m_loadingMeshPoints{std::make_shared<std::vector<Vector3f>>()}
+            m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
+            m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
 {
     loadMesh(m_x, m_z, m_scale, m_currentMeshPoints.get());
     loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
@@ -29,14 +29,14 @@ Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            m_currentMeshPoints->size() * sizeof(Vector3f),
+            m_currentMeshPoints->size() * sizeof(glm::vec3),
             m_currentMeshPoints->data(),
             GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            m_loadingMeshPoints->size() * sizeof(Vector3f),
+            m_loadingMeshPoints->size() * sizeof(glm::vec3),
             m_loadingMeshPoints->data(),
             GL_DYNAMIC_DRAW);
 
@@ -78,29 +78,21 @@ Terrain::loadMesh(
         double _x,
         double _z,
         double _scale,
-        std::vector<Vector3f>* buffer)
+        std::vector<glm::vec3>* buffer)
 {
-    constexpr int nrIndices = granularity * granularity;
+    int constexpr nrIndices = granularity * granularity;
 
     if(buffer->size() != nrIndices) {
         buffer->resize(nrIndices);
     }
 
-    const double discScale   = std::pow(2.0, int(log2(_scale)));
-    const double scaleFactor = Terrain::granularity * discScale;
+    int constexpr doublingInterval = 40;
 
-    constexpr int doublingInterval = 40;
-    constexpr int exponentOffset   = -5;
-
-    const auto& stepSize = [scaleFactor](int i) {
-        return std::pow(
-                       2.0,
-                       std::abs(i - granularity / 2) / doublingInterval
-                               - exponentOffset)
-               / scaleFactor;
+    auto const stepSize = [](int i) {
+        return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 
-    const auto& quantized = [](double x, double stepSize) {
+    auto const& quantized = [](double x, double stepSize) {
         return std::floor(x / stepSize) * stepSize;
     };
 
@@ -109,27 +101,35 @@ Terrain::loadMesh(
         meshSpan += stepSize(i);
     }
 
-    double xPos = -meshSpan / 2 + _x;
-    for(int x = 0; x < granularity; ++x) {
-        double xQuant = quantized(xPos, stepSize(x));
+    double const discreteScale = std::pow(2.0, int(log2(_scale)));
+    double const normMeshSpan  = 300.0 / discreteScale;
 
-        double zPos = -meshSpan / 2 + _z;
+    double const normFactor = normMeshSpan / meshSpan;
+    auto const normStepSize = [normFactor, stepSize](int i) {
+        return normFactor * stepSize(i);
+    };
+
+    double xPos = -normMeshSpan / 2 + _x;
+    for(int x = 0; x < granularity; ++x) {
+        double const xQuant = quantized(xPos, normStepSize(x));
+
+        double zPos = -normMeshSpan / 2 + _z;
         for(int z = 0; z < granularity; ++z) {
-            double zQuant                  = quantized(zPos, stepSize(z));
-            (*buffer)[x * granularity + z] = Vector3f(
+            double const zQuant            = quantized(zPos, normStepSize(z));
+            (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - _x,
                     Terrain::heightAt({xQuant, zQuant}),
                     zQuant - _z);
 
-            zPos += stepSize(z);
+            zPos += normStepSize(z);
         }
-        xPos += stepSize(x);
+        xPos += normStepSize(x);
     }
 }
 
 bool
 uploadMeshChunk(
-        const std::vector<Vector3f>& sourceMesh,
+        const std::vector<glm::vec3>& sourceMesh,
         const GLuint& destinationVBO,
         const size_t& index,
         const size_t& maxChunkSize)
@@ -138,21 +138,21 @@ uploadMeshChunk(
         return true;
     }
 
-    const Vector3f* position = sourceMesh.data() + index;
+    glm::vec3 const* position = sourceMesh.data() + index;
 
     int chunkSize = std::min(maxChunkSize, sourceMesh.size() - index);
 
     glBindBuffer(GL_ARRAY_BUFFER, destinationVBO);
     glBufferSubData(
             GL_ARRAY_BUFFER,
-            index * sizeof(Vector3f),
-            chunkSize * sizeof(Vector3f),
+            index * sizeof(glm::vec3),
+            chunkSize * sizeof(glm::vec3),
             position);
 
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-const std::vector<Vector3f>&
+std::vector<glm::vec3> const&
 Terrain::updateMesh(double x, double z, double scale)
 {
     const bool uploadingDone = uploadMeshChunk(
@@ -200,12 +200,12 @@ Terrain::generateMeshIndices()
     for(int x = 0; x < granularity - 1; x++)
         for(int z = 0; z < granularity - 1; z++) {
             meshIndices.push_back(z + x * granularity);
-            meshIndices.push_back(z + (x + 1) * granularity);
             meshIndices.push_back((z + 1) + x * granularity);
+            meshIndices.push_back(z + (x + 1) * granularity);
 
             meshIndices.push_back((z + 1) + x * granularity);
-            meshIndices.push_back(z + (x + 1) * granularity);
             meshIndices.push_back((z + 1) + (x + 1) * granularity);
+            meshIndices.push_back(z + (x + 1) * granularity);
         }
 
     return meshIndices;
