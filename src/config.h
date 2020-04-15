@@ -14,8 +14,6 @@ namespace Settings {
 
 class Config {
 public:
-    Config() = default;
-
     template<typename Setting, typename = RequireSetting<Setting>>
     void
     set(typename Setting::Type&& newValue)
