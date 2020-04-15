@@ -5,6 +5,7 @@
 #include <fstream>
 #include <future>
 #include <cmath>
+#include <map>
 
 namespace util {
 
@@ -38,6 +39,14 @@ private:
     float m_filteredValue;
     float const m_amount;
 };
+
+// CPP20 https://en.cppreference.com/w/cpp/container/map/contains
+template<typename KeyType, typename ValueType>
+bool
+contains(std::map<KeyType, ValueType> const& map, KeyType key)
+{
+    return map.find(key) != std::end(map);
+}
 
 }    // namespace util
 

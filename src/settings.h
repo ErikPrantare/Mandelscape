@@ -7,7 +7,7 @@ namespace Settings {
 template<
         typename T,
         int _uid,
-        typename = std::enable_if_t<std::is_default_constructible_v<T>>>
+        typename = Require<std::is_move_constructible_v<T>>>
 struct Setting {
     using Type               = T;
     static constexpr int uid = _uid;

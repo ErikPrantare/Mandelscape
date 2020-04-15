@@ -19,7 +19,7 @@ template<
         typename Callable,
         typename Argument,
         typename = RequireCallableWith<Callable, Argument>>
-static bool constexpr EndomorphismOf = true;
+inline bool constexpr EndomorphismOf = true;
 
 template<typename Callable, typename Argument>
 using RequireEndomorphismOf = Require<EndomorphismOf<Callable, Argument>>;
