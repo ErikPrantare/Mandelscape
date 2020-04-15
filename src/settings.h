@@ -23,7 +23,7 @@ using ClippingPlaneNear = Setting<float, __LINE__>;
 using ClippingPlaneFar  = Setting<float, __LINE__>;
 using FOV               = Setting<float, __LINE__>;
 using UseDeepShader     = Setting<bool, __LINE__>;
-using AutoZoom          = Setting<int, __LINE__>;
+using AutoZoom          = Setting<bool, __LINE__>;
 }    // namespace Settings
 
 #endif    // MANDELLANDSCAPE_SETTINGS_H

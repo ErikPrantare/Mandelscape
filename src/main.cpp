@@ -1,3 +1,4 @@
+#include <functional>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -19,11 +20,13 @@
 #include "shader.h"
 #include "shaderProgram.h"
 #include "texture.h"
+#include "window.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Settings::Config G_CONFIG;
+Config G_CONFIG;
+std::unique_ptr<Window> G_WINDOW = nullptr;
 
 // XXX: Gives segmentation fault if not pointer
 // Let it be pointer for now, and just remove it from
@@ -67,9 +70,16 @@ renderScene()
     glutSwapBuffers();
 }
 
+void
+dispatchEvent(Event const&);
+
 static void
 updateScene()
 {
+    util::untilNullopt<Event>(
+            [] { return G_WINDOW->nextEvent(); },
+            dispatchEvent);
+
     float constexpr zoomVelocity = 1.f;
 
     static float lastTimepoint   = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
@@ -111,7 +121,7 @@ updateScene()
 }
 
 static void
-handleInputDown(unsigned char c, int, int)
+handleInputDown(unsigned char c)
 {
     switch(c) {
     case 'w':
@@ -153,7 +163,7 @@ handleInputDown(unsigned char c, int, int)
 }
 
 static void
-handleInputUp(unsigned char c, int, int)
+handleInputUp(unsigned char c)
 {
     switch(c) {
     case 'w':
@@ -222,25 +232,38 @@ handleMouseMove(int x, int y)
 }
 
 static void
-handleMouseButtons(int button, int state, int x, int y)
+handleMouseButtons(int button)
 {
     int constexpr wheelUp   = 3;
     int constexpr wheelDown = 4;
 
     switch(button) {
     case wheelUp:
-        if(state == GLUT_DOWN) {
-            G_ZOOM_AMOUNT += 1.f;
-        }
+        G_ZOOM_AMOUNT += 1.f;
         break;
     case wheelDown:
-        if(state == GLUT_DOWN) {
-            G_ZOOM_AMOUNT += -1.f;
-        }
+        G_ZOOM_AMOUNT += -1.f;
         break;
     default:
         break;
     }
+}
+
+void
+dispatchEvent(Event const& event)
+{
+    static auto const visitors = util::overload{
+            [](KeyDown const& key) { handleInputDown(key.code); },
+            [](KeyUp const& key) { handleInputUp(key.code); },
+            [](MouseMove const& movement) {
+                handleMouseMove(movement.x, movement.y);
+            },
+            [](MouseButtonDown const& button) {
+                handleMouseButtons(button.button);
+            },
+            [](MouseButtonUp const&) {
+            }};
+    std::visit(visitors, event);
 }
 
 static void
@@ -248,10 +271,6 @@ initializeGlutCallbacks()
 {
     glutDisplayFunc(renderScene);
     glutIdleFunc(updateScene);
-    glutKeyboardFunc(handleInputDown);
-    glutKeyboardUpFunc(handleInputUp);
-    glutPassiveMotionFunc(handleMouseMove);
-    glutMouseFunc(handleMouseButtons);
 }
 
 static void
@@ -269,10 +288,10 @@ compileShaders()
     G_SHADER_PROGRAM->compile();
 }
 
-Settings::Config
+Config
 initConfig()
 {
-    Settings::Config conf;
+    Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
     conf.set<Settings::ClippingPlaneNear>(0.01f);
@@ -305,30 +324,9 @@ main(int argc, char** argv)
     G_CONFIG = initConfig();
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(
-            G_CONFIG.get<Settings::WindowWidth>(),
-            G_CONFIG.get<Settings::WindowHeight>());
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("test");
-    glutSetKeyRepeat(false);
-    glutSetCursor(GLUT_CURSOR_NONE);
+    G_WINDOW = std::make_unique<Window>(G_CONFIG);
 
     initializeGlutCallbacks();
-
-    GLenum res = glewInit();
-    if(res != GLEW_OK) {
-        std::cerr << "Error: " << glewGetErrorString(res) << std::endl;
-        return 1;
-    }
-
-    std::cout << "GL version: " << glGetString(GL_VERSION) << std::endl;
-
-    glClearColor(1, 1, 1, 0);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glClearDepth(10'000'000.0f);
 
     G_CAMERA =
             Camera(G_CONFIG.get<Settings::WindowWidth>(),

@@ -6,6 +6,10 @@
 #include <future>
 #include <cmath>
 #include <map>
+#include <queue>
+#include <optional>
+
+#include "mandelTypeTraits.h"
 
 namespace util {
 
@@ -46,6 +50,42 @@ bool
 contains(std::map<KeyType, ValueType> const& map, KeyType key)
 {
     return map.find(key) != std::end(map);
+}
+
+template<typename... Callables>
+struct overload : Callables... {
+    using Callables::operator()...;
+};
+
+// CPP20
+// https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
+template<typename... Callables>
+overload(Callables...)->overload<Callables...>;
+
+template<typename T, typename Container>
+std::optional<T>
+pop(std::queue<T, Container>& queue)
+{
+    if(queue.empty())
+        return std::nullopt;
+
+    auto a = queue.front();
+    queue.pop();
+    return a;
+}
+
+template<
+        typename T,
+        typename Yielder,
+        typename = RequireReturns<Yielder, std::optional<T>>,
+        typename Consumer,
+        typename = RequireCallableWith<Consumer, T>>
+void
+untilNullopt(Yielder&& yielder, Consumer&& consumer)
+{
+    while(auto a = yielder()) {
+        consumer(*a);
+    }
 }
 
 }    // namespace util

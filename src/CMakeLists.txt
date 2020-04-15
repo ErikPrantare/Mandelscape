@@ -23,4 +23,5 @@ target_compile_options(MandelLandscape
     PRIVATE -Wall
     PRIVATE -Werror
     PRIVATE -Wextra
-    PRIVATE -Wno-unused-parameter)
+    PRIVATE -Wno-unused-parameter
+    PRIVATE -Wno-switch)

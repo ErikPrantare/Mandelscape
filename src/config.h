@@ -10,9 +10,10 @@
 #include "settings.h"
 #include "utils.h"
 
-namespace Settings {
+using namespace Settings;
 
 class Config {
+private:
 public:
     template<typename Setting, typename = RequireSetting<Setting>>
     void
@@ -66,7 +67,7 @@ public:
             typename = RequireSetting<Setting>,
             typename = RequireEndomorphismOf<Callable, typename Setting::Type>>
     void
-    on(Callable const& callable)
+    on(Callable&& callable)
     {
         set<Setting>(callable(get<Setting>()));
     }
@@ -77,7 +78,5 @@ private:
     std::map<int, std::any> m_settings;
     std::map<int, std::vector<FunctionSig>> m_callbacks;
 };
-
-}    // namespace Settings
 
 #endif    // MANDELLANDSCAPE_CONFIG_H
