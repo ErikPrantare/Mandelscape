@@ -109,6 +109,10 @@ updateScene()
 
     G_CAMERA.setCameraHeight(filterHeight(elevation, dt));
 
+    static float time = 0.0;
+    time += dt;
+
+    G_SHADER_PROGRAM->setUniformFloat("time", time);
     G_SHADER_PROGRAM->setUniformMatrix4("cameraSpace", G_CAMERA.cameraSpace());
     G_SHADER_PROGRAM->setUniformMatrix4("projection", G_CAMERA.projection());
     G_SHADER_PROGRAM->setUniformVec2(

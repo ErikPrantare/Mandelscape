@@ -31,7 +31,7 @@ private:
     State m_state = State::Loading;
 
     static constexpr int granularity     = 400;
-    static constexpr int iterations      = 100;
+    static constexpr int iterations      = 200;
     static constexpr int uploadChunkSize = 90'000;
 
     std::function<void(double, double)> m_setMeshOffset;
