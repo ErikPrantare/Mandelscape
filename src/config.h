@@ -16,7 +16,7 @@ private:
 public:
     Config() = default;
 
-    template<typename Setting, typename = Settings::RequireSetting<Setting>>
+    template<typename Setting, typename = RequireSetting<Setting>>
     void
     set(typename Setting::Type newValue)
     {
@@ -39,7 +39,7 @@ public:
     template<
             typename Setting,
             typename Callable,
-            typename = Settings::RequireSetting<Setting>,
+            typename = RequireSetting<Setting>,
             typename = RequireCallableWith<Callable, typename Setting::Type>>
     void
     onStateChange(Callable const callback)
@@ -53,7 +53,7 @@ public:
     template<
             typename Setting,
             typename Callable,
-            typename = Settings::RequireSetting<Setting>,
+            typename = RequireSetting<Setting>,
             typename = RequireEndomorphismOf<Callable, typename Setting::Type>>
     void
     on(Callable const& callable)
