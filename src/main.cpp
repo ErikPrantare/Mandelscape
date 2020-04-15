@@ -96,9 +96,8 @@ dispatchEvent(Event const&);
 static void
 updateScene()
 {
-    Event event;
-    while(G_WINDOW->pollEvent(event)) {
-        dispatchEvent(event);
+    while(auto const event = G_WINDOW->nextEvent()) {
+        dispatchEvent(*event);
     }
     float constexpr zoomVelocity = 1.f;
 
@@ -269,20 +268,18 @@ handleMouseButtons(int button)
 void
 dispatchEvent(Event const& event)
 {
-    switch(event.type) {
-    case(Event::KeyDown):
-        handleInputDown(event.key.code);
-        break;
-    case(Event::KeyUp):
-        handleInputUp(event.key.code);
-        break;
-    case(Event::MouseMove):
-        handleMouseMove(event.mouseMove.x, event.mouseMove.y);
-        break;
-    case(Event::MouseUp):
-        handleMouseButtons(event.mouseButton.button);
-        break;
-    }
+    static auto const visitors = utils::overload{
+            [](KeyDown const& key) { handleInputDown(key.code); },
+            [](KeyUp const& key) { handleInputUp(key.code); },
+            [](MouseMove const& movement) {
+                handleMouseMove(movement.x, movement.y);
+            },
+            [](MouseButtonDown const& button) {
+                handleMouseButtons(button.button);
+            },
+            [](MouseButtonUp const&) {
+            }};
+    std::visit(visitors, event);
 }
 
 static void

@@ -1,8 +1,11 @@
 #include "window.h"
 
 #include <iostream>
+#include <variant>
 
 #include "config.h"
+#include "event.h"
+#include "utils.h"
 
 void
 registerKeyDown(unsigned char, int, int);
@@ -48,57 +51,46 @@ Window::Window(Config const& conf)
     glutMouseFunc(registerMouseButton);
 }
 
-bool
-Window::pollEvent(Event& event)
+std::optional<Event>
+Window::nextEvent()
 {
-    if(m_events.empty()) {
-        return false;
-    }
-
-    event = m_events.front();
-    m_events.pop();
-    return true;
+    return utils::pop(m_events);
 }
 
 void
 registerEvent(Event&& event)
 {
-    windowInstance->m_events.push(std::move(event));
+    windowInstance->m_events.push(std::forward<Event>(event));
 }
 
 void
 registerKeyDown(unsigned char code, int, int)
 {
-    Event event;
-    event.type     = Event::KeyDown;
-    event.key.code = code;
-    registerEvent(std::move(event));
+    registerEvent(KeyDown{.code = code});
 }
 
 void
 registerKeyUp(unsigned char code, int, int)
 {
-    Event event;
-    event.type     = Event::KeyUp;
-    event.key.code = code;
-    registerEvent(std::move(event));
+    registerEvent(KeyUp{.code = code});
 }
 
 void
 registerMouseMove(int x, int y)
 {
-    Event event;
-    event.type        = Event::MouseMove;
-    event.mouseMove.x = x;
-    event.mouseMove.y = y;
-    registerEvent(std::move(event));
+    registerEvent(MouseMove{.x = x, .y = y});
 }
 
 void
 registerMouseButton(int button, int state, int, int)
 {
-    Event event;
-    event.type = state == GLUT_DOWN ? Event::MouseDown : Event::MouseUp;
-    event.mouseButton.button = button;
-    registerEvent(std::move(event));
+    switch(state) {
+    case GLUT_DOWN: {
+        registerEvent(MouseButtonDown{.button = button});
+    } break;
+
+    case GLUT_UP: {
+        registerEvent(MouseButtonUp{.button = button});
+    } break;
+    }
 }

@@ -1,29 +1,30 @@
 #ifndef MANDELLANDSCAPE_EVENT_H
 #define MANDELLANDSCAPE_EVENT_H
 
-struct Event {
-    enum EventType { KeyDown, KeyUp, MouseMove, MouseUp, MouseDown };
+#include <variant>
 
-    struct KeyEvent {
-        unsigned char code;
-    };
-
-    struct MouseMoveEvent {
-        int x;
-        int y;
-    };
-
-    struct MouseButtonEvent {
-        int button;
-    };
-
-    EventType type;
-
-    union {
-        KeyEvent key;
-        MouseMoveEvent mouseMove;
-        MouseButtonEvent mouseButton;
-    };
+struct KeyDown {
+    unsigned char code;
 };
+
+struct KeyUp {
+    unsigned char code;
+};
+
+struct MouseMove {
+    int x;
+    int y;
+};
+
+struct MouseButtonDown {
+    int button;
+};
+
+struct MouseButtonUp {
+    int button;
+};
+
+using Event =
+        std::variant<KeyUp, KeyDown, MouseMove, MouseButtonUp, MouseButtonDown>;
 
 #endif

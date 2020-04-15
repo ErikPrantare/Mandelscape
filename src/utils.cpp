@@ -3,6 +3,8 @@
 #include <string>
 #include <fstream>
 
+namespace utils {
+
 std::string
 readFile(std::string const& filePath)
 {
@@ -16,3 +18,5 @@ readFile(std::string const& filePath)
     in.close();
     return output;
 }
+
+}    // namespace utils

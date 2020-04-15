@@ -2,6 +2,7 @@
 #define MANDELLANDSCAPE_WINDOW_H
 
 #include <queue>
+#include <optional>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -21,8 +22,8 @@ public:
     Window&
     operator=(Window&&) = delete;
 
-    bool
-    pollEvent(Event&);
+    std::optional<Event>
+    nextEvent();
 
 private:
     std::queue<Event> m_events;
