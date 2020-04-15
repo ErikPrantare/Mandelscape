@@ -5,8 +5,7 @@
 #include <memory>
 
 #include <GL/glew.h>
-
-#include "math3d.h"
+#include <glm/glm.hpp>
 
 class ShaderProgram {
 public:
@@ -23,13 +22,13 @@ public:
     compile();
 
     void
-    setUniformMatrix4(const std::string& name, const Matrix4f& value);
+    setUniformMatrix4(std::string const& name, glm::mat4 const& value);
 
     void
-    setUniformFloat(const std::string& name, float const);
+    setUniformFloat(std::string const& name, float const);
 
     void
-    setUniformVec2(const std::string& name, float const, float const);
+    setUniformVec2(std::string const& name, float const, float const);
 
 private:
     struct ShaderDeleter {

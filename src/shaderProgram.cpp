@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <glm/glm.hpp>
+
 GLuint*
 createProgram()
 {
@@ -72,9 +74,11 @@ ShaderProgram::compile()
 }
 
 void
-ShaderProgram::setUniformMatrix4(const std::string& name, const Matrix4f& value)
+ShaderProgram::setUniformMatrix4(
+        std::string const& name,
+        glm::mat4 const& value)
 {
-    glUniformMatrix4fv(uniformLocation(name), 1, GL_TRUE, &value.m[0][0]);
+    glUniformMatrix4fv(uniformLocation(name), 1, GL_FALSE, &value[0][0]);
 }
 
 void
@@ -82,7 +86,6 @@ ShaderProgram::setUniformFloat(const std::string& name, const float x)
 {
     glUniform1f(uniformLocation(name), x);
 }
-
 void
 ShaderProgram::setUniformVec2(const std::string& name, float x, float y)
 {

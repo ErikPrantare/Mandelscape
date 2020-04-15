@@ -2,7 +2,7 @@
 #define MANDELLANDSCAPE_CAMERA_H
 #include <tuple>
 
-#include "math3d.h"
+#include <glm/glm.hpp>
 
 class Camera {
 public:
@@ -13,43 +13,43 @@ public:
            float const& clippingPlaneNear,
            float const& clippingPlaneFar,
            float const& FOV,
-           Vector3f const& startPosition = {1.0f, 0.0f, 1.0f},
-           Vector3f const& worldUp       = {0.0f, 1.0f, 0.0f});
+           glm::vec3 const& startPosition = {1.0f, 0.0f, 1.0f},
+           glm::vec3 const& worldUp       = {0.0f, 1.0f, 0.0f});
 
-    Matrix4f
+    void
+    move(glm::vec3 const& movement);
+
+    glm::mat4
     projection() const;
 
-    Matrix4f
+    glm::mat4
     cameraSpace() const;
 
-    const Vector3f&
+    glm::vec3 const&
     position() const;
 
     void
-    setPosition(Vector3f const&);
+    lookAt(glm::vec3 const&);
 
     void
-    lookAt(Vector3f const& direction);
+    setPosition(glm::vec3 const&);
 
     void
     setScale(float const scale);
 
     void
-    move(Vector3f const& movement);
-
-    void
     setCameraHeight(float const meshHeight);
 
 private:
-    Matrix4f
-    uvn() const;
+    glm::mat4
+    lookAtMatrix() const;
 
     float m_width, m_height;
     float m_zNear, m_zFar;
     float m_FOV;
-    Vector3f m_pos;
-    Vector3f m_up;
-    Vector3f m_lookAt;
+    glm::vec3 m_pos;
+    glm::vec3 m_up;
+    glm::vec3 m_lookAt;
     float m_worldScale;
 };
 
