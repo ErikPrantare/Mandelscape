@@ -44,7 +44,7 @@ Shader::Shader(std::string const& sourceCode, GLenum const shaderType) :
 Shader
 Shader::fromFile(std::string const& filePath, GLenum const shaderType)
 {
-    return Shader(readFile(filePath), shaderType);
+    return Shader(utils::readFile(filePath), shaderType);
 }
 
 Shader

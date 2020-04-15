@@ -9,9 +9,10 @@
 #include "mandelTypeTraits.h"
 #include "settings.h"
 
-namespace Settings {
+using namespace Settings;
 
 class Config {
+private:
 public:
     Config() = default;
 
@@ -29,9 +30,10 @@ public:
 
     template<typename Setting, typename = RequireSetting<Setting>>
     typename Setting::Type
-    get()
+    get() const
     {
-        return std::any_cast<typename Setting::Type>(m_settings[Setting::uid]);
+        return std::any_cast<typename Setting::Type>(
+                m_settings.at(Setting::uid));
     }
 
     template<
@@ -65,7 +67,5 @@ private:
     std::map<int, std::any> m_settings;
     std::map<int, std::vector<FunctionSig>> m_callbacks;
 };
-
-}    // namespace Settings
 
 #endif    // MANDELLANDSCAPE_CONFIG_H
