@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 
 #include "terrain.h"
+#include "utils.h"
 
 Terrain::Terrain() : Terrain([](double, double) {})
 {}
@@ -54,7 +55,7 @@ Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
 
 Terrain::~Terrain()
 {
-    while(!isDone(m_loadingProcess))
+    while(!util::isDone(m_loadingProcess))
         ;
     glDeleteBuffers(1, &m_VBO);
     glDeleteBuffers(1, &m_IBO);
@@ -75,10 +76,10 @@ Terrain::startLoading()
 
 void
 Terrain::loadMesh(
-        double _x,
-        double _z,
-        double _scale,
-        std::vector<glm::vec3>* buffer)
+        double const _x,
+        double const _z,
+        double const _scale,
+        std::vector<glm::vec3>* const buffer)
 {
     int constexpr nrIndices = granularity * granularity;
 
@@ -129,10 +130,10 @@ Terrain::loadMesh(
 
 bool
 uploadMeshChunk(
-        const std::vector<glm::vec3>& sourceMesh,
-        const GLuint& destinationVBO,
-        const size_t& index,
-        const size_t& maxChunkSize)
+        std::vector<glm::vec3> const& sourceMesh,
+        GLuint const destinationVBO,
+        size_t const index,
+        size_t const maxChunkSize)
 {
     if(index >= sourceMesh.size()) {
         return true;
@@ -153,7 +154,7 @@ uploadMeshChunk(
 }
 
 std::vector<glm::vec3> const&
-Terrain::updateMesh(double x, double z, double scale)
+Terrain::updateMesh(double const x, double const z, double const scale)
 {
     const bool uploadingDone = uploadMeshChunk(
             *m_currentMeshPoints,
@@ -166,7 +167,7 @@ Terrain::updateMesh(double x, double z, double scale)
     if(uploadingDone)
         switch(m_state) {
         case State::Loading: {
-            if(isDone(m_loadingProcess)) {
+            if(util::isDone(m_loadingProcess)) {
                 std::swap(m_currentMeshPoints, m_loadingMeshPoints);
                 m_loadIndex = 0;
 
@@ -212,7 +213,7 @@ Terrain::generateMeshIndices()
 }
 
 double
-Terrain::heightAt(const std::complex<double>& c)
+Terrain::heightAt(std::complex<double> const& c)
 {
     std::complex<double> z(0.0, 0.0);
     std::complex<double> dz(0.0, 0.0);

@@ -3,9 +3,6 @@
 
 #include <vector>
 #include <memory>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <complex>
 #include <future>
 #include <functional>
@@ -21,10 +18,10 @@ public:
     ~Terrain();
 
     std::vector<glm::vec3> const&
-    updateMesh(double, double, double);
+    updateMesh(double const, double const, double const);
 
     static double
-    heightAt(const std::complex<double>&);
+    heightAt(std::complex<double> const&);
 
     void
     render();
@@ -59,14 +56,11 @@ private:
     generateMeshIndices();
 
     static void
-    loadMesh(double, double, double, std::vector<glm::vec3>*);
+    loadMesh(
+            double const,
+            double const,
+            double const,
+            std::vector<glm::vec3>* const);
 };
-
-template<typename T>
-static bool
-isDone(const std::future<T>& f)
-{
-    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-}
 
 #endif

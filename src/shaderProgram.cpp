@@ -37,7 +37,7 @@ attachFragmentShader(GLuint const program, GLuint const shader)
 }
 
 void
-ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType) const
+ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType)
 {
     if(shaderType == GL_VERTEX_SHADER)
         attachVertexShader(*m_location, shader);
@@ -46,7 +46,7 @@ ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType) const
 }
 
 void
-ShaderProgram::compile() const
+ShaderProgram::compile()
 {
     glLinkProgram(*m_location);
 
@@ -74,19 +74,20 @@ ShaderProgram::compile() const
 }
 
 void
-ShaderProgram::setUniform(const std::string& name, const GLuint x) const
-{
-    glUniform1i(uniformLocation(name), x);
-}
-
-void
-ShaderProgram::setUniform(const std::string& name, const glm::mat4& value) const
+ShaderProgram::setUniformMatrix4(
+        std::string const& name,
+        glm::mat4 const& value)
 {
     glUniformMatrix4fv(uniformLocation(name), 1, GL_FALSE, &value[0][0]);
 }
 
 void
-ShaderProgram::setUniform(const std::string& name, float x, float y) const
+ShaderProgram::setUniformFloat(const std::string& name, const float x)
+{
+    glUniform1f(uniformLocation(name), x);
+}
+void
+ShaderProgram::setUniformVec2(const std::string& name, float x, float y)
 {
     glUniform2f(uniformLocation(name), x, y);
 }

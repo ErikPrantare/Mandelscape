@@ -5,8 +5,8 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
-#include <vector>
 #include <memory>
+#include <functional>
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -45,7 +45,6 @@ Camera G_CAMERA;
 
 glm::vec3 G_VELOCITY(0.0f, 0.0f, 0.0f);
 
-bool G_AUTO_ZOOM                  = false;
 float G_ZOOM_AMOUNT               = 0;
 float G_PERSISTENT_ZOOM_DIRECTION = 0;
 float G_ZOOM                      = 1.0f;
@@ -71,33 +70,13 @@ renderScene()
     glutSwapBuffers();
 }
 
-class LowPassFilter {
-public:
-    LowPassFilter(float init, float amount) :
-                m_filteredValue(init),
-                m_amount(amount){};
-
-    float
-    operator()(float const newValue, float const weight = 1.0f)
-    {
-        const float factor = std::pow(m_amount, weight);
-
-        m_filteredValue = factor * m_filteredValue + (1.0f - factor) * newValue;
-        return m_filteredValue;
-    }
-
-private:
-    float m_filteredValue;
-    float const m_amount;
-};
-
 void
 dispatchEvent(Event const&);
 
 static void
 updateScene()
 {
-    utils::untilNullopt<Event>(
+    util::untilNullopt<Event>(
             [] { return G_WINDOW->nextEvent(); },
             dispatchEvent);
 
@@ -116,7 +95,7 @@ updateScene()
 
     const float elevation = G_TERRAIN->heightAt({posX, posZ});
 
-    if(G_AUTO_ZOOM) {
+    if(G_CONFIG.get<Settings::AutoZoom>()) {
         G_ZOOM = 1.f / elevation;
     }
     else {
@@ -126,13 +105,16 @@ updateScene()
 
     G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
 
-    static LowPassFilter filterHeight(elevation, 0.01f);
+    static util::LowPassFilter filterHeight(elevation, 0.01f);
 
     G_CAMERA.setCameraHeight(filterHeight(elevation, dt));
 
-    G_SHADER_PROGRAM->setUniform("cameraSpace", G_CAMERA.cameraSpace());
-    G_SHADER_PROGRAM->setUniform("projection", G_CAMERA.projection());
-    G_SHADER_PROGRAM->setUniform("offset", G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
+    G_SHADER_PROGRAM->setUniformMatrix4("cameraSpace", G_CAMERA.cameraSpace());
+    G_SHADER_PROGRAM->setUniformMatrix4("projection", G_CAMERA.projection());
+    G_SHADER_PROGRAM->setUniformVec2(
+            "offset",
+            G_MESH_OFFSET_X,
+            G_MESH_OFFSET_Z);
 
     glutPostRedisplay();
     G_ZOOM_AMOUNT = 0.f;
@@ -161,7 +143,7 @@ handleInputDown(unsigned char c)
         G_PERSISTENT_ZOOM_DIRECTION += -1.f;
         break;
     case 'o':
-        G_AUTO_ZOOM = !G_AUTO_ZOOM;
+        G_CONFIG.on<Settings::AutoZoom>(std::logical_not<bool>());
         break;
     case 'r':
         G_TERRAIN->updateMesh(
@@ -270,7 +252,7 @@ handleMouseButtons(int button)
 void
 dispatchEvent(Event const& event)
 {
-    static auto const visitors = utils::overload{
+    static auto const visitors = util::overload{
             [](KeyDown const& key) { handleInputDown(key.code); },
             [](KeyUp const& key) { handleInputUp(key.code); },
             [](MouseMove const& movement) {
@@ -312,7 +294,11 @@ initConfig()
     Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
+    conf.set<Settings::ClippingPlaneNear>(0.01f);
+    conf.set<Settings::ClippingPlaneFar>(150.0f);
+    conf.set<Settings::FOV>(pi / 2);
     conf.set<Settings::UseDeepShader>(false);
+    conf.set<Settings::AutoZoom>(false);
 
     conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
         static Shader const shallowShader =
@@ -345,9 +331,9 @@ main(int argc, char** argv)
     G_CAMERA =
             Camera(G_CONFIG.get<Settings::WindowWidth>(),
                    G_CONFIG.get<Settings::WindowHeight>(),
-                   G_CLIPPING_PLANE_NEAR,
-                   G_CLIPPING_PLANE_FAR,
-                   G_FOV);
+                   G_CONFIG.get<Settings::ClippingPlaneNear>(),
+                   G_CONFIG.get<Settings::ClippingPlaneFar>(),
+                   G_CONFIG.get<Settings::FOV>());
 
     auto const setMeshOffset = [](double x, double z) {
         float dx = x - G_MESH_OFFSET_X;

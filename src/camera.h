@@ -35,10 +35,10 @@ public:
     setPosition(glm::vec3 const&);
 
     void
-    setScale(float scale);
+    setScale(float const scale);
 
     void
-    setCameraHeight(float meshHeight);
+    setCameraHeight(float const meshHeight);
 
 private:
     glm::mat4

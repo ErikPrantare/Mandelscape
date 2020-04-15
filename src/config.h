@@ -8,23 +8,29 @@
 
 #include "mandelTypeTraits.h"
 #include "settings.h"
+#include "utils.h"
 
 using namespace Settings;
 
 class Config {
 private:
 public:
-    Config() = default;
-
     template<typename Setting, typename = RequireSetting<Setting>>
     void
-    set(typename Setting::Type newValue)
+    set(typename Setting::Type&& newValue)
     {
-        std::any const value     = std::any(newValue);
-        m_settings[Setting::uid] = value;
+        using SettingType = typename Setting::Type;
+
+        if(util::contains(m_settings, Setting::uid))
+            m_settings[Setting::uid] =
+                    std::any(std::forward<SettingType>(newValue));
+        else
+            m_settings.emplace(
+                    Setting::uid,
+                    std::forward<SettingType>(newValue));
 
         for(auto const& callback : m_callbacks[Setting::uid]) {
-            callback(value);
+            callback(m_settings[Setting::uid]);
         }
     }
 
@@ -32,8 +38,13 @@ public:
     typename Setting::Type
     get() const
     {
-        return std::any_cast<typename Setting::Type>(
-                m_settings.at(Setting::uid));
+        if(util::contains(m_settings, Setting::uid))
+            return std::any_cast<typename Setting::Type>(
+                    m_settings.at(Setting::uid));
+        else
+            throw std::runtime_error(
+                    "Setting " + std::to_string(Setting::uid)
+                    + " has not been set.");
     }
 
     template<
@@ -42,12 +53,12 @@ public:
             typename = RequireSetting<Setting>,
             typename = RequireCallableWith<Callable, typename Setting::Type>>
     void
-    onStateChange(Callable const callback)
+    onStateChange(Callable&& callback)
     {
-        m_callbacks[Setting::uid].push_back([callback](std::any const& value) {
-            auto a = std::any_cast<typename Setting::Type>(value);
-            callback(a);
-        });
+        m_callbacks[Setting::uid].emplace_back(
+                [callback](std::any const& value) {
+                    callback(std::any_cast<typename Setting::Type>(value));
+                });
     }
 
     template<
@@ -56,7 +67,7 @@ public:
             typename = RequireSetting<Setting>,
             typename = RequireEndomorphismOf<Callable, typename Setting::Type>>
     void
-    on(Callable const& callable)
+    on(Callable&& callable)
     {
         set<Setting>(callable(get<Setting>()));
     }

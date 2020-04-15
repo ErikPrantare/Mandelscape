@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 
-namespace utils {
+namespace util {
 
 std::string
 readFile(std::string const& filePath)
@@ -19,4 +19,4 @@ readFile(std::string const& filePath)
     return output;
 }
 
-}    // namespace utils
+}    // namespace util

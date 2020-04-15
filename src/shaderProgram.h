@@ -16,19 +16,19 @@ public:
     operator=(ShaderProgram const&) = delete;
 
     void
-    attachShader(GLuint const shader, GLenum const shaderType) const;
+    attachShader(GLuint const shader, GLenum const shaderType);
 
     void
-    compile() const;
+    compile();
 
     void
-    setUniform(const std::string& name, const GLuint x) const;
+    setUniformMatrix4(std::string const& name, glm::mat4 const& value);
 
     void
-    setUniform(const std::string& name, const glm::mat4& value) const;
+    setUniformFloat(std::string const& name, float const);
 
     void
-    setUniform(const std::string& name, float const, float const) const;
+    setUniformVec2(std::string const& name, float const, float const);
 
 private:
     struct ShaderDeleter {

@@ -54,7 +54,7 @@ Window::Window(Config const& conf)
 std::optional<Event>
 Window::nextEvent()
 {
-    return utils::pop(m_events);
+    return util::pop(m_events);
 }
 
 void

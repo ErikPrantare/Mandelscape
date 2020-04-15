@@ -89,13 +89,13 @@ Camera::setPosition(glm::vec3 const& pos)
 }
 
 void
-Camera::setScale(float scale)
+Camera::setScale(float const scale)
 {
     m_worldScale = scale;
 }
 
 void
-Camera::setCameraHeight(float meshHeight)
+Camera::setCameraHeight(float const meshHeight)
 {
     m_pos.y = m_worldScale + meshHeight;
 }

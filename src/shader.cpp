@@ -44,7 +44,7 @@ Shader::Shader(std::string const& sourceCode, GLenum const shaderType) :
 Shader
 Shader::fromFile(std::string const& filePath, GLenum const shaderType)
 {
-    return Shader(utils::readFile(filePath), shaderType);
+    return Shader(util::readFile(filePath), shaderType);
 }
 
 Shader
@@ -52,8 +52,9 @@ Shader::fromCode(std::string const& sourceCode, GLenum const shaderType)
 {
     return Shader(sourceCode, shaderType);
 }
+
 void
-Shader::attachTo(ShaderProgram const& program) const
+Shader::attachTo(ShaderProgram& program) const
 {
     program.attachShader(*m_location, type);
 }
