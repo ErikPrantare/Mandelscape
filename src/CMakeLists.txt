@@ -9,7 +9,6 @@ add_executable(MandelLandscape
     ${SRC})
 
 target_link_libraries(MandelLandscape
-    PRIVATE freeglut_static
     PRIVATE libglew_static
     PRIVATE Threads::Threads
     PRIVATE glm::glm
