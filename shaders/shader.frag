@@ -60,10 +60,7 @@ main()
         if(dot(z, z) > 256.0f * 256.0f) {
             float colorVal = float(i) - log2(log2(dot(z, z)));
     fragColor = vec4(vec3(1.0, 1.0, 1.0) - pow(vec3(sqrt(dist1), sqrt(dist2), sqrt(dist3)), vec3(0.2, 0.2, 0.2)), 1.0);
-            fragColor.x *= 0.5f*sin(colorVal * 0.13f + time) + 0.5f;
-            fragColor *= vec4(1.0-fog, 1.0-fog, 1.0-fog, 1.0);
-            return;
-            fragColor =
+            fragColor *=
                     fog * vec4(1.0, 1.0, 1.0, 1.0)
                     + (1.0 - fog) * texture(tex, vec2(0.0, colorVal))
                     * vec4(
