@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(MandelLandscape LANGUAGES CXX)
+project(MandelLandscape LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

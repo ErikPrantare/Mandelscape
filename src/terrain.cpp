@@ -4,7 +4,7 @@
 #include <thread>
 #include <memory>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include "terrain.h"
 #include "utils.h"

@@ -8,9 +8,8 @@
 #include <memory>
 #include <functional>
 
-#include <GL/glew.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 #include "utils.h"
@@ -25,23 +24,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Config G_CONFIG;
-std::unique_ptr<Window> G_WINDOW = nullptr;
-
-// XXX: Gives segmentation fault if not pointer
-// Let it be pointer for now, and just remove it from
-// global namespace when we switch to GLFW
-std::unique_ptr<ShaderProgram> G_SHADER_PROGRAM = nullptr;
-std::unique_ptr<Texture> G_TEXTURE              = nullptr;
-
 float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
 float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
 
 long double constexpr pi = glm::pi<long double>();
 
 float constexpr G_FOV = pi / 2;
-
-Camera G_CAMERA;
 
 glm::vec3 G_VELOCITY(0.0f, 0.0f, 0.0f);
 
@@ -53,49 +41,55 @@ float constexpr G_MOVEMENT_SPEED  = 1.f;
 float G_MESH_OFFSET_X = 0;
 float G_MESH_OFFSET_Z = 0;
 
-std::unique_ptr<Terrain> G_TERRAIN = nullptr;
-
 static void
-renderScene()
+renderScene(Window& window, Terrain& terrain, Texture& texture)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glEnableVertexAttribArray(0);
 
-    G_TEXTURE->makeActiveOn(GL_TEXTURE0);
-    G_TERRAIN->render();
+    texture.makeActiveOn(GL_TEXTURE0);
+    terrain.render();
 
     glDisableVertexAttribArray(0);
-
-    glutSwapBuffers();
 }
 
 void
-dispatchEvent(Event const&);
+dispatchEvent(
+        Event const& event,
+        Config& config,
+        Terrain& terrain,
+        Camera& camera);
 
 static void
-updateScene()
+updateScene(
+        Window& window,
+        Camera& camera,
+        Terrain& terrain,
+        Config& config,
+        ShaderProgram& program)
 {
     util::untilNullopt<Event>(
-            [] { return G_WINDOW->nextEvent(); },
-            dispatchEvent);
+            [&window] { return window.nextEvent(); },
+            dispatchEvent,
+            config,
+            terrain,
+            camera);
 
     float constexpr zoomVelocity = 1.f;
 
-    static float lastTimepoint   = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
-    const float currentTimepoint = glutGet(GLUT_ELAPSED_TIME) / 1000.f;
+    static float lastTimepoint   = glfwGetTime();
+    const float currentTimepoint = glfwGetTime();
 
     const float dt = currentTimepoint - lastTimepoint;
     lastTimepoint  = currentTimepoint;
 
-    G_CAMERA.setScale(1.0f / G_ZOOM);
-    G_CAMERA.move(dt * G_VELOCITY);
-    const float posX = G_CAMERA.position().x + G_MESH_OFFSET_X;
-    const float posZ = G_CAMERA.position().z + G_MESH_OFFSET_Z;
+    camera.setScale(1.0f / G_ZOOM);
+    camera.move(dt * G_VELOCITY);
+    const float posX = camera.position().x + G_MESH_OFFSET_X;
+    const float posZ = camera.position().z + G_MESH_OFFSET_Z;
 
-    const float elevation = G_TERRAIN->heightAt({posX, posZ});
+    const float elevation = terrain.heightAt({posX, posZ});
 
-    if(G_CONFIG.get<Settings::AutoZoom>()) {
+    if(config.get<Settings::AutoZoom>()) {
         G_ZOOM = 1.f / elevation;
     }
     else {
@@ -103,25 +97,25 @@ updateScene()
         G_ZOOM *= 1.f + dt * zoomVelocity * G_ZOOM_AMOUNT;
     }
 
-    G_TERRAIN->updateMesh(posX, posZ, G_ZOOM);
+    terrain.updateMesh(posX, posZ, G_ZOOM);
 
     static util::LowPassFilter filterHeight(elevation, 0.01f);
 
-    G_CAMERA.setCameraHeight(filterHeight(elevation, dt));
+    camera.setCameraHeight(filterHeight(elevation, dt));
 
-    G_SHADER_PROGRAM->setUniformMatrix4("cameraSpace", G_CAMERA.cameraSpace());
-    G_SHADER_PROGRAM->setUniformMatrix4("projection", G_CAMERA.projection());
-    G_SHADER_PROGRAM->setUniformVec2(
-            "offset",
-            G_MESH_OFFSET_X,
-            G_MESH_OFFSET_Z);
+    program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
+    program.setUniformMatrix4("projection", camera.projection());
+    program.setUniformVec2("offset", G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
 
-    glutPostRedisplay();
     G_ZOOM_AMOUNT = 0.f;
 }
 
 static void
-handleInputDown(unsigned char c)
+handleInputDown(
+        Config& config,
+        Terrain& terrain,
+        Camera& camera,
+        unsigned char c)
 {
     switch(c) {
     case 'w':
@@ -143,16 +137,13 @@ handleInputDown(unsigned char c)
         G_PERSISTENT_ZOOM_DIRECTION += -1.f;
         break;
     case 'o':
-        G_CONFIG.on<Settings::AutoZoom>(std::logical_not<bool>());
+        config.on<Settings::AutoZoom>(std::logical_not<bool>());
         break;
     case 'r':
-        G_TERRAIN->updateMesh(
-                G_CAMERA.position().x,
-                G_CAMERA.position().z,
-                G_ZOOM);
+        terrain.updateMesh(camera.position().x, camera.position().z, G_ZOOM);
         break;
     case 'h':
-        G_CONFIG.on<Settings::UseDeepShader>(std::logical_not<bool>());
+        config.on<Settings::UseDeepShader>(std::logical_not<bool>());
         break;
     case 'q':
         exit(0);
@@ -190,10 +181,10 @@ handleInputUp(unsigned char c)
 }
 
 static void
-handleMouseMove(int x, int y)
+handleMouseMove(Config& config, Camera& camera, int x, int y)
 {
-    int const halfWindowSizeX = G_CONFIG.get<Settings::WindowWidth>() / 2;
-    int const halfWindowSizeY = G_CONFIG.get<Settings::WindowHeight>() / 2;
+    int const halfWindowSizeX = config.get<Settings::WindowWidth>() / 2;
+    int const halfWindowSizeY = config.get<Settings::WindowHeight>() / 2;
 
     static int mouseX = halfWindowSizeX;
     static int mouseY = halfWindowSizeY;
@@ -222,13 +213,13 @@ handleMouseMove(int x, int y)
                                 {1.0f, 0.0f, 0.0f})
                         * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-    G_CAMERA.lookAt(lookAt);
+    camera.lookAt(lookAt);
 
-    if(x != halfWindowSizeX || y != halfWindowSizeY) {
-        glutWarpPointer(halfWindowSizeX, halfWindowSizeY);
-        mouseX = halfWindowSizeX;
-        mouseY = halfWindowSizeY;
-    }
+    // if(x != halfWindowSizeX || y != halfWindowSizeY) {
+    // glutWarpPointer(halfWindowSizeX, halfWindowSizeY);
+    // mouseX = halfWindowSizeX;
+    // mouseY = halfWindowSizeY;
+    //}
 }
 
 static void
@@ -250,42 +241,26 @@ handleMouseButtons(int button)
 }
 
 void
-dispatchEvent(Event const& event)
+dispatchEvent(
+        Event const& event,
+        Config& config,
+        Terrain& terrain,
+        Camera& camera)
 {
-    static auto const visitors = util::overload{
-            [](KeyDown const& key) { handleInputDown(key.code); },
-            [](KeyUp const& key) { handleInputUp(key.code); },
-            [](MouseMove const& movement) {
-                handleMouseMove(movement.x, movement.y);
+    auto const visitors = util::overload{
+            [&](KeyDown const& key) {
+                handleInputDown(config, terrain, camera, key.code);
             },
-            [](MouseButtonDown const& button) {
+            [&](KeyUp const& key) { handleInputUp(key.code); },
+            [&](MouseMove const& movement) {
+                handleMouseMove(config, camera, movement.x, movement.y);
+            },
+            [&](MouseButtonDown const& button) {
                 handleMouseButtons(button.button);
             },
-            [](MouseButtonUp const&) {
+            [&](MouseButtonUp const&) {
             }};
     std::visit(visitors, event);
-}
-
-static void
-initializeGlutCallbacks()
-{
-    glutDisplayFunc(renderScene);
-    glutIdleFunc(updateScene);
-}
-
-static void
-compileShaders()
-{
-    static Shader const vertexShader =
-            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
-    static Shader const fragmentShader =
-            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-
-    G_SHADER_PROGRAM = std::make_unique<ShaderProgram>();
-
-    vertexShader.attachTo(*G_SHADER_PROGRAM);
-    fragmentShader.attachTo(*G_SHADER_PROGRAM);
-    G_SHADER_PROGRAM->compile();
 }
 
 Config
@@ -300,7 +275,47 @@ initConfig()
     conf.set<Settings::UseDeepShader>(false);
     conf.set<Settings::AutoZoom>(false);
 
-    conf.onStateChange<Settings::UseDeepShader>([](bool deep) {
+    return conf;
+}
+
+int
+main(int argc, char** argv)
+{
+    Config config = initConfig();
+
+    Window window(config);
+
+    Camera camera(
+            config.get<Settings::WindowWidth>(),
+            config.get<Settings::WindowHeight>(),
+            config.get<Settings::ClippingPlaneNear>(),
+            config.get<Settings::ClippingPlaneFar>(),
+            config.get<Settings::FOV>());
+
+    auto const setMeshOffset = [&camera](double x, double z) mutable {
+        float dx = x - G_MESH_OFFSET_X;
+        float dz = z - G_MESH_OFFSET_Z;
+        camera.setPosition(
+                {camera.position().x - dx, 0.0, camera.position().z - dz});
+        G_MESH_OFFSET_X = x;
+        G_MESH_OFFSET_Z = z;
+    };
+
+    Texture texture("textures/texture.png");
+    Terrain terrain(setMeshOffset);
+
+    Shader const vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+    Shader const fragmentShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+    ShaderProgram program;
+
+    vertexShader.attachTo(program);
+    fragmentShader.attachTo(program);
+    program.compile();
+
+    config.onStateChange<Settings::UseDeepShader>([&program](bool deep) {
         static Shader const shallowShader =
                 Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
@@ -308,51 +323,21 @@ initConfig()
                 Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
 
         if(deep)
-            deepShader.attachTo(*G_SHADER_PROGRAM);
+            deepShader.attachTo(program);
         else
-            shallowShader.attachTo(*G_SHADER_PROGRAM);
+            shallowShader.attachTo(program);
 
-        G_SHADER_PROGRAM->compile();
+        program.compile();
     });
 
-    return conf;
-}
+    while(!glfwWindowShouldClose(window())) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwPollEvents();
 
-int
-main(int argc, char** argv)
-{
-    G_CONFIG = initConfig();
-
-    glutInit(&argc, argv);
-    G_WINDOW = std::make_unique<Window>(G_CONFIG);
-
-    initializeGlutCallbacks();
-
-    G_CAMERA =
-            Camera(G_CONFIG.get<Settings::WindowWidth>(),
-                   G_CONFIG.get<Settings::WindowHeight>(),
-                   G_CONFIG.get<Settings::ClippingPlaneNear>(),
-                   G_CONFIG.get<Settings::ClippingPlaneFar>(),
-                   G_CONFIG.get<Settings::FOV>());
-
-    auto const setMeshOffset = [](double x, double z) {
-        float dx = x - G_MESH_OFFSET_X;
-        float dz = z - G_MESH_OFFSET_Z;
-        G_CAMERA.setPosition(
-                {G_CAMERA.position().x - dx, 0.0, G_CAMERA.position().z - dz});
-        G_MESH_OFFSET_X = x;
-        G_MESH_OFFSET_Z = z;
-    };
-
-    G_TEXTURE = std::make_unique<Texture>("textures/texture.png");
-    G_TERRAIN = std::make_unique<Terrain>(setMeshOffset);
-
-    compileShaders();
-
-    glutWarpPointer(
-            G_CONFIG.get<Settings::WindowWidth>() / 2,
-            G_CONFIG.get<Settings::WindowHeight>() / 2);
-    glutMainLoop();
+        updateScene(window, camera, terrain, config, program);
+        renderScene(window, terrain, texture);
+        glfwSwapBuffers(window());
+    }
 
     return 0;
 }

@@ -18,10 +18,6 @@ endif()
 
 set(OpenGL_GL_PREFERENCE LEGACY)
 
-option(ONLY_LIBS ON)
-option(glew-cmake_BUILD_SHARED OFF)
-add_subdirectory(glew-cmake)
-
 add_subdirectory(glfw)
 
 add_subdirectory(glm)

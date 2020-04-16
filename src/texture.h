@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 class Texture {
 public:

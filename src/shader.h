@@ -6,7 +6,7 @@
 #include <iostream>
 #include <type_traits>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include "shaderProgram.h"
 
