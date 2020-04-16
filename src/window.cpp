@@ -91,7 +91,7 @@ Window::cursorPositionCB(GLFWwindow* window, double x, double y)
 {
     auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-    _this->registerEvent(MouseMove{.x = x, .y = y});
+    _this->registerEvent(MouseMove{x, y});
 }
 
 void
@@ -106,11 +106,11 @@ Window::keyboardCB(
 
     switch(action) {
     case GLFW_PRESS: {
-        _this->registerEvent(KeyDown{.key = key, .mods = mods});
+        _this->registerEvent(KeyDown{key, mods});
     } break;
 
     case GLFW_RELEASE: {
-        _this->registerEvent(KeyUp{.key = key, .mods = mods});
+        _this->registerEvent(KeyUp{key, mods});
     } break;
     }
 }
