@@ -19,8 +19,8 @@ inline bool constexpr Returns =
 template<typename Callable, typename ResultType, typename... Args>
 using RequireReturns = Require<Returns<Callable, ResultType, Args...>>;
 
-template<typename Callable, typename... Argument>
-using RequireCallableWith = std::invoke_result_t<Callable, Argument...>;
+template<typename Callable, typename... Arguments>
+using RequireCallableWith = std::invoke_result_t<Callable, Arguments...>;
 
 template<typename Callable, typename Argument>
 static bool constexpr EndomorphismOf = Returns<Callable, Argument, Argument>;

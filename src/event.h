@@ -4,24 +4,26 @@
 #include <variant>
 
 struct KeyDown {
-    unsigned char code;
+    int const key;
+    int const mods;
 };
 
 struct KeyUp {
-    unsigned char code;
+    int const key;
+    int const mods;
 };
 
 struct MouseMove {
-    int x;
-    int y;
+    double const x;
+    double const y;
 };
 
 struct MouseButtonDown {
-    int button;
+    int const button;
 };
 
 struct MouseButtonUp {
-    int button;
+    int const button;
 };
 
 using Event =

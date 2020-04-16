@@ -1,12 +1,9 @@
-[submodule "extern/FreeGLUT"]
-	path = extern/FreeGLUT
-	url = ../../dcnieho/FreeGLUT
-[submodule "extern/glew-cmake"]
-	path = extern/glew-cmake
-	url = ../../Perlmint/glew-cmake
 [submodule "extern/stb"]
 	path = extern/stb
 	url = ../../nothings/stb
 [submodule "extern/glm"]
 	path = extern/glm
 	url = ../../g-truc/glm
+[submodule "extern/glfw"]
+	path = extern/glfw
+	url = ../../glfw/glfw

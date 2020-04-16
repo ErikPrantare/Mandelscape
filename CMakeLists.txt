@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(MandelLandscape LANGUAGES CXX)
+project(MandelLandscape LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -15,17 +15,6 @@ configure_file(${CMAKE_BINARY_DIR}/compile_commands.json
     COPYONLY)
 
 add_subdirectory(extern)
-
-set(OpenGL_GL_PREFERENCE LEGACY)
-set(FREEGLUT_BUILD_DEMOS OFF)
-set(FREEGLUT_BUILD_SHARED_LIBS OFF)
-add_subdirectory(extern/FreeGLUT/freeglut/freeglut)
-
-set(ONLY_LIBS ON)
-set(glew-cmake_BUILD_SHARED OFF)
-add_subdirectory(extern/glew-cmake)
-
-add_subdirectory(extern/glm)
 
 find_package(Threads REQUIRED)
 

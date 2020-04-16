@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <stb_image.h>
 
 GLuint*

@@ -10,10 +10,11 @@
 #include "settings.h"
 #include "utils.h"
 
-using namespace Settings;
-
 class Config {
 private:
+    template<typename Setting>
+    using RequireSetting = Settings::RequireSetting<Setting>;
+
 public:
     template<typename Setting, typename = RequireSetting<Setting>>
     void
@@ -21,13 +22,8 @@ public:
     {
         using SettingType = typename Setting::Type;
 
-        if(util::contains(m_settings, Setting::uid))
-            m_settings[Setting::uid] =
-                    std::any(std::forward<SettingType>(newValue));
-        else
-            m_settings.emplace(
-                    Setting::uid,
-                    std::forward<SettingType>(newValue));
+        m_settings[Setting::uid] =
+                std::any(std::forward<SettingType>(newValue));
 
         for(auto const& callback : m_callbacks[Setting::uid]) {
             callback(m_settings[Setting::uid]);
