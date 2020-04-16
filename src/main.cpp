@@ -184,7 +184,7 @@ handleInputUp(KeyUp const& key)
 }
 
 static void
-handleMouseMove(Config& config, Camera& camera, int x, int y)
+handleMouseMove(Config const& config, Camera& camera, int const x, int const y)
 {
     int const halfWindowSizeX = config.get<Settings::WindowWidth>() / 2;
     int const halfWindowSizeY = config.get<Settings::WindowHeight>() / 2;
@@ -220,7 +220,7 @@ handleMouseMove(Config& config, Camera& camera, int x, int y)
 }
 
 static void
-handleMouseButtons(int button)
+handleMouseButtons(int const button)
 {
     int constexpr wheelUp   = 3;
     int constexpr wheelDown = 4;

@@ -19,10 +19,7 @@ target_link_libraries(MandelLandscape
     PRIVATE glfw)
 
 target_compile_options(MandelLandscape
-  #PRIVATE -O0
-  #PRIVATE -g
     PRIVATE -Wall
     PRIVATE -Werror
     PRIVATE -Wextra
-    PRIVATE -Wno-unused-parameter
-    PRIVATE -Wno-switch)
+    PRIVATE -Wno-unused-parameter)
