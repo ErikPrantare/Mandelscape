@@ -5,7 +5,7 @@
 #include <optional>
 #include <memory>
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "config.h"
@@ -25,14 +25,14 @@ public:
     Window&
     operator=(Window const&) = delete;
 
-    GLFWwindow*
-    operator()()
-    {
-        return m_window.get();
-    }
-
     std::optional<Event>
     nextEvent();
+
+    bool
+    update();
+
+    void
+    close();
 
 private:
     struct WindowDeleter {
@@ -49,6 +49,15 @@ private:
 
     void
     registerEvent(Event&& event);
+
+    void
+    setCallbacks();
+
+    static void
+    cursorPositionCB(GLFWwindow* window, double x, double y);
+
+    static void
+    keyboardCB(GLFWwindow* window, int key, int scancode, int action, int mods);
 };
 
 #endif

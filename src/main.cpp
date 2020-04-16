@@ -57,7 +57,8 @@ dispatchEvent(
         Event const& event,
         Config& config,
         Terrain& terrain,
-        Camera& camera);
+        Camera& camera,
+        Window& window);
 
 static void
 updateScene(
@@ -72,7 +73,8 @@ updateScene(
             dispatchEvent,
             config,
             terrain,
-            camera);
+            camera,
+            window);
 
     float constexpr zoomVelocity = 1.f;
 
@@ -115,66 +117,67 @@ handleInputDown(
         Config& config,
         Terrain& terrain,
         Camera& camera,
-        unsigned char c)
+        Window& window,
+        KeyDown const& key)
 {
-    switch(c) {
-    case 'w':
+    switch(key.key) {
+    case GLFW_KEY_W: {
         G_VELOCITY.z += G_MOVEMENT_SPEED;
-        break;
-    case 'a':
+    } break;
+    case GLFW_KEY_A: {
         G_VELOCITY.x += -G_MOVEMENT_SPEED;
-        break;
-    case 's':
+    } break;
+    case GLFW_KEY_S: {
         G_VELOCITY.z += -G_MOVEMENT_SPEED;
-        break;
-    case 'd':
+    } break;
+    case GLFW_KEY_D: {
         G_VELOCITY.x += G_MOVEMENT_SPEED;
-        break;
-    case 'j':
+    } break;
+    case GLFW_KEY_J: {
         G_PERSISTENT_ZOOM_DIRECTION += 1.f;
-        break;
-    case 'k':
+    } break;
+    case GLFW_KEY_K: {
         G_PERSISTENT_ZOOM_DIRECTION += -1.f;
-        break;
-    case 'o':
+    } break;
+    case GLFW_KEY_O: {
         config.on<Settings::AutoZoom>(std::logical_not<bool>());
-        break;
-    case 'r':
+    } break;
+    case GLFW_KEY_R: {
         terrain.updateMesh(camera.position().x, camera.position().z, G_ZOOM);
-        break;
-    case 'h':
+    } break;
+    case GLFW_KEY_H: {
         config.on<Settings::UseDeepShader>(std::logical_not<bool>());
-        break;
-    case 'q':
-        exit(0);
-        break;
+    } break;
+    case GLFW_KEY_Q: {
+        window.close();
+    } break;
     default:
         break;
     }
 }
 
 static void
-handleInputUp(unsigned char c)
+handleInputUp(KeyUp const& key)
 {
-    switch(c) {
-    case 'w':
+    switch(key.key) {
+    case GLFW_KEY_W: {
         G_VELOCITY.z += -G_MOVEMENT_SPEED;
-        break;
-    case 'a':
+    } break;
+    case GLFW_KEY_A: {
         G_VELOCITY.x += G_MOVEMENT_SPEED;
-        break;
-    case 's':
+    } break;
+    case GLFW_KEY_S: {
         G_VELOCITY.z += G_MOVEMENT_SPEED;
-        break;
-    case 'd':
+    } break;
+    case GLFW_KEY_D: {
         G_VELOCITY.x += -G_MOVEMENT_SPEED;
-        break;
-    case 'j':
+    } break;
+    case GLFW_KEY_J: {
         G_PERSISTENT_ZOOM_DIRECTION += -1.f;
-        break;
-    case 'k':
+    } break;
+    case GLFW_KEY_K: {
         G_PERSISTENT_ZOOM_DIRECTION += 1.f;
-        break;
+    } break;
     default:
         break;
     }
@@ -214,12 +217,6 @@ handleMouseMove(Config& config, Camera& camera, int x, int y)
                         * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
     camera.lookAt(lookAt);
-
-    // if(x != halfWindowSizeX || y != halfWindowSizeY) {
-    // glutWarpPointer(halfWindowSizeX, halfWindowSizeY);
-    // mouseX = halfWindowSizeX;
-    // mouseY = halfWindowSizeY;
-    //}
 }
 
 static void
@@ -245,13 +242,14 @@ dispatchEvent(
         Event const& event,
         Config& config,
         Terrain& terrain,
-        Camera& camera)
+        Camera& camera,
+        Window& window)
 {
     auto const visitors = util::overload{
             [&](KeyDown const& key) {
-                handleInputDown(config, terrain, camera, key.code);
+                handleInputDown(config, terrain, camera, window, key);
             },
-            [&](KeyUp const& key) { handleInputUp(key.code); },
+            [&](KeyUp const& key) { handleInputUp(key); },
             [&](MouseMove const& movement) {
                 handleMouseMove(config, camera, movement.x, movement.y);
             },
@@ -330,13 +328,9 @@ main(int argc, char** argv)
         program.compile();
     });
 
-    while(!glfwWindowShouldClose(window())) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glfwPollEvents();
-
+    while(window.update()) {
         updateScene(window, camera, terrain, config, program);
         renderScene(window, terrain, texture);
-        glfwSwapBuffers(window());
     }
 
     return 0;

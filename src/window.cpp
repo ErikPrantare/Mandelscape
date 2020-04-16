@@ -41,6 +41,20 @@ Window::Window(Config const& conf) : m_window(createWindow(conf))
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
+    setCallbacks();
+
+    glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window.get(), GLFW_STICKY_KEYS, GLFW_TRUE);
+}
+
+void
+Window::setCallbacks()
+{
+    glfwSetWindowUserPointer(m_window.get(), static_cast<void*>(this));
+
+    glfwSetCursorPosCallback(m_window.get(), &cursorPositionCB);
+    glfwSetKeyCallback(m_window.get(), &keyboardCB);
 }
 
 std::optional<Event>
@@ -49,8 +63,54 @@ Window::nextEvent()
     return util::pop(m_events);
 }
 
+bool
+Window::update()
+{
+    glfwSwapBuffers(m_window.get());
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwPollEvents();
+
+    return !glfwWindowShouldClose(m_window.get());
+}
+
+void
+Window::close()
+{
+    glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
+}
+
 void
 Window::registerEvent(Event&& event)
 {
     m_events.emplace(std::forward<Event>(event));
+}
+
+void
+Window::cursorPositionCB(GLFWwindow* window, double x, double y)
+{
+    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    _this->registerEvent(MouseMove{.x = x, .y = y});
+}
+
+void
+Window::keyboardCB(
+        GLFWwindow* window,
+        int key,
+        int scancode,
+        int action,
+        int mods)
+{
+    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    switch(action) {
+    case GLFW_PRESS: {
+        _this->registerEvent(KeyDown{.key = key, .mods = mods});
+    } break;
+
+    case GLFW_RELEASE: {
+        _this->registerEvent(KeyUp{.key = key, .mods = mods});
+    } break;
+    }
 }
