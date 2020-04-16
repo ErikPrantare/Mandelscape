@@ -16,6 +16,19 @@ if(GIT_SUBMODULE)
     endif()
 endif()
 
+set(OpenGL_GL_PREFERENCE LEGACY)
+set(FREEGLUT_BUILD_DEMOS OFF)
+set(FREEGLUT_BUILD_SHARED_LIBS OFF)
+add_subdirectory(FreeGLUT/freeglut/freeglut)
+
+option(ONLY_LIBS ON)
+option(glew-cmake_BUILD_SHARED OFF)
+add_subdirectory(glew-cmake)
+
+add_subdirectory(glm)
+
+add_subdirectory(glfw)
+
 add_library(stb INTERFACE)
 target_include_directories(stb
     INTERFACE stb)
