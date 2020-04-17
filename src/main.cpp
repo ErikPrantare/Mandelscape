@@ -283,12 +283,7 @@ main(int argc, char** argv)
 
     Window window(config);
 
-    Camera camera(
-            config.get<Settings::WindowWidth>(),
-            config.get<Settings::WindowHeight>(),
-            config.get<Settings::ClippingPlaneNear>(),
-            config.get<Settings::ClippingPlaneFar>(),
-            config.get<Settings::FOV>());
+    Camera camera(config);
 
     auto const setMeshOffset = [&camera](double x, double z) mutable {
         float dx = x - G_MESH_OFFSET_X;
