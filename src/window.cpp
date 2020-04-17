@@ -7,48 +7,54 @@
 #include "event.h"
 #include "utils.h"
 
-void
-registerKeyDown(unsigned char, int, int);
-void
-registerKeyUp(unsigned char, int, int);
-void
-registerMouseMove(int, int);
-void
-registerMouseButton(int, int, int, int);
-
-Window* windowInstance;
-
-Window::Window(Config const& conf)
+GLFWwindow*
+createWindow(Config const& conf)
 {
-    windowInstance = this;
+    glfwInit();
+    glfwWindowHint(GLFW_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(
+    return glfwCreateWindow(
             conf.get<Settings::WindowWidth>(),
-            conf.get<Settings::WindowHeight>());
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("MandelLandscape");
-    glutSetKeyRepeat(false);
-    glutSetCursor(GLUT_CURSOR_NONE);
+            conf.get<Settings::WindowHeight>(),
+            "MandelLandscape",
+            nullptr,
+            nullptr);
+}
 
-    GLenum res = glewInit();
-    if(res != GLEW_OK) {
-        std::cerr << "Error: " << glewGetErrorString(res) << std::endl;
+Window::Window(Config const& conf) : m_window(createWindow(conf))
+{
+    if(!m_window.get()) {
+        std::cerr << "Error: GLFWwindow was not created\n";
         throw;
     }
 
-    std::cout << "GL version: " << glGetString(GL_VERSION) << std::endl;
+    glfwMakeContextCurrent(m_window.get());
 
-    glClearColor(1, 1, 1, 0);
+    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Something went wrong!\n";
+        throw;
+    }
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    glClearDepth(10'000'000.0f);
 
-    glutKeyboardFunc(registerKeyDown);
-    glutKeyboardUpFunc(registerKeyUp);
-    glutPassiveMotionFunc(registerMouseMove);
-    glutMouseFunc(registerMouseButton);
+    setCallbacks();
+
+    glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window.get(), GLFW_STICKY_KEYS, GLFW_TRUE);
+}
+
+void
+Window::setCallbacks()
+{
+    glfwSetWindowUserPointer(m_window.get(), static_cast<void*>(this));
+
+    glfwSetCursorPosCallback(m_window.get(), &cursorPositionCB);
+    glfwSetKeyCallback(m_window.get(), &keyboardCB);
 }
 
 std::optional<Event>
@@ -57,40 +63,54 @@ Window::nextEvent()
     return util::pop(m_events);
 }
 
-void
-registerEvent(Event&& event)
+bool
+Window::update()
 {
-    windowInstance->m_events.push(std::forward<Event>(event));
+    glfwSwapBuffers(m_window.get());
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwPollEvents();
+
+    return !glfwWindowShouldClose(m_window.get());
 }
 
 void
-registerKeyDown(unsigned char code, int, int)
+Window::close()
 {
-    registerEvent(KeyDown{.code = code});
+    glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
 }
 
 void
-registerKeyUp(unsigned char code, int, int)
+Window::registerEvent(Event&& event)
 {
-    registerEvent(KeyUp{.code = code});
+    m_events.emplace(std::forward<Event>(event));
 }
 
 void
-registerMouseMove(int x, int y)
+Window::cursorPositionCB(GLFWwindow* window, double x, double y)
 {
-    registerEvent(MouseMove{.x = x, .y = y});
+    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    _this->registerEvent(MouseMove{x, y});
 }
 
 void
-registerMouseButton(int button, int state, int, int)
+Window::keyboardCB(
+        GLFWwindow* window,
+        int key,
+        int scancode,
+        int action,
+        int mods)
 {
-    switch(state) {
-    case GLUT_DOWN: {
-        registerEvent(MouseButtonDown{.button = button});
+    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    switch(action) {
+    case GLFW_PRESS: {
+        _this->registerEvent(KeyDown{key, mods});
     } break;
 
-    case GLUT_UP: {
-        registerEvent(MouseButtonUp{.button = button});
+    case GLFW_RELEASE: {
+        _this->registerEvent(KeyUp{key, mods});
     } break;
     }
 }

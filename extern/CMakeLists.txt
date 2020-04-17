@@ -16,6 +16,13 @@ if(GIT_SUBMODULE)
     endif()
 endif()
 
+set(OpenGL_GL_PREFERENCE LEGACY)
+
+set(GLFW_BUILD_DOCS OFF)
+add_subdirectory(glfw)
+
+add_subdirectory(glm)
+
 add_library(stb INTERFACE)
 target_include_directories(stb
     INTERFACE stb)

@@ -79,12 +79,16 @@ template<
         typename Yielder,
         typename = RequireReturns<Yielder, std::optional<T>>,
         typename Consumer,
-        typename = RequireCallableWith<Consumer, T>>
+        typename... ConsumerArgs,
+        typename = RequireCallableWith<Consumer, T, ConsumerArgs...>>
 void
-untilNullopt(Yielder&& yielder, Consumer&& consumer)
+untilNullopt(
+        Yielder&& yielder,
+        Consumer&& consumer,
+        ConsumerArgs&&... consumerArgs)
 {
     while(auto a = yielder()) {
-        consumer(*a);
+        consumer(*a, std::forward<ConsumerArgs>(consumerArgs)...);
     }
 }
 
