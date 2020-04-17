@@ -41,8 +41,102 @@ float constexpr G_MOVEMENT_SPEED  = 1.f;
 float G_MESH_OFFSET_X = 0;
 float G_MESH_OFFSET_Z = 0;
 
-static void
-renderScene(Window& window, Terrain& terrain, Texture& texture)
+void
+renderScene(Terrain& terrain, Texture& texture);
+
+void
+dispatchEvent(
+        Event const& event,
+        Config& config,
+        Terrain& terrain,
+        Camera& camera,
+        Window& window);
+
+void
+updateScene(
+        Window& window,
+        Camera& camera,
+        Terrain& terrain,
+        Config& config,
+        ShaderProgram& program);
+
+void
+handleInputDown(
+        Config& config,
+        Terrain& terrain,
+        Camera& camera,
+        Window& window,
+        KeyDown const& key);
+
+void
+handleInputUp(KeyUp const& key);
+
+void
+handleMouseMove(Config& config, Camera& camera, int x, int y);
+
+void
+handleMouseButtons(int button);
+
+Config
+initConfig();
+
+int
+main(int argc, char** argv)
+{
+    Config config = initConfig();
+
+    Window window(config);
+
+    Camera camera(config);
+
+    auto const setMeshOffset = [&camera](double x, double z) mutable {
+        float dx = x - G_MESH_OFFSET_X;
+        float dz = z - G_MESH_OFFSET_Z;
+        camera.setPosition(
+                {camera.position().x - dx, 0.0, camera.position().z - dz});
+        G_MESH_OFFSET_X = x;
+        G_MESH_OFFSET_Z = z;
+    };
+
+    Texture texture("textures/texture.png");
+    Terrain terrain(setMeshOffset);
+
+    Shader const vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+    Shader const fragmentShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+    ShaderProgram program;
+
+    vertexShader.attachTo(program);
+    fragmentShader.attachTo(program);
+    program.compile();
+
+    config.onStateChange<Settings::UseDeepShader>([&program](bool deep) {
+        static Shader const shallowShader =
+                Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+        static Shader const deepShader =
+                Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+
+        if(deep)
+            deepShader.attachTo(program);
+        else
+            shallowShader.attachTo(program);
+
+        program.compile();
+    });
+
+    while(window.update()) {
+        updateScene(window, camera, terrain, config, program);
+        renderScene(terrain, texture);
+    }
+
+    return 0;
+}
+
+void
+renderScene(Terrain& terrain, Texture& texture)
 {
     glEnableVertexAttribArray(0);
 
@@ -58,9 +152,25 @@ dispatchEvent(
         Config& config,
         Terrain& terrain,
         Camera& camera,
-        Window& window);
+        Window& window)
+{
+    auto const visitors = util::overload{
+            [&](KeyDown const& key) {
+                handleInputDown(config, terrain, camera, window, key);
+            },
+            [&](KeyUp const& key) { handleInputUp(key); },
+            [&](MouseMove const& movement) {
+                handleMouseMove(config, camera, movement.x, movement.y);
+            },
+            [&](MouseButtonDown const& button) {
+                handleMouseButtons(button.button);
+            },
+            [&](MouseButtonUp const&) {
+            }};
+    std::visit(visitors, event);
+}
 
-static void
+void
 updateScene(
         Window& window,
         Camera& camera,
@@ -112,7 +222,7 @@ updateScene(
     G_ZOOM_AMOUNT = 0.f;
 }
 
-static void
+void
 handleInputDown(
         Config& config,
         Terrain& terrain,
@@ -156,7 +266,7 @@ handleInputDown(
     }
 }
 
-static void
+void
 handleInputUp(KeyUp const& key)
 {
     switch(key.key) {
@@ -183,7 +293,7 @@ handleInputUp(KeyUp const& key)
     }
 }
 
-static void
+void
 handleMouseMove(Config& config, Camera& camera, int x, int y)
 {
     int const halfWindowSizeX = config.get<Settings::WindowWidth>() / 2;
@@ -219,7 +329,7 @@ handleMouseMove(Config& config, Camera& camera, int x, int y)
     camera.lookAt(lookAt);
 }
 
-static void
+void
 handleMouseButtons(int button)
 {
     int constexpr wheelUp   = 3;
@@ -237,30 +347,6 @@ handleMouseButtons(int button)
     }
 }
 
-void
-dispatchEvent(
-        Event const& event,
-        Config& config,
-        Terrain& terrain,
-        Camera& camera,
-        Window& window)
-{
-    auto const visitors = util::overload{
-            [&](KeyDown const& key) {
-                handleInputDown(config, terrain, camera, window, key);
-            },
-            [&](KeyUp const& key) { handleInputUp(key); },
-            [&](MouseMove const& movement) {
-                handleMouseMove(config, camera, movement.x, movement.y);
-            },
-            [&](MouseButtonDown const& button) {
-                handleMouseButtons(button.button);
-            },
-            [&](MouseButtonUp const&) {
-            }};
-    std::visit(visitors, event);
-}
-
 Config
 initConfig()
 {
@@ -274,59 +360,4 @@ initConfig()
     conf.set<Settings::AutoZoom>(false);
 
     return conf;
-}
-
-int
-main(int argc, char** argv)
-{
-    Config config = initConfig();
-
-    Window window(config);
-
-    Camera camera(config);
-
-    auto const setMeshOffset = [&camera](double x, double z) mutable {
-        float dx = x - G_MESH_OFFSET_X;
-        float dz = z - G_MESH_OFFSET_Z;
-        camera.setPosition(
-                {camera.position().x - dx, 0.0, camera.position().z - dz});
-        G_MESH_OFFSET_X = x;
-        G_MESH_OFFSET_Z = z;
-    };
-
-    Texture texture("textures/texture.png");
-    Terrain terrain(setMeshOffset);
-
-    Shader const vertexShader =
-            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
-    Shader const fragmentShader =
-            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-
-    ShaderProgram program;
-
-    vertexShader.attachTo(program);
-    fragmentShader.attachTo(program);
-    program.compile();
-
-    config.onStateChange<Settings::UseDeepShader>([&program](bool deep) {
-        static Shader const shallowShader =
-                Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-
-        static Shader const deepShader =
-                Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
-
-        if(deep)
-            deepShader.attachTo(program);
-        else
-            shallowShader.attachTo(program);
-
-        program.compile();
-    });
-
-    while(window.update()) {
-        updateScene(window, camera, terrain, config, program);
-        renderScene(window, terrain, texture);
-    }
-
-    return 0;
 }
