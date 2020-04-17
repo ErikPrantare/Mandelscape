@@ -20,7 +20,10 @@ public:
     std::vector<glm::vec3> const&
     updateMesh(double const, double const, double const);
 
-    static double
+    void
+    setIterations(int const);
+
+    double
     heightAt(std::complex<double> const&);
 
     void
@@ -31,7 +34,7 @@ private:
     State m_state = State::Loading;
 
     static constexpr int granularity     = 400;
-    static constexpr int iterations      = 100;
+    int m_iterations                     = 100;
     static constexpr int uploadChunkSize = 90'000;
 
     std::function<void(double, double)> m_setMeshOffset;
@@ -55,7 +58,7 @@ private:
     std::vector<GLuint>
     generateMeshIndices();
 
-    static void
+    void
     loadMesh(
             double const,
             double const,

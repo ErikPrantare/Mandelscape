@@ -63,18 +63,6 @@ Terrain::~Terrain()
 }
 
 void
-Terrain::startLoading()
-{
-    m_loadingProcess = std::async(
-            std::launch::async,
-            loadMesh,
-            m_x,
-            m_z,
-            m_scale,
-            m_loadingMeshPoints.get());
-}
-
-void
 Terrain::loadMesh(
         double const _x,
         double const _z,
@@ -119,13 +107,21 @@ Terrain::loadMesh(
             double const zQuant            = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - _x,
-                    Terrain::heightAt({xQuant, zQuant}),
+                    heightAt({xQuant, zQuant}),
                     zQuant - _z);
 
             zPos += normStepSize(z);
         }
         xPos += normStepSize(x);
     }
+}
+
+void
+Terrain::startLoading()
+{
+    m_loadingProcess = std::async(std::launch::async, [this]() {
+        loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
+    });
 }
 
 bool
@@ -192,6 +188,12 @@ Terrain::updateMesh(double const x, double const z, double const scale)
     return *m_currentMeshPoints;
 }
 
+void
+Terrain::setIterations(const int iters)
+{
+    m_iterations = iters;
+}
+
 std::vector<GLuint>
 Terrain::generateMeshIndices()
 {
@@ -230,7 +232,7 @@ Terrain::heightAt(std::complex<double> const& c)
         return 0.0;
     }
 
-    for(int i = 0; i < iterations; ++i) {
+    for(int i = 0; i < m_iterations; ++i) {
         dz = 2.0 * z * dz + 1.0;
         z  = z * z + c;
 
