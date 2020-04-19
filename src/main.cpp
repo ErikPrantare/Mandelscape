@@ -254,6 +254,9 @@ updateScene(
     const float dt = currentTimepoint - lastTimepoint;
     lastTimepoint  = currentTimepoint;
 
+    static float currentTime = 0.0;
+    currentTime += dt;
+
     camera->move(dt * velocity);
     const float posX = camera->position().x + terrainOffset.x;
     const float posZ = camera->position().z + terrainOffset.y;
@@ -279,6 +282,7 @@ updateScene(
 
     program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
     program->setUniformMatrix4("projection", camera->projection());
+    program->setUniformFloat("time", currentTime);
 
     *zoomAmount = 0.0;
 }
