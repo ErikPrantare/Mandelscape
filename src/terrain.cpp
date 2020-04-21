@@ -189,7 +189,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
 }
 
 void
-Terrain::setIterations(const int iters)
+Terrain::setIterations(int const iters)
 {
     m_iterations = iters;
 }

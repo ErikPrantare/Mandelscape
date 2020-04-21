@@ -33,9 +33,9 @@ private:
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
 
-    static constexpr int granularity     = 400;
-    int m_iterations                     = 100;
-    static constexpr int uploadChunkSize = 90'000;
+    static int constexpr granularity    = 400;
+    int m_iterations                    = 100;
+    static int constexpruploadChunkSize = 90'000;
 
     std::function<void(double, double)> m_setMeshOffset;
 
