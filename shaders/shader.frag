@@ -8,6 +8,7 @@ out vec4 fragColor;
 
 uniform sampler2D tex;
 uniform vec2 offset;
+uniform int iterations;
 
 vec2
 complexMultiplication(const in vec2 a, const in vec2 b)
@@ -45,7 +46,7 @@ main()
 
     vec2 z   = vec2(0.0, 0.0);
 
-    for(int i = 0; i < 100; ++i) {
+    for(int i = 0; i < iterations; ++i) {
         z = complexMultiplication(z, z) + c;
         if(dot(z, z) > 256.0f * 256.0f) {
             float colorVal = float(i) - log2(log2(dot(z, z)));

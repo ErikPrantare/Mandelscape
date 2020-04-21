@@ -108,6 +108,7 @@ updateScene(
     program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program.setUniformMatrix4("projection", camera.projection());
     program.setUniformVec2("offset", G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
+    program.setUniformInt("iterations", config.get<Settings::Iterations>());
 
     G_ZOOM_AMOUNT = 0.f;
 }
@@ -150,6 +151,12 @@ handleInputDown(
     } break;
     case GLFW_KEY_Q: {
         window.close();
+    } break;
+    case GLFW_KEY_I: {
+        config.on<Settings::Iterations>([](auto x) { return x + 20; });
+    } break;
+    case GLFW_KEY_U: {
+        config.on<Settings::Iterations>([](auto x) { return x - 20; });
     } break;
     default:
         break;
@@ -272,6 +279,7 @@ initConfig()
     conf.set<Settings::FOV>(pi / 2);
     conf.set<Settings::UseDeepShader>(false);
     conf.set<Settings::AutoZoom>(false);
+    conf.set<Settings::Iterations>(100);
 
     return conf;
 }
@@ -327,6 +335,9 @@ main(int argc, char** argv)
 
         program.compile();
     });
+
+    config.onStateChange<Settings::Iterations>(
+            [&terrain](int x) { terrain.setIterations(x); });
 
     while(window.update()) {
         updateScene(window, camera, terrain, config, program);

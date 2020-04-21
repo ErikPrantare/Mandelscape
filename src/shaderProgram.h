@@ -22,13 +22,16 @@ public:
     compile();
 
     void
-    setUniformMatrix4(std::string const& name, glm::mat4 const& value);
-
-    void
     setUniformFloat(std::string const& name, float const);
 
     void
+    setUniformInt(std::string const& name, int const);
+
+    void
     setUniformVec2(std::string const& name, float const, float const);
+
+    void
+    setUniformMatrix4(std::string const& name, glm::mat4 const& value);
 
 private:
     struct ShaderDeleter {

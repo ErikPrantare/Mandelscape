@@ -82,12 +82,22 @@ ShaderProgram::setUniformMatrix4(
 }
 
 void
-ShaderProgram::setUniformFloat(const std::string& name, const float x)
+ShaderProgram::setUniformFloat(const std::string& name, float const x)
 {
     glUniform1f(uniformLocation(name), x);
 }
+
 void
-ShaderProgram::setUniformVec2(const std::string& name, float x, float y)
+ShaderProgram::setUniformInt(const std::string& name, int const x)
+{
+    glUniform1i(uniformLocation(name), x);
+}
+
+void
+ShaderProgram::setUniformVec2(
+        const std::string& name,
+        float const x,
+        float const y)
 {
     glUniform2f(uniformLocation(name), x, y);
 }

@@ -8,6 +8,7 @@ out vec4 fragColor;
 
 uniform sampler2D tex;
 uniform vec2 offset;
+uniform int iterations;
 
 vec2
 complexMultiplication(const in vec2 a, const in vec2 b)
@@ -46,7 +47,7 @@ main()
     vec2 zlo = vec2(0.0, 0.0);
     vec2 zhi = vec2(0.0, 0.0);
 
-    for(int i = 0; i < 100; ++i) {
+    for(int i = 0; i < iterations; ++i) {
         vec2 add = 2.0 * complexMultiplication(zhi, zlo);
         zhi      = complexMultiplication(zhi, zhi) + pc.xy;
         zlo      = complexMultiplication(zlo, zlo) + add + pc.zw;
