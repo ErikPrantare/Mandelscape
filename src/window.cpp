@@ -45,7 +45,7 @@ Window::Window(Config const& conf) : m_window(createWindow(conf))
     setCallbacks();
 
     glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetInputMode(m_window.get(), GLFW_STICKY_KEYS, GLFW_TRUE);
+    glfwSetInputMode(m_window.get(), GLFW_STICKY_KEYS, GLFW_FALSE);
 }
 
 void
