@@ -28,3 +28,4 @@ compile_commands.json
 build.sh
 run.sh
 startup.sh
+configure.sh
