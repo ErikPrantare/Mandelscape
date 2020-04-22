@@ -60,7 +60,7 @@ struct overload : Callables... {
 // CPP20
 // https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
 template<typename... Callables>
-overload(Callables...)->overload<Callables...>;
+overload(Callables...) -> overload<Callables...>;
 
 template<typename T, typename Container>
 std::optional<T>
