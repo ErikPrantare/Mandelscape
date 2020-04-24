@@ -4,9 +4,13 @@
 
 #include <glm/glm.hpp>
 
+#include "config.h"
+
 class Camera {
 public:
     Camera();
+
+    Camera(Config const& config);
 
     Camera(double const& Xdimension,
            double const& Ydimension,
