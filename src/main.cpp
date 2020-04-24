@@ -49,7 +49,8 @@ updateScene(
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         float const persistentZoomDirection,
-        glm::vec3 const& velocity);
+        glm::vec3 const& velocity,
+        float* const zoomAmount);
 
 void
 handleInputDown(
@@ -164,7 +165,8 @@ main(int argc, char** argv)
                 &shaderProgram,
                 terrainOffset,
                 persistentZoomDirection,
-                velocity);
+                velocity,
+                &zoomAmount);
 
         renderScene(terrain, texture);
     }
@@ -232,7 +234,8 @@ updateScene(
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         float const persistentZoomDirection,
-        glm::vec3 const& velocity)
+        glm::vec3 const& velocity,
+        float* const zoomAmount)
 {
     float constexpr zoomVelocity = 1.f;
 
@@ -253,8 +256,8 @@ updateScene(
         zoom = 1.f / elevation;
     }
     else {
-        float zoomAmount = persistentZoomDirection;
-        zoom *= 1.f + dt * zoomVelocity * zoomAmount;
+        *zoomAmount += persistentZoomDirection;
+        zoom *= 1.f + dt * zoomVelocity * (*zoomAmount);
     }
 
     camera->setScale(1.0f / zoom);
@@ -269,6 +272,8 @@ updateScene(
     program->setUniformMatrix4("projection", camera->projection());
     program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
     program->setUniformInt("iterations", config.get<Settings::Iterations>());
+
+    *zoomAmount = 0.0;
 }
 
 void
