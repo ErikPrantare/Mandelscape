@@ -20,6 +20,7 @@
 #include "shaderProgram.h"
 #include "texture.h"
 #include "window.h"
+#include "eventDispatcher.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -49,7 +50,8 @@ updateScene(
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         float const persistentZoomDirection,
-        glm::vec3 const& velocity);
+        glm::vec3 const& velocity,
+        float* const zoomAmount);
 
 void
 handleInputDown(
@@ -135,6 +137,19 @@ main(int argc, char** argv)
         shaderProgram.compile();
     });
 
+    EventDispatcher eventDispatcher;
+
+    eventDispatcher.registerKeyDown([&](KeyDown const& key) {
+        handleInputDown(
+                &config,
+                camera,
+                &window,
+                key,
+                movementSpeed,
+                &persistentZoomDirection,
+                &velocity);
+    });
+
     while(window.update()) {
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
@@ -144,7 +159,9 @@ main(int argc, char** argv)
                  movementSpeed,
                  &zoomAmount,
                  &persistentZoomDirection,
-                 &velocity](Event const& event) {
+                 &velocity,
+                 &eventDispatcher](Event const& event) {
+                    eventDispatcher.dispatch(event);
                     dispatchEvent(
                             event,
                             &config,
@@ -164,7 +181,8 @@ main(int argc, char** argv)
                 &shaderProgram,
                 terrainOffset,
                 persistentZoomDirection,
-                velocity);
+                velocity,
+                &zoomAmount);
 
         renderScene(terrain, texture);
     }
@@ -196,14 +214,7 @@ dispatchEvent(
 {
     auto const visitors = util::overload{
             [&](KeyDown const& key) {
-                handleInputDown(
-                        config,
-                        *camera,
-                        window,
-                        key,
-                        movementSpeed,
-                        persistentZoomDirection,
-                        velocity);
+                // NOTE: handled in eventDispatcher in main.cpp
             },
             [&](KeyUp const& key) {
                 handleInputUp(
@@ -232,7 +243,8 @@ updateScene(
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         float const persistentZoomDirection,
-        glm::vec3 const& velocity)
+        glm::vec3 const& velocity,
+        float* const zoomAmount)
 {
     float constexpr zoomVelocity = 1.f;
 
@@ -253,8 +265,8 @@ updateScene(
         zoom = 1.f / elevation;
     }
     else {
-        float zoomAmount = persistentZoomDirection;
-        zoom *= 1.f + dt * zoomVelocity * zoomAmount;
+        *zoomAmount += persistentZoomDirection;
+        zoom *= 1.f + dt * zoomVelocity * (*zoomAmount);
     }
 
     camera->setScale(1.0f / zoom);
@@ -269,6 +281,8 @@ updateScene(
     program->setUniformMatrix4("projection", camera->projection());
     program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
     program->setUniformInt("iterations", config.get<Settings::Iterations>());
+
+    *zoomAmount = 0.0;
 }
 
 void
