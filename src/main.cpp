@@ -24,22 +24,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-float constexpr G_CLIPPING_PLANE_NEAR = 0.1f;
-float constexpr G_CLIPPING_PLANE_FAR  = 10'000'000.0f;
-
 long double constexpr pi = glm::pi<long double>();
-
-float constexpr G_FOV = pi / 2;
-
-glm::vec3 G_VELOCITY(0.0f, 0.0f, 0.0f);
-
-float G_ZOOM_AMOUNT               = 0;
-float G_PERSISTENT_ZOOM_DIRECTION = 0;
-float G_ZOOM                      = 1.0f;
-float constexpr G_MOVEMENT_SPEED  = 1.f;
-
-float G_MESH_OFFSET_X = 0;
-float G_MESH_OFFSET_Z = 0;
 
 void
 renderScene(Terrain& terrain, Texture& texture);
@@ -47,35 +32,51 @@ renderScene(Terrain& terrain, Texture& texture);
 void
 dispatchEvent(
         Event const& event,
-        Config& config,
-        Terrain& terrain,
-        Camera& camera,
-        Window& window);
+        Config* const config,
+        Camera* const camera,
+        Window* const window,
+        float const movementSpeed,
+        float* const zoomAmount,
+        float* const persistentZoomDirection,
+        glm::vec3* const velocity);
 
 void
 updateScene(
-        Window& window,
-        Camera& camera,
-        Terrain& terrain,
-        Config& config,
-        ShaderProgram& program);
+        Window const& window,
+        Camera* const camera,
+        Terrain* const terrain,
+        Config const& config,
+        ShaderProgram* const program,
+        glm::vec2 const& terrainOffset,
+        float const persistentZoomDirection,
+        glm::vec3 const& velocity);
 
 void
 handleInputDown(
-        Config& config,
-        Terrain& terrain,
-        Camera& camera,
-        Window& window,
-        KeyDown const& key);
+        Config* const config,
+        Camera const& camera,
+        Window* const window,
+        KeyDown const& key,
+        float const movementSpeed,
+        float* const persistentZoomDirection,
+        glm::vec3* const velocity);
 
 void
-handleInputUp(KeyUp const& key);
+handleInputUp(
+        KeyUp const& key,
+        float const movementSpeed,
+        float* const persistentZoomDirection,
+        glm::vec3* const velocity);
 
 void
-handleMouseMove(Config const& config, Camera& camera, int x, int y);
+handleMouseMove(
+        Config const& config,
+        Camera* const camera,
+        int const x,
+        int const y);
 
 void
-handleMouseButtons(int const button);
+handleMouseButtons(int button, float* const zoomAmount);
 
 Config
 initConfig();
@@ -83,36 +84,43 @@ initConfig();
 int
 main(int argc, char** argv)
 {
+    float persistentZoomDirection = 0;
+    float const movementSpeed     = 1.f;
+    float zoomAmount              = 0.f;
+    glm::vec3 velocity(0.0, 0.0, 0.0);
+
     Config config = initConfig();
 
     Window window(config);
 
     Camera camera(config);
+    glm::vec2 terrainOffset(0.0, 0.0);
+    ShaderProgram shaderProgram;
 
-    auto const setMeshOffset = [&camera](double x, double z) mutable {
-        float dx = x - G_MESH_OFFSET_X;
-        float dz = z - G_MESH_OFFSET_Z;
+    auto const setMeshOffset = [&camera,
+                                &terrainOffset,
+                                &shaderProgram](double x, double z) mutable {
+        double dx = x - terrainOffset.x;
+        double dz = z - terrainOffset.y;
         camera.setPosition(
                 {camera.position().x - dx, 0.0, camera.position().z - dz});
-        G_MESH_OFFSET_X = x;
-        G_MESH_OFFSET_Z = z;
+        shaderProgram.setUniformVec2("offset", x, z);
+        terrainOffset = {x, z};
     };
 
-    Texture texture("textures/texture.png");
     Terrain terrain(setMeshOffset);
+    Texture texture("textures/texture.png");
 
     Shader const vertexShader =
             Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
     Shader const fragmentShader =
             Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
-    ShaderProgram program;
+    vertexShader.attachTo(shaderProgram);
+    fragmentShader.attachTo(shaderProgram);
+    shaderProgram.compile();
 
-    vertexShader.attachTo(program);
-    fragmentShader.attachTo(program);
-    program.compile();
-
-    config.onStateChange<Settings::UseDeepShader>([&program](bool deep) {
+    config.onStateChange<Settings::UseDeepShader>([&shaderProgram](bool deep) {
         static Shader const shallowShader =
                 Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
@@ -120,15 +128,44 @@ main(int argc, char** argv)
                 Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
 
         if(deep)
-            deepShader.attachTo(program);
+            deepShader.attachTo(shaderProgram);
         else
-            shallowShader.attachTo(program);
+            shallowShader.attachTo(shaderProgram);
 
-        program.compile();
+        shaderProgram.compile();
     });
 
     while(window.update()) {
-        updateScene(window, camera, terrain, config, program);
+        util::untilNullopt<Event>(
+                [&window] { return window.nextEvent(); },
+                [&config,
+                 &camera,
+                 &window,
+                 movementSpeed,
+                 &zoomAmount,
+                 &persistentZoomDirection,
+                 &velocity](Event const& event) {
+                    dispatchEvent(
+                            event,
+                            &config,
+                            &camera,
+                            &window,
+                            movementSpeed,
+                            &zoomAmount,
+                            &persistentZoomDirection,
+                            &velocity);
+                });
+
+        updateScene(
+                window,
+                &camera,
+                &terrain,
+                config,
+                &shaderProgram,
+                terrainOffset,
+                persistentZoomDirection,
+                velocity);
+
         renderScene(terrain, texture);
     }
 
@@ -149,21 +186,37 @@ renderScene(Terrain& terrain, Texture& texture)
 void
 dispatchEvent(
         Event const& event,
-        Config& config,
-        Terrain& terrain,
-        Camera& camera,
-        Window& window)
+        Config* const config,
+        Camera* const camera,
+        Window* const window,
+        float const movementSpeed,
+        float* const zoomAmount,
+        float* const persistentZoomDirection,
+        glm::vec3* const velocity)
 {
     auto const visitors = util::overload{
             [&](KeyDown const& key) {
-                handleInputDown(config, terrain, camera, window, key);
+                handleInputDown(
+                        config,
+                        *camera,
+                        window,
+                        key,
+                        movementSpeed,
+                        persistentZoomDirection,
+                        velocity);
             },
-            [&](KeyUp const& key) { handleInputUp(key); },
+            [&](KeyUp const& key) {
+                handleInputUp(
+                        key,
+                        movementSpeed,
+                        persistentZoomDirection,
+                        velocity);
+            },
             [&](MouseMove const& movement) {
-                handleMouseMove(config, camera, movement.x, movement.y);
+                handleMouseMove(*config, camera, movement.x, movement.y);
             },
             [&](MouseButtonDown const& button) {
-                handleMouseButtons(button.button);
+                handleMouseButtons(button.button, zoomAmount);
             },
             [&](MouseButtonUp const&) {
             }};
@@ -172,20 +225,15 @@ dispatchEvent(
 
 void
 updateScene(
-        Window& window,
-        Camera& camera,
-        Terrain& terrain,
-        Config& config,
-        ShaderProgram& program)
+        Window const& window,
+        Camera* const camera,
+        Terrain* const terrain,
+        Config const& config,
+        ShaderProgram* const program,
+        glm::vec2 const& terrainOffset,
+        float const persistentZoomDirection,
+        glm::vec3 const& velocity)
 {
-    util::untilNullopt<Event>(
-            [&window] { return window.nextEvent(); },
-            dispatchEvent,
-            config,
-            terrain,
-            camera,
-            window);
-
     float constexpr zoomVelocity = 1.f;
 
     static float lastTimepoint   = glfwGetTime();
@@ -194,79 +242,78 @@ updateScene(
     const float dt = currentTimepoint - lastTimepoint;
     lastTimepoint  = currentTimepoint;
 
-    camera.setScale(1.0f / G_ZOOM);
-    camera.move(dt * G_VELOCITY);
-    const float posX = camera.position().x + G_MESH_OFFSET_X;
-    const float posZ = camera.position().z + G_MESH_OFFSET_Z;
+    camera->move(dt * velocity);
+    const float posX = camera->position().x + terrainOffset.x;
+    const float posZ = camera->position().z + terrainOffset.y;
 
-    const float elevation = terrain.heightAt({posX, posZ});
+    static float zoom     = 1.0f;
+    const float elevation = terrain->heightAt({posX, posZ});
 
     if(config.get<Settings::AutoZoom>()) {
-        G_ZOOM = 1.f / elevation;
+        zoom = 1.f / elevation;
     }
     else {
-        G_ZOOM_AMOUNT += G_PERSISTENT_ZOOM_DIRECTION;
-        G_ZOOM *= 1.f + dt * zoomVelocity * G_ZOOM_AMOUNT;
+        float zoomAmount = persistentZoomDirection;
+        zoom *= 1.f + dt * zoomVelocity * zoomAmount;
     }
 
-    terrain.updateMesh(posX, posZ, G_ZOOM);
+    camera->setScale(1.0f / zoom);
+
+    terrain->updateMesh(posX, posZ, zoom);
 
     static util::LowPassFilter filterHeight(elevation, 0.01f);
 
-    camera.setCameraHeight(filterHeight(elevation, dt));
+    camera->setCameraHeight(filterHeight(elevation, dt));
 
-    program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
-    program.setUniformMatrix4("projection", camera.projection());
-    program.setUniformVec2("offset", G_MESH_OFFSET_X, G_MESH_OFFSET_Z);
-    program.setUniformInt("iterations", config.get<Settings::Iterations>());
-
-    G_ZOOM_AMOUNT = 0.f;
+    program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
+    program->setUniformMatrix4("projection", camera->projection());
+    program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
+    program->setUniformInt("iterations", config.get<Settings::Iterations>());
 }
 
 void
 handleInputDown(
-        Config& config,
-        Terrain& terrain,
-        Camera& camera,
-        Window& window,
-        KeyDown const& key)
+        Config* const config,
+        Camera const& camera,
+        Window* const window,
+        KeyDown const& key,
+        float const movementSpeed,
+        float* persistentZoomDirection,
+        glm::vec3* const velocity)
 {
     switch(key.key) {
     case GLFW_KEY_W: {
-        G_VELOCITY.z += G_MOVEMENT_SPEED;
+        velocity->z += movementSpeed;
     } break;
     case GLFW_KEY_A: {
-        G_VELOCITY.x += -G_MOVEMENT_SPEED;
+        velocity->x += -movementSpeed;
     } break;
     case GLFW_KEY_S: {
-        G_VELOCITY.z += -G_MOVEMENT_SPEED;
+        velocity->z += -movementSpeed;
     } break;
     case GLFW_KEY_D: {
-        G_VELOCITY.x += G_MOVEMENT_SPEED;
+        velocity->x += movementSpeed;
     } break;
     case GLFW_KEY_J: {
-        G_PERSISTENT_ZOOM_DIRECTION += 1.f;
+        *persistentZoomDirection += 1.f;
     } break;
     case GLFW_KEY_K: {
-        G_PERSISTENT_ZOOM_DIRECTION += -1.f;
+        *persistentZoomDirection += -1.f;
     } break;
     case GLFW_KEY_O: {
-        config.on<Settings::AutoZoom>(std::logical_not<bool>());
-    } break;
-    case GLFW_KEY_R: {
-        terrain.updateMesh(camera.position().x, camera.position().z, G_ZOOM);
+        config->on<Settings::AutoZoom>(std::logical_not<bool>());
     } break;
     case GLFW_KEY_H: {
-        config.on<Settings::UseDeepShader>(std::logical_not<bool>());
+        config->on<Settings::UseDeepShader>(std::logical_not<bool>());
     } break;
     case GLFW_KEY_Q: {
-        window.close();
+        window->close();
     } break;
     case GLFW_KEY_I: {
-        config.on<Settings::Iterations>([](auto x) { return x + 20; });
+        config->on<Settings::Iterations>([](auto x) { return x + 20; });
     } break;
     case GLFW_KEY_U: {
-        config.on<Settings::Iterations>([](auto x) { return x - 20; });
+        config->on<Settings::Iterations>([](auto x) { return x - 20; });
     } break;
     default:
         break;
@@ -274,26 +321,30 @@ handleInputDown(
 }
 
 void
-handleInputUp(KeyUp const& key)
+handleInputUp(
+        KeyUp const& key,
+        float const movementSpeed,
+        float* const persistentZoomDirection,
+        glm::vec3* const velocity)
 {
     switch(key.key) {
     case GLFW_KEY_W: {
-        G_VELOCITY.z += -G_MOVEMENT_SPEED;
+        velocity->z += -movementSpeed;
     } break;
     case GLFW_KEY_A: {
-        G_VELOCITY.x += G_MOVEMENT_SPEED;
+        velocity->x += movementSpeed;
     } break;
     case GLFW_KEY_S: {
-        G_VELOCITY.z += G_MOVEMENT_SPEED;
+        velocity->z += movementSpeed;
     } break;
     case GLFW_KEY_D: {
-        G_VELOCITY.x += -G_MOVEMENT_SPEED;
+        velocity->x += -movementSpeed;
     } break;
     case GLFW_KEY_J: {
-        G_PERSISTENT_ZOOM_DIRECTION += -1.f;
+        *persistentZoomDirection += -1.f;
     } break;
     case GLFW_KEY_K: {
-        G_PERSISTENT_ZOOM_DIRECTION += 1.f;
+        *persistentZoomDirection += 1.f;
     } break;
     default:
         break;
@@ -301,7 +352,11 @@ handleInputUp(KeyUp const& key)
 }
 
 void
-handleMouseMove(Config const& config, Camera& camera, int const x, int const y)
+handleMouseMove(
+        Config const& config,
+        Camera* const camera,
+        int const x,
+        int const y)
 {
     int const halfWindowSizeX = config.get<Settings::WindowWidth>() / 2;
     int const halfWindowSizeY = config.get<Settings::WindowHeight>() / 2;
@@ -333,21 +388,21 @@ handleMouseMove(Config const& config, Camera& camera, int const x, int const y)
                                 {1.0f, 0.0f, 0.0f})
                         * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-    camera.lookAt(lookAt);
+    camera->lookAt(lookAt);
 }
 
 void
-handleMouseButtons(int const button)
+handleMouseButtons(int button, float* const zoomAmount)
 {
     int constexpr wheelUp   = 3;
     int constexpr wheelDown = 4;
 
     switch(button) {
     case wheelUp:
-        G_ZOOM_AMOUNT += 1.f;
+        *zoomAmount += 1.f;
         break;
     case wheelDown:
-        G_ZOOM_AMOUNT += -1.f;
+        *zoomAmount += -1.f;
         break;
     default:
         break;
