@@ -20,6 +20,7 @@
 #include "shaderProgram.h"
 #include "texture.h"
 #include "window.h"
+#include "eventDispatcher.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -136,6 +137,19 @@ main(int argc, char** argv)
         shaderProgram.compile();
     });
 
+    EventDispatcher eventDispatcher;
+
+    eventDispatcher.registerKeyDown([&](KeyDown const& key) {
+        handleInputDown(
+                &config,
+                camera,
+                &window,
+                key,
+                movementSpeed,
+                &persistentZoomDirection,
+                &velocity);
+    });
+
     while(window.update()) {
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
@@ -145,7 +159,9 @@ main(int argc, char** argv)
                  movementSpeed,
                  &zoomAmount,
                  &persistentZoomDirection,
-                 &velocity](Event const& event) {
+                 &velocity,
+                 &eventDispatcher](Event const& event) {
+                    eventDispatcher.dispatch(event);
                     dispatchEvent(
                             event,
                             &config,
@@ -198,14 +214,7 @@ dispatchEvent(
 {
     auto const visitors = util::overload{
             [&](KeyDown const& key) {
-                handleInputDown(
-                        config,
-                        *camera,
-                        window,
-                        key,
-                        movementSpeed,
-                        persistentZoomDirection,
-                        velocity);
+                // NOTE: handled in eventDispatcher in main.cpp
             },
             [&](KeyUp const& key) {
                 handleInputUp(
