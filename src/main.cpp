@@ -31,17 +31,6 @@ void
 renderScene(Terrain& terrain, Texture& texture);
 
 void
-dispatchEvent(
-        Event const& event,
-        Config* const config,
-        Camera* const camera,
-        Window* const window,
-        float const movementSpeed,
-        float* const zoomAmount,
-        float* const persistentZoomDirection,
-        glm::vec3* const velocity);
-
-void
 updateScene(
         Window const& window,
         Camera* const camera,
@@ -150,27 +139,23 @@ main(int argc, char** argv)
                 &velocity);
     });
 
+    eventDispatcher.registerKeyUp([&](KeyUp const& key) {
+        handleInputUp(key, movementSpeed, &persistentZoomDirection, &velocity);
+    });
+
+    eventDispatcher.registerMouseMove([&](MouseMove const& movement) {
+        handleMouseMove(config, &camera, movement.x, movement.y);
+    });
+
+    eventDispatcher.registerMouseButtonDown([&](MouseButtonDown const& button) {
+        handleMouseButtons(button.button, &zoomAmount);
+    });
+
     while(window.update()) {
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
-                [&config,
-                 &camera,
-                 &window,
-                 movementSpeed,
-                 &zoomAmount,
-                 &persistentZoomDirection,
-                 &velocity,
-                 &eventDispatcher](Event const& event) {
+                [&eventDispatcher](Event const& event) {
                     eventDispatcher.dispatch(event);
-                    dispatchEvent(
-                            event,
-                            &config,
-                            &camera,
-                            &window,
-                            movementSpeed,
-                            &zoomAmount,
-                            &persistentZoomDirection,
-                            &velocity);
                 });
 
         updateScene(
@@ -199,39 +184,6 @@ renderScene(Terrain& terrain, Texture& texture)
     terrain.render();
 
     glDisableVertexAttribArray(0);
-}
-
-void
-dispatchEvent(
-        Event const& event,
-        Config* const config,
-        Camera* const camera,
-        Window* const window,
-        float const movementSpeed,
-        float* const zoomAmount,
-        float* const persistentZoomDirection,
-        glm::vec3* const velocity)
-{
-    auto const visitors = util::overload{
-            [&](KeyDown const& key) {
-                // NOTE: handled in eventDispatcher in main.cpp
-            },
-            [&](KeyUp const& key) {
-                handleInputUp(
-                        key,
-                        movementSpeed,
-                        persistentZoomDirection,
-                        velocity);
-            },
-            [&](MouseMove const& movement) {
-                handleMouseMove(*config, camera, movement.x, movement.y);
-            },
-            [&](MouseButtonDown const& button) {
-                handleMouseButtons(button.button, zoomAmount);
-            },
-            [&](MouseButtonUp const&) {
-            }};
-    std::visit(visitors, event);
 }
 
 void
