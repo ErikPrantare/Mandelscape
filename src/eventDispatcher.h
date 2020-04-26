@@ -3,26 +3,51 @@
 
 #include <functional>
 #include <vector>
+#include <utility>
+#include <iostream>
 
 #include "event.h"
+#include "utils.h"
+#include "mandelTypeTraits.h"
+
+template<typename T, typename Variant>
+class OnVariant {
+public:
+    OnVariant(std::function<void(T const&)> f) : m_onVariant(f)
+    {}
+
+    template<class U, class = Require<!ConstructedFrom<U, std::variant>::value>>
+    void
+    operator()(U const& v)
+    {}
+
+    void
+    operator()(T const& v)
+    {
+        m_onVariant(v);
+    }
+
+private:
+    std::function<void(T const&)> m_onVariant;
+};
 
 class EventDispatcher {
 public:
     // TODO: Return object that when destroyed will remove the callback
-    void registerKeyDown(std::function<void(KeyDown const&)>);
-    void registerKeyUp(std::function<void(KeyUp const&)>);
-    void registerMouseMove(std::function<void(MouseMove const&)>);
-    void registerMouseButtonDown(std::function<void(MouseButtonDown const&)>);
+    template<typename T>
+    decltype(std::holds_alternative<T>(std::declval<Event>()), void())
+    registerCallback(std::function<void(T const&)> callback)
+    {
+        m_callbacks.push_back([callback](Event const& event) {
+            std::visit(OnVariant<T, Event>(callback), event);
+        });
+    }
 
     void
     dispatch(Event const& event);
 
 private:
-    std::vector<std::function<void(KeyDown const&)>> m_keyDownCallbacks;
-    std::vector<std::function<void(KeyUp const&)>> m_keyUpCallbacks;
-    std::vector<std::function<void(MouseMove const&)>> m_mouseMoveCallbacks;
-    std::vector<std::function<void(MouseButtonDown const&)>>
-            m_mouseButtonDownCallbacks;
+    std::vector<std::function<void(Event const&)>> m_callbacks;
 };
 
 #endif

@@ -128,7 +128,7 @@ main(int argc, char** argv)
 
     EventDispatcher eventDispatcher;
 
-    eventDispatcher.registerKeyDown([&](KeyDown const& key) {
+    eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
         handleInputDown(
                 &config,
                 camera,
@@ -139,17 +139,18 @@ main(int argc, char** argv)
                 &velocity);
     });
 
-    eventDispatcher.registerKeyUp([&](KeyUp const& key) {
+    eventDispatcher.registerCallback<KeyUp>([&](KeyUp const& key) {
         handleInputUp(key, movementSpeed, &persistentZoomDirection, &velocity);
     });
 
-    eventDispatcher.registerMouseMove([&](MouseMove const& movement) {
+    eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
         handleMouseMove(config, &camera, movement.x, movement.y);
     });
 
-    eventDispatcher.registerMouseButtonDown([&](MouseButtonDown const& button) {
-        handleMouseButtons(button.button, &zoomAmount);
-    });
+    eventDispatcher.registerCallback<MouseButtonDown>(
+            [&](MouseButtonDown const& button) {
+                handleMouseButtons(button.button, &zoomAmount);
+            });
 
     while(window.update()) {
         util::untilNullopt<Event>(

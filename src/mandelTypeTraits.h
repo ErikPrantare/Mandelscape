@@ -28,4 +28,14 @@ static bool constexpr EndomorphismOf = Returns<Callable, Argument, Argument>;
 template<typename Callable, typename Argument>
 using RequireEndomorphismOf = Require<EndomorphismOf<Callable, Argument>>;
 
+template<class Type, template<class...> class Template>
+struct ConstructedFrom : std::false_type {
+    using type = Type;
+};
+
+template<template<class...> class Template, class... Args>
+struct ConstructedFrom<Template<Args...>, Template> : std::true_type {
+    using type = Template<Args...>;
+};
+
 #endif    // MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_H
