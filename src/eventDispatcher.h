@@ -10,27 +10,6 @@
 #include "utils.h"
 #include "mandelTypeTraits.h"
 
-template<typename T, typename Variant>
-class OnVariant {
-public:
-    OnVariant(std::function<void(T const&)> f) : m_onVariant(f)
-    {}
-
-    template<class U, class = Require<!ConstructedFrom<U, std::variant>::value>>
-    void
-    operator()(U const& v)
-    {}
-
-    void
-    operator()(T const& v)
-    {
-        m_onVariant(v);
-    }
-
-private:
-    std::function<void(T const&)> m_onVariant;
-};
-
 class EventDispatcher {
 public:
     // TODO: Return object that when destroyed will remove the callback
@@ -39,7 +18,15 @@ public:
     registerCallback(std::function<void(T const&)> callback)
     {
         m_callbacks.push_back([callback](Event const& event) {
-            std::visit(OnVariant<T, Event>(callback), event);
+            std::visit(
+                    util::overload{
+                            [](auto v) -> Require<!ConstructedFrom<
+                                               decltype(v),
+                                               std::variant>::value> {},
+                            [callback](T v) {
+                                callback(v);
+                            }},
+                    event);
         });
     }
 
