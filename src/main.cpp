@@ -21,6 +21,7 @@
 #include "texture.h"
 #include "window.h"
 #include "eventDispatcher.h"
+#include "player.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -40,7 +41,8 @@ updateScene(
         glm::vec2 const& terrainOffset,
         float const persistentZoomDirection,
         glm::vec3 const& velocity,
-        float* const zoomAmount);
+        float* const zoomAmount,
+        Player* const player);
 
 void
 handleInputDown(
@@ -48,16 +50,10 @@ handleInputDown(
         Camera const& camera,
         Window* const window,
         KeyDown const& key,
-        float const movementSpeed,
-        float* const persistentZoomDirection,
-        glm::vec3* const velocity);
+        float* const persistentZoomDirection);
 
 void
-handleInputUp(
-        KeyUp const& key,
-        float const movementSpeed,
-        float* const persistentZoomDirection,
-        glm::vec3* const velocity);
+handleInputUp(KeyUp const& key, float* const persistentZoomDirection);
 
 void
 handleMouseMove(
@@ -76,7 +72,6 @@ int
 main(int argc, char** argv)
 {
     float persistentZoomDirection = 0;
-    float const movementSpeed     = 1.f;
     float zoomAmount              = 0.f;
     glm::vec3 velocity(0.0, 0.0, 0.0);
 
@@ -88,13 +83,17 @@ main(int argc, char** argv)
     glm::vec2 terrainOffset(0.0, 0.0);
     ShaderProgram shaderProgram;
 
+    Player player;
     auto const setMeshOffset = [&camera,
+                                &player,
                                 &terrainOffset,
                                 &shaderProgram](double x, double z) mutable {
-        double dx = x - terrainOffset.x;
-        double dz = z - terrainOffset.y;
-        camera.setPosition(
-                {camera.position().x - dx, 0.0, camera.position().z - dz});
+        double dx         = x - terrainOffset.x;
+        double dz         = z - terrainOffset.y;
+        player.m_position = {
+                player.m_position.x - dx,
+                0.0,
+                player.m_position.z - dz};
         shaderProgram.setUniformVec2("offset", x, z);
         terrainOffset = {x, z};
     };
@@ -134,13 +133,11 @@ main(int argc, char** argv)
                 camera,
                 &window,
                 key,
-                movementSpeed,
-                &persistentZoomDirection,
-                &velocity);
+                &persistentZoomDirection);
     });
 
     eventDispatcher.registerCallback<KeyUp>([&](KeyUp const& key) {
-        handleInputUp(key, movementSpeed, &persistentZoomDirection, &velocity);
+        handleInputUp(key, &persistentZoomDirection);
     });
 
     eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
@@ -155,8 +152,9 @@ main(int argc, char** argv)
     while(window.update()) {
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
-                [&eventDispatcher](Event const& event) {
+                [&eventDispatcher, &player](Event const& event) {
                     eventDispatcher.dispatch(event);
+                    player.handleEvent(event);
                 });
 
         updateScene(
@@ -168,7 +166,8 @@ main(int argc, char** argv)
                 terrainOffset,
                 persistentZoomDirection,
                 velocity,
-                &zoomAmount);
+                &zoomAmount,
+                &player);
 
         renderScene(terrain, texture);
     }
@@ -197,7 +196,8 @@ updateScene(
         glm::vec2 const& terrainOffset,
         float const persistentZoomDirection,
         glm::vec3 const& velocity,
-        float* const zoomAmount)
+        float* const zoomAmount,
+        Player* const player)
 {
     float constexpr zoomVelocity = 1.f;
 
@@ -207,9 +207,11 @@ updateScene(
     const float dt = currentTimepoint - lastTimepoint;
     lastTimepoint  = currentTimepoint;
 
-    camera->move(dt * velocity);
-    const float posX = camera->position().x + terrainOffset.x;
-    const float posZ = camera->position().z + terrainOffset.y;
+    player->update(dt);
+    float posX = player->m_position.x + terrainOffset.x;
+    float posZ = player->m_position.z + terrainOffset.y;
+
+    static glm::vec3 pos(0, 0, 0);
 
     static float zoom     = 1.0f;
     const float elevation = terrain->heightAt({posX, posZ});
@@ -222,12 +224,15 @@ updateScene(
         zoom *= 1.f + dt * zoomVelocity * (*zoomAmount);
     }
 
-    camera->setScale(1.0f / zoom);
-
     terrain->updateMesh(posX, posZ, zoom);
+    player->m_scale = 1.0 / zoom;
 
     static util::LowPassFilter filterHeight(elevation, 0.01f);
 
+    // terrain->updateMesh before camera->setPosition, as updateMesh mutates
+    // player->m_position
+    camera->setScale(player->m_scale);
+    camera->setPosition(player->m_position);
     camera->setCameraHeight(filterHeight(elevation, dt));
 
     program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
@@ -244,23 +249,9 @@ handleInputDown(
         Camera const& camera,
         Window* const window,
         KeyDown const& key,
-        float const movementSpeed,
-        float* persistentZoomDirection,
-        glm::vec3* const velocity)
+        float* persistentZoomDirection)
 {
     switch(key.key) {
-    case GLFW_KEY_W: {
-        velocity->z += movementSpeed;
-    } break;
-    case GLFW_KEY_A: {
-        velocity->x += -movementSpeed;
-    } break;
-    case GLFW_KEY_S: {
-        velocity->z += -movementSpeed;
-    } break;
-    case GLFW_KEY_D: {
-        velocity->x += movementSpeed;
-    } break;
     case GLFW_KEY_J: {
         *persistentZoomDirection += 1.f;
     } break;
@@ -288,25 +279,9 @@ handleInputDown(
 }
 
 void
-handleInputUp(
-        KeyUp const& key,
-        float const movementSpeed,
-        float* const persistentZoomDirection,
-        glm::vec3* const velocity)
+handleInputUp(KeyUp const& key, float* const persistentZoomDirection)
 {
     switch(key.key) {
-    case GLFW_KEY_W: {
-        velocity->z += -movementSpeed;
-    } break;
-    case GLFW_KEY_A: {
-        velocity->x += movementSpeed;
-    } break;
-    case GLFW_KEY_S: {
-        velocity->z += movementSpeed;
-    } break;
-    case GLFW_KEY_D: {
-        velocity->x += -movementSpeed;
-    } break;
     case GLFW_KEY_J: {
         *persistentZoomDirection += -1.f;
     } break;
