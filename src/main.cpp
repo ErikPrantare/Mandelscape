@@ -211,6 +211,9 @@ updateScene(
     float posX = player->m_position.x + terrainOffset.x;
     float posZ = player->m_position.z + terrainOffset.y;
 
+    //TODO: return new offset instead of callback. Use [[nodiscard]]
+    terrain->updateMesh(posX, posZ, zoom);
+
     static glm::vec3 pos(0, 0, 0);
 
     static float zoom     = 1.0f;
@@ -224,13 +227,12 @@ updateScene(
         zoom *= 1.f + dt * zoomVelocity * (*zoomAmount);
     }
 
-    terrain->updateMesh(posX, posZ, zoom);
     player->m_scale = 1.0 / zoom;
 
     static util::LowPassFilter filterHeight(elevation, 0.01f);
 
     // terrain->updateMesh before camera->setPosition, as updateMesh mutates
-    // player->m_position
+    // player->m_position through callback
     camera->setScale(player->m_scale);
     camera->setPosition(player->m_position);
     camera->setCameraHeight(filterHeight(elevation, dt));
