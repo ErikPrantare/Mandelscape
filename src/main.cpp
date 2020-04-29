@@ -33,7 +33,6 @@ renderScene(Terrain& terrain, Texture& texture);
 
 void
 updateScene(
-        Window const& window,
         Camera* const camera,
         Terrain* const terrain,
         Config const& config,
@@ -142,7 +141,6 @@ main(int argc, char** argv)
                 });
 
         updateScene(
-                window,
                 &camera,
                 &terrain,
                 config,
@@ -171,7 +169,6 @@ renderScene(Terrain& terrain, Texture& texture)
 
 void
 updateScene(
-        Window const& window,
         Camera* const camera,
         Terrain* const terrain,
         Config const& config,
