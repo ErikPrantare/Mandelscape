@@ -29,7 +29,14 @@
 long double constexpr pi = glm::pi<long double>();
 
 void
-renderScene(Terrain& terrain, Texture& texture);
+renderScene(
+        Terrain& terrain,
+        Texture& texture,
+        const Player& player,
+        Camera* const camera,
+        ShaderProgram* const program,
+        glm::vec2 const& terrainOffset,
+        Config const& config);
 
 void
 updateScene(
@@ -150,16 +157,38 @@ main(int argc, char** argv)
                 velocity,
                 &player);
 
-        renderScene(terrain, texture);
+        renderScene(
+                terrain,
+                texture,
+                player,
+                &camera,
+                &shaderProgram,
+                terrainOffset,
+                config);
     }
 
     return 0;
 }
 
 void
-renderScene(Terrain& terrain, Texture& texture)
+renderScene(
+        Terrain& terrain,
+        Texture& texture,
+        const Player& player,
+        Camera* const camera,
+        ShaderProgram* const program,
+        glm::vec2 const& terrainOffset,
+        Config const& config)
 {
     glEnableVertexAttribArray(0);
+
+    camera->setScale(player.m_scale);
+    camera->setPosition(player.m_position);
+
+    program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
+    program->setUniformMatrix4("projection", camera->projection());
+    program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
+    program->setUniformInt("iterations", config.get<Settings::Iterations>());
 
     texture.makeActiveOn(GL_TEXTURE0);
     terrain.render();
@@ -208,17 +237,10 @@ updateScene(
     terrain->updateMesh(posX, posZ, zoom);
 
     static util::LowPassFilter filterHeight(elevation, 0.01f);
+    player->m_position.y = filterHeight(elevation + 1.0 / zoom, dt);
 
     // terrain->updateMesh before camera->setPosition, as updateMesh mutates
     // player->m_position through callback
-    camera->setScale(player->m_scale);
-    camera->setPosition(player->m_position);
-    camera->setCameraHeight(filterHeight(elevation, dt));
-
-    program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
-    program->setUniformMatrix4("projection", camera->projection());
-    program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
-    program->setUniformInt("iterations", config.get<Settings::Iterations>());
 }
 
 void
