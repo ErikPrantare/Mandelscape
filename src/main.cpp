@@ -39,9 +39,8 @@ updateScene(
         Config const& config,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        float const persistentZoomDirection,
+        float const zoomVelocity,
         glm::vec3 const& velocity,
-        float* const zoomAmount,
         Player* const player);
 
 void
@@ -50,10 +49,10 @@ handleInputDown(
         Camera const& camera,
         Window* const window,
         KeyDown const& key,
-        float* const persistentZoomDirection);
+        float* const zoomVelocity);
 
 void
-handleInputUp(KeyUp const& key, float* const persistentZoomDirection);
+handleInputUp(KeyUp const& key, float* const zoomVelocity);
 
 void
 handleMouseMove(
@@ -62,17 +61,13 @@ handleMouseMove(
         int const x,
         int const y);
 
-void
-handleMouseButtons(int button, float* const zoomAmount);
-
 Config
 initConfig();
 
 int
 main(int argc, char** argv)
 {
-    float persistentZoomDirection = 0;
-    float zoomAmount              = 0.f;
+    float zoomVelocity = 0;
     glm::vec3 velocity(0.0, 0.0, 0.0);
 
     Config config = initConfig();
@@ -128,17 +123,11 @@ main(int argc, char** argv)
     EventDispatcher eventDispatcher;
 
     eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
-        handleInputDown(
-                &config,
-                camera,
-                &window,
-                key,
-                &persistentZoomDirection);
+        handleInputDown(&config, camera, &window, key, &zoomVelocity);
     });
 
-    eventDispatcher.registerCallback<KeyUp>([&](KeyUp const& key) {
-        handleInputUp(key, &persistentZoomDirection);
-    });
+    eventDispatcher.registerCallback<KeyUp>(
+            [&](KeyUp const& key) { handleInputUp(key, &zoomVelocity); });
 
     eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
         handleMouseMove(config, &camera, movement.x, movement.y);
@@ -159,9 +148,8 @@ main(int argc, char** argv)
                 config,
                 &shaderProgram,
                 terrainOffset,
-                persistentZoomDirection,
+                zoomVelocity,
                 velocity,
-                &zoomAmount,
                 &player);
 
         renderScene(terrain, texture);
@@ -189,9 +177,8 @@ updateScene(
         Config const& config,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        float const persistentZoomDirection,
+        float const zoomVelocity,
         glm::vec3 const& velocity,
-        float* const zoomAmount,
         Player* const player)
 {
     static float lastTimepoint   = glfwGetTime();
@@ -213,8 +200,9 @@ updateScene(
         zoom = 1.f / elevation;
     }
     else {
-        *zoomAmount += persistentZoomDirection;
-        zoom *= 1.f + dt * (*zoomAmount);
+        // TODO: use exponential function, exp(dt)
+        // to avoid issues with large dt
+        zoom *= 1.f + dt * zoomVelocity;
     }
 
     player->m_scale = 1.0 / zoom;
@@ -234,8 +222,6 @@ updateScene(
     program->setUniformMatrix4("projection", camera->projection());
     program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
     program->setUniformInt("iterations", config.get<Settings::Iterations>());
-
-    *zoomAmount = 0.0;
 }
 
 void
@@ -244,14 +230,14 @@ handleInputDown(
         Camera const& camera,
         Window* const window,
         KeyDown const& key,
-        float* persistentZoomDirection)
+        float* zoomVelocity)
 {
     switch(key.key) {
     case GLFW_KEY_J: {
-        *persistentZoomDirection += 1.f;
+        *zoomVelocity += 1.f;
     } break;
     case GLFW_KEY_K: {
-        *persistentZoomDirection += -1.f;
+        *zoomVelocity += -1.f;
     } break;
     case GLFW_KEY_O: {
         config->on<Settings::AutoZoom>(std::logical_not<bool>());
@@ -274,14 +260,14 @@ handleInputDown(
 }
 
 void
-handleInputUp(KeyUp const& key, float* const persistentZoomDirection)
+handleInputUp(KeyUp const& key, float* const zoomVelocity)
 {
     switch(key.key) {
     case GLFW_KEY_J: {
-        *persistentZoomDirection += -1.f;
+        *zoomVelocity += -1.f;
     } break;
     case GLFW_KEY_K: {
-        *persistentZoomDirection += 1.f;
+        *zoomVelocity += 1.f;
     } break;
     default:
         break;
