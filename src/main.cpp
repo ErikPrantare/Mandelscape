@@ -144,11 +144,6 @@ main(int argc, char** argv)
         handleMouseMove(config, &camera, movement.x, movement.y);
     });
 
-    eventDispatcher.registerCallback<MouseButtonDown>(
-            [&](MouseButtonDown const& button) {
-                handleMouseButtons(button.button, &zoomAmount);
-            });
-
     while(window.update()) {
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
@@ -331,24 +326,6 @@ handleMouseMove(
                         * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
     camera->lookAt(lookAt);
-}
-
-void
-handleMouseButtons(int button, float* const zoomAmount)
-{
-    int constexpr wheelUp   = 3;
-    int constexpr wheelDown = 4;
-
-    switch(button) {
-    case wheelUp:
-        *zoomAmount += 1.f;
-        break;
-    case wheelDown:
-        *zoomAmount += -1.f;
-        break;
-    default:
-        break;
-    }
 }
 
 Config
