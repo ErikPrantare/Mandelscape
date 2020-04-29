@@ -55,6 +55,7 @@ Window::setCallbacks()
 
     glfwSetCursorPosCallback(m_window.get(), &cursorPositionCB);
     glfwSetKeyCallback(m_window.get(), &keyboardCB);
+    glfwSetMouseButtonCallback(m_window.get(), &mouseButtonCB);
 }
 
 std::optional<Event>
@@ -112,5 +113,20 @@ Window::keyboardCB(
     case GLFW_RELEASE: {
         _this->registerEvent(KeyUp{key, mods});
     } break;
+    }
+}
+
+void
+Window::mouseButtonCB(GLFWwindow* window, int button, int action, int mods)
+{
+    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    switch(action) {
+    case GLFW_PRESS: {
+        _this->registerEvent(MouseButtonDown{button});
+    } break;
+    case GLFW_RELEASE: {
+        _this->registerEvent(MouseButtonUp{button});
+    }
     }
 }

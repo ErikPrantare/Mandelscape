@@ -58,6 +58,9 @@ private:
 
     static void
     keyboardCB(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+    static void
+    mouseButtonCB(GLFWwindow* window, int button, int action, int mods);
 };
 
 #endif
