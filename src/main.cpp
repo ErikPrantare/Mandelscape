@@ -199,8 +199,6 @@ updateScene(
         float* const zoomAmount,
         Player* const player)
 {
-    float constexpr zoomVelocity = 1.f;
-
     static float lastTimepoint   = glfwGetTime();
     const float currentTimepoint = glfwGetTime();
 
@@ -210,9 +208,6 @@ updateScene(
     player->update(dt);
     float posX = player->m_position.x + terrainOffset.x;
     float posZ = player->m_position.z + terrainOffset.y;
-
-    //TODO: return new offset instead of callback. Use [[nodiscard]]
-    terrain->updateMesh(posX, posZ, zoom);
 
     static glm::vec3 pos(0, 0, 0);
 
@@ -224,10 +219,13 @@ updateScene(
     }
     else {
         *zoomAmount += persistentZoomDirection;
-        zoom *= 1.f + dt * zoomVelocity * (*zoomAmount);
+        zoom *= 1.f + dt * (*zoomAmount);
     }
 
     player->m_scale = 1.0 / zoom;
+
+    // TODO: return new offset instead of callback. Use [[nodiscard]]
+    terrain->updateMesh(posX, posZ, zoom);
 
     static util::LowPassFilter filterHeight(elevation, 0.01f);
 
