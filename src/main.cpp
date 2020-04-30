@@ -42,10 +42,7 @@ renderScene(
 void
 updateScene(
         Terrain* const terrain,
-        Config const& config,
-        ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        glm::vec3 const& velocity,
         Player* const player,
         float dt);
 
@@ -69,8 +66,6 @@ initConfig();
 int
 main(int argc, char** argv)
 {
-    glm::vec3 velocity(0.0, 0.0, 0.0);
-
     Config config = initConfig();
 
     Window window(config);
@@ -147,14 +142,7 @@ main(int argc, char** argv)
                     player.handleEvent(event);
                 });
 
-        updateScene(
-                &terrain,
-                config,
-                &shaderProgram,
-                terrainOffset,
-                velocity,
-                &player,
-                dt);
+        updateScene(&terrain, terrainOffset, &player, dt);
 
         renderScene(
                 terrain,
@@ -207,10 +195,7 @@ renderScene(
 void
 updateScene(
         Terrain* const terrain,
-        Config const& config,
-        ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        glm::vec3 const& velocity,
         Player* const player,
         float dt)
 {
