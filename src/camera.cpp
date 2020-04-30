@@ -103,9 +103,3 @@ Camera::setScale(float const scale)
 {
     m_worldScale = scale;
 }
-
-void
-Camera::setCameraHeight(float const meshHeight)
-{
-    m_pos.y = m_worldScale + meshHeight;
-}

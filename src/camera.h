@@ -41,9 +41,6 @@ public:
     void
     setScale(float const scale);
 
-    void
-    setCameraHeight(float const meshHeight);
-
 private:
     glm::mat4
     lookAtMatrix() const;

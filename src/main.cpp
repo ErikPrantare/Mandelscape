@@ -236,7 +236,7 @@ updateScene(
     // TODO: return new offset instead of callback. Use [[nodiscard]]
     terrain->updateMesh(posX, posZ, zoom);
 
-    static util::LowPassFilter filterHeight(elevation, 0.01f);
+    static util::LowPassFilter filterHeight(elevation + 1.0, 0.01f);
     player->m_position.y = filterHeight(elevation + 1.0 / zoom, dt);
 
     // terrain->updateMesh before camera->setPosition, as updateMesh mutates
