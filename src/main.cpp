@@ -53,8 +53,7 @@ handleInputDown(
         Config* const config,
         Camera const& camera,
         Window* const window,
-        KeyDown const& key,
-        float* const zoomVelocity);
+        KeyDown const& key);
 
 void
 handleMouseMove(
@@ -229,8 +228,7 @@ handleInputDown(
         Config* const config,
         Camera const& camera,
         Window* const window,
-        KeyDown const& key,
-        float* zoomVelocity)
+        KeyDown const& key)
 {
     switch(key.key) {
     case GLFW_KEY_O: {
