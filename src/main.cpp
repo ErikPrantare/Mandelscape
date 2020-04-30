@@ -238,9 +238,6 @@ updateScene(
 
     static util::LowPassFilter filterHeight(elevation + 1.0, 0.01f);
     player->m_position.y = filterHeight(elevation + 1.0 / zoom, dt);
-
-    // terrain->updateMesh before camera->setPosition, as updateMesh mutates
-    // player->m_position through callback
 }
 
 void
