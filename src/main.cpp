@@ -141,9 +141,9 @@ main(int argc, char** argv)
     while(window.update()) {
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
-                [&eventDispatcher, &player](Event const& event) {
+                [&eventDispatcher, &player, &config](Event const& event) {
                     eventDispatcher.dispatch(event);
-                    player.handleEvent(event);
+                    player.handleEvent(event, &config);
                 });
 
         updateScene(
@@ -214,25 +214,17 @@ updateScene(
     float posX = player->m_position.x + terrainOffset.x;
     float posZ = player->m_position.z + terrainOffset.y;
 
-    static float zoom     = 1.0f;
     const float elevation = terrain->heightAt({posX, posZ});
 
     if(config.get<Settings::AutoZoom>()) {
-        zoom = 1.f / elevation;
+        player->m_scale = elevation;
     }
-    else {
-        // TODO: use exponential function, exp(dt)
-        // to avoid issues with large dt
-        zoom *= 1.f + dt * zoomVelocity;
-    }
-
-    player->m_scale = 1.0 / zoom;
 
     // TODO: return new offset instead of callback. Use [[nodiscard]]
-    terrain->updateMesh(posX, posZ, zoom);
+    terrain->updateMesh(posX, posZ, 1.0 / player->m_scale);
 
-    static util::LowPassFilter filterHeight(elevation + 1.0, 0.01f);
-    player->m_position.y = filterHeight(elevation + 1.0 / zoom, dt);
+    static util::LowPassFilter filterHeight(elevation + player->m_scale, 0.01f);
+    player->m_position.y = filterHeight(elevation + player->m_scale, dt);
 }
 
 void
@@ -244,12 +236,6 @@ handleInputDown(
         float* zoomVelocity)
 {
     switch(key.key) {
-    case GLFW_KEY_J: {
-        *zoomVelocity += 1.f;
-    } break;
-    case GLFW_KEY_K: {
-        *zoomVelocity += -1.f;
-    } break;
     case GLFW_KEY_O: {
         config->on<Settings::AutoZoom>(std::logical_not<bool>());
     } break;
@@ -274,12 +260,6 @@ void
 handleInputUp(KeyUp const& key, float* const zoomVelocity)
 {
     switch(key.key) {
-    case GLFW_KEY_J: {
-        *zoomVelocity += -1.f;
-    } break;
-    case GLFW_KEY_K: {
-        *zoomVelocity += 1.f;
-    } break;
     default:
         break;
     }
