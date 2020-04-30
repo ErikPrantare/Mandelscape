@@ -57,9 +57,6 @@ handleInputDown(
         float* const zoomVelocity);
 
 void
-handleInputUp(KeyUp const& key, float* const zoomVelocity);
-
-void
 handleMouseMove(
         Config const& config,
         Camera* const camera,
@@ -133,9 +130,6 @@ main(int argc, char** argv)
     eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
         handleInputDown(&config, camera, &window, key, &zoomVelocity);
     });
-
-    eventDispatcher.registerCallback<KeyUp>(
-            [&](KeyUp const& key) { handleInputUp(key, &zoomVelocity); });
 
     eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
         handleMouseMove(config, &camera, movement.x, movement.y);
@@ -254,15 +248,6 @@ handleInputDown(
     case GLFW_KEY_U: {
         config->on<Settings::Iterations>([](auto x) { return x - 20; });
     } break;
-    default:
-        break;
-    }
-}
-
-void
-handleInputUp(KeyUp const& key, float* const zoomVelocity)
-{
-    switch(key.key) {
     default:
         break;
     }
