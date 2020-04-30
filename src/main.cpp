@@ -40,7 +40,6 @@ renderScene(
 
 void
 updateScene(
-        Camera* const camera,
         Terrain* const terrain,
         Config const& config,
         ShaderProgram* const program,
@@ -148,7 +147,6 @@ main(int argc, char** argv)
                 });
 
         updateScene(
-                &camera,
                 &terrain,
                 config,
                 &shaderProgram,
@@ -198,7 +196,6 @@ renderScene(
 
 void
 updateScene(
-        Camera* const camera,
         Terrain* const terrain,
         Config const& config,
         ShaderProgram* const program,
