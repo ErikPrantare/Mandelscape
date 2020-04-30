@@ -70,7 +70,7 @@ public:
     }
 
     void
-    refresh()
+    triggerCallbacks()
     {
         for(auto const& element : m_callbacks) {
             auto const& index     = element.first;

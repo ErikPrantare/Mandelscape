@@ -74,12 +74,8 @@ main(int argc, char** argv)
 
     Shader const vertexShader =
             Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
-    Shader const fragmentShader =
-            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
     vertexShader.attachTo(shaderProgram);
-    fragmentShader.attachTo(shaderProgram);
-    shaderProgram.compile();
 
     config.onStateChange<Settings::UseDeepShader>([&shaderProgram](bool deep) {
         static Shader const shallowShader =
@@ -96,7 +92,7 @@ main(int argc, char** argv)
         shaderProgram.compile();
     });
 
-    config.refresh();
+    config.triggerCallbacks();
 
     config.onStateChange<Settings::Iterations>(
             [&terrain](int iters) { terrain.setIterations(iters); });
