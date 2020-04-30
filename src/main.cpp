@@ -36,7 +36,8 @@ renderScene(
         Camera* const camera,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        Config const& config);
+        Config const& config,
+        float dt);
 
 void
 updateScene(
@@ -44,9 +45,9 @@ updateScene(
         Config const& config,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        float const zoomVelocity,
         glm::vec3 const& velocity,
-        Player* const player);
+        Player* const player,
+        float dt);
 
 void
 handleInputDown(
@@ -68,7 +69,6 @@ initConfig();
 int
 main(int argc, char** argv)
 {
-    float zoomVelocity = 0;
     glm::vec3 velocity(0.0, 0.0, 0.0);
 
     Config config = initConfig();
@@ -134,7 +134,12 @@ main(int argc, char** argv)
         handleMouseMove(config, &camera, movement.x, movement.y);
     });
 
+    float lastTimepoint = glfwGetTime();
     while(window.update()) {
+        const float currentTimepoint = glfwGetTime();
+        const float dt               = currentTimepoint - lastTimepoint;
+        lastTimepoint                = currentTimepoint;
+
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
                 [&eventDispatcher, &player](Event const& event) {
@@ -147,9 +152,9 @@ main(int argc, char** argv)
                 config,
                 &shaderProgram,
                 terrainOffset,
-                zoomVelocity,
                 velocity,
-                &player);
+                &player,
+                dt);
 
         renderScene(
                 terrain,
@@ -158,7 +163,8 @@ main(int argc, char** argv)
                 &camera,
                 &shaderProgram,
                 terrainOffset,
-                config);
+                config,
+                dt);
     }
 
     return 0;
@@ -172,14 +178,20 @@ renderScene(
         Camera* const camera,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        Config const& config)
+        Config const& config,
+        float dt)
 {
     glEnableVertexAttribArray(0);
 
     camera->setScale(player.m_scale);
-    camera->setPosition(
-            player.m_position
-            + float(player.m_scale) * glm::vec3{0.0, 1.0, 0.0});
+
+    glm::vec3 cameraPosition = player.m_position;
+    cameraPosition.y += player.m_scale;
+
+    static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
+    cameraPosition.y = filteredHeight(cameraPosition.y, dt);
+
+    camera->setPosition(cameraPosition);
 
     program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
     program->setUniformMatrix4("projection", camera->projection());
@@ -198,16 +210,10 @@ updateScene(
         Config const& config,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
-        float const zoomVelocity,
         glm::vec3 const& velocity,
-        Player* const player)
+        Player* const player,
+        float dt)
 {
-    static float lastTimepoint   = glfwGetTime();
-    const float currentTimepoint = glfwGetTime();
-
-    const float dt = currentTimepoint - lastTimepoint;
-    lastTimepoint  = currentTimepoint;
-
     player->update(dt);
     float posX = player->m_position.x + terrainOffset.x;
     float posZ = player->m_position.z + terrainOffset.y;
@@ -215,10 +221,7 @@ updateScene(
     // TODO: return new offset instead of callback. Use [[nodiscard]]
     terrain->updateMesh(posX, posZ, 1.0 / player->m_scale);
 
-    const float elevation = terrain->heightAt({posX, posZ});
-
-    static util::LowPassFilter filterHeight(elevation, 0.01f);
-    player->m_position.y = filterHeight(elevation, dt);
+    player->m_position.y = terrain->heightAt({posX, posZ});
 }
 
 void
