@@ -253,7 +253,6 @@ initConfig()
     conf.set<Settings::ClippingPlaneFar>(150.0f);
     conf.set<Settings::FOV>(pi / 2);
     conf.set<Settings::UseDeepShader>(false);
-    conf.set<Settings::AutoZoom>(false);
     conf.set<Settings::Iterations>(100);
 
     return conf;
