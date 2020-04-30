@@ -68,6 +68,20 @@ public:
         set<Setting>(callable(get<Setting>()));
     }
 
+    void
+    refresh()
+    {
+        for(auto const& element : m_callbacks) {
+            auto const& callbacks = element.second;
+            auto const& index     = element.first;
+            for(auto const& callback : callbacks) {
+                if(util::contains(m_settings, index)) {
+                    callback(m_settings.at(index));
+                }
+            }
+        }
+    }
+
 private:
     using FunctionSig = std::function<void(std::any const&)>;
 
