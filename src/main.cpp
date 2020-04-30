@@ -125,6 +125,9 @@ main(int argc, char** argv)
         shaderProgram.compile();
     });
 
+    config.onStateChange<Settings::Iterations>(
+            [&terrain](int iters) { terrain.setIterations(iters); });
+
     EventDispatcher eventDispatcher;
 
     eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
