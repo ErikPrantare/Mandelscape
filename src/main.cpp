@@ -96,6 +96,8 @@ main(int argc, char** argv)
         shaderProgram.compile();
     });
 
+    config.refresh();
+
     config.onStateChange<Settings::Iterations>(
             [&terrain](int iters) { terrain.setIterations(iters); });
 
@@ -108,6 +110,9 @@ main(int argc, char** argv)
         } break;
         case GLFW_KEY_U: {
             config.on<Settings::Iterations>([](auto x) { return x - 20; });
+        } break;
+        case GLFW_KEY_H: {
+            config.on<Settings::UseDeepShader>(std::logical_not<bool>());
         } break;
         default:
             break;

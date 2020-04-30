@@ -9,6 +9,7 @@
 #include "mandelTypeTraits.h"
 #include "settings.h"
 #include "utils.h"
+#include <iostream>
 
 class Config {
 private:
@@ -72,8 +73,8 @@ public:
     refresh()
     {
         for(auto const& element : m_callbacks) {
-            auto const& callbacks = element.second;
             auto const& index     = element.first;
+            auto const& callbacks = element.second;
             for(auto const& callback : callbacks) {
                 if(util::contains(m_settings, index)) {
                     callback(m_settings.at(index));
