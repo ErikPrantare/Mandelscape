@@ -214,8 +214,6 @@ updateScene(
     float posX = player->m_position.x + terrainOffset.x;
     float posZ = player->m_position.z + terrainOffset.y;
 
-    static glm::vec3 pos(0, 0, 0);
-
     static float zoom     = 1.0f;
     const float elevation = terrain->heightAt({posX, posZ});
 
