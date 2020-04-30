@@ -124,9 +124,10 @@ main(int argc, char** argv)
 
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
-                [&eventDispatcher, &player](Event const& event) {
+                [&eventDispatcher, &player, &window](Event const& event) {
                     eventDispatcher.dispatch(event);
                     player.handleEvent(event);
+                    window.handleEvent(event);
                 });
 
         updateScene(&terrain, &terrainOffset, &player, dt);
@@ -207,9 +208,6 @@ handleInputDown(
         KeyDown const& key)
 {
     switch(key.key) {
-    case GLFW_KEY_Q: {
-        window->close();
-    } break;
     case GLFW_KEY_I: {
         config->on<Settings::Iterations>([](auto x) { return x + 20; });
     } break;

@@ -76,6 +76,24 @@ Window::update()
 }
 
 void
+Window::handleEvent(const Event& event)
+{
+    std::visit(
+            util::overload{
+                    [this](KeyDown key) {
+                        if(key.key == GLFW_KEY_Q)
+                            close();
+                    },
+
+                    // default
+                    [](auto x) -> Require<!SpecialisationOf<
+                                       decltype(x),
+                                       std::variant>::value> {
+                    }},
+            event);
+}
+
+void
 Window::close()
 {
     glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);

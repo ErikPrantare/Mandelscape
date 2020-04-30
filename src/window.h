@@ -32,7 +32,7 @@ public:
     update();
 
     void
-    close();
+    handleEvent(Event const& event);
 
 private:
     struct WindowDeleter {
@@ -46,6 +46,9 @@ private:
     std::unique_ptr<GLFWwindow, WindowDeleter> m_window;
 
     std::queue<Event> m_events;
+
+    void
+    close();
 
     void
     registerEvent(Event&& event);
