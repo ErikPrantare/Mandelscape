@@ -20,11 +20,10 @@ public:
         m_callbacks.push_back([callback](Event const& event) {
             std::visit(
                     util::overload{
-                            [](auto v) -> Require<!SpecialisationOf<
-                                               decltype(v),
-                                               std::variant>::value> {},
-                            [callback](T v) {
-                                callback(v);
+                            [callback](T v) { callback(v); },
+
+                            // default
+                            [](auto v) {
                             }},
                     event);
         });

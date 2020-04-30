@@ -62,9 +62,7 @@ public:
                         },
 
                         // default
-                        [](auto x) -> Require<!SpecialisationOf<
-                                           decltype(x),
-                                           std::variant>::value> {
+                        [](auto x) {
                         }},
                 event);
     }
