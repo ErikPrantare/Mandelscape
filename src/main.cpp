@@ -47,13 +47,6 @@ updateScene(
         float dt);
 
 void
-handleInputDown(
-        Config* const config,
-        Camera const& camera,
-        Window* const window,
-        KeyDown const& key);
-
-void
 handleMouseMove(
         Config const& config,
         Camera* const camera,
@@ -109,7 +102,16 @@ main(int argc, char** argv)
     EventDispatcher eventDispatcher;
 
     eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
-        handleInputDown(&config, camera, &window, key);
+        switch(key.key) {
+        case GLFW_KEY_I: {
+            config.on<Settings::Iterations>([](auto x) { return x + 20; });
+        } break;
+        case GLFW_KEY_U: {
+            config.on<Settings::Iterations>([](auto x) { return x - 20; });
+        } break;
+        default:
+            break;
+        }
     });
 
     eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
@@ -198,25 +200,6 @@ updateScene(
     player->m_position.z -= dOffset.y;
 
     player->m_position.y = terrain->heightAt({posX, posZ});
-}
-
-void
-handleInputDown(
-        Config* const config,
-        Camera const& camera,
-        Window* const window,
-        KeyDown const& key)
-{
-    switch(key.key) {
-    case GLFW_KEY_I: {
-        config->on<Settings::Iterations>([](auto x) { return x + 20; });
-    } break;
-    case GLFW_KEY_U: {
-        config->on<Settings::Iterations>([](auto x) { return x - 20; });
-    } break;
-    default:
-        break;
-    }
 }
 
 void
