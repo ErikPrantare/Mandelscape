@@ -9,19 +9,15 @@
 #include "terrain.h"
 #include "utils.h"
 
-Terrain::Terrain() : Terrain([](double, double) {})
-{}
-
-Terrain::Terrain(std::function<void(double, double)> const& setMeshOffset) :
-            m_setMeshOffset{setMeshOffset},
-            m_x{0.0},
-            m_z{0.0},
+Terrain::Terrain() :
+            m_offset{0.0, 0.0},
+            m_loadingOffset{0.0, 0.0},
             m_scale{1.0},
             m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
             m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
 {
-    loadMesh(m_x, m_z, m_scale, m_currentMeshPoints.get());
-    loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
+    loadMesh(m_loadingOffset, m_scale, m_currentMeshPoints.get());
+    loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());
 
     glGenBuffers(1, &m_VBO);
     glGenBuffers(1, &m_IBO);
@@ -63,8 +59,7 @@ Terrain::~Terrain()
 
 void
 Terrain::loadMesh(
-        double const _x,
-        double const _z,
+        glm::vec2 offset,
         double const _scale,
         std::vector<glm::vec3>* const buffer)
 {
@@ -97,17 +92,17 @@ Terrain::loadMesh(
         return normFactor * stepSize(i);
     };
 
-    double xPos = -normMeshSpan / 2 + _x;
+    double xPos = -normMeshSpan / 2 + offset.x;
     for(int x = 0; x < granularity; ++x) {
         double const xQuant = quantized(xPos, normStepSize(x));
 
-        double zPos = -normMeshSpan / 2 + _z;
+        double zPos = -normMeshSpan / 2 + offset.y;
         for(int z = 0; z < granularity; ++z) {
             double const zQuant            = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
-                    xQuant - _x,
+                    xQuant - offset.x,
                     heightAt({xQuant, zQuant}),
-                    zQuant - _z);
+                    zQuant - offset.y);
 
             zPos += normStepSize(z);
         }
@@ -119,7 +114,7 @@ void
 Terrain::startLoading()
 {
     m_loadingProcess = std::async(std::launch::async, [this]() {
-        loadMesh(m_x, m_z, m_scale, m_loadingMeshPoints.get());
+        loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());
     });
 }
 
@@ -148,7 +143,7 @@ uploadMeshChunk(
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-std::vector<glm::vec3> const&
+glm::vec2
 Terrain::updateMesh(double const x, double const z, double const scale)
 {
     const bool uploadingDone = uploadMeshChunk(
@@ -159,7 +154,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
 
     m_loadIndex += uploadChunkSize;
 
-    if(uploadingDone)
+    if(uploadingDone) {
         switch(m_state) {
         case State::Loading: {
             if(util::isDone(m_loadingProcess)) {
@@ -171,20 +166,20 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         } break;
 
         case State::Uploading: {
-            m_setMeshOffset(m_x, m_z);
             std::swap(m_VBO, m_loadingVBO);
 
-            m_x     = x;
-            m_z     = z;
-            m_scale = scale;
+            m_offset        = m_loadingOffset;
+            m_loadingOffset = {x, z};
+            m_scale         = scale;
 
             startLoading();
 
             m_state = State::Loading;
         } break;
         }
+    }
 
-    return *m_currentMeshPoints;
+    return m_offset;
 }
 
 void

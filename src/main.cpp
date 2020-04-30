@@ -42,7 +42,7 @@ renderScene(
 void
 updateScene(
         Terrain* const terrain,
-        glm::vec2 const& terrainOffset,
+        glm::vec2* const terrainOffset,
         Player* const player,
         float dt);
 
@@ -75,21 +75,8 @@ main(int argc, char** argv)
     ShaderProgram shaderProgram;
 
     Player player;
-    auto const setMeshOffset = [&camera,
-                                &player,
-                                &terrainOffset,
-                                &shaderProgram](double x, double z) mutable {
-        double dx         = x - terrainOffset.x;
-        double dz         = z - terrainOffset.y;
-        player.m_position = {
-                player.m_position.x - dx,
-                0.0,
-                player.m_position.z - dz};
-        shaderProgram.setUniformVec2("offset", x, z);
-        terrainOffset = {x, z};
-    };
 
-    Terrain terrain(setMeshOffset);
+    Terrain terrain;
     Texture texture("textures/texture.png");
 
     Shader const vertexShader =
@@ -142,7 +129,7 @@ main(int argc, char** argv)
                     player.handleEvent(event);
                 });
 
-        updateScene(&terrain, terrainOffset, &player, dt);
+        updateScene(&terrain, &terrainOffset, &player, dt);
 
         renderScene(
                 terrain,
@@ -195,16 +182,19 @@ renderScene(
 void
 updateScene(
         Terrain* const terrain,
-        glm::vec2 const& terrainOffset,
+        glm::vec2* const terrainOffset,
         Player* const player,
         float dt)
 {
     player->update(dt);
-    float posX = player->m_position.x + terrainOffset.x;
-    float posZ = player->m_position.z + terrainOffset.y;
+    float posX = player->m_position.x + terrainOffset->x;
+    float posZ = player->m_position.z + terrainOffset->y;
 
-    // TODO: return new offset instead of callback. Use [[nodiscard]]
-    terrain->updateMesh(posX, posZ, 1.0 / player->m_scale);
+    auto prevOffset = *terrainOffset;
+    *terrainOffset  = terrain->updateMesh(posX, posZ, 1.0 / player->m_scale);
+    auto dOffset    = *terrainOffset - prevOffset;
+    player->m_position.x -= dOffset.x;
+    player->m_position.z -= dOffset.y;
 
     player->m_position.y = terrain->heightAt({posX, posZ});
 }
