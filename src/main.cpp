@@ -127,7 +127,7 @@ main(int argc, char** argv)
     EventDispatcher eventDispatcher;
 
     eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
-        handleInputDown(&config, camera, &window, key, &zoomVelocity);
+        handleInputDown(&config, camera, &window, key);
     });
 
     eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
@@ -137,9 +137,9 @@ main(int argc, char** argv)
     while(window.update()) {
         util::untilNullopt<Event>(
                 [&window] { return window.nextEvent(); },
-                [&eventDispatcher, &player, &config](Event const& event) {
+                [&eventDispatcher, &player](Event const& event) {
                     eventDispatcher.dispatch(event);
-                    player.handleEvent(event, &config);
+                    player.handleEvent(event);
                 });
 
         updateScene(
@@ -177,7 +177,9 @@ renderScene(
     glEnableVertexAttribArray(0);
 
     camera->setScale(player.m_scale);
-    camera->setPosition(player.m_position);
+    camera->setPosition(
+            player.m_position
+            + float(player.m_scale) * glm::vec3{0.0, 1.0, 0.0});
 
     program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
     program->setUniformMatrix4("projection", camera->projection());
@@ -210,17 +212,13 @@ updateScene(
     float posX = player->m_position.x + terrainOffset.x;
     float posZ = player->m_position.z + terrainOffset.y;
 
-    const float elevation = terrain->heightAt({posX, posZ});
-
-    if(config.get<Settings::AutoZoom>()) {
-        player->m_scale = elevation;
-    }
-
     // TODO: return new offset instead of callback. Use [[nodiscard]]
     terrain->updateMesh(posX, posZ, 1.0 / player->m_scale);
 
-    static util::LowPassFilter filterHeight(elevation + player->m_scale, 0.01f);
-    player->m_position.y = filterHeight(elevation + player->m_scale, dt);
+    const float elevation = terrain->heightAt({posX, posZ});
+
+    static util::LowPassFilter filterHeight(elevation, 0.01f);
+    player->m_position.y = filterHeight(elevation, dt);
 }
 
 void
@@ -231,12 +229,6 @@ handleInputDown(
         KeyDown const& key)
 {
     switch(key.key) {
-    case GLFW_KEY_O: {
-        config->on<Settings::AutoZoom>(std::logical_not<bool>());
-    } break;
-    case GLFW_KEY_H: {
-        config->on<Settings::UseDeepShader>(std::logical_not<bool>());
-    } break;
     case GLFW_KEY_Q: {
         window->close();
     } break;

@@ -8,11 +8,11 @@
 class Player {
 public:
     void
-    handleEvent(Event const& event, Config* const config)
+    handleEvent(Event const& event)
     {
         std::visit(
                 util::overload{
-                        [this, config](KeyDown key) {
+                        [this](KeyDown key) {
                             switch(key.key) {
                             case GLFW_KEY_W: {
                                 m_velocity.z += -m_movementSpeed;
@@ -32,10 +32,13 @@ public:
                             case GLFW_KEY_K: {
                                 m_scaleVelocity += 1.f;
                             } break;
+                            case GLFW_KEY_O: {
+                                m_autoZoom ^= true;
+                            } break;
                             }
                         },
 
-                        [this, config](KeyUp key) {
+                        [this](KeyUp key) {
                             switch(key.key) {
                             case GLFW_KEY_W: {
                                 m_velocity.z += m_movementSpeed;
@@ -70,13 +73,19 @@ public:
     update(double dt)
     {
         m_position += float(dt) * float(m_scale) * m_velocity;
-        m_scale *= std::exp(m_scaleVelocity * dt);
+        if(m_autoZoom) {
+            m_scale = m_position.y;
+        }
+        else {
+            m_scale *= std::exp(m_scaleVelocity * dt);
+        }
     }
 
     glm::vec3 m_velocity   = glm::vec3(0, 0, 0);
     glm::vec3 m_position   = glm::vec3(0, 0, 0);
     double m_scale         = 1.0;
     double m_scaleVelocity = 0.0;
+    bool m_autoZoom        = false;
 
     static constexpr float m_movementSpeed = 1.0;
 };
