@@ -4,12 +4,12 @@
 #include <variant>
 
 struct KeyDown {
-    int const key;
+    int const code;
     int const mods;
 };
 
 struct KeyUp {
-    int const key;
+    int const code;
     int const mods;
 };
 

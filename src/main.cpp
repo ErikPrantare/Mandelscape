@@ -102,7 +102,7 @@ main(int argc, char** argv)
     EventDispatcher eventDispatcher;
 
     eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
-        switch(key.key) {
+        switch(key.code) {
         case GLFW_KEY_I: {
             config.on<Settings::Iterations>([](auto x) { return x + 20; });
         } break;

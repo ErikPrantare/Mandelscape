@@ -13,7 +13,7 @@ public:
         std::visit(
                 util::overload{
                         [this](KeyDown key) {
-                            switch(key.key) {
+                            switch(key.code) {
                             case GLFW_KEY_W: {
                                 m_velocity.z += -m_movementSpeed;
                             } break;
@@ -39,7 +39,7 @@ public:
                         },
 
                         [this](KeyUp key) {
-                            switch(key.key) {
+                            switch(key.code) {
                             case GLFW_KEY_W: {
                                 m_velocity.z += m_movementSpeed;
                             } break;

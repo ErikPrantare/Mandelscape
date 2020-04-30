@@ -81,7 +81,7 @@ Window::handleEvent(const Event& event)
     std::visit(
             util::overload{
                     [this](KeyDown key) {
-                        if(key.key == GLFW_KEY_Q)
+                        if(key.code == GLFW_KEY_Q)
                             close();
                     },
 
