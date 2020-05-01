@@ -159,7 +159,7 @@ renderScene(
 
     camera.setPosition(cameraPosition);
 
-    // HACK: -x, look into why it is needed and if it can be resolved cleanly
+    // HACK: -x, look into why it is needed and if it can be resolved cleanly.
     camera.lookAt(
             glm::yawPitchRoll(
                     -player.m_lookAtOffset.x,

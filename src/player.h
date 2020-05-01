@@ -1,6 +1,8 @@
 #ifndef MANDELLANDSCAPE_PLAYER_H
 #define MANDELLANDSCAPE_PLAYER_H
 
+#include <glm/gtx/rotate_vector.hpp>
+
 #include "event.h"
 #include "utils.h"
 #include "mandelTypeTraits.h"
@@ -78,7 +80,11 @@ public:
     void
     update(double dt)
     {
-        m_position += float(dt) * float(m_scale) * m_velocity;
+        // HACK: m_position -= instead of +=.
+        // -m_lookAtOffset.x. Probably some spooky stuff with
+        // the coordinate system again. Look into.
+        m_position -= float(dt) * float(m_scale)
+                      * glm::rotateY(m_velocity, -m_lookAtOffset.x);
         if(m_autoZoom) {
             m_scale = m_position.y;
         }
