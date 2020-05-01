@@ -85,6 +85,8 @@ public:
     double m_scaleVelocity = 0.0;
     bool m_autoZoom        = false;
 
+    glm::vec2 m_lookAtOffset = {0.0, 0.0};
+
     static constexpr float m_movementSpeed = 1.0;
 };
 

@@ -11,6 +11,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #include "utils.h"
 #include "camera.h"
@@ -33,7 +34,6 @@ renderScene(
         Terrain& terrain,
         Texture& texture,
         const Player& player,
-        Camera* const camera,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         Config const& config,
@@ -49,7 +49,7 @@ updateScene(
 void
 handleMouseMove(
         Config const& config,
-        Camera* const camera,
+        Player* const player,
         int const x,
         int const y);
 
@@ -63,7 +63,6 @@ main(int argc, char** argv)
 
     Window window(config);
 
-    Camera camera(config);
     glm::vec2 terrainOffset(0.0, 0.0);
     ShaderProgram shaderProgram;
 
@@ -92,10 +91,10 @@ main(int argc, char** argv)
         shaderProgram.compile();
     });
 
-    config.triggerCallbacks();
-
     config.onStateChange<Settings::Iterations>(
             [&terrain](int iters) { terrain.setIterations(iters); });
+
+    config.triggerCallbacks();
 
     EventDispatcher eventDispatcher;
 
@@ -116,7 +115,7 @@ main(int argc, char** argv)
     });
 
     eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
-        handleMouseMove(config, &camera, movement.x, movement.y);
+        handleMouseMove(config, &player, movement.x, movement.y);
     });
 
     float lastTimepoint = glfwGetTime();
@@ -139,7 +138,6 @@ main(int argc, char** argv)
                 terrain,
                 texture,
                 player,
-                &camera,
                 &shaderProgram,
                 terrainOffset,
                 config,
@@ -154,7 +152,6 @@ renderScene(
         Terrain& terrain,
         Texture& texture,
         const Player& player,
-        Camera* const camera,
         ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         Config const& config,
@@ -162,7 +159,8 @@ renderScene(
 {
     glEnableVertexAttribArray(0);
 
-    camera->setScale(player.m_scale);
+    auto camera = Camera(config);
+    camera.setScale(player.m_scale);
 
     glm::vec3 cameraPosition = player.m_position;
     cameraPosition.y += player.m_scale;
@@ -170,10 +168,18 @@ renderScene(
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
     cameraPosition.y = filteredHeight(cameraPosition.y, dt);
 
-    camera->setPosition(cameraPosition);
+    camera.setPosition(cameraPosition);
 
-    program->setUniformMatrix4("cameraSpace", camera->cameraSpace());
-    program->setUniformMatrix4("projection", camera->projection());
+    // HACK: -x, look into why it is needed and if it can be resolved cleanly
+    camera.lookAt(
+            glm::yawPitchRoll(
+                    -player.m_lookAtOffset.x,
+                    player.m_lookAtOffset.y,
+                    0.f)
+            * glm::vec4(0.f, 0.f, 1.f, 0.f));
+
+    program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
+    program->setUniformMatrix4("projection", camera.projection());
     program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
     program->setUniformInt("iterations", config.get<Settings::Iterations>());
 
@@ -206,7 +212,7 @@ updateScene(
 void
 handleMouseMove(
         Config const& config,
-        Camera* const camera,
+        Player* const player,
         int const x,
         int const y)
 {
@@ -231,16 +237,7 @@ handleMouseMove(
             float(-pi / 2 + 0.001),
             float(pi / 2 - 0.001));
 
-    auto const lookAt = glm::rotate(
-                                glm::rotate(
-                                        glm::mat4(1.0f),
-                                        rotationX,
-                                        {0.0f, -1.0f, 0.0f}),
-                                rotationY,
-                                {1.0f, 0.0f, 0.0f})
-                        * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-
-    camera->lookAt(lookAt);
+    player->m_lookAtOffset = {rotationX, rotationY};
 }
 
 Config
