@@ -61,6 +61,14 @@ public:
                             }
                         },
 
+                        [this](MouseMove mouse) {
+                            m_lookAtOffset.x += mouse.dx / 100.f;
+                            m_lookAtOffset.y += mouse.dy / 100.f;
+                            m_lookAtOffset.y = std::clamp(
+                                    m_lookAtOffset.y,
+                                    float(-glm::pi<double>() / 2 + 0.001),
+                                    float(glm::pi<double>() / 2 - 0.001));
+                        },
                         // default
                         [](auto x) {
                         }},

@@ -108,7 +108,11 @@ Window::cursorPositionCB(GLFWwindow* window, double x, double y)
 {
     auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-    _this->registerEvent(MouseMove{x, y});
+    auto dx             = x - _this->m_lastMouseX;
+    auto dy             = y - _this->m_lastMouseY;
+    _this->m_lastMouseX = x;
+    _this->m_lastMouseY = y;
+    _this->registerEvent(MouseMove{x, y, dx, dy});
 }
 
 void

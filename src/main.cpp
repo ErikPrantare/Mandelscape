@@ -46,13 +46,6 @@ updateScene(
         Player* const player,
         float dt);
 
-void
-handleMouseMove(
-        Config const& config,
-        Player* const player,
-        int const x,
-        int const y);
-
 Config
 initConfig();
 
@@ -112,10 +105,6 @@ main(int argc, char** argv)
         default:
             break;
         }
-    });
-
-    eventDispatcher.registerCallback<MouseMove>([&](MouseMove const& movement) {
-        handleMouseMove(config, &player, movement.x, movement.y);
     });
 
     float lastTimepoint = glfwGetTime();
@@ -207,37 +196,6 @@ updateScene(
     player->m_position.z -= dOffset.y;
 
     player->m_position.y = terrain->heightAt({posX, posZ});
-}
-
-void
-handleMouseMove(
-        Config const& config,
-        Player* const player,
-        int const x,
-        int const y)
-{
-    int const halfWindowSizeX = config.get<Settings::WindowWidth>() / 2;
-    int const halfWindowSizeY = config.get<Settings::WindowHeight>() / 2;
-
-    static int mouseX = halfWindowSizeX;
-    static int mouseY = halfWindowSizeY;
-
-    int deltaX = x - mouseX;
-    int deltaY = y - mouseY;
-    mouseX     = x;
-    mouseY     = y;
-
-    static float rotationX = 16.75997f;
-    static float rotationY = 0.94000f;
-
-    rotationX += deltaX / 100.0f;
-    rotationY += deltaY / 100.f;
-    rotationY = std::clamp(
-            rotationY,
-            float(-pi / 2 + 0.001),
-            float(pi / 2 - 0.001));
-
-    player->m_lookAtOffset = {rotationX, rotationY};
 }
 
 Config

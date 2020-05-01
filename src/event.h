@@ -16,6 +16,8 @@ struct KeyUp {
 struct MouseMove {
     double const x;
     double const y;
+    double const dx;
+    double const dy;
 };
 
 struct MouseButtonDown {

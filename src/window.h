@@ -64,6 +64,9 @@ private:
 
     static void
     mouseButtonCB(GLFWwindow* window, int button, int action, int mods);
+
+    double m_lastMouseX = 0.0;
+    double m_lastMouseY = 0.0;
 };
 
 #endif
