@@ -72,9 +72,7 @@ public:
     void
     triggerCallbacks()
     {
-        for(auto const& element : m_callbacks) {
-            auto const& index     = element.first;
-            auto const& callbacks = element.second;
+        for(auto const& [index, callbacks] : m_callbacks) {
             for(auto const& callback : callbacks) {
                 if(util::contains(m_settings, index)) {
                     callback(m_settings.at(index));
