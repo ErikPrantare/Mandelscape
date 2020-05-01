@@ -78,7 +78,7 @@ public:
     }
 
     void
-    update(double dt)
+    update(glm::vec2 terrainOffset, double dt)
     {
         // HACK: m_position -= instead of +=.
         // -m_lookAtOffset.x. Probably some spooky stuff with
@@ -91,15 +91,28 @@ public:
         else {
             m_scale *= std::exp(m_scaleVelocity * dt);
         }
+
+        auto dPos       = terrainOffset - m_terrainOffset;
+        m_terrainOffset = terrainOffset;
+        m_position.x -= dPos.x;
+        m_position.z -= dPos.y;
     }
 
-    glm::vec3 m_velocity   = glm::vec3(0, 0, 0);
-    glm::vec3 m_position   = glm::vec3(0, 0, 0);
-    double m_scale         = 1.0;
-    double m_scaleVelocity = 0.0;
-    bool m_autoZoom        = false;
+    glm::vec3
+    absolutePosition()
+    {
+        return m_position
+               + glm::vec3(m_terrainOffset.x, 0.f, m_terrainOffset.y);
+    }
 
-    glm::vec2 m_lookAtOffset = {0.0, 0.0};
+    glm::vec3 m_velocity      = glm::vec3(0, 0, 0);
+    glm::vec3 m_position      = glm::vec3(0, 0, 0);
+    glm::vec2 m_terrainOffset = glm::vec2(0, 0);
+    double m_scale            = 1.0;
+    double m_scaleVelocity    = 0.0;
+    bool m_autoZoom           = false;
+
+    glm::vec2 m_lookAtOffset = glm::vec2(0.0, 0.0);
 
     static constexpr float m_movementSpeed = 1.0;
 };

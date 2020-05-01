@@ -39,41 +39,29 @@ renderScene(
         Config const& config,
         float dt);
 
-void
-updateScene(
-        Terrain* const terrain,
-        glm::vec2* const terrainOffset,
-        Player* const player,
-        float dt);
-
 Config
 initConfig();
 
 int
 main(int argc, char** argv)
 {
-    Config config = initConfig();
-
+    auto config = initConfig();
     Window window(config);
-
-    glm::vec2 terrainOffset(0.0, 0.0);
     ShaderProgram shaderProgram;
-
     Player player;
-
     Terrain terrain;
     Texture texture("textures/texture.png");
 
-    Shader const vertexShader =
+    auto const vertexShader =
             Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
 
     vertexShader.attachTo(shaderProgram);
 
     config.onStateChange<Settings::UseDeepShader>([&shaderProgram](bool deep) {
-        static Shader const shallowShader =
+        auto const shallowShader =
                 Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
 
-        static Shader const deepShader =
+        auto const deepShader =
                 Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
 
         if(deep)
@@ -121,7 +109,11 @@ main(int argc, char** argv)
                     window.handleEvent(event);
                 });
 
-        updateScene(&terrain, &terrainOffset, &player, dt);
+        auto pos = player.absolutePosition();
+        auto terrainOffset =
+                terrain.updateMesh(pos.x, pos.z, 1.0 / player.m_scale);
+        player.update(terrainOffset, dt);
+        player.m_position.y = terrain.heightAt({pos.x, pos.z});
 
         renderScene(
                 terrain,
@@ -176,26 +168,6 @@ renderScene(
     terrain.render();
 
     glDisableVertexAttribArray(0);
-}
-
-void
-updateScene(
-        Terrain* const terrain,
-        glm::vec2* const terrainOffset,
-        Player* const player,
-        float dt)
-{
-    player->update(dt);
-    float posX = player->m_position.x + terrainOffset->x;
-    float posZ = player->m_position.z + terrainOffset->y;
-
-    auto prevOffset = *terrainOffset;
-    *terrainOffset  = terrain->updateMesh(posX, posZ, 1.0 / player->m_scale);
-    auto dOffset    = *terrainOffset - prevOffset;
-    player->m_position.x -= dOffset.x;
-    player->m_position.z -= dOffset.y;
-
-    player->m_position.y = terrain->heightAt({posX, posZ});
 }
 
 Config
