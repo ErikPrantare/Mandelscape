@@ -25,10 +25,6 @@ public:
 
         m_settings[Setting::uid] =
                 std::any(std::forward<SettingType>(newValue));
-
-        for(auto const& callback : m_callbacks[Setting::uid]) {
-            callback(m_settings[Setting::uid]);
-        }
     }
 
     template<typename Setting, typename = RequireSetting<Setting>>
@@ -44,48 +40,8 @@ public:
                     + " has not been set.");
     }
 
-    template<
-            typename Setting,
-            typename Callable,
-            typename = RequireSetting<Setting>,
-            typename = RequireCallableWith<Callable, typename Setting::Type>>
-    void
-    onStateChange(Callable&& callback)
-    {
-        m_callbacks[Setting::uid].emplace_back(
-                [callback](std::any const& value) {
-                    callback(std::any_cast<typename Setting::Type>(value));
-                });
-    }
-
-    template<
-            typename Setting,
-            typename Callable,
-            typename = RequireSetting<Setting>,
-            typename = RequireEndomorphismOf<Callable, typename Setting::Type>>
-    void
-    on(Callable&& callable)
-    {
-        set<Setting>(callable(get<Setting>()));
-    }
-
-    void
-    triggerCallbacks()
-    {
-        for(auto const& [index, callbacks] : m_callbacks) {
-            for(auto const& callback : callbacks) {
-                if(util::contains(m_settings, index)) {
-                    callback(m_settings.at(index));
-                }
-            }
-        }
-    }
-
 private:
-    using FunctionSig = std::function<void(std::any const&)>;
-
     std::map<int, std::any> m_settings;
-    std::map<int, std::vector<FunctionSig>> m_callbacks;
 };
 
 #endif    // MANDELLANDSCAPE_CONFIG_H

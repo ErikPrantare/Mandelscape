@@ -49,8 +49,6 @@ main(int argc, char** argv)
 
     Terrain terrain = Terrain();
 
-    EventDispatcher eventDispatcher;
-
     Player player;
     Texture texture("textures/texture.png");
 
@@ -63,7 +61,6 @@ main(int argc, char** argv)
         while(auto eventOpt = window.nextEvent()) {
             auto const event = eventOpt.value();
 
-            eventDispatcher.dispatch(event);
             terrain.handleEvent(event);
             player.handleEvent(event);
             window.handleEvent(event);
