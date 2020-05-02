@@ -58,6 +58,22 @@ Terrain::~Terrain()
 }
 
 void
+Terrain::handleEvent(Event event)
+{
+    auto const changeIterationCount = [this](KeyDown const keyEvent) {
+        switch(keyEvent.code) {
+        case GLFW_KEY_I: {
+            m_iterations += 20;
+        } break;
+        case GLFW_KEY_U: {
+            m_iterations -= 20;
+        } break;
+        }
+    };
+    std::visit(util::overload{changeIterationCount, util::unaryNOP}, event);
+}
+
+void
 Terrain::loadMesh(
         glm::vec2 offset,
         double const _scale,

@@ -62,6 +62,9 @@ struct overload : Callables... {
 template<typename... Callables>
 overload(Callables...) -> overload<Callables...>;
 
+auto constexpr unaryNOP = [](auto&&) {
+};
+
 template<typename T, typename Container>
 std::optional<T>
 pop(std::queue<T, Container>& queue)

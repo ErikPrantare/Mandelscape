@@ -6,15 +6,23 @@
 #include <complex>
 #include <future>
 #include <functional>
+#include <variant>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
+
+#include "utils.h"
+#include "event.h"
 
 class Terrain {
 public:
     Terrain();
     ~Terrain();
+
+    void
+    handleEvent(Event event);
 
     glm::vec2
     updateMesh(double const, double const, double const);

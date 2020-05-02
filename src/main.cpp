@@ -70,8 +70,6 @@ main(int argc, char** argv)
     });
 
     Terrain terrain;
-    config.onStateChange<Settings::Iterations>(
-            [&terrain](int iters) { terrain.setIterations(iters); });
 
     config.triggerCallbacks();
 
@@ -79,12 +77,6 @@ main(int argc, char** argv)
 
     eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
         switch(key.code) {
-        case GLFW_KEY_I: {
-            config.on<Settings::Iterations>([](auto x) { return x + 20; });
-        } break;
-        case GLFW_KEY_U: {
-            config.on<Settings::Iterations>([](auto x) { return x - 20; });
-        } break;
         case GLFW_KEY_H: {
             config.on<Settings::UseDeepShader>(std::logical_not<bool>());
         } break;
@@ -106,6 +98,7 @@ main(int argc, char** argv)
             auto const event = eventOpt.value();
 
             eventDispatcher.dispatch(event);
+            terrain.handleEvent(event);
             player.handleEvent(event);
             window.handleEvent(event);
         }
