@@ -32,7 +32,7 @@ public:
     update();
 
     void
-    close();
+    handleEvent(Event const& event);
 
 private:
     struct WindowDeleter {
@@ -48,6 +48,9 @@ private:
     std::queue<Event> m_events;
 
     void
+    close();
+
+    void
     registerEvent(Event&& event);
 
     void
@@ -58,6 +61,12 @@ private:
 
     static void
     keyboardCB(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+    static void
+    mouseButtonCB(GLFWwindow* window, int button, int action, int mods);
+
+    double m_lastMouseX = 0.0;
+    double m_lastMouseY = 0.0;
 };
 
 #endif

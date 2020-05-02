@@ -6,22 +6,33 @@
 #include <complex>
 #include <future>
 #include <functional>
+#include <variant>
+#include <tuple>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
+
+#include "utils.h"
+#include "event.h"
+#include "shader.h"
+#include "shaderProgram.h"
+#include "texture.h"
 
 class Terrain {
 public:
     Terrain();
-    Terrain(std::function<void(double, double)> const& setMeshOffset);
     ~Terrain();
 
-    std::vector<glm::vec3> const&
+    void
+    handleEvent(Event event);
+
+    glm::vec2
     updateMesh(double const, double const, double const);
 
-    void
-    setIterations(int const);
+    int
+    iterations() const;
 
     double
     heightAt(std::complex<double> const&);
@@ -29,25 +40,40 @@ public:
     void
     render();
 
-private:
-    enum class State { Loading, Uploading };
-    State m_state = State::Loading;
+    ShaderProgram&
+    shaderProgram();
 
+private:
     static int constexpr granularity     = 400;
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    std::function<void(double, double)> m_setMeshOffset;
+    glm::vec2 m_offset;
+    glm::vec2 m_loadingOffset;
+    double m_scale;
+
+    enum class State { Loading, Uploading };
+    State m_state = State::Loading;
+
+    ShaderProgram m_shaderProgram = ShaderProgram();
+
+    Shader m_vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+
+    Shader m_shallowFragShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+    Shader m_deepFragShader =
+            Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+
+    enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
+    Texture m_texture;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
     unsigned int m_loadIndex = 0;
 
     std::future<void> m_loadingProcess;
-
-    double m_x;
-    double m_z;
-    double m_scale;
 
     std::shared_ptr<std::vector<glm::vec3>> m_currentMeshPoints;
     std::shared_ptr<std::vector<glm::vec3>> m_loadingMeshPoints;
@@ -59,11 +85,7 @@ private:
     generateMeshIndices();
 
     void
-    loadMesh(
-            double const,
-            double const,
-            double const,
-            std::vector<glm::vec3>* const);
+    loadMesh(glm::vec2 const, double const, std::vector<glm::vec3>* const);
 };
 
 #endif

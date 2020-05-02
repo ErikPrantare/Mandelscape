@@ -62,6 +62,9 @@ struct overload : Callables... {
 template<typename... Callables>
 overload(Callables...) -> overload<Callables...>;
 
+auto constexpr unaryNOP = [](auto&&) {
+};
+
 template<typename T, typename Container>
 std::optional<T>
 pop(std::queue<T, Container>& queue)
@@ -72,24 +75,6 @@ pop(std::queue<T, Container>& queue)
     auto a = queue.front();
     queue.pop();
     return a;
-}
-
-template<
-        typename T,
-        typename Yielder,
-        typename = RequireReturns<Yielder, std::optional<T>>,
-        typename Consumer,
-        typename... ConsumerArgs,
-        typename = RequireCallableWith<Consumer, T, ConsumerArgs...>>
-void
-untilNullopt(
-        Yielder&& yielder,
-        Consumer&& consumer,
-        ConsumerArgs&&... consumerArgs)
-{
-    while(auto a = yielder()) {
-        consumer(*a, std::forward<ConsumerArgs>(consumerArgs)...);
-    }
 }
 
 }    // namespace util

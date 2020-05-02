@@ -1,3 +1,5 @@
+#include "camera.h"
+
 #include <cmath>
 #include <iostream>
 #include <tuple>
@@ -6,9 +8,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/projection.hpp>
 
-#include "camera.h"
+#include "config.h"
 
 Camera::Camera() : Camera(1366, 768, 0.1f, 10'000'000.0f, glm::pi<double>())
+{}
+
+Camera::Camera(Config const& config) :
+            Camera(config.get<Settings::WindowWidth>(),
+                   config.get<Settings::WindowHeight>(),
+                   config.get<Settings::ClippingPlaneNear>(),
+                   config.get<Settings::ClippingPlaneFar>(),
+                   config.get<Settings::FOV>())
 {}
 
 Camera::Camera(
@@ -92,10 +102,4 @@ void
 Camera::setScale(float const scale)
 {
     m_worldScale = scale;
-}
-
-void
-Camera::setCameraHeight(float const meshHeight)
-{
-    m_pos.y = m_worldScale + meshHeight;
 }
