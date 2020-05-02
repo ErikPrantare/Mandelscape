@@ -111,7 +111,7 @@ main(int argc, char** argv)
 
         auto pos = player.absolutePosition();
         auto terrainOffset =
-                terrain.updateMesh(pos.x, pos.z, 1.0 / player.m_scale);
+                terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale());
         player.update(terrainOffset, dt);
         player.m_position.y = terrain.heightAt({pos.x, pos.z});
 
@@ -141,10 +141,10 @@ renderScene(
     glEnableVertexAttribArray(0);
 
     auto camera = Camera(config);
-    camera.setScale(player.m_scale);
+    camera.setScale(player.scale());
 
     glm::vec3 cameraPosition = player.m_position;
-    cameraPosition.y += player.m_scale;
+    cameraPosition.y += player.scale();
 
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
     cameraPosition.y = filteredHeight(cameraPosition.y, dt);
@@ -154,8 +154,8 @@ renderScene(
     // HACK: -x, look into why it is needed and if it can be resolved cleanly.
     camera.lookAt(
             glm::yawPitchRoll(
-                    -player.m_lookAtOffset.x,
-                    player.m_lookAtOffset.y,
+                    -player.lookAtOffset().x,
+                    player.lookAtOffset().y,
                     0.f)
             * glm::vec4(0.f, 0.f, 1.f, 0.f));
 

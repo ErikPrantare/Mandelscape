@@ -74,24 +74,6 @@ pop(std::queue<T, Container>& queue)
     return a;
 }
 
-template<
-        typename T,
-        typename Yielder,
-        typename = RequireReturns<Yielder, std::optional<T>>,
-        typename Consumer,
-        typename... ConsumerArgs,
-        typename = RequireCallableWith<Consumer, T, ConsumerArgs...>>
-void
-untilNullopt(
-        Yielder&& yielder,
-        Consumer&& consumer,
-        ConsumerArgs&&... consumerArgs)
-{
-    while(auto a = yielder()) {
-        consumer(*a, std::forward<ConsumerArgs>(consumerArgs)...);
-    }
-}
-
 }    // namespace util
 
 #endif    // MANDELLANDSCAPE_UTILS_H
