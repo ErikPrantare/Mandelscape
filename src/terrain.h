@@ -18,6 +18,7 @@
 #include "event.h"
 #include "shader.h"
 #include "shaderProgram.h"
+#include "texture.h"
 
 class Terrain {
 public:
@@ -43,13 +44,21 @@ public:
     shaderProgram();
 
 private:
+    static int constexpr granularity     = 400;
+    int m_iterations                     = 100;
+    static int constexpr uploadChunkSize = 90'000;
+
+    glm::vec2 m_offset;
+    glm::vec2 m_loadingOffset;
+    double m_scale;
+
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
 
     ShaderProgram m_shaderProgram = ShaderProgram();
 
-    Shader m_vertexShader{
-            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER)};
+    Shader m_vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
 
     Shader m_shallowFragShader =
             Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
@@ -58,20 +67,13 @@ private:
             Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
 
     enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
-
-    static int constexpr granularity     = 400;
-    int m_iterations                     = 100;
-    static int constexpr uploadChunkSize = 90'000;
+    Texture m_texture;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
     unsigned int m_loadIndex = 0;
 
     std::future<void> m_loadingProcess;
-
-    glm::vec2 m_offset;
-    glm::vec2 m_loadingOffset;
-    double m_scale;
 
     std::shared_ptr<std::vector<glm::vec3>> m_currentMeshPoints;
     std::shared_ptr<std::vector<glm::vec3>> m_loadingMeshPoints;

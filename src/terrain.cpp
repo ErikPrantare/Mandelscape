@@ -14,6 +14,7 @@ Terrain::Terrain() :
             m_offset{0.0, 0.0},
             m_loadingOffset{0.0, 0.0},
             m_scale{1.0},
+            m_texture("textures/texture.png"),
             m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
             m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
 {
@@ -287,6 +288,10 @@ Terrain::heightAt(std::complex<double> const& c)
 void
 Terrain::render()
 {
+    m_shaderProgram.setUniformInt("iterations", m_iterations);
+    m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.y);
+    m_texture.makeActiveOn(GL_TEXTURE0);
+
     int vertexCount = std::pow((granularity - 1), 2) * 3 * 2;
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);

@@ -17,11 +17,8 @@
 #include "camera.h"
 #include "terrain.h"
 #include "config.h"
-#include "shader.h"
-#include "shaderProgram.h"
 #include "texture.h"
 #include "window.h"
-#include "eventDispatcher.h"
 #include "player.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -32,9 +29,7 @@ long double constexpr pi = glm::pi<long double>();
 void
 renderScene(
         Terrain& terrain,
-        Texture& texture,
         const Player& player,
-        glm::vec2 const& terrainOffset,
         Config const& config,
         float dt);
 
@@ -50,8 +45,6 @@ main(int argc, char** argv)
     Terrain terrain = Terrain();
 
     Player player;
-    Texture texture("textures/texture.png");
-
     float lastTimepoint = glfwGetTime();
     while(window.update()) {
         const float currentTimepoint = glfwGetTime();
@@ -72,7 +65,7 @@ main(int argc, char** argv)
         player.update(terrainOffset, dt);
         player.m_position.y = terrain.heightAt({pos.x, pos.z});
 
-        renderScene(terrain, texture, player, terrainOffset, config, dt);
+        renderScene(terrain, player, config, dt);
     }
 
     return 0;
@@ -81,9 +74,7 @@ main(int argc, char** argv)
 void
 renderScene(
         Terrain& terrain,
-        Texture& texture,
         const Player& player,
-        glm::vec2 const& terrainOffset,
         Config const& config,
         float dt)
 {
@@ -110,14 +101,8 @@ renderScene(
 
     ShaderProgram& program = terrain.shaderProgram();
     program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
-
     program.setUniformMatrix4("projection", camera.projection());
 
-    program.setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
-
-    terrain.shaderProgram().setUniformInt("iterations", terrain.iterations());
-
-    texture.makeActiveOn(GL_TEXTURE0);
     terrain.render();
 
     glDisableVertexAttribArray(0);
