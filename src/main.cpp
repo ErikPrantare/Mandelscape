@@ -48,9 +48,6 @@ main(int argc, char** argv)
     auto config = initConfig();
     Window window(config);
     ShaderProgram shaderProgram;
-    Player player;
-    Terrain terrain;
-    Texture texture("textures/texture.png");
 
     auto const vertexShader =
             Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
@@ -72,6 +69,7 @@ main(int argc, char** argv)
         shaderProgram.compile();
     });
 
+    Terrain terrain;
     config.onStateChange<Settings::Iterations>(
             [&terrain](int iters) { terrain.setIterations(iters); });
 
@@ -94,6 +92,9 @@ main(int argc, char** argv)
             break;
         }
     });
+
+    Player player;
+    Texture texture("textures/texture.png");
 
     float lastTimepoint = glfwGetTime();
     while(window.update()) {
