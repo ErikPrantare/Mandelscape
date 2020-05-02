@@ -34,7 +34,6 @@ renderScene(
         Terrain& terrain,
         Texture& texture,
         const Player& player,
-        ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         Config const& config,
         float dt);
@@ -47,43 +46,10 @@ main(int argc, char** argv)
 {
     auto config = initConfig();
     Window window(config);
-    ShaderProgram shaderProgram;
 
-    auto const vertexShader =
-            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
-
-    vertexShader.attachTo(shaderProgram);
-
-    config.onStateChange<Settings::UseDeepShader>([&shaderProgram](bool deep) {
-        auto const shallowShader =
-                Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
-
-        auto const deepShader =
-                Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
-
-        if(deep)
-            deepShader.attachTo(shaderProgram);
-        else
-            shallowShader.attachTo(shaderProgram);
-
-        shaderProgram.compile();
-    });
-
-    Terrain terrain;
-
-    config.triggerCallbacks();
+    Terrain terrain = Terrain();
 
     EventDispatcher eventDispatcher;
-
-    eventDispatcher.registerCallback<KeyDown>([&](KeyDown const& key) {
-        switch(key.code) {
-        case GLFW_KEY_H: {
-            config.on<Settings::UseDeepShader>(std::logical_not<bool>());
-        } break;
-        default:
-            break;
-        }
-    });
 
     Player player;
     Texture texture("textures/texture.png");
@@ -109,14 +75,7 @@ main(int argc, char** argv)
         player.update(terrainOffset, dt);
         player.m_position.y = terrain.heightAt({pos.x, pos.z});
 
-        renderScene(
-                terrain,
-                texture,
-                player,
-                &shaderProgram,
-                terrainOffset,
-                config,
-                dt);
+        renderScene(terrain, texture, player, terrainOffset, config, dt);
     }
 
     return 0;
@@ -127,7 +86,6 @@ renderScene(
         Terrain& terrain,
         Texture& texture,
         const Player& player,
-        ShaderProgram* const program,
         glm::vec2 const& terrainOffset,
         Config const& config,
         float dt)
@@ -153,10 +111,14 @@ renderScene(
                     0.f)
             * glm::vec4(0.f, 0.f, 1.f, 0.f));
 
-    program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
-    program->setUniformMatrix4("projection", camera.projection());
-    program->setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
-    program->setUniformInt("iterations", config.get<Settings::Iterations>());
+    ShaderProgram& program = terrain.shaderProgram();
+    program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
+
+    program.setUniformMatrix4("projection", camera.projection());
+
+    program.setUniformVec2("offset", terrainOffset.x, terrainOffset.y);
+
+    terrain.shaderProgram().setUniformInt("iterations", terrain.iterations());
 
     texture.makeActiveOn(GL_TEXTURE0);
     terrain.render();

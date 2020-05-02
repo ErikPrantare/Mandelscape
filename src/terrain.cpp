@@ -8,6 +8,7 @@
 
 #include "terrain.h"
 #include "utils.h"
+#include "shader.h"
 
 Terrain::Terrain() :
             m_offset{0.0, 0.0},
@@ -46,6 +47,10 @@ Terrain::Terrain() :
             meshIndices.data(),
             GL_STATIC_DRAW);
 
+    m_vertexShader.attachTo(m_shaderProgram);
+    m_shallowFragShader.attachTo(m_shaderProgram);
+    m_shaderProgram.compile();
+
     startLoading();
 }
 
@@ -57,6 +62,12 @@ Terrain::~Terrain()
     glDeleteBuffers(1, &m_loadingVBO);
 }
 
+ShaderProgram&
+Terrain::shaderProgram()
+{
+    return m_shaderProgram;
+};
+
 void
 Terrain::handleEvent(Event event)
 {
@@ -67,6 +78,20 @@ Terrain::handleEvent(Event event)
         } break;
         case GLFW_KEY_U: {
             m_iterations -= 20;
+        } break;
+        case GLFW_KEY_H: {
+            switch(m_nextFrag) {
+            case NextFrag::Shallow: {
+                m_shallowFragShader.attachTo(m_shaderProgram);
+                m_nextFrag = NextFrag::Deep;
+            } break;
+
+            case NextFrag::Deep: {
+                m_deepFragShader.attachTo(m_shaderProgram);
+                m_nextFrag = NextFrag::Shallow;
+            } break;
+            }
+            m_shaderProgram.compile();
         } break;
         }
     };
@@ -198,10 +223,10 @@ Terrain::updateMesh(double const x, double const z, double const scale)
     return m_offset;
 }
 
-void
-Terrain::setIterations(int const iters)
+int
+Terrain::iterations() const
 {
-    m_iterations = iters;
+    return m_iterations;
 }
 
 std::vector<GLuint>

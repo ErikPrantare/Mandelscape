@@ -7,6 +7,7 @@
 #include <future>
 #include <functional>
 #include <variant>
+#include <tuple>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -15,6 +16,8 @@
 
 #include "utils.h"
 #include "event.h"
+#include "shader.h"
+#include "shaderProgram.h"
 
 class Terrain {
 public:
@@ -27,8 +30,8 @@ public:
     glm::vec2
     updateMesh(double const, double const, double const);
 
-    void
-    setIterations(int const);
+    int
+    iterations() const;
 
     double
     heightAt(std::complex<double> const&);
@@ -36,9 +39,25 @@ public:
     void
     render();
 
+    ShaderProgram&
+    shaderProgram();
+
 private:
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
+
+    ShaderProgram m_shaderProgram = ShaderProgram();
+
+    Shader m_vertexShader{
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER)};
+
+    Shader m_shallowFragShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+    Shader m_deepFragShader =
+            Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+
+    enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
 
     static int constexpr granularity     = 400;
     int m_iterations                     = 100;
