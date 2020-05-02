@@ -101,13 +101,13 @@ main(int argc, char** argv)
         const float dt               = currentTimepoint - lastTimepoint;
         lastTimepoint                = currentTimepoint;
 
-        util::untilNullopt<Event>(
-                [&window] { return window.nextEvent(); },
-                [&eventDispatcher, &player, &window](Event const& event) {
-                    eventDispatcher.dispatch(event);
-                    player.handleEvent(event);
-                    window.handleEvent(event);
-                });
+        while(auto eventOpt = window.nextEvent()) {
+            auto const event = eventOpt.value();
+
+            eventDispatcher.dispatch(event);
+            player.handleEvent(event);
+            window.handleEvent(event);
+        }
 
         auto pos = player.absolutePosition();
         auto terrainOffset =
