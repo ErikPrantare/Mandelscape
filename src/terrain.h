@@ -3,41 +3,71 @@
 
 #include <vector>
 #include <memory>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <complex>
 #include <future>
 #include <functional>
+#include <variant>
+#include <tuple>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
 
-#include "math3d.h"
+#include "utils.h"
+#include "event.h"
+#include "shader.h"
+#include "shaderProgram.h"
+#include "texture.h"
 
 class Terrain {
 public:
     Terrain();
-    Terrain(std::function<void(double, double)> const& setMeshOffset);
     ~Terrain();
 
-    const std::vector<Vector3f>&
-    updateMesh(double, double, double);
+    void
+    handleEvent(Event event);
 
-    static double
-    heightAt(const std::complex<double>&);
+    glm::vec2
+    updateMesh(double const, double const, double const);
+
+    int
+    iterations() const;
+
+    double
+    heightAt(std::complex<double> const&);
 
     void
     render();
 
+    ShaderProgram&
+    shaderProgram();
+
 private:
+    static int constexpr granularity     = 400;
+    int m_iterations                     = 100;
+    static int constexpr uploadChunkSize = 90'000;
+
+    glm::vec2 m_offset;
+    glm::vec2 m_loadingOffset;
+    double m_scale;
+
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
 
-    static constexpr int granularity     = 400;
-    static constexpr int iterations      = 100;
-    static constexpr int uploadChunkSize = 90'000;
+    ShaderProgram m_shaderProgram = ShaderProgram();
 
-    std::function<void(double, double)> m_setMeshOffset;
+    Shader m_vertexShader =
+            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+
+    Shader m_shallowFragShader =
+            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+
+    Shader m_deepFragShader =
+            Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+
+    enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
+    Texture m_texture;
 
     GLuint m_VBO, m_loadingVBO, m_IBO;
 
@@ -45,12 +75,8 @@ private:
 
     std::future<void> m_loadingProcess;
 
-    double m_x;
-    double m_z;
-    double m_scale;
-
-    std::shared_ptr<std::vector<Vector3f>> m_currentMeshPoints;
-    std::shared_ptr<std::vector<Vector3f>> m_loadingMeshPoints;
+    std::shared_ptr<std::vector<glm::vec3>> m_currentMeshPoints;
+    std::shared_ptr<std::vector<glm::vec3>> m_loadingMeshPoints;
 
     void
     startLoading();
@@ -58,15 +84,8 @@ private:
     std::vector<GLuint>
     generateMeshIndices();
 
-    static void
-    loadMesh(double, double, double, std::vector<Vector3f>*);
+    void
+    loadMesh(glm::vec2 const, double const, std::vector<glm::vec3>* const);
 };
-
-template<typename T>
-static bool
-isDone(const std::future<T>& f)
-{
-    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-}
 
 #endif

@@ -1,0 +1,9 @@
+[submodule "extern/stb"]
+	path = extern/stb
+	url = ../../nothings/stb
+[submodule "extern/glm"]
+	path = extern/glm
+	url = ../../g-truc/glm
+[submodule "extern/glfw"]
+	path = extern/glfw
+	url = ../../glfw/glfw

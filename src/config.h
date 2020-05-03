@@ -1,0 +1,47 @@
+#ifndef MANDELLANDSCAPE_CONFIG_H
+#define MANDELLANDSCAPE_CONFIG_H
+
+#include <map>
+#include <vector>
+#include <any>
+#include <functional>
+
+#include "mandelTypeTraits.h"
+#include "settings.h"
+#include "utils.h"
+#include <iostream>
+
+class Config {
+private:
+    template<typename Setting>
+    using RequireSetting = Settings::RequireSetting<Setting>;
+
+public:
+    template<typename Setting, typename = RequireSetting<Setting>>
+    void
+    set(typename Setting::Type&& newValue)
+    {
+        using SettingType = typename Setting::Type;
+
+        m_settings[Setting::uid] =
+                std::any(std::forward<SettingType>(newValue));
+    }
+
+    template<typename Setting, typename = RequireSetting<Setting>>
+    typename Setting::Type
+    get() const
+    {
+        if(util::contains(m_settings, Setting::uid))
+            return std::any_cast<typename Setting::Type>(
+                    m_settings.at(Setting::uid));
+        else
+            throw std::runtime_error(
+                    "Setting " + std::to_string(Setting::uid)
+                    + " has not been set.");
+    }
+
+private:
+    std::map<int, std::any> m_settings;
+};
+
+#endif    // MANDELLANDSCAPE_CONFIG_H

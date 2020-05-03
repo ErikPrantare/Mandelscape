@@ -1,13 +1,15 @@
+#include "utils.h"
+
 #include <string>
 #include <fstream>
 
-#include "utils.h"
+namespace util {
 
 std::string
-readFile(const std::string& fileName)
+readFile(std::string const& filePath)
 {
-    std::ifstream in(fileName);
     std::string output;
+    std::ifstream in(filePath);
 
     for(std::string line; std::getline(in, line);) {
         output += line + "\n";
@@ -16,3 +18,5 @@ readFile(const std::string& fileName)
     in.close();
     return output;
 }
+
+}    // namespace util
