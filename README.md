@@ -12,6 +12,7 @@ If everything built correctly, the program can now be run from `./MandelLandscap
 
 # Binary Download (Windows)
 A binary for windows is available through this torrent link:
+
 magnet:?xt=urn:btih:THNS6S7E5K4WIPTYAWVIVY2J4WKO67ZH&dn=MandelLandscape.zip&xl=182958
 
 
