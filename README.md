@@ -24,6 +24,8 @@ magnet:?xt=urn:btih:THNS6S7E5K4WIPTYAWVIVY2J4WKO67ZH&dn=MandelLandscape.zip&xl=1
 
 - <kbd>h</kbd> to allow for a bit deeper zooms. Will increase lag drastically.
 
+- <kbd>o</kbd> to toggle autozoom. Do not enable while standing on the black area.
+
 - <kbd>q</kbd> to quit.
 
 ![](preview.png?raw=true "Title")
