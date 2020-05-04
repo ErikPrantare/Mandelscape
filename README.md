@@ -13,7 +13,7 @@ If everything built correctly, the program can now be run from `./MandelLandscap
 # Binary Download (Windows)
 A binary for windows is available through this torrent link:
 
-magnet:?xt=urn:btih:THNS6S7E5K4WIPTYAWVIVY2J4WKO67ZH&dn=MandelLandscape.zip&xl=182958
+magnet:?xt=urn:btih:75FCP7UXIYIHRTOLBCXN37VBREAU35X6&dn=MandelLandscape.zip&xl=556174
 
 # Controls
 - <kbd>w</kbd><kbd>a</kbd><kbd>s</kbd><kbd>d</kbd> + mouse to walk and look around.
