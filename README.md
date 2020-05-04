@@ -1,7 +1,7 @@
 # Build Guide (Linux)
 To build, run:
 ```
-git clone git@github.com:ErikPrantare/MandelLandscape.git
+git clone https://github.com/ErikPrantare/MandelLandscape.git
 cd MandelLandscape
 cmake . -Bbuild
 cmake --build ./build/
