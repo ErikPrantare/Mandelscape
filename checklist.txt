@@ -1,0 +1,9 @@
+Todo when releasing update:
+
+Build for windows
+Upload zipped binary
+Update readme with new link
+
+Push to master
+
+Remove dead branches
