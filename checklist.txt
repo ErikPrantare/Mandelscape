@@ -7,3 +7,5 @@ Update readme with new link
 Push to master
 
 Remove dead branches
+
+Review and possibly update formatting tools
