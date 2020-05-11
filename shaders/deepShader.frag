@@ -10,22 +10,23 @@ uniform sampler2D tex;
 uniform vec2 offset;
 uniform int iterations;
 
+float ONE;
 
 //a > b
 vec2
 quickTwoSum(float a, float b) 
 {
-    float sum = a + b;
-    float error = b - (sum - a);
+    float sum = a*ONE + b*ONE;
+    float error = b*ONE - (sum*ONE - a*ONE);
     return vec2(sum, error);
 }
 
 vec2
 twoSum(float a, float b)
 {
-    float sum = a + b;
-    float v = sum - a;
-    float error = (a - (sum - v)) + (b - v);
+    float sum = a*ONE + b*ONE;
+    float v = sum*ONE - a*ONE;
+    float error = (a*ONE - (sum*ONE - v*ONE)) + (b*ONE - v*ONE);
     return vec2(sum, error);
 }
 
@@ -89,6 +90,7 @@ doubleCompProd(vec4 a, vec4 b)
 void
 main()
 {
+    ONE = float(iterations/iterations);
     float fogHardStart = 100.0;
     float fogHardEnd   = 150.0;
     float fog          = 1.0 - pow(0.98, distance);
@@ -125,7 +127,7 @@ main()
     for(int i = 0; i < iterations; ++i) {
         z = doubleCompSum(doubleCompProd(z, z), pc);
         if(dot(z.xz, z.xz) > 256.0f * 256.0f) {
-            float colorVal = float(i);
+            float colorVal = float(i) - log2(log2(dot(z.xz, z.xz)));
             fragColor =
                     fog * vec4(1.0, 1.0, 1.0, 1.0)
                     + (1.0 - fog) * texture(tex, vec2(0.0, colorVal))
