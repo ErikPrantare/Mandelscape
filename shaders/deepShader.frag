@@ -10,7 +10,8 @@ uniform sampler2D tex;
 uniform vec2 offset;
 uniform int iterations;
 
-float ONE;
+// HACK: Use variable to suppress floating point optimizations
+float ONE = 1.0;
 
 //a > b
 vec2
@@ -101,33 +102,35 @@ main()
     fog       = pow(fog, 2.0);
     fragColor = vec4(fog, fog, fog, 1.0);
 
-    vec2 c = position + offset;
+    vec2 c_ = position + offset;
 
     // main cardioid check
-    float q = pow(c.x - 0.25f, 2.0f) + c.y * c.y;
-    if(q * (q + (c.x - 0.25f)) < 0.25f * c.y * c.y) {
-        //return;
-    }
-
-    // period-2 bulb check
-    if((c.x + 1.0f) * (c.x + 1.0f) + c.y * c.y < 0.25f * 0.25f) {
-        //return;
-    }
-
-    vec4 pc = vec4(position, offset);
-    if(pc.x == 0.0) {
-        fragColor.r = offset.y;
+    float q = pow(c_.x - 0.25f, 2.0f) + c_.y * c_.y;
+    if(q * (q + (c_.x - 0.25f)) < 0.25f * c_.y * c_.y) {
         return;
     }
 
-    pc  = vec4(twoSum(offset.x, position.x),
+    // period-2 bulb check
+    if((c_.x + 1.0f) * (c_.x + 1.0f) + c_.y * c_.y < 0.25f * 0.25f) {
+        return;
+    }
+
+    // a.xy: real, a.zw: imag
+    vec4 c  = vec4(twoSum(offset.x, position.x),
                     twoSum(offset.y, position.y));
     vec4 z   = vec4(0.0, 0.0, 0.0, 0.0);
+    vec2 realSquare = vec2(0.0, 0.0);
+    vec2 imagSquare = vec2(0.0, 0.0);
 
     for(int i = 0; i < iterations; ++i) {
-        z = doubleCompSum(doubleCompProd(z, z), pc);
-        if(dot(z.xz, z.xz) > 256.0f * 256.0f) {
-            float colorVal = float(i) - log2(log2(dot(z.xz, z.xz)));
+        z.zw = doubleProd(z.xy, z.zw); 
+        z.zw += z.zw;
+        z.xy = doubleSum(realSquare, -imagSquare);
+        z = doubleCompSum(z, c);
+        realSquare = doubleProd(z.xy, z.xy);
+        imagSquare = doubleProd(z.zw, z.zw);
+        if(realSquare.x + imagSquare.x > 256.0f * 256.0f) {
+            float colorVal = float(i) - log2(log2(realSquare.x + imagSquare.x));
             fragColor =
                     fog * vec4(1.0, 1.0, 1.0, 1.0)
                     + (1.0 - fog) * texture(tex, vec2(0.0, colorVal))
