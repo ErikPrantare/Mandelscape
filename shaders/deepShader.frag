@@ -75,19 +75,6 @@ doubleCompSum(vec4 a, vec4 b)
     return vec4(doubleSum(a.xy, b.xy), doubleSum(a.zw, b.zw));
 }
 
-vec4
-doubleCompProd(vec4 a, vec4 b)
-{
-    vec2 real = doubleSum(
-                    doubleProd(a.xy, b.xy),
-                    -doubleProd(a.zw, b.zw));
-    vec2 imag = doubleSum(
-                    doubleProd(a.xy, b.zw),
-                    doubleProd(a.zw, b.xy));
-    
-    return vec4(real, imag);
-}
-
 void
 main()
 {
