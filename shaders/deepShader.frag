@@ -17,17 +17,17 @@ float ONE = 1.0;
 vec2
 quickTwoSum(float a, float b) 
 {
-    float sum = a*ONE + b*ONE;
-    float error = b*ONE - (sum*ONE - a*ONE);
+    float sum = a + b;
+    float error = b - (sum*ONE - a);
     return vec2(sum, error);
 }
 
 vec2
 twoSum(float a, float b)
 {
-    float sum = a*ONE + b*ONE;
-    float v = sum*ONE - a*ONE;
-    float error = (a*ONE - (sum*ONE - v*ONE)) + (b*ONE - v*ONE);
+    float sum = a + b;
+    float v = sum*ONE - a;
+    float error = (a - (sum - v)) + (b - v);
     return vec2(sum, error);
 }
 
