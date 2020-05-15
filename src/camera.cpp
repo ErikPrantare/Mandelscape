@@ -70,7 +70,7 @@ Camera::projection() const
 {
     float const aspectRatio = m_width / m_height;
 
-    return glm::perspective(m_FOV, aspectRatio, 0.1f, 100.f);
+    return glm::perspective(m_FOV, aspectRatio, m_zNear, m_zFar);
 }
 
 glm::mat4
