@@ -14,7 +14,7 @@ target_include_directories(MandelLandscape
 
 target_link_libraries(MandelLandscape
     PRIVATE Threads::Threads
-    PRIVATE glm::glm
+    PRIVATE glm
     PRIVATE stb
     PRIVATE glfw)
 
