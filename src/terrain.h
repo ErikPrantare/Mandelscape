@@ -29,7 +29,7 @@ public:
     handleEvent(Event event);
 
     glm::vec2
-    updateMesh(double const, double const, double const);
+    updateMesh(double, double, double);
 
     int
     iterations() const;
@@ -81,11 +81,11 @@ private:
     void
     startLoading();
 
-    std::vector<GLuint>
+    static std::vector<GLuint>
     generateMeshIndices();
 
     void
-    loadMesh(glm::vec2 const, double const, std::vector<glm::vec3>* const);
+    loadMesh(glm::vec2, double, std::vector<glm::vec3>*);
 };
 
 #endif

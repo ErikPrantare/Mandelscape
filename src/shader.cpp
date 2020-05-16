@@ -8,7 +8,7 @@
 GLuint const*
 Shader::createShader(std::string const& sourceCode, GLenum const shaderType)
 {
-    auto const location = new GLuint(glCreateShader(shaderType));
+    auto* const location = new GLuint(glCreateShader(shaderType));
 
     if(location == 0) {
         std::cerr << "Error creating shader type " << shaderType << std::endl;
@@ -22,7 +22,7 @@ Shader::createShader(std::string const& sourceCode, GLenum const shaderType)
 
     GLint success;
     glGetShaderiv(*location, GL_COMPILE_STATUS, &success);
-    if(!success) {
+    if(success == 0) {
         GLchar infoLog[1024];
         glGetShaderInfoLog(*location, sizeof(infoLog), nullptr, infoLog);
         std::cerr << "Error compiling shader type "

@@ -31,13 +31,14 @@ public:
     typename Setting::Type
     get() const
     {
-        if(util::contains(m_settings, Setting::uid))
-            return std::any_cast<typename Setting::Type>(
-                    m_settings.at(Setting::uid));
-        else
+        if(!util::contains(m_settings, Setting::uid)) {
             throw std::runtime_error(
                     "Setting " + std::to_string(Setting::uid)
                     + " has not been set.");
+        }
+
+        return std::any_cast<typename Setting::Type>(
+                m_settings.at(Setting::uid));
     }
 
 private:

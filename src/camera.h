@@ -39,7 +39,7 @@ public:
     setPosition(glm::vec3 const&);
 
     void
-    setScale(float const scale);
+    setScale(float scale);
 
 private:
     glm::mat4

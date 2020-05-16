@@ -13,26 +13,14 @@
 void
 Player::handleEvent(Event const event)
 {
-    auto const _keyDown = [this](KeyDown keyEvent) {
-        keyDown(keyEvent);
-    };
-
-    auto const _keyUp = [this](KeyUp keyEvent) {
-        keyUp(keyEvent);
-    };
-
-    auto const _mouseMove = [this](MouseMove mouseEvent) {
-        mouseMove(mouseEvent);
-    };
-
     // CPP20
     // https://en.cppreference.com/w/cpp/utility/functional/bind_front
 
     std::visit(
-            util::overload{
-                    _keyDown,
-                    _keyUp,
-                    _mouseMove,
+            util::Overload{
+                    [this](KeyDown keyEvent) { keyDown(keyEvent); },
+                    [this](KeyUp keyEvent) { keyUp(keyEvent); },
+                    [this](MouseMove mouseEvent) { mouseMove(mouseEvent); },
                     // default
                     [](auto x) {
                     }},
@@ -65,16 +53,16 @@ Player::keyDown(KeyDown const key)
 {
     switch(key.code) {
     case GLFW_KEY_W: {
-        m_velocity.z += -m_movementSpeed;
+        m_velocity.z += -movementSpeed;
     } break;
     case GLFW_KEY_A: {
-        m_velocity.x += -m_movementSpeed;
+        m_velocity.x += -movementSpeed;
     } break;
     case GLFW_KEY_S: {
-        m_velocity.z += m_movementSpeed;
+        m_velocity.z += movementSpeed;
     } break;
     case GLFW_KEY_D: {
-        m_velocity.x += m_movementSpeed;
+        m_velocity.x += movementSpeed;
     } break;
     case GLFW_KEY_J: {
         m_scaleVelocity += -1.f;
@@ -83,7 +71,7 @@ Player::keyDown(KeyDown const key)
         m_scaleVelocity += 1.f;
     } break;
     case GLFW_KEY_O: {
-        m_autoZoom ^= true;
+        m_autoZoom = !m_autoZoom;
     } break;
     }
 }
@@ -93,16 +81,16 @@ Player::keyUp(KeyUp const key)
 {
     switch(key.code) {
     case GLFW_KEY_W: {
-        m_velocity.z += m_movementSpeed;
+        m_velocity.z += movementSpeed;
     } break;
     case GLFW_KEY_A: {
-        m_velocity.x += m_movementSpeed;
+        m_velocity.x += movementSpeed;
     } break;
     case GLFW_KEY_S: {
-        m_velocity.z += -m_movementSpeed;
+        m_velocity.z += -movementSpeed;
     } break;
     case GLFW_KEY_D: {
-        m_velocity.x += -m_movementSpeed;
+        m_velocity.x += -movementSpeed;
     } break;
     case GLFW_KEY_J: {
         m_scaleVelocity += 1.f;

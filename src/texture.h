@@ -16,7 +16,7 @@ public:
     Texture(std::string const& path);
 
     void
-    makeActiveOn(GLenum const textureUnit) const;
+    makeActiveOn(GLenum textureUnit) const;
 
 private:
     struct TextureDeleter {

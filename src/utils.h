@@ -53,14 +53,14 @@ contains(std::map<KeyType, ValueType> const& map, KeyType key)
 }
 
 template<typename... Callables>
-struct overload : Callables... {
+struct Overload : Callables... {
     using Callables::operator()...;
 };
 
 // CPP20
 // https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
 template<typename... Callables>
-overload(Callables...) -> overload<Callables...>;
+Overload(Callables...) -> Overload<Callables...>;
 
 auto constexpr unaryNOP = [](auto&&) {
 };
@@ -69,8 +69,9 @@ template<typename T, typename Container>
 std::optional<T>
 pop(std::queue<T, Container>& queue)
 {
-    if(queue.empty())
+    if(queue.empty()) {
         return std::nullopt;
+    }
 
     auto a = queue.front();
     queue.pop();

@@ -9,7 +9,7 @@
 class Player {
 public:
     void
-    handleEvent(Event const event);
+    handleEvent(Event event);
 
     void
     update(glm::vec2 terrainOffset, double dt);
@@ -50,13 +50,13 @@ private:
 
     glm::vec2 m_lookAtOffset = glm::vec2(0.0, 0.0);
 
-    static constexpr float m_movementSpeed = 1.0;
+    static constexpr float movementSpeed = 1.0;
 
     void
-    keyDown(KeyDown const key);
+    keyDown(KeyDown key);
 
     void
-    keyUp(KeyUp const key);
+    keyUp(KeyUp key);
 
     void
     mouseMove(MouseMove mouse);

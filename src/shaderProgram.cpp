@@ -39,10 +39,12 @@ attachFragmentShader(GLuint const program, GLuint const shader)
 void
 ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType)
 {
-    if(shaderType == GL_VERTEX_SHADER)
+    if(shaderType == GL_VERTEX_SHADER) {
         attachVertexShader(*m_location, shader);
-    else
+    }
+    else {
         attachFragmentShader(*m_location, shader);
+    }
 }
 
 void
@@ -54,7 +56,7 @@ ShaderProgram::compile()
     GLchar errorLog[1024] = {0};
 
     glGetProgramiv(*m_location, GL_LINK_STATUS, &success);
-    if(!success) {
+    if(success == 0) {
         glGetProgramInfoLog(*m_location, sizeof(errorLog), nullptr, errorLog);
 
         std::cerr << "Error linking shader program: " << errorLog << std::endl;
@@ -63,7 +65,7 @@ ShaderProgram::compile()
 
     glValidateProgram(*m_location);
     glGetProgramiv(*m_location, GL_VALIDATE_STATUS, &success);
-    if(!success) {
+    if(success == 0) {
         glGetProgramInfoLog(*m_location, sizeof(errorLog), nullptr, errorLog);
 
         std::cerr << "Invalid shader program: " << errorLog << std::endl;

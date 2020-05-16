@@ -18,10 +18,10 @@ public:
     operator=(Shader const&) = delete;
 
     static Shader
-    fromFile(std::string const& filePath, GLenum const shaderType);
+    fromFile(std::string const& filePath, GLenum shaderType);
 
     static Shader
-    fromCode(std::string const& sourceCode, GLenum const shaderType);
+    fromCode(std::string const& sourceCode, GLenum shaderType);
 
     void
     attachTo(ShaderProgram& program) const;
@@ -38,12 +38,12 @@ private:
         }
     };
 
-    Shader(std::string const& sourceCode, GLenum const shaderType);
+    Shader(std::string const& sourceCode, GLenum shaderType);
 
     std::unique_ptr<GLuint const, LocationDeleter> m_location;
 
     static GLuint const*
-    createShader(std::string const& sourceCode, GLenum const shaderType);
+    createShader(std::string const& sourceCode, GLenum shaderType);
 };
 
 #endif

@@ -16,10 +16,12 @@ generateTexture()
 
 Texture::Texture(std::string const& path) : m_location(generateTexture())
 {
-    int width, height, nrChannels;
+    int width;
+    int height;
+    int nrChannels;
     unsigned char* const image =
             stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
-    if(!image) {
+    if(image == nullptr) {
         std::cerr << "Failed to load texture" << std::endl;
         throw;
     }
