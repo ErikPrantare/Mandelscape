@@ -9,10 +9,11 @@ add_executable(MandelLandscape
 
 target_link_libraries(MandelLandscape
     PRIVATE Threads::Threads
-    PRIVATE glm
-    PRIVATE stb
+    PRIVATE dl
+    PRIVATE glad::glad
     PRIVATE glfw
-    PRIVATE glad::glad)
+    PRIVATE glm
+    PRIVATE stb)
 
 target_compile_options(MandelLandscape
     PRIVATE -Wall

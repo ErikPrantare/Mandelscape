@@ -14,14 +14,14 @@ if(GLAD_BUILD_STATIC)
   add_library(glad::glad ALIAS glad_static)
 
 else()
-  add_library(glad_dynamic DYNAMIC)
+  add_library(glad_shared SHARED)
   
-  target_sources(glad_dynamic
+  target_sources(glad_shared
       PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c)
  
-  target_include_directories(glad_dynamic
+  target_include_directories(glad_shared
       PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-  add_library(glad::glad ALIAS glad_dynamic)
+  add_library(glad::glad ALIAS glad_shared)
 
 endif()

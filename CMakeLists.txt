@@ -44,4 +44,16 @@ endif()
 
 find_package(Threads REQUIRED)
 
+#---------------------------stb------------------------------------------------
+find_package(stb QUIET)
+
+if(NOT stb_FOUND)
+    add_library(stb INTERFACE IMPORTED)
+
+    target_link_directories(stb
+        INTERFACE extern/stb)
+endif()
+
+#---------------------------MandelLandscape------------------------------------
+
 add_subdirectory(src)
