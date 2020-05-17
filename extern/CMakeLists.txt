@@ -1,3 +1,4 @@
+#--------------------------------Git-------------------------------------------
 find_package(Git REQUIRED)
 
 option(GIT_SUBMODULE "Check submodules during build" ON)
@@ -15,6 +16,9 @@ if(GIT_SUBMODULE)
             "please checkout submodules")
     endif()
 endif()
+#--------------------------------Glad------------------------------------------
+add_subdirectory(glad)
+#--------------------------------OpenGL----------------------------------------
 
 add_library(stb INTERFACE)
 target_include_directories(stb
