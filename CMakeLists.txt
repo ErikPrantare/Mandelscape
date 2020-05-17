@@ -21,6 +21,9 @@ configure_file(${CMAKE_BINARY_DIR}/compile_commands.json
 #---------------------------git submodule setup--------------------------------
 add_subdirectory(extern)
 
+#--------------------------------Glad------------------------------------------
+add_subdirectory(extern/glad)
+
 #---------------------------glm------------------------------------------------
 find_package(glm CONFIG QUIET)
 

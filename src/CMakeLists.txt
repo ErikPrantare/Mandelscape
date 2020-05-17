@@ -7,9 +7,6 @@ file(GLOB
 add_executable(MandelLandscape
     ${SRC})
 
-target_include_directories(MandelLandscape
-    PRIVATE "../include")
-
 target_link_libraries(MandelLandscape
     PRIVATE Threads::Threads
     PRIVATE glm

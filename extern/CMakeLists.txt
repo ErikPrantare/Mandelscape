@@ -16,8 +16,6 @@ if(GIT_SUBMODULE)
             "please checkout submodules")
     endif()
 endif()
-#--------------------------------Glad------------------------------------------
-add_subdirectory(glad)
 #--------------------------------OpenGL----------------------------------------
 
 add_library(stb INTERFACE)
