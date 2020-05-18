@@ -19,7 +19,11 @@ configure_file(${CMAKE_BINARY_DIR}/compile_commands.json
     COPYONLY)
 
 #---------------------------git submodule setup--------------------------------
-add_subdirectory(extern)
+option(UPDATE_SUBMODULES "Update git submodules before configuration" ON)
+
+if(UPDATE_SUBMODULES)
+  include(UpdateSubmodules)
+endif()
 
 #--------------------------------Glad------------------------------------------
 add_subdirectory(extern/glad)
