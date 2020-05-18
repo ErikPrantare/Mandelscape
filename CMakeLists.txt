@@ -25,14 +25,18 @@ add_subdirectory(extern)
 add_subdirectory(extern/glad)
 
 #---------------------------glm------------------------------------------------
-find_package(glm CONFIG QUIET)
+if(NOT CMAKE_CROSSCOMPILING)
+  find_package(glm CONFIG QUIET)
+endif()
 
 if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
 endif()
 
 #---------------------------glfw-----------------------------------------------
-find_package(GLFW QUIET)
+if(NOT CMAKE_CROSSCOMPILING)
+  find_package(GLFW QUIET)
+endif()
 
 if(NOT GLFW_FOUND)
     option(BUILD_SHARED_LIBS OFF)
@@ -45,12 +49,14 @@ endif()
 find_package(Threads REQUIRED)
 
 #---------------------------stb------------------------------------------------
-find_package(stb QUIET)
+if(NOT CMAKE_CROSSCOMPILING)
+  find_package(stb QUIET)
+endif()
 
 if(NOT stb_FOUND)
     add_library(stb INTERFACE IMPORTED)
 
-    target_link_directories(stb
+    target_include_directories(stb
         INTERFACE extern/stb)
 endif()
 
