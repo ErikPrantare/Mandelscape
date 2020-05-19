@@ -21,6 +21,13 @@ public:
                + glm::vec3(m_terrainOffset.x, 0.f, m_terrainOffset.y);
     }
 
+    glm::vec3
+    relativePosition() const
+    {
+        return m_position
+               + glm::vec3(m_terrainOffset.x, 0.f, m_terrainOffset.y);
+    }
+
     glm::vec2
     terrainOffset() const
     {
@@ -39,9 +46,14 @@ public:
         return m_lookAtOffset;
     }
 
-    glm::vec3 m_position = glm::vec3(0, 0, 0);
+    void
+    setHeight(double y)
+    {
+        m_position.y = y;
+    }
 
 private:
+    glm::vec3 m_position      = glm::vec3(0, 0, 0);
     glm::vec3 m_velocity      = glm::vec3(0, 0, 0);
     glm::vec2 m_terrainOffset = glm::vec2(0, 0);
     double m_scale            = 1.0;
@@ -50,7 +62,7 @@ private:
 
     glm::vec2 m_lookAtOffset = glm::vec2(0.0, 0.0);
 
-    static constexpr float movementSpeed = 1.0;
+    static constexpr double movementSpeed = 1.0;
 
     void
     keyDown(KeyDown key);

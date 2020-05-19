@@ -32,7 +32,10 @@ Window::Window(Config const& conf) : m_window(createWindow(conf))
 
     glfwMakeContextCurrent(m_window.get());
 
-    if(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == 0) {
+    const auto typeWrapper = [](auto x) {
+        return (void*)glfwGetProcAddress(x);
+    };
+    if(gladLoadGLLoader(typeWrapper) == 0) {
         std::cerr << "Something went wrong!\n";
         throw;
     }

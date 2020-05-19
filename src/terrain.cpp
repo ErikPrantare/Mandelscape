@@ -15,6 +15,9 @@ Terrain::Terrain() :
             m_loadingOffset{0.0, 0.0},
             m_scale{1.0},
             m_texture("textures/texture.png"),
+            m_VBO{0},
+            m_loadingVBO{0},
+            m_IBO{0},
             m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
             m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
 {
@@ -171,7 +174,7 @@ uploadMeshChunk(
         return true;
     }
 
-    glm::vec3 const* position = sourceMesh.data() + index;
+    glm::vec3 const* position = &sourceMesh[index];
 
     int chunkSize = std::min(maxChunkSize, sourceMesh.size() - index);
 
@@ -293,7 +296,7 @@ Terrain::render()
     m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.y);
     m_texture.makeActiveOn(GL_TEXTURE0);
 
-    int vertexCount = std::pow((granularity - 1), 2) * 3 * 2;
+    int vertexCount = int(std::pow((granularity - 1), 2)) * 3 * 2;
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);

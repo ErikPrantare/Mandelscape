@@ -14,6 +14,10 @@ public:
     ShaderProgram(ShaderProgram const&) = delete;
     ShaderProgram&
     operator=(ShaderProgram const&) = delete;
+    ShaderProgram(ShaderProgram&&)  = default;
+    ShaderProgram&
+    operator=(ShaderProgram&&) = default;
+    ~ShaderProgram()           = default;
 
     void
     attachShader(GLuint shader, GLenum shaderType);

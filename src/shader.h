@@ -10,23 +10,31 @@
 
 #include "shaderProgram.h"
 
+enum class ShaderType {
+    Vertex   = GL_VERTEX_SHADER,
+    Fragment = GL_FRAGMENT_SHADER
+};
+
+template<ShaderType type>
 class Shader {
 public:
     Shader()              = delete;
     Shader(Shader const&) = delete;
     Shader&
     operator=(Shader const&) = delete;
+    Shader(Shader&&)         = default;
+    Shader&
+    operator=(Shader&&) = default;
+    ~Shader()           = default;
 
     static Shader
-    fromFile(std::string const& filePath, GLenum shaderType);
+    fromFile(std::string const& filePath);
 
     static Shader
-    fromCode(std::string const& sourceCode, GLenum shaderType);
+    fromCode(std::string const& sourceCode);
 
     void
     attachTo(ShaderProgram& program) const;
-
-    GLenum const type;
 
 private:
     struct LocationDeleter {
@@ -38,12 +46,15 @@ private:
         }
     };
 
-    Shader(std::string const& sourceCode, GLenum shaderType);
+    Shader(std::string const& sourceCode);
 
     std::unique_ptr<GLuint const, LocationDeleter> m_location;
 
     static GLuint const*
-    createShader(std::string const& sourceCode, GLenum shaderType);
+    createShader(std::string const& sourceCode);
 };
+
+using VertexShader   = Shader<ShaderType::Vertex>;
+using FragmentShader = Shader<ShaderType::Fragment>;
 
 #endif

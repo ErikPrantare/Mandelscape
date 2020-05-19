@@ -24,14 +24,15 @@ isDone(std::future<T> const& f)
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
+template<typename T>
 class LowPassFilter {
 public:
-    LowPassFilter(float const init, float const amount) :
+    LowPassFilter(T const init, double const amount) :
                 m_filteredValue(init),
                 m_amount(amount){};
 
-    float
-    operator()(float const newValue, float const weight = 1.0f)
+    T
+    operator()(T const newValue, double const weight = 1.0f)
     {
         const float factor = std::pow(m_amount, weight);
 
@@ -40,8 +41,8 @@ public:
     }
 
 private:
-    float m_filteredValue;
-    float const m_amount;
+    T m_filteredValue;
+    double const m_amount;
 };
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains

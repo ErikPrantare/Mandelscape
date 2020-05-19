@@ -16,9 +16,9 @@ generateTexture()
 
 Texture::Texture(std::string const& path) : m_location(generateTexture())
 {
-    int width;
-    int height;
-    int nrChannels;
+    int width      = 0;
+    int height     = 0;
+    int nrChannels = 0;
     unsigned char* const image =
             stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
     if(image == nullptr) {

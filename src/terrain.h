@@ -23,6 +23,13 @@
 class Terrain {
 public:
     Terrain();
+    Terrain(const Terrain&) = delete;
+    Terrain&
+    operator=(const Terrain&) = delete;
+    Terrain(Terrain&&)        = delete;
+    Terrain&
+    operator=(Terrain&&) = delete;
+
     ~Terrain();
 
     void
@@ -57,14 +64,13 @@ private:
 
     ShaderProgram m_shaderProgram = ShaderProgram();
 
-    Shader m_vertexShader =
-            Shader::fromFile("shaders/shader.vert", GL_VERTEX_SHADER);
+    VertexShader m_vertexShader = VertexShader::fromFile("shaders/shader.vert");
 
-    Shader m_shallowFragShader =
-            Shader::fromFile("shaders/shader.frag", GL_FRAGMENT_SHADER);
+    FragmentShader m_shallowFragShader =
+            FragmentShader::fromFile("shaders/shader.frag");
 
-    Shader m_deepFragShader =
-            Shader::fromFile("shaders/deepShader.frag", GL_FRAGMENT_SHADER);
+    FragmentShader m_deepFragShader =
+            FragmentShader::fromFile("shaders/deepShader.frag");
 
     enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
     Texture m_texture;

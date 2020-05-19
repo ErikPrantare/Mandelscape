@@ -1,5 +1,8 @@
 Checks: '-*,readability-*,-readability-named-parameter,
--readability-magic-numbers,-readability-make-member-function-const'
+-readability-magic-numbers,-readability-make-member-function-const,
+cppcoreguidelines-*,-cppcoreguidelines-owning-memory,
+-cppcoreguidelines-pro-type-union-access,
+-cppcoreguidelines-avoid-magic-numbers'
 
 CheckOptions:
   - key: readability-identifier-naming.VariableCase
