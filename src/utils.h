@@ -34,7 +34,7 @@ public:
     T
     operator()(T const newValue, double const weight = 1.0f)
     {
-        const float factor = std::pow(m_amount, weight);
+        const double factor = std::pow(m_amount, weight);
 
         m_filteredValue = factor * m_filteredValue + (1.0f - factor) * newValue;
         return m_filteredValue;

@@ -96,7 +96,7 @@ renderScene(
             glm::yawPitchRoll(
                     -player.lookAtOffset().x,
                     player.lookAtOffset().y,
-                    0.f)
+                    0.0)
             * glm::vec4(0.f, 0.f, 1.f, 0.f));
 
     ShaderProgram& program = terrain.shaderProgram();

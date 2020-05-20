@@ -104,7 +104,7 @@ Terrain::handleEvent(Event event)
 
 void
 Terrain::loadMesh(
-        glm::vec2 offset,
+        glm::dvec2 offset,
         double const _scale,
         std::vector<glm::vec3>* const buffer)
 {
