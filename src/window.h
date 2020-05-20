@@ -15,14 +15,16 @@ class Window {
 public:
     Window(Config const& conf);
 
-    Window()              = default;
+    Window()  = default;
+    ~Window() = default;
+
+    Window(Window&&) = default;
+    Window&
+    operator=(Window&&) = default;
+
     Window(Window const&) = delete;
     Window&
     operator=(Window const&) = delete;
-    Window(Window&&)         = default;
-    Window&
-    operator=(Window&&) = default;
-    ~Window()           = default;
 
     std::optional<Event>
     nextEvent();
