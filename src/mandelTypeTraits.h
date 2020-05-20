@@ -7,26 +7,26 @@ template<bool predicate>
 using Require = std::enable_if_t<predicate>;
 
 template<class T1, class T2>
-inline bool constexpr Same = std::is_same_v<T1, T2>;
+inline bool constexpr same = std::is_same_v<T1, T2>;
 
 template<class T1, class T2>
-using RequireSame = Require<Same<T1, T2>>;
+using RequireSame = Require<same<T1, T2>>;
 
 template<class Callable, class ResultType, class... Args>
-inline bool constexpr Returns =
-        Same<std::invoke_result_t<Callable, Args...>, ResultType>;
+inline bool constexpr returns =
+        same<std::invoke_result_t<Callable, Args...>, ResultType>;
 
 template<class Callable, class ResultType, class... Args>
-using RequireReturns = Require<Returns<Callable, ResultType, Args...>>;
+using RequireReturns = Require<returns<Callable, ResultType, Args...>>;
 
 template<class Callable, class... Arguments>
 using RequireCallableWith = std::invoke_result_t<Callable, Arguments...>;
 
 template<class Callable, class Argument>
-static bool constexpr EndomorphismOf = Returns<Callable, Argument, Argument>;
+static bool constexpr endomorphismOf = returns<Callable, Argument, Argument>;
 
 template<class Callable, class Argument>
-using RequireEndomorphismOf = Require<EndomorphismOf<Callable, Argument>>;
+using RequireEndomorphismOf = Require<endomorphismOf<Callable, Argument>>;
 
 template<class Type, template<class...> class Template>
 struct SpecialisationOf : std::false_type {
