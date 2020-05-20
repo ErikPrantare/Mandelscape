@@ -24,14 +24,15 @@ isDone(std::future<T> const& f)
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
+template<typename T>
 class LowPassFilter {
 public:
-    LowPassFilter(float const init, float const amount) :
+    LowPassFilter(T const init, double const amount) :
                 m_filteredValue(init),
                 m_amount(amount){};
 
-    float
-    operator()(float const newValue, float const weight = 1.0f)
+    T
+    operator()(T const newValue, double const weight = 1.0f)
     {
         const float factor = std::pow(m_amount, weight);
 
@@ -40,8 +41,8 @@ public:
     }
 
 private:
-    float m_filteredValue;
-    float const m_amount;
+    T m_filteredValue;
+    double const m_amount;
 };
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
@@ -53,14 +54,14 @@ contains(std::map<KeyType, ValueType> const& map, KeyType key)
 }
 
 template<typename... Callables>
-struct overload : Callables... {
+struct Overload : Callables... {
     using Callables::operator()...;
 };
 
 // CPP20
 // https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
 template<typename... Callables>
-overload(Callables...) -> overload<Callables...>;
+Overload(Callables...) -> Overload<Callables...>;
 
 auto constexpr unaryNOP = [](auto&&) {
 };
@@ -69,8 +70,9 @@ template<typename T, typename Container>
 std::optional<T>
 pop(std::queue<T, Container>& queue)
 {
-    if(queue.empty())
+    if(queue.empty()) {
         return std::nullopt;
+    }
 
     auto a = queue.front();
     queue.pop();

@@ -114,8 +114,10 @@ main()
         z.zw += z.zw;
         z.xy = doubleSum(realSquare, -imagSquare);
         z = doubleCompSum(z, c);
+
         realSquare = doubleProd(z.xy, z.xy);
         imagSquare = doubleProd(z.zw, z.zw);
+
         if(realSquare.x + imagSquare.x > 256.0f * 256.0f) {
             float colorVal = float(i) - log2(log2(realSquare.x + imagSquare.x));
             fragColor =

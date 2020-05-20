@@ -39,19 +39,19 @@ public:
     setPosition(glm::vec3 const&);
 
     void
-    setScale(float const scale);
+    setScale(double scale);
 
 private:
     glm::mat4
     lookAtMatrix() const;
 
-    float m_width, m_height;
+    double m_width, m_height;
     float m_zNear, m_zFar;
     float m_FOV;
     glm::vec3 m_pos;
     glm::vec3 m_up;
     glm::vec3 m_lookAt;
-    float m_worldScale;
+    double m_worldScale;
 };
 
 #endif
