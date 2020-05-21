@@ -1,8 +1,8 @@
-#version 300 es
+#version 330 core
 
 precision highp float;
 
-in vec3 position;
+in vec2 position;
 in float distance;
 out vec4 fragColor;
 
@@ -31,7 +31,7 @@ main()
     fog       = pow(fog, 2.0);
     fragColor = vec4(fog, fog, fog, 1.0);
 
-    vec2 c = position.xz + offset;
+    vec2 c = position + offset;
 
     // main cardioid check
     float q = pow(c.x - 0.25f, 2.0f) + c.y * c.y;

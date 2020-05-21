@@ -31,7 +31,7 @@ renderScene(
         Terrain& terrain,
         const Player& player,
         Config const& config,
-        float dt);
+        double dt);
 
 Config
 initConfig();
@@ -45,11 +45,11 @@ main(int argc, char** argv)
     Terrain terrain = Terrain();
 
     Player player;
-    float lastTimepoint = glfwGetTime();
+    double lastTimepoint = glfwGetTime();
     while(window.update()) {
-        const float currentTimepoint = glfwGetTime();
-        const float dt               = currentTimepoint - lastTimepoint;
-        lastTimepoint                = currentTimepoint;
+        const double currentTimepoint = glfwGetTime();
+        const double dt               = currentTimepoint - lastTimepoint;
+        lastTimepoint                 = currentTimepoint;
 
         while(auto eventOpt = window.nextEvent()) {
             auto const event = eventOpt.value();
@@ -63,7 +63,7 @@ main(int argc, char** argv)
         auto terrainOffset =
                 terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale());
         player.update(terrainOffset, dt);
-        player.m_position.y = terrain.heightAt({pos.x, pos.z});
+        player.setHeight(terrain.heightAt({pos.x, pos.z}));
 
         renderScene(terrain, player, config, dt);
     }
@@ -76,14 +76,12 @@ renderScene(
         Terrain& terrain,
         const Player& player,
         Config const& config,
-        float dt)
+        double dt)
 {
-    glEnableVertexAttribArray(0);
-
     auto camera = Camera(config);
     camera.setScale(player.scale());
 
-    glm::vec3 cameraPosition = player.m_position;
+    glm::vec3 cameraPosition = player.relativePosition();
     cameraPosition.y += player.scale();
 
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
@@ -104,8 +102,6 @@ renderScene(
     program.setUniformMatrix4("projection", camera.projection());
 
     terrain.render();
-
-    glDisableVertexAttribArray(0);
 }
 
 Config

@@ -53,7 +53,7 @@ Camera::lookAtMatrix() const
 void
 Camera::move(glm::vec3 const& movement)
 {
-    glm::vec3 const adjustedMovement = m_worldScale * movement;
+    glm::vec3 const adjustedMovement = float(m_worldScale) * movement;
 
     m_pos += adjustedMovement.y * m_up;
 
@@ -68,9 +68,9 @@ Camera::move(glm::vec3 const& movement)
 glm::mat4
 Camera::projection() const
 {
-    float const aspectRatio = m_width / m_height;
+    double const aspectRatio = m_width / m_height;
 
-    return glm::perspective(m_FOV, aspectRatio, m_zNear, m_zFar);
+    return glm::perspective(m_FOV, float(aspectRatio), m_zNear, m_zFar);
 }
 
 glm::mat4
@@ -99,7 +99,7 @@ Camera::setPosition(glm::vec3 const& pos)
 }
 
 void
-Camera::setScale(float const scale)
+Camera::setScale(double const scale)
 {
     m_worldScale = scale;
 }
