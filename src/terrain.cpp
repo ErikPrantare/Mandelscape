@@ -104,7 +104,7 @@ Terrain::handleEvent(Event event)
 
 void
 Terrain::loadMesh(
-        glm::vec2 offset,
+        glm::dvec2 offset,
         double const _scale,
         std::vector<glm::vec3>* const buffer)
 {
@@ -188,7 +188,7 @@ uploadMeshChunk(
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-glm::vec2
+glm::dvec2
 Terrain::updateMesh(double const x, double const z, double const scale)
 {
     const bool uploadingDone = uploadMeshChunk(
@@ -213,8 +213,9 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         case State::Uploading: {
             std::swap(m_VBO, m_loadingVBO);
 
-            m_offset        = m_loadingOffset;
-            m_loadingOffset = {x, z};
+            m_offset = m_loadingOffset;
+            // HACK: cast to float to not cause trouble for the shader
+            m_loadingOffset = {(float)x, (float)z};
             m_scale         = scale;
 
             startLoading();
