@@ -24,8 +24,7 @@ public:
     glm::vec3
     relativePosition() const
     {
-        return m_position
-               + glm::vec3(m_terrainOffset.x, 0.f, m_terrainOffset.y);
+        return m_position;
     }
 
     glm::vec2
