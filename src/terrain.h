@@ -75,7 +75,10 @@ private:
     enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
     Texture m_texture;
 
-    GLuint m_VBO, m_loadingVBO, m_IBO;
+    GLuint m_VAO        = 0;
+    GLuint m_VBO        = 0;
+    GLuint m_loadingVBO = 0;
+    GLuint m_EBO        = 0;
 
     unsigned int m_loadIndex = 0;
 

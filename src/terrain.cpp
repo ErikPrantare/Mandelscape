@@ -17,17 +17,21 @@ Terrain::Terrain() :
             m_texture("textures/texture.png"),
             m_VBO{0},
             m_loadingVBO{0},
-            m_IBO{0},
+            m_EBO{0},
             m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
             m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
 {
     loadMesh(m_loadingOffset, m_scale, m_currentMeshPoints.get());
     loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());
 
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+
     glGenBuffers(1, &m_VBO);
-    glGenBuffers(1, &m_IBO);
+    glGenBuffers(1, &m_EBO);
     glGenBuffers(1, &m_loadingVBO);
 
+    glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(
             GL_ARRAY_BUFFER,
@@ -44,7 +48,7 @@ Terrain::Terrain() :
 
     auto meshIndices = generateMeshIndices();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
     glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             meshIndices.size() * sizeof(meshIndices[0]),
@@ -61,9 +65,11 @@ Terrain::Terrain() :
 Terrain::~Terrain()
 {
     m_loadingProcess.wait();
+
+    glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_VBO);
-    glDeleteBuffers(1, &m_IBO);
     glDeleteBuffers(1, &m_loadingVBO);
+    glDeleteBuffers(1, &m_EBO);
 }
 
 ShaderProgram&
@@ -297,8 +303,9 @@ Terrain::render()
     m_texture.makeActiveOn(GL_TEXTURE0);
 
     int vertexCount = int(std::pow((granularity - 1), 2)) * 3 * 2;
+
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
 }

@@ -78,8 +78,6 @@ renderScene(
         Config const& config,
         double dt)
 {
-    glEnableVertexAttribArray(0);
-
     auto camera = Camera(config);
     camera.setScale(player.scale());
 
@@ -104,8 +102,6 @@ renderScene(
     program.setUniformMatrix4("projection", camera.projection());
 
     terrain.render();
-
-    glDisableVertexAttribArray(0);
 }
 
 Config
