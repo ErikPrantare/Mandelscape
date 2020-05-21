@@ -188,7 +188,7 @@ uploadMeshChunk(
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-glm::vec2
+glm::dvec2
 Terrain::updateMesh(double const x, double const z, double const scale)
 {
     const bool uploadingDone = uploadMeshChunk(

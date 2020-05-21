@@ -35,7 +35,7 @@ public:
     void
     handleEvent(Event event);
 
-    glm::vec2
+    glm::dvec2
     updateMesh(double, double, double);
 
     int
