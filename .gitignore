@@ -26,3 +26,6 @@ compile_commands.json
 
 #Custom build/run files
 *.sh
+
+#Local diagnostic files
+*.cap
