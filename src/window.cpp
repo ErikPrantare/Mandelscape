@@ -7,13 +7,20 @@
 #include "event.h"
 #include "utils.h"
 
+void
+glfwErrorCallback(int code, char const* description)
+{
+    std::cerr << "Error code: " << code << "\nDescription: " << description
+              << '\n';
+}
+
 GLFWwindow*
 createWindow(Config const& conf)
 {
     glfwInit();
-    glfwWindowHint(GLFW_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     return glfwCreateWindow(
             conf.get<Settings::WindowWidth>(),
