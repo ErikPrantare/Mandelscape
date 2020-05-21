@@ -25,7 +25,4 @@ compile_commands.json
 .clangd/
 
 #Custom build/run files
-build.sh
-run.sh
-startup.sh
-configure.sh
+*.sh
