@@ -27,7 +27,7 @@ Player::handleEvent(Event const event)
 }
 
 void
-Player::update(glm::dvec2 terrainOffset, double dt)
+Player::update(glm::dvec2 const& terrainOffset, double dt)
 {
     // HACK: m_position -= instead of +=.
     // -m_lookAtOffset.x. Probably some spooky stuff with

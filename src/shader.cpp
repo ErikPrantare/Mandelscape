@@ -31,7 +31,7 @@ Shader<type>::createShader(std::string const& sourceCode)
                                                         : std::string("VERT");
 
         std::cerr << "Error compiling shader type " << typeStr << ": "
-                  << "'" << infoLog.data() << "'" << std::endl;
+                  << "'" << infoLog.c_str() << "'" << std::endl;
         throw;
     }
 

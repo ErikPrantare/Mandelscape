@@ -97,7 +97,7 @@ renderScene(
                     0.0)
             * glm::dvec4(0.0, 0.0, 1.0, 0.0));
 
-    ShaderProgram& program = terrain.shaderProgram();
+    auto& program = terrain.shaderProgram();
     program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program.setUniformMatrix4("projection", camera.projection());
 

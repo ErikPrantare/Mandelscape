@@ -12,7 +12,7 @@ public:
     handleEvent(Event event);
 
     void
-    update(glm::dvec2 terrainOffset, double dt);
+    update(glm::dvec2 const& terrainOffset, double dt);
 
     glm::dvec3
     absolutePosition() const
@@ -61,7 +61,7 @@ private:
 
     glm::dvec2 m_lookAtOffset = glm::dvec2(0.0, 0.0);
 
-    static constexpr double movementSpeed = 1.0;
+    static double constexpr movementSpeed = 1.0;
 
     void
     keyDown(KeyDown key);
