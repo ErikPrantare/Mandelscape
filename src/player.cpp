@@ -15,7 +15,6 @@ Player::handleEvent(Event const event)
 {
     // CPP20
     // https://en.cppreference.com/w/cpp/utility/functional/bind_front
-
     std::visit(
             util::Overload{
                     [this](KeyDown keyEvent) { keyDown(keyEvent); },
@@ -28,13 +27,12 @@ Player::handleEvent(Event const event)
 }
 
 void
-Player::update(glm::vec2 terrainOffset, double dt)
+Player::update(glm::dvec2 const& terrainOffset, double dt)
 {
     // HACK: m_position -= instead of +=.
     // -m_lookAtOffset.x. Probably some spooky stuff with
     // the coordinate system again. Look into.
-    m_position -= float(dt) * float(m_scale)
-                  * glm::rotateY(m_velocity, -m_lookAtOffset.x);
+    m_position -= dt * m_scale * glm::rotateY(m_velocity, -m_lookAtOffset.x);
     if(m_autoZoom) {
         m_scale = m_position.y;
     }
@@ -65,10 +63,10 @@ Player::keyDown(KeyDown const key)
         m_velocity.x += movementSpeed;
     } break;
     case GLFW_KEY_J: {
-        m_scaleVelocity += -1.f;
+        m_scaleVelocity += -1.0;
     } break;
     case GLFW_KEY_K: {
-        m_scaleVelocity += 1.f;
+        m_scaleVelocity += 1.0;
     } break;
     case GLFW_KEY_O: {
         m_autoZoom = !m_autoZoom;
@@ -93,10 +91,10 @@ Player::keyUp(KeyUp const key)
         m_velocity.x += -movementSpeed;
     } break;
     case GLFW_KEY_J: {
-        m_scaleVelocity += 1.f;
+        m_scaleVelocity += 1.0;
     } break;
     case GLFW_KEY_K: {
-        m_scaleVelocity += -1.f;
+        m_scaleVelocity += -1.0;
     } break;
     }
 }
@@ -104,10 +102,10 @@ Player::keyUp(KeyUp const key)
 void
 Player::mouseMove(MouseMove mouse)
 {
-    m_lookAtOffset.x += mouse.dx / 100.f;
-    m_lookAtOffset.y += mouse.dy / 100.f;
+    m_lookAtOffset.x += mouse.dx / 100.0;
+    m_lookAtOffset.y += mouse.dy / 100.0;
     m_lookAtOffset.y = std::clamp(
             m_lookAtOffset.y,
-            float(-glm::pi<double>() / 2 + 0.001),
-            float(glm::pi<double>() / 2 - 0.001));
+            -glm::pi<double>() / 2 + 0.001,
+            glm::pi<double>() / 2 - 0.001);
 };

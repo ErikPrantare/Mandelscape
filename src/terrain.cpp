@@ -110,7 +110,7 @@ Terrain::handleEvent(Event event)
 
 void
 Terrain::loadMesh(
-        glm::vec2 offset,
+        glm::dvec2 offset,
         double const _scale,
         std::vector<glm::vec3>* const buffer)
 {
@@ -194,7 +194,7 @@ uploadMeshChunk(
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-glm::vec2
+glm::dvec2
 Terrain::updateMesh(double const x, double const z, double const scale)
 {
     const bool uploadingDone = uploadMeshChunk(
