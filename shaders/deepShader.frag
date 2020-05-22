@@ -34,7 +34,7 @@ twoSum(float a, float b)
 vec2
 split(float a)
 {
-    float t = (pow(2.0, 12.0) + 1.0) * a;
+    float t = (pow(2.0, 12.0) + 1.0) * a * ONE;
     float hi = t - (t - a);
     float lo = a - hi;
     return vec2(hi, lo);
