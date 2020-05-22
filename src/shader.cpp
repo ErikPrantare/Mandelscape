@@ -25,13 +25,13 @@ Shader<type>::createShader(std::string const& sourceCode)
     GLint success = 0;
     glGetShaderiv(*location, GL_COMPILE_STATUS, &success);
     if(success == 0) {
-        auto infoLog = std::basic_string<GLchar>(1024, ' ');
+        auto infoLog = std::array<GLchar, 1024>();
         glGetShaderInfoLog(*location, sizeof(infoLog), nullptr, infoLog.data());
         auto typeStr = shaderType == GL_FRAGMENT_SHADER ? std::string("FRAG")
                                                         : std::string("VERT");
 
         std::cerr << "Error compiling shader type " << typeStr << ": "
-                  << "'" << infoLog << "'" << std::endl;
+                  << "'" << infoLog.c_str() << "'" << std::endl;
         throw;
     }
 

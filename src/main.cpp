@@ -94,10 +94,10 @@ renderScene(
             glm::yawPitchRoll(
                     -player.lookAtOffset().x,
                     player.lookAtOffset().y,
-                    0.f)
-            * glm::vec4(0.f, 0.f, 1.f, 0.f));
+                    0.0)
+            * glm::dvec4(0.0, 0.0, 1.0, 0.0));
 
-    ShaderProgram& program = terrain.shaderProgram();
+    auto& program = terrain.shaderProgram();
     program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program.setUniformMatrix4("projection", camera.projection());
 
@@ -110,8 +110,8 @@ initConfig()
     Config conf;
     conf.set<Settings::WindowWidth>(1366);
     conf.set<Settings::WindowHeight>(768);
-    conf.set<Settings::ClippingPlaneNear>(0.01f);
-    conf.set<Settings::ClippingPlaneFar>(150.0f);
+    conf.set<Settings::ClippingPlaneNear>(0.01);
+    conf.set<Settings::ClippingPlaneFar>(150.0);
     conf.set<Settings::FOV>(pi / 2);
     conf.set<Settings::UseDeepShader>(false);
     conf.set<Settings::Iterations>(100);
