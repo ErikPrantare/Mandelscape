@@ -79,7 +79,6 @@ ShaderProgram::compile()
                 errorLog.data());
 
         std::cerr << "Invalid shader program: " << errorLog.data() << '\n';
-        throw;
     }
 
     glUseProgram(*m_location);
