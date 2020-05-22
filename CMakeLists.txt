@@ -58,6 +58,13 @@ if(NOT GLFW_FOUND)
   option(GLFW_INSTALL OFF)
 
   add_subdirectory(extern/glfw)
+
+  if(NOT TARGET glfw::glfw)
+    add_library(glfw::glfw INTERFACE IMPORTED)
+
+    target_link_libraries(glfw::glfw
+        INTERFACE glfw)
+  endif()
 endif()
 
 #---------------------------stb------------------------------------------------
