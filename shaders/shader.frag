@@ -11,9 +11,9 @@ uniform vec2 offset;
 uniform int iterations;
 
 vec2
-complexMultiplication(const in vec2 a, const in vec2 b)
+complexSquare(const in vec2 a)
 {
-    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+    return vec2(a.x * a.x - a.y * a.y, 2.0 * a.x * a.y);
 }
 
 void
@@ -47,7 +47,7 @@ main()
     vec2 z   = vec2(0.0, 0.0);
 
     for(int i = 0; i < iterations; ++i) {
-        z = complexMultiplication(z, z) + c;
+        z = complexSquare(z) + c;
         if(dot(z, z) > 256.0f * 256.0f) {
             float colorVal = float(i) - log2(log2(dot(z, z)));
             fragColor =
