@@ -25,7 +25,10 @@ if(UPDATE_SUBMODULES)
   include(UpdateSubmodules)
 endif()
 
-#--------------------------------Glad------------------------------------------
+#---------------------------Threading library----------------------------------
+find_package(Threads REQUIRED)
+
+#---------------------------Glad------------------------------------------
 add_subdirectory(extern/glad)
 
 #---------------------------glm------------------------------------------------
@@ -37,31 +40,41 @@ if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
 endif()
 
+if(TARGET glm AND NOT TARGET glm::glm)
+  add_library(glm::glm INTERFACE IMPORTED)
+
+  target_link_libraries(glm::glm
+      INTERFACE glm)
+endif()
+
 #---------------------------glfw-----------------------------------------------
 if(NOT CMAKE_CROSSCOMPILING)
   find_package(GLFW QUIET)
 endif()
 
 if(NOT GLFW_FOUND)
-    option(BUILD_SHARED_LIBS OFF)
-    option(GLFW_BUILD_DOCS OFF)
-    option(GLFW_INSTALL OFF)
+  option(BUILD_SHARED_LIBS OFF)
+  option(GLFW_BUILD_DOCS OFF)
+  option(GLFW_INSTALL OFF)
 
-    add_subdirectory(extern/glfw)
+  add_subdirectory(extern/glfw)
 endif()
-
-find_package(Threads REQUIRED)
 
 #---------------------------stb------------------------------------------------
 if(NOT CMAKE_CROSSCOMPILING)
   find_package(stb QUIET)
 endif()
 
-if(NOT stb_FOUND)
-    add_library(stb INTERFACE IMPORTED)
+if(NOT TARGET stb::stb)
+  add_library(stb::stb INTERFACE IMPORTED)
 
-    target_include_directories(stb
+  if(stb_FOUND)
+    target_link_libraries(stb::stb
+        INTERFACE stb)
+  else()
+    target_include_directories(stb::stb
         INTERFACE extern/stb)
+  endif()
 endif()
 
 #---------------------------MandelLandscape------------------------------------
