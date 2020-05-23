@@ -1,6 +1,7 @@
+# Build Guide (Linux)
 To build, run:
 ```
-git clone git@github.com:ErikPrantare/MandelLandscape.git
+git clone https://github.com/ErikPrantare/MandelLandscape.git
 cd MandelLandscape
 cmake . -Bbuild
 cmake --build ./build/
@@ -8,5 +9,23 @@ mv ./build/src/MandelLandscape .
 ```
 
 If everything built correctly, the program can now be run from `./MandelLandscape`
+
+# Binary Download (Windows)
+A binary for windows is available through this torrent link:
+
+magnet:?xt=urn:btih:N655XIAT6CYTC3TOLADDM2XEHSGHDGH4&dn=MandelLandscape_0_0_0.zip&xl=372860&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce
+
+# Controls
+- <kbd>w</kbd><kbd>a</kbd><kbd>s</kbd><kbd>d</kbd> + mouse to walk and look around.
+
+- <kbd>j</kbd>/<kbd>k</kbd> to zoom in/out.
+
+- <kbd>u</kbd>/<kbd>i</kbd> to change iteration count.
+
+- <kbd>h</kbd> to allow for a bit deeper zooms. Will increase lag drastically.
+
+- <kbd>o</kbd> to toggle autozoom. Do not enable while standing on the black area.
+
+- <kbd>q</kbd> to quit.
 
 ![](preview.png?raw=true "Title")
