@@ -40,7 +40,7 @@ if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
 endif()
 
-if(TARGET glm AND NOT TARGET glm::glm)
+if((TARGET glm) AND (NOT TARGET glm::glm))
   add_library(glm::glm INTERFACE IMPORTED)
 
   target_link_libraries(glm::glm
