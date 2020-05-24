@@ -6,7 +6,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/projection.hpp>
 
 #include "config.h"
 
@@ -48,21 +47,6 @@ Camera::lookAtMatrix() const
     glm::dvec3 const up      = normalize(cross(forward, right));
 
     return glm::lookAt(m_pos, m_pos + forward, up);
-}
-
-void
-Camera::move(glm::dvec3 const& movement)
-{
-    glm::dvec3 const adjustedMovement = m_worldScale * movement;
-
-    m_pos += adjustedMovement.y * m_up;
-
-    glm::dvec3 const front =
-            glm::normalize(m_lookAt - glm::proj(m_lookAt, m_up));
-    m_pos += adjustedMovement.z * front;
-
-    glm::dvec3 const right = glm::normalize(cross(front, m_up));
-    m_pos += adjustedMovement.x * right;
 }
 
 glm::dmat4
