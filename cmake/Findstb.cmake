@@ -2,7 +2,9 @@ find_path(STB_STB_INCLUDE_DIR
     NAMES
         stb/stb_image.h)
 
-find_path(STB_INCLUDE_DIR ${STB_STB_INCLUDE_DIR}/stb)
+if(STB_STB_INCLUDE_DIR)
+    set(STB_INCLUDE_DIR ${STB_STB_INCLUDE_DIR}/stb)
+endif()
 
 mark_as_advanced(STB_STB_INCLUDE_DIR STB_INCLUDE_DIR)
 
