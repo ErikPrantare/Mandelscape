@@ -1,24 +1,14 @@
 project(glad LANGUAGES C)
 
-option(GLAD_BUILD_STATIC "Build glad as a static library" ON)
+add_library(glad STATIC)
 
-if(GLAD_BUILD_STATIC)
-  add_library(glad_static STATIC)
-
-  set(GLAD_LIB_NAME glad_static)
-else()
-  add_library(glad_shared SHARED)
-
-  set(GLAD_LIB_NAME glad_shared)
-endif()
-
-target_sources(${GLAD_LIB_NAME}
+target_sources(glad
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c)
  
-target_include_directories(${GLAD_LIB_NAME}
+target_include_directories(glad
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(${GLAD_LIB_NAME}
+target_link_libraries(glad
     PRIVATE ${CMAKE_DL_LIBS})
 
-add_library(glad::glad ALIAS ${GLAD_LIB_NAME})
+add_library(glad::glad ALIAS glad)

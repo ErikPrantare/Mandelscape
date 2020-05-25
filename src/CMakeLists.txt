@@ -7,7 +7,7 @@ add_executable(MandelLandscape
 set_target_properties(MandelLandscape
     PROPERTIES
         CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED
+        CXX_STANDARD_REQUIRED TRUE
         INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 target_link_libraries(MandelLandscape
