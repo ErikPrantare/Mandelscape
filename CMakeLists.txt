@@ -78,8 +78,8 @@ if(NOT TARGET stb::stb)
   add_library(stb::stb INTERFACE IMPORTED)
 
   if(stb_FOUND)
-    target_link_libraries(stb::stb
-        INTERFACE stb)
+    target_include_directories(stb::stb
+        INTERFACE ${stb_INCLUDE_DIR})
   else()
     target_include_directories(stb::stb
         INTERFACE extern/stb)
