@@ -1,11 +1,13 @@
-set(CMAKE_CXX_STANDARD 17)
-
 file(GLOB 
-    SRC
-    "*.cpp")
+    SRC "*.cpp")
 
 add_executable(MandelLandscape
     ${SRC})
+
+set_target_properties(MandelLandscape
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED)
 
 target_link_libraries(MandelLandscape
     PRIVATE Threads::Threads

@@ -25,10 +25,16 @@ if(UPDATE_SUBMODULES)
   include(UpdateSubmodules)
 endif()
 
+#---------------------------CCache setup---------------------------------------
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+endif()
+
 #---------------------------Threading library----------------------------------
 find_package(Threads REQUIRED)
 
-#---------------------------Glad------------------------------------------
+#---------------------------Glad-----------------------------------------------
 add_subdirectory(extern/glad)
 
 #---------------------------glm------------------------------------------------
@@ -40,7 +46,7 @@ if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
 endif()
 
-if((TARGET glm) AND (NOT TARGET glm::glm))
+if(NOT TARGET glm::glm)
   add_library(glm::glm INTERFACE IMPORTED)
 
   target_link_libraries(glm::glm
@@ -58,13 +64,13 @@ if(NOT GLFW_FOUND)
   option(GLFW_INSTALL OFF)
 
   add_subdirectory(extern/glfw)
+endif()
 
-  if(NOT TARGET glfw::glfw)
-    add_library(glfw::glfw INTERFACE IMPORTED)
+if(NOT TARGET glfw::glfw)
+  add_library(glfw::glfw INTERFACE IMPORTED)
 
-    target_link_libraries(glfw::glfw
-        INTERFACE glfw)
-  endif()
+  target_link_libraries(glfw::glfw
+      INTERFACE glfw)
 endif()
 
 #---------------------------stb------------------------------------------------
