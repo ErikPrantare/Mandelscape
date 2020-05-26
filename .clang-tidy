@@ -15,4 +15,4 @@ CheckOptions:
   - key: readability-uppercase-literal-suffix.NewSuffixes
     value: L;LL;Lu;LLu
 
-HeaderFilterRegex: 'src/'
+HeaderFilterRegex: 'src/|tests/'
