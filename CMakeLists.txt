@@ -1,5 +1,5 @@
 #---------------------------CMake Project Config-------------------------------
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 
 project(MandelLandscape LANGUAGES CXX)
 
@@ -8,7 +8,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
+if(CMAKE_VERSION VERSION_LESS 3.12)
+    file(APPEND ${CMAKE_BINARY_DIR}/compile_commands.json "")
+else()
+    file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
+endif()
 
 configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
     ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
@@ -21,16 +25,10 @@ if(UPDATE_SUBMODULES)
   include(UpdateSubmodules)
 endif()
 
-#---------------------------CCache setup---------------------------------------
-find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
-endif()
-
 #---------------------------Threading library----------------------------------
 find_package(Threads REQUIRED)
 
-#---------------------------Glad-----------------------------------------------
+#---------------------------Glad------------------------------------------
 add_subdirectory(extern/glad)
 
 #---------------------------glm------------------------------------------------
@@ -42,7 +40,7 @@ if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
 endif()
 
-if(NOT TARGET glm::glm)
+if((TARGET glm) AND (NOT TARGET glm::glm))
   add_library(glm::glm INTERFACE IMPORTED)
 
   target_link_libraries(glm::glm
@@ -60,13 +58,13 @@ if(NOT GLFW_FOUND)
   option(GLFW_INSTALL OFF)
 
   add_subdirectory(extern/glfw)
-endif()
 
-if(NOT TARGET glfw::glfw)
-  add_library(glfw::glfw INTERFACE IMPORTED)
+  if(NOT TARGET glfw::glfw)
+    add_library(glfw::glfw INTERFACE IMPORTED)
 
-  target_link_libraries(glfw::glfw
-      INTERFACE glfw)
+    target_link_libraries(glfw::glfw
+        INTERFACE glfw)
+  endif()
 endif()
 
 #---------------------------stb------------------------------------------------
@@ -78,8 +76,8 @@ if(NOT TARGET stb::stb)
   add_library(stb::stb INTERFACE IMPORTED)
 
   if(stb_FOUND)
-    target_include_directories(stb::stb
-        INTERFACE ${stb_INCLUDE_DIR})
+    target_link_libraries(stb::stb
+        INTERFACE stb)
   else()
     target_include_directories(stb::stb
         INTERFACE extern/stb)

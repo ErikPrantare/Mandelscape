@@ -1,64 +1,42 @@
 #version 330 core
 
-precision highp float;
-
 in vec2 position;
 in float distance;
-out vec4 fragColor;
+out vec4 outColour;
 
 uniform sampler2D tex;
 uniform vec2 offset;
 uniform int iterations;
 
-vec2
-complexSquare(const in vec2 a)
+uniform float time;
+
+vec2 cSqr(vec2 z)
 {
-    return vec2(a.x * a.x - a.y * a.y, 2.0 * a.x * a.y);
+  return vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y);
 }
 
-void
-main()
+void main(void)
 {
-    float fogHardStart = 100.0;
-    float fogHardEnd   = 150.0;
-    float fog          = 1.0 - pow(0.98, distance);
-    
-    fog += clamp(
-            (distance - fogHardStart) / (fogHardEnd - fogHardStart),
-            0.0,
-            1.0);
-    
-    fog       = pow(fog, 2.0);
-    fragColor = vec4(fog, fog, fog, 1.0);
+  if(distance == 0.0) return;
 
-    vec2 c = position + offset;
-
-    // main cardioid check
-    float q = pow(c.x - 0.25f, 2.0f) + c.y * c.y;
-    if(q * (q + (c.x - 0.25f)) < 0.25f * c.y * c.y) {
-        return;
+  vec3 rgb = vec3(0.0);
+  vec2 c = offset + position;
+  vec2 z = vec2(0.0);
+  vec3 s = vec3(0.0, 0.0, 0.0);
+  vec3 t = vec3(0.0);
+  const float R = 1e10;
+  for (int i = 0; i < iterations; ++i)
+  {
+    t = sin(vec3(time, 3.0, 5.0) * atan(z.y, z.x)) * 0.5 + 0.5;
+    float m = dot(z,z);
+    if (m > R)
+    {
+      float j = 2.0 - log(m)/log(R);
+      rgb = vec3((s + t * j) / (float(i) + j));
+      break;
     }
-
-    // period-2 bulb check
-    if((c.x + 1.0f) * (c.x + 1.0f) + c.y * c.y < 0.25f * 0.25f) {
-        return;
-    }
-
-    vec2 z   = vec2(0.0, 0.0);
-
-    for(int i = 0; i < iterations; ++i) {
-        z = complexSquare(z) + c;
-        if(dot(z, z) > 256.0f * 256.0f) {
-            float colorVal = float(i) - log2(log2(dot(z, z)));
-            fragColor =
-                    fog * vec4(1.0, 1.0, 1.0, 1.0)
-                    + (1.0 - fog) * texture(tex, vec2(0.0, colorVal))
-                    * vec4(
-                              0.5f * sin(colorVal * 0.1f) + 0.5f,
-                              0.5f * sin(colorVal * 0.13f + 1.0f) + 0.5f,
-                              0.5f * sin(colorVal * 0.15f + 2.0f) + 0.5f,
-                              1.0f);
-            return;
-        }
-    }
+    s += t;
+    z = cSqr(z) + c;
+  }
+  outColour = vec4(rgb, 1.0);
 }

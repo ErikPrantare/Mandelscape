@@ -101,6 +101,9 @@ renderScene(
     auto& program = terrain.shaderProgram();
     program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program.setUniformMatrix4("projection", camera.projection());
+    static double time = 0.0;
+    time += dt;
+    program.setUniformFloat("time", time);
 
     terrain.render();
 }
