@@ -29,6 +29,10 @@ set_target_properties(MandelLandscape
         CXX_STANDARD_REQUIRED TRUE
         INTERPROCEDURAL_OPTIMIZATION TRUE)
 
+if(CLANG_TIDY)
+    set_target_properties(MandelLandscape PROPERTIES
+        CXX_CLANG_TIDY "clang-tidy;-header-filter=./src")
+endif()
 
 target_compile_options(MandelLandscape
     PRIVATE -Wall
