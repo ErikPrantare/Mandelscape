@@ -8,6 +8,9 @@ add_library(MandelInterface INTERFACE)
 target_sources(MandelInterface
     INTERFACE ${SRC})
 
+target_include_directories(MandelInterface
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_link_libraries(MandelInterface
     INTERFACE Threads::Threads
     INTERFACE glad::glad
