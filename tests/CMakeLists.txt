@@ -15,9 +15,13 @@ set_target_properties(tests
     PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED TRUE
-        INTERPROCEDURAL_OPTIMIZATION TRUE
-        CXX_CLANG_TIDY "clang-tidy;--warnings-as-errors=*")
+        INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 target_link_libraries(tests
     PRIVATE Catch2::Catch2
     PRIVATE MandelInterface)
+
+include(CTest)
+include(Catch)
+catch_discover_tests(tests
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
