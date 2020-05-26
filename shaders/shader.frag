@@ -27,12 +27,14 @@ void main(void)
   const float R = 1e10;
   for (int i = 0; i < iterations; ++i)
   {
-    t = sin(vec3(time, 3.0, 5.0) * atan(z.y, z.x)) * 0.5 + 0.5;
+    t = sin(vec3(1.0, 3.0, 5.0) * atan(z.y, z.x) + vec3(time, time*2.0, time*3.0)) * 0.5 + 0.5;
     float m = dot(z,z);
     if (m > R)
     {
+      float val = float(i) - log2(log2(m));
       float j = 2.0 - log(m)/log(R);
-      rgb = vec3((s + t * j) / (float(i) + j));
+      rgb =  
+                vec3((s + t * j) / (float(i) + j));
       break;
     }
     s += t;

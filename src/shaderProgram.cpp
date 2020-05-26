@@ -119,7 +119,6 @@ ShaderProgram::uniformLocation(std::string const& name) const
     GLuint location = glGetUniformLocation(*m_location, name.c_str());
     if(location == 0xFFFFFFFF) {
         std::cerr << "Failed to find variable " << name << std::endl;
-        throw;
     }
     return location;
 }
