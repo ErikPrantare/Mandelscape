@@ -86,6 +86,13 @@ if(NOT TARGET stb::stb)
   endif()
 endif()
 
+#---------------------------Testing setup--------------------------------------
+option(BUILD_TESTING OFF)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
+
 #---------------------------MandelLandscape------------------------------------
 
 add_subdirectory(src)
