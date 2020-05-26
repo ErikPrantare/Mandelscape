@@ -11,12 +11,6 @@ add_executable(tests)
 target_sources(tests
     PRIVATE tests.cpp)
 
-#string(CONCAT CLANG_TIDY_ARGS
-    #"--header-filter=src/;"
-    #"--warnings-as-errors=*;")
-        ##"(${PROJECT_SOURCE_DIR}/src/*|"
-        ##"${PROJECT_SOURCE_DIR}/tests/*);"
-
 set_target_properties(tests
     PROPERTIES
         CXX_STANDARD 17
