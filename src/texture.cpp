@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <glad/glad.h>
+
 #include <stb_image.h>
 
 GLuint*

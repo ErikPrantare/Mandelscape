@@ -37,8 +37,14 @@ if(CLANG_TIDY)
         CXX_CLANG_TIDY "clang-tidy;-header-filter=./src")
 endif()
 
-target_compile_options(MandelLandscape
-    PRIVATE -Wall
-    PRIVATE -Werror
-    PRIVATE -Wextra
-    PRIVATE -Wno-unused-parameter)
+if(MSVC)
+    target_compile_options(MandelLandscape
+        PRIVATE /W4)
+else()
+    target_compile_options(MandelLandscape
+        PRIVATE -Wall
+        PRIVATE -Werror
+        PRIVATE -Wextra
+        PRIVATE -Wno-unused-parameter)
+
+endif()
