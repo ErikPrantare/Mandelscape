@@ -7,13 +7,20 @@
 #include "event.h"
 #include "utils.h"
 
+void
+glfwErrorCallback(int code, char const* description)
+{
+    std::cerr << "Error code: " << code << "\nDescription: " << description
+              << '\n';
+}
+
 GLFWwindow*
 createWindow(Config const& conf)
 {
     glfwInit();
-    glfwWindowHint(GLFW_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     return glfwCreateWindow(
             conf.get<Settings::WindowWidth>(),
@@ -25,14 +32,14 @@ createWindow(Config const& conf)
 
 Window::Window(Config const& conf) : m_window(createWindow(conf))
 {
-    if(!m_window.get()) {
+    if(m_window == nullptr) {
         std::cerr << "Error: GLFWwindow was not created\n";
         throw;
     }
 
     glfwMakeContextCurrent(m_window.get());
 
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if(gladLoadGL() == 0) {
         std::cerr << "Something went wrong!\n";
         throw;
     }
@@ -72,17 +79,18 @@ Window::update()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
 
-    return !glfwWindowShouldClose(m_window.get());
+    return glfwWindowShouldClose(m_window.get()) == 0;
 }
 
 void
 Window::handleEvent(const Event& event)
 {
     std::visit(
-            util::overload{
+            util::Overload{
                     [this](KeyDown key) {
-                        if(key.code == GLFW_KEY_Q)
+                        if(key.code == GLFW_KEY_Q) {
                             close();
+                        }
                     },
 
                     // default
@@ -104,49 +112,49 @@ Window::registerEvent(Event&& event)
 }
 
 void
-Window::cursorPositionCB(GLFWwindow* window, double x, double y)
+Window::cursorPositionCB(GLFWwindow* glfwWindow, double x, double y)
 {
-    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
-    auto dx             = x - _this->m_lastMouseX;
-    auto dy             = y - _this->m_lastMouseY;
-    _this->m_lastMouseX = x;
-    _this->m_lastMouseY = y;
-    _this->registerEvent(MouseMove{x, y, dx, dy});
+    auto dx              = x - window->m_lastMouseX;
+    auto dy              = y - window->m_lastMouseY;
+    window->m_lastMouseX = x;
+    window->m_lastMouseY = y;
+    window->registerEvent(MouseMove{x, y, dx, dy});
 }
 
 void
 Window::keyboardCB(
-        GLFWwindow* window,
+        GLFWwindow* glfwWindow,
         int key,
         int scancode,
         int action,
         int mods)
 {
-    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
     switch(action) {
     case GLFW_PRESS: {
-        _this->registerEvent(KeyDown{key, mods});
+        window->registerEvent(KeyDown{key, mods});
     } break;
 
     case GLFW_RELEASE: {
-        _this->registerEvent(KeyUp{key, mods});
+        window->registerEvent(KeyUp{key, mods});
     } break;
     }
 }
 
 void
-Window::mouseButtonCB(GLFWwindow* window, int button, int action, int mods)
+Window::mouseButtonCB(GLFWwindow* glfwWindow, int button, int action, int mods)
 {
-    auto _this = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
     switch(action) {
     case GLFW_PRESS: {
-        _this->registerEvent(MouseButtonDown{button});
+        window->registerEvent(MouseButtonDown{button});
     } break;
     case GLFW_RELEASE: {
-        _this->registerEvent(MouseButtonUp{button});
+        window->registerEvent(MouseButtonUp{button});
     }
     }
 }

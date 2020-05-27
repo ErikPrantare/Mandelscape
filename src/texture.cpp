@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <glad/glad.h>
+
 #include <stb_image.h>
 
 GLuint*
@@ -16,10 +17,12 @@ generateTexture()
 
 Texture::Texture(std::string const& path) : m_location(generateTexture())
 {
-    int width, height, nrChannels;
+    int width      = 0;
+    int height     = 0;
+    int nrChannels = 0;
     unsigned char* const image =
-            stbi_load("textures/texture.png", &width, &height, &nrChannels, 4);
-    if(!image) {
+            stbi_load(path.c_str(), &width, &height, &nrChannels, 4);
+    if(image == nullptr) {
         std::cerr << "Failed to load texture" << std::endl;
         throw;
     }

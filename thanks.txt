@@ -1,0 +1,5 @@
+Thanks to:
+
+Claude (https://mathr.co.uk/)
+For helping to correctly implement the math in the deep zoom shader 
+and getting around imprecise GLSL floating point optimizations.

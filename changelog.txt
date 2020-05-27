@@ -1,0 +1,10 @@
+Changelog:
+
+Added features are marked with a '+',
+removed features with a '-',
+and changed/other with a '.'.
+
+This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
+
+0.0.1 (2020-05-28):
+. Fix deep shader calculation.

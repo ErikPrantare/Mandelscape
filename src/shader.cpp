@@ -2,13 +2,16 @@
 
 #include <string>
 #include <iostream>
+#include <array>
 
 #include "utils.h"
 
+template<ShaderType type>
 GLuint const*
-Shader::createShader(std::string const& sourceCode, GLenum const shaderType)
+Shader<type>::createShader(std::string const& sourceCode)
 {
-    auto const location = new GLuint(glCreateShader(shaderType));
+    auto shaderType      = static_cast<GLenum>(type);
+    auto* const location = new GLuint(glCreateShader(shaderType));
 
     if(location == 0) {
         std::cerr << "Error creating shader type " << shaderType << std::endl;
@@ -20,41 +23,47 @@ Shader::createShader(std::string const& sourceCode, GLenum const shaderType)
     glShaderSource(*location, 1, &charSource, &shaderLength);
     glCompileShader(*location);
 
-    GLint success;
+    GLint success = 0;
     glGetShaderiv(*location, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        GLchar infoLog[1024];
-        glGetShaderInfoLog(*location, sizeof(infoLog), nullptr, infoLog);
-        std::cerr << "Error compiling shader type "
-                  << (shaderType == GL_FRAGMENT_SHADER ? "FRAG" : "VERT")
-                  << ": "
-                  << "'" << infoLog << "'" << std::endl;
+    if(success == 0) {
+        auto infoLog = std::array<GLchar, 1024>();
+        glGetShaderInfoLog(*location, sizeof(infoLog), nullptr, infoLog.data());
+        auto typeStr = shaderType == GL_FRAGMENT_SHADER ? std::string("FRAG")
+                                                        : std::string("VERT");
 
-        exit(1);
+        std::cerr << "Error compiling shader type " << typeStr << ": "
+                  << "'" << infoLog.data() << "'" << std::endl;
+        throw;
     }
 
     return location;
 }
 
-Shader::Shader(std::string const& sourceCode, GLenum const shaderType) :
-            type(shaderType),
-            m_location(createShader(sourceCode, shaderType))
+template<ShaderType type>
+Shader<type>::Shader(std::string const& sourceCode) :
+            m_location(createShader(sourceCode))
 {}
 
-Shader
-Shader::fromFile(std::string const& filePath, GLenum const shaderType)
+template<ShaderType type>
+Shader<type>
+Shader<type>::fromFile(std::string const& filePath)
 {
-    return Shader(util::readFile(filePath), shaderType);
+    return Shader<type>(util::readFile(filePath));
 }
 
-Shader
-Shader::fromCode(std::string const& sourceCode, GLenum const shaderType)
+template<ShaderType type>
+Shader<type>
+Shader<type>::fromCode(std::string const& sourceCode)
 {
-    return Shader(sourceCode, shaderType);
+    return Shader<type>(sourceCode);
 }
 
+template<ShaderType type>
 void
-Shader::attachTo(ShaderProgram& program) const
+Shader<type>::attachTo(ShaderProgram& program) const
 {
-    program.attachShader(*m_location, type);
+    program.attachShader(*m_location, static_cast<GLenum>(type));
 }
+
+template class Shader<ShaderType::Vertex>;
+template class Shader<ShaderType::Fragment>;
