@@ -7,3 +7,6 @@
 [submodule "extern/glfw"]
 	path = extern/glfw
 	url = ../../glfw/glfw
+[submodule "extern/Catch2"]
+	path = extern/Catch2
+	url = ../../catchorg/Catch2
