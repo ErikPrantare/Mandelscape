@@ -122,7 +122,7 @@ Terrain::loadMesh(
 
     int constexpr doublingInterval = 40;
 
-    auto const stepSize = [doublingInterval](int i) {
+    auto const stepSize = [&](int i) {
         return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 
