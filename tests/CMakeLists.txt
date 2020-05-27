@@ -44,5 +44,4 @@ target_link_options(tests
 
 target_compile_options(tests
     PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-fprofile-arcs>
-
     PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-ftest-coverage>)
