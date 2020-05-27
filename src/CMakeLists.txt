@@ -46,5 +46,4 @@ else()
         PRIVATE -Werror
         PRIVATE -Wextra
         PRIVATE -Wno-unused-parameter)
-
 endif()
