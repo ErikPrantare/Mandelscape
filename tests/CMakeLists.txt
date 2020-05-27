@@ -20,17 +20,29 @@ target_link_libraries(tests
     PRIVATE Catch2::Catch2
     PRIVATE MandelInterface)
 
+string(CONCAT GCOVR_CALL
+    "gcovr -r ${PROJECT_SOURCE_DIR}/src "
+    "--object-directory ${PROJECT_BINARY_DIR}")
+
+if(GCOVR_GEN_HTML)
+    file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/coverage)
+
+    string(CONCAT GCOVR_HTML_CALL
+        "gcovr -r ${PROJECT_SOURCE_DIR}/src "
+        "--object-directory ${PROJECT_BINARY_DIR} "
+        "--html-details ${PROJECT_SOURCE_DIR}/coverage/coverage.html")
+endif()
+
 add_custom_command(TARGET tests
     POST_BUILD
-    COMMAND tests --use-colour yes)
+    COMMAND tests --use-colour yes
+    COMMAND echo $<$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>:${GCOVR_CALL}> | sh
+    COMMAND echo $<$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>:${GCOVR_HTML_CALL}> | sh)
 
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    include(CodeCoverage)
-    append_coverage_compiler_flags()
+target_link_options(tests
+    PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-fprofile-arcs>)
 
-    setup_target_for_coverage_gcovr_html(
-        NAME coverage
-        EXECUTABLE tests
-        BASE_DIRECTORY ${PROJECT_SOURCE_DIR}/src
-        DEPENDENCIES tests)
-endif()
+target_compile_options(tests
+    PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-fprofile-arcs>
+
+    PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-ftest-coverage>)

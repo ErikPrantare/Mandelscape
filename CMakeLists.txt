@@ -93,7 +93,10 @@ endif()
 #---------------------------Testing setup--------------------------------------
 option(BUILD_TESTING OFF)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if(BUILD_TESTING AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    option(COVERAGE "Run gcovr after testing" ON)
+    option(GCOVR_HTML "Generate html files from coverage" OFF)
+
     add_subdirectory(tests)
 endif()
 
