@@ -27,7 +27,7 @@ string(CONCAT GCOVR_CALL
 if(GCOVR_GEN_HTML)
     file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/coverage)
 
-    string(CONCAT GCOVR_HTML_CALL
+    string(CONCAT GEN_HTML
         "gcovr -r ${PROJECT_SOURCE_DIR}/src "
         "--object-directory ${PROJECT_BINARY_DIR} "
         "--html-details ${PROJECT_SOURCE_DIR}/coverage/coverage.html")
@@ -37,7 +37,7 @@ add_custom_command(TARGET tests
     POST_BUILD
     COMMAND tests --use-colour yes
     COMMAND echo $<$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>:${GCOVR_CALL}> | sh
-    COMMAND echo $<$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>:${GCOVR_HTML_CALL}> | sh)
+    COMMAND echo $<$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>:${GEN_HTML}> | sh)
 
 target_link_options(tests
     PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-fprofile-arcs>)
