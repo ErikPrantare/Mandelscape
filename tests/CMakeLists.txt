@@ -20,14 +20,17 @@ target_link_libraries(tests
     PRIVATE Catch2::Catch2
     PRIVATE MandelInterface)
 
-target_compile_options(tests
-    PRIVATE -ftest-coverage)
-
-#include(CTest)
-#include(Catch)
-#catch_discover_tests(tests
-    #WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-
 add_custom_command(TARGET tests
     POST_BUILD
     COMMAND tests --use-colour yes)
+
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+
+    setup_target_for_coverage_gcovr_html(
+        NAME coverage
+        EXECUTABLE tests
+        BASE_DIRECTORY ${PROJECT_SOURCE_DIR}/src
+        DEPENDENCIES tests)
+endif()

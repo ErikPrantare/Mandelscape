@@ -17,7 +17,7 @@ TEST_CASE(
     SECTION("Empty queue should return a std::optional<std::nullopt>")
     {
         auto nullopt = util::pop(queue);
-        REQUIRE(nullopt.has_value());
+        REQUIRE(!nullopt.has_value());
     }
 }
 
