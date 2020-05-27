@@ -20,9 +20,6 @@ public:
            glm::dvec3 const& startPosition = {1.0, 0.0, 1.0},
            glm::dvec3 const& worldUp       = {0.0, 1.0, 0.0});
 
-    void
-    move(glm::dvec3 const& movement);
-
     glm::dmat4
     projection() const;
 
