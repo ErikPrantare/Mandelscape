@@ -1,21 +1,21 @@
-set(CMAKE_CXX_STANDARD 17)
-
 file(GLOB 
-    SRC
-    "*.cpp")
+    SRC "*.cpp")
 
 add_executable(MandelLandscape
     ${SRC})
 
-target_include_directories(MandelLandscape
-    PRIVATE "../include")
+set_target_properties(MandelLandscape
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED TRUE
+        INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 target_link_libraries(MandelLandscape
     PRIVATE Threads::Threads
+    PRIVATE glad::glad
+    PRIVATE glfw::glfw
     PRIVATE glm::glm
-    PRIVATE stb
-    PRIVATE glfw
-    PRIVATE glad::glad)
+    PRIVATE stb::stb)
 
 target_compile_options(MandelLandscape
     PRIVATE -Wall
