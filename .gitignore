@@ -29,3 +29,7 @@ compile_commands.json
 
 #Local diagnostic files
 *.cap
+
+#Visual studio artifacts
+/.vs
+/CMakeSettings.json
