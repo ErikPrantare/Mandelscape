@@ -9,6 +9,8 @@ if(NOT DEFINED CMAKE_BUILD_TYPE AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
+option(CLANG_TIDY "Run clang-tidy on MandelLandscape" OFF)
+
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
