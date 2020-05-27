@@ -9,12 +9,12 @@
 #include <utils.h>
 
 TEST_CASE(
-        "util::pop pops and returns the top element of a std::queu",
+        "util::pop pops and returns the top element of a std::queue",
         "[utils]")
 {
     auto queue = std::queue<int>();
 
-    SECTION("Empty queue should return a std::optional<std::nullopt>")
+    SECTION("Empty queue should return a std::nullopt")
     {
         auto nullopt = util::pop(queue);
         REQUIRE(!nullopt.has_value());
