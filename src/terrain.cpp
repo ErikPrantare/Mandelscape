@@ -122,7 +122,9 @@ Terrain::loadMesh(
 
     int constexpr doublingInterval = 40;
 
-    auto const stepSize = [](int i) {
+    // The default capture is for compatibility with MSVC, it doesn't seem to
+    // get constexpr fully
+    auto const stepSize = [&](int i) {
         return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 

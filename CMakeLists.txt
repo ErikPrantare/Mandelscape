@@ -5,6 +5,12 @@ project(MandelLandscape LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+if(NOT DEFINED CMAKE_BUILD_TYPE AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+option(CLANG_TIDY "Run clang-tidy on MandelLandscape" OFF)
+
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -84,6 +90,16 @@ if(NOT TARGET stb::stb)
     target_include_directories(stb::stb
         INTERFACE extern/stb)
   endif()
+endif()
+
+#---------------------------Testing setup--------------------------------------
+option(BUILD_TESTING OFF)
+
+if(BUILD_TESTING AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    option(COVERAGE "Run gcovr after testing" ON)
+    option(GCOVR_GEN_HTML "Generate html files from coverage" OFF)
+
+    add_subdirectory(tests)
 endif()
 
 #---------------------------MandelLandscape------------------------------------
