@@ -28,4 +28,4 @@ magnet:?xt=urn:btih:2f841aba7d86c77499ce7428f49ee78542341cee&dn=MandelLandscape-
 
 - <kbd>q</kbd> to quit.
 
-![](preview.png?raw=true "Title")
+![](preview.jpeg?raw=true "Title")
