@@ -16,7 +16,7 @@ cmake --build build --target MandelLandscape
 move build\src\MandelLandscape.exe .
 ```
 It requires an environment already setup though, so either use an IDE instead
-get the binary below.
+or get the binary below.
 
 If everything built correctly, the program can now be run from `./MandelLandscape`
 
