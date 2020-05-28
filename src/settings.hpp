@@ -1,7 +1,7 @@
 #ifndef MANDELLANDSCAPE_SETTINGS_H
 #define MANDELLANDSCAPE_SETTINGS_H
 
-#include "mandelTypeTraits.h"
+#include "mandelTypeTraits.hpp"
 
 namespace Settings {
 template<

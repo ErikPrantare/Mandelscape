@@ -15,13 +15,13 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 
-#include "utils.h"
-#include "camera.h"
-#include "terrain.h"
-#include "config.h"
-#include "texture.h"
-#include "window.h"
-#include "player.h"
+#include "utils.hpp"
+#include "camera.hpp"
+#include "terrain.hpp"
+#include "config.hpp"
+#include "texture.hpp"
+#include "window.hpp"
+#include "player.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

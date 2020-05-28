@@ -9,7 +9,7 @@
 #include <queue>
 #include <optional>
 
-#include "mandelTypeTraits.h"
+#include "mandelTypeTraits.hpp"
 
 namespace util {
 

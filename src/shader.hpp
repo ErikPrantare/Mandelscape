@@ -8,7 +8,7 @@
 
 #include <glad/glad.h>
 
-#include "shaderProgram.h"
+#include "shaderProgram.hpp"
 
 enum class ShaderType {
     Vertex   = GL_VERTEX_SHADER,

@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include "config.h"
+#include "config.hpp"
 
 class Camera {
 public:

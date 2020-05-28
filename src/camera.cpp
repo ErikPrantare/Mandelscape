@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "camera.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "config.h"
+#include "config.hpp"
 
 Camera::Camera() : Camera(1366, 768, 0.1, 10'000'000.0, glm::pi<double>())
 {}

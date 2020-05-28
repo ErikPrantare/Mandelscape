@@ -4,7 +4,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-#include "event.h"
+#include "event.hpp"
 
 class Player {
 public:

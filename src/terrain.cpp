@@ -6,9 +6,9 @@
 
 #include <glad/glad.h>
 
-#include "terrain.h"
-#include "utils.h"
-#include "shader.h"
+#include "terrain.hpp"
+#include "utils.hpp"
+#include "shader.hpp"
 
 Terrain::Terrain() :
             m_offset{0.0, 0.0},

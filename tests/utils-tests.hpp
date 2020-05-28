@@ -6,7 +6,7 @@
 
 #include <catch2/catch.hpp>
 
-#include <utils.h>
+#include <utils.hpp>
 
 TEST_CASE(
         "util::pop pops and returns the top element of a std::queue",

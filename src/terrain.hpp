@@ -14,11 +14,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 
-#include "utils.h"
-#include "event.h"
-#include "shader.h"
-#include "shaderProgram.h"
-#include "texture.h"
+#include "utils.hpp"
+#include "event.hpp"
+#include "shader.hpp"
+#include "shaderProgram.hpp"
+#include "texture.hpp"
 
 class Terrain {
 public:

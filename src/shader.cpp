@@ -1,10 +1,10 @@
-#include "shader.h"
+#include "shader.hpp"
 
 #include <string>
 #include <iostream>
 #include <array>
 
-#include "utils.h"
+#include "utils.hpp"
 
 template<ShaderType type>
 GLuint const*

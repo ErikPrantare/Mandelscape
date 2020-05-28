@@ -5,11 +5,11 @@
 #include <vector>
 #include <any>
 #include <functional>
-
-#include "mandelTypeTraits.h"
-#include "settings.h"
-#include "utils.h"
 #include <iostream>
+
+#include "mandelTypeTraits.hpp"
+#include "settings.hpp"
+#include "utils.hpp"
 
 class Config {
 private:

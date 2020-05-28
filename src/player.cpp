@@ -1,4 +1,4 @@
-#include "player.h"
+#include "player.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -7,9 +7,9 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <GLFW/glfw3.h>
 
-#include "event.h"
-#include "utils.h"
-#include "mandelTypeTraits.h"
+#include "event.hpp"
+#include "utils.hpp"
+#include "mandelTypeTraits.hpp"
 
 void
 Player::handleEvent(Event const event)

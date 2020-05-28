@@ -8,8 +8,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "config.h"
-#include "event.h"
+#include "config.hpp"
+#include "event.hpp"
 
 class Window {
 public:

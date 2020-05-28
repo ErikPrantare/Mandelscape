@@ -1,11 +1,11 @@
-#include "window.h"
+#include "window.hpp"
 
 #include <iostream>
 #include <variant>
 
-#include "config.h"
-#include "event.h"
-#include "utils.h"
+#include "config.hpp"
+#include "event.hpp"
+#include "utils.hpp"
 
 void
 glfwErrorCallback(int code, char const* description)
