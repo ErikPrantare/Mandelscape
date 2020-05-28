@@ -104,10 +104,21 @@ if(BUILD_TESTING AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         add_subdirectory(${PROJECT_SOURCE_DIR}/extern/Catch2)
     endif()
 
-    if(WIN32)
+    find_program(${GCOVR_EXECUTABLE}
+        name gcovr)
+
+    if(WIN32 OR NOT GCOVR_EXECUTABLE)
         option(COVERAGE "Run gcovr after testing" OFF)
+
+        if(COVERAGE)
+            message(WARNING "We do not support coverage analysis on windows")
+        endif()
     else()
         option(COVERAGE "Run gcovr after testing" ON)
+    endif()
+    
+    if(COVERAGE AND NOT GCOVR_EXECUTABLE)
+        message(FATAL_ERROR "gcovr was not found")
     endif()
 
     option(GCOVR_GEN_HTML "Generate html files from coverage" OFF)

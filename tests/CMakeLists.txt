@@ -17,24 +17,20 @@ if(WIN32)
     add_custom_command(TARGET tests
         POST_BUILD
         COMMAND tests --use-colour yes)
-
-    if(COVERAGE)
-        message(WARNING "We do not support coverage analysis on windows.")
-    endif()
 else()
     string(CONCAT GCOVR_CALL
-        "gcovr -r ${PROJECT_SOURCE_DIR}/src "
+        "${GCOVR_EXECUTABLE} -r ${PROJECT_SOURCE_DIR}/src "
         "--object-directory ${PROJECT_BINARY_DIR}")
 
     if(GCOVR_GEN_HTML)
         file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/coverage)
 
         string(CONCAT GEN_HTML
-            "gcovr -r ${PROJECT_SOURCE_DIR}/src "
+            "${GCOVR_EXECUTABLE} -r ${PROJECT_SOURCE_DIR}/src "
             "--object-directory ${PROJECT_BINARY_DIR} "
             "--html-details ${PROJECT_SOURCE_DIR}/coverage/coverage.html")
     endif()
-    
+
     add_custom_command(TARGET tests
         POST_BUILD
         COMMAND tests --use-colour yes
