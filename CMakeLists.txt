@@ -10,6 +10,7 @@ if(NOT DEFINED CMAKE_BUILD_TYPE AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 option(CLANG_TIDY "Run clang-tidy on MandelLandscape" OFF)
+option(BUILD_TESTING OFF)
 
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -29,6 +30,7 @@ endif()
 
 #---------------------------CCache setup---------------------------------------
 find_program(CCACHE_PROGRAM ccache)
+
 if(CCACHE_PROGRAM)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
 endif()
@@ -40,9 +42,7 @@ find_package(Threads REQUIRED)
 add_subdirectory(extern/glad)
 
 #---------------------------glm------------------------------------------------
-if(NOT CMAKE_CROSSCOMPILING)
-  find_package(glm CONFIG QUIET)
-endif()
+find_package(glm CONFIG QUIET)
 
 if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
@@ -56,9 +56,7 @@ if(NOT TARGET glm::glm)
 endif()
 
 #---------------------------glfw-----------------------------------------------
-if(NOT CMAKE_CROSSCOMPILING)
-  find_package(GLFW QUIET)
-endif()
+find_package(GLFW QUIET)
 
 if(NOT GLFW_FOUND)
   option(BUILD_SHARED_LIBS OFF)
@@ -76,9 +74,7 @@ if(NOT TARGET glfw::glfw)
 endif()
 
 #---------------------------stb------------------------------------------------
-if(NOT CMAKE_CROSSCOMPILING)
-  find_package(stb QUIET)
-endif()
+find_package(stb QUIET)
 
 if(NOT TARGET stb::stb)
   add_library(stb::stb INTERFACE IMPORTED)
@@ -92,35 +88,18 @@ if(NOT TARGET stb::stb)
   endif()
 endif()
 
-#---------------------------Testing setup--------------------------------------
-option(BUILD_TESTING OFF)
-
-if(BUILD_TESTING AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    if(NOT CMAKE_CROSSCOMPILING)
-        find_package(Catch2 QUIET)
-    endif()
+#---------------------------Catch2---------------------------------------------
+if(BUILD_TESTING)
+    find_package(Catch2 QUIET)
 
     if(NOT Catch2_FOUND)
         add_subdirectory(${PROJECT_SOURCE_DIR}/extern/Catch2)
     endif()
+endif()
 
-    find_program(${GCOVR_EXECUTABLE}
-        name gcovr)
-
-    if(WIN32 OR NOT GCOVR_EXECUTABLE)
-        option(COVERAGE "Run gcovr after testing" OFF)
-
-        if(COVERAGE)
-            message(WARNING "We do not support coverage analysis on windows")
-        endif()
-    else()
-        option(COVERAGE "Run gcovr after testing" ON)
-    endif()
-    
-    if(COVERAGE AND NOT GCOVR_EXECUTABLE)
-        message(FATAL_ERROR "gcovr was not found")
-    endif()
-
+#---------------------------tests----------------------------------------------
+if(BUILD_TESTING)
+    option(COVERAGE "Run gcovr after testing" ON)
     option(GCOVR_GEN_HTML "Generate html files from coverage" OFF)
 
     add_subdirectory(tests)
