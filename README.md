@@ -4,7 +4,7 @@
 git clone https://github.com/ErikPrantare/MandelLandscape.git
 cd MandelLandscape
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
-cmake --build build
+cmake --build build --target MandelLandscape
 mv build/src/MandelLandscape .
 ```
 # Windows
@@ -12,7 +12,7 @@ mv build/src/MandelLandscape .
 git clone https://github.com/ErikPrantare/MandelLandscape.git
 cd MandelLandscape
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja
-cmake --build build
+cmake --build build --target MandelLandscape
 move build\src\MandelLandscape.exe .
 ```
 It requires an environment already setup though, so either use an IDE instead
