@@ -39,7 +39,7 @@ Config
 initConfig();
 
 int
-main(int argc, char** argv)
+main(int, char**)
 {
     auto config = initConfig();
     Window window(config);

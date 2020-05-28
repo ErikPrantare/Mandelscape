@@ -94,8 +94,7 @@ Window::handleEvent(const Event& event)
                     },
 
                     // default
-                    [](auto x) {
-                    }},
+                    util::unaryNOP},
             event);
 }
 
@@ -127,9 +126,9 @@ void
 Window::keyboardCB(
         GLFWwindow* glfwWindow,
         int key,
-        int scancode,
+        [[maybe_unused]] int scancode,
         int action,
-        int mods)
+        [[maybe_unused]] int mods)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
@@ -145,7 +144,11 @@ Window::keyboardCB(
 }
 
 void
-Window::mouseButtonCB(GLFWwindow* glfwWindow, int button, int action, int mods)
+Window::mouseButtonCB(
+        GLFWwindow* glfwWindow,
+        int button,
+        int action,
+        [[maybe_unused]] int mods)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 

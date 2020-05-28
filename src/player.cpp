@@ -21,9 +21,9 @@ Player::handleEvent(Event const event)
                     [this](KeyDown keyEvent) { keyDown(keyEvent); },
                     [this](KeyUp keyEvent) { keyUp(keyEvent); },
                     [this](MouseMove mouseEvent) { mouseMove(mouseEvent); },
+
                     // default
-                    [](auto x) {
-                    }},
+                    util::unaryNOP},
             event);
 }
 
