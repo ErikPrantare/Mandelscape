@@ -96,7 +96,20 @@ endif()
 option(BUILD_TESTING OFF)
 
 if(BUILD_TESTING AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    option(COVERAGE "Run gcovr after testing" ON)
+    if(NOT CMAKE_CROSSCOMPILING)
+        find_package(Catch2 QUIET)
+    endif()
+
+    if(NOT Catch2_FOUND)
+        add_subdirectory(${PROJECT_SOURCE_DIR}/extern/Catch2)
+    endif()
+
+    if(WIN32)
+        option(COVERAGE "Run gcovr after testing" OFF)
+    else()
+        option(COVERAGE "Run gcovr after testing" ON)
+    endif()
+
     option(GCOVR_GEN_HTML "Generate html files from coverage" OFF)
 
     add_subdirectory(tests)
