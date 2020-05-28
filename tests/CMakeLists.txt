@@ -40,10 +40,10 @@ else()
         COMMAND echo $<${COVERAGE_AND_DEBUG}:${GCOVR_CALL}> | sh
         COMMAND echo $<${COVERAGE_AND_DEBUG}:${GEN_HTML}> | sh)
 
-        target_link_options(tests
-            PRIVATE $<${COVERAGE_AND_DEBUG}:-fprofile-arcs>)
-        
-        target_compile_options(tests
-            PRIVATE $<${COVERAGE_AND_DEBUG}:-fprofile-arcs>
-            PRIVATE $<${COVERAGE_AND_DEBUG}:-ftest-coverage>)
+    target_link_options(tests
+        PRIVATE $<${COVERAGE_AND_DEBUG}:-fprofile-arcs>)
+    
+    target_compile_options(tests
+        PRIVATE $<${COVERAGE_AND_DEBUG}:-fprofile-arcs>
+        PRIVATE $<${COVERAGE_AND_DEBUG}:-ftest-coverage>)
 endif()
