@@ -31,6 +31,7 @@ set(COV_DEBUG_WIN
 add_custom_command(TARGET tests
     POST_BUILD
     COMMAND tests --use-colour yes
+    COMMAND $<$<NOT:${COV_DEBUG_WIN}>:exit>
     COMMAND echo $<${COV_DEBUG_WIN}:${GCOVR_CALL}> | sh
     COMMAND echo $<${COV_DEBUG_WIN}:${GEN_HTML}> | sh)
 
