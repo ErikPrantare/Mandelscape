@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_UTILS_H
-#define MANDELLANDSCAPE_UTILS_H
+#ifndef MANDELLANDSCAPE_UTILS_HPP
+#define MANDELLANDSCAPE_UTILS_HPP
 
 #include <string>
 #include <fstream>
@@ -81,4 +81,4 @@ pop(std::queue<T, Container>& queue)
 
 }    // namespace util
 
-#endif    // MANDELLANDSCAPE_UTILS_H
+#endif    // MANDELLANDSCAPE_UTILS_HPP

@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_TERRAIN_H
-#define MANDELLANDSCAPE_TERRAIN_H
+#ifndef MANDELLANDSCAPE_TERRAIN_HPP
+#define MANDELLANDSCAPE_TERRAIN_HPP
 
 #include <vector>
 #include <memory>

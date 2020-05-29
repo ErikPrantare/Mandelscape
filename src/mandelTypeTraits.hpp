@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_H
-#define MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_H
+#ifndef MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_HPP
+#define MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_HPP
 
 #include <type_traits>
 
@@ -38,4 +38,4 @@ struct SpecialisationOf<Template<Args...>, Template> : std::true_type {
     using type = Template<Args...>;
 };
 
-#endif    // MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_H
+#endif    // MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_HPP
