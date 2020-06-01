@@ -5,3 +5,4 @@
 #include <stb_image.h>
 
 #include "utils-tests.hpp"
+#include "playerController-tests.hpp"
