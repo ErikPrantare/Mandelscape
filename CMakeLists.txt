@@ -1,5 +1,10 @@
 #---------------------------CMake Project Config-------------------------------
-cmake_minimum_required(VERSION 3.12)
+if(MSVC)
+    cmake_minimum_required(VERSION 3.15)
+    cmake_policy(SET CMP0091 NEW)
+else()
+    cmake_minimum_required(VERSION 3.12)
+endif()
 
 project(MandelLandscape LANGUAGES CXX)
 
@@ -58,6 +63,7 @@ if(NOT GLFW_FOUND)
   option(BUILD_SHARED_LIBS OFF)
   option(GLFW_BUILD_DOCS OFF)
   option(GLFW_INSTALL OFF)
+  option(USE_MSVC_RUNTIME_LIBRARY_DLL OFF)
 
   add_subdirectory(extern/glfw)
 endif()
