@@ -30,8 +30,7 @@ target_link_libraries(MandelLandscape
 set_target_properties(MandelLandscape
     PROPERTIES
         CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED TRUE
-        MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
+        CXX_STANDARD_REQUIRED TRUE)
 
 if(CMAKE_BUILD_TYPE STREQUAL Release)
     set_target_properties(MandelLandscape

@@ -8,6 +8,10 @@ endif()
 
 project(MandelLandscape LANGUAGES CXX)
 
+if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 option(CLANG_TIDY "Run clang-tidy on MandelLandscape" OFF)
