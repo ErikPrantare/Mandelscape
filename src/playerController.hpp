@@ -3,12 +3,12 @@
 
 #include <glm/glm.hpp>
 
-class
-PlayerController
-{
-public:
-    auto virtual velocity() const -> glm::dvec3 = 0;
-};
+#include "event.hpp"
 
+class PlayerController {
+public:
+    auto virtual velocity() const -> glm::dvec3    = 0;
+    auto virtual handleEvent(Event const&) -> void = 0;
+};
 
 #endif

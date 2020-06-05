@@ -3,28 +3,46 @@
 
 #include <memory>
 
+#include "event.hpp"
+
 #include "playerController.hpp"
 
-glm::dvec3 constexpr DUMMY_VELOCITY = {1.23, 6532936528529.363663, -0.00001};
+namespace {
 
-class
-DummyController : public PlayerController
-{
+glm::dvec3 constexpr G_DUMMY_INIT = {1.23, 6532936528529.363663, -0.00001};
+glm::dvec3 constexpr G_POST_EVENT = {666666666, -0.363663, -1.0 / 3.0};
+
+class DummyController : public PlayerController {
 public:
-    glm::dvec3 velocity() const override {
-        return DUMMY_VELOCITY;
+    glm::dvec3
+    velocity() const override
+    {
+        return m_val;
     }
-};
 
+    void
+    handleEvent(Event const&) override
+    {
+        m_val = G_POST_EVENT;
+    }
+
+private:
+    glm::dvec3 m_val = G_DUMMY_INIT;
+};
 
 TEST_CASE(
         "playerController::getVelocity returns overloaded velocity",
-        "[playerController]")
+        "[PlayerController]")
 {
-    auto dummy = std::unique_ptr<PlayerController>(new DummyController());
-    
-    REQUIRE(dummy->velocity() == DUMMY_VELOCITY);
+    auto controller = std::unique_ptr<PlayerController>(new DummyController());
+
+    REQUIRE(controller->velocity() == G_DUMMY_INIT);
+
+    controller->handleEvent(MouseButtonDown{});
+
+    REQUIRE(controller->velocity() == G_POST_EVENT);
 }
 
+}    // namespace
 
 #endif

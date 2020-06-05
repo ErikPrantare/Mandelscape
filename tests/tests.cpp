@@ -6,3 +6,4 @@
 
 #include "utils-tests.hpp"
 #include "playerController-tests.hpp"
+#include "playerControllerWalk-tests.hpp"
