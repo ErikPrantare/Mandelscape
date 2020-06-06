@@ -1,17 +1,17 @@
-#include "playerControllerWalk.hpp"
+#include "walkController.hpp"
 
 #include <GLFW/glfw3.h>
 
 #include "utils.hpp"
 
 glm::dvec3
-PlayerControllerWalk::velocity() const
+WalkController::velocity() const
 {
     return m_velocity;
 }
 
 void
-PlayerControllerWalk::handleEvent(Event const& event)
+WalkController::handleEvent(Event const& event)
 {
     std::visit(
             util::Overload{

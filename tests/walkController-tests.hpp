@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "event.hpp"
 
-#include "playerControllerWalk.hpp"
+#include "walkController.hpp"
 
 namespace {
 
@@ -17,12 +17,9 @@ glm::dvec3 constexpr back{0.0, 0.0, 1.0};
 
 glm::dvec3 constexpr zero{0.0, 0.0, 0.0};
 
-TEST_CASE(
-        "PlayerControllerWalk handles movement keys",
-        "[PlayerControllerWalk]")
+TEST_CASE("WalkController handles movement keys", "[WalkController]")
 {
-    auto controller =
-            std::unique_ptr<PlayerController>(new PlayerControllerWalk);
+    auto controller = std::unique_ptr<PlayerController>(new WalkController);
 
     REQUIRE(controller->velocity() == zero);
 
