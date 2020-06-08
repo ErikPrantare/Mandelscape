@@ -1,10 +1,10 @@
 #ifndef MANDELLANDSCAPE_WALKCONTROLLER_HPP
-#    define MANDELLANDSCAPE_WALKPLAYERCONTROLLER_HPP
+#define MANDELLANDSCAPE_WALKCONTROLLER_HPP
 
-#    include <glm/glm.hpp>
+#include <glm/glm.hpp>
 
-#    include "event.hpp"
-#    include "playerController.hpp"
+#include "event.hpp"
+#include "playerController.hpp"
 
 class WalkController : public PlayerController {
 public:

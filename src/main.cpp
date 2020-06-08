@@ -22,6 +22,7 @@
 #include "texture.hpp"
 #include "window.hpp"
 #include "player.hpp"
+#include "walkController.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -46,7 +47,7 @@ main(int, char**)
 
     Terrain terrain = Terrain();
 
-    Player player;
+    auto player          = Player(util::Tag<WalkController>());
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
         const double currentTimepoint = glfwGetTime();

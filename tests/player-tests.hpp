@@ -37,7 +37,7 @@ TEST_CASE(
         "Player moves in the direction mandated by the controller",
         "[Player]")
 {
-    auto player = Player(util::tag<DummyController>());
+    auto player = Player(util::Tag<DummyController>());
     player.update({0, 0}, 1.0);
 
     REQUIRE(dvecApproxEqual(player.absolutePosition(), G_VELOCITY));

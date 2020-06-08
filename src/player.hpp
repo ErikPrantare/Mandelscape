@@ -13,7 +13,7 @@
 class Player {
 public:
     template<typename T>
-    Player(util::tag<T>) : m_controller(new T)
+    Player(util::Tag<T>) : m_controller(new T)
     {}
 
     void
@@ -61,7 +61,6 @@ public:
 
 private:
     glm::dvec3 m_position      = glm::dvec3(0, 0, 0);
-    glm::dvec3 m_velocity      = glm::dvec3(0, 0, 0);
     glm::dvec2 m_terrainOffset = glm::dvec2(0, 0);
     double m_scale             = 1.0;
     double m_scaleVelocity     = 0.0;

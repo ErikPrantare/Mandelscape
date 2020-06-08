@@ -46,7 +46,7 @@ private:
 };
 
 template<typename T>
-struct tag {};
+struct Tag {};
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
 template<typename KeyType, typename ValueType>
