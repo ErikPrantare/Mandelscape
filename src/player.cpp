@@ -14,6 +14,8 @@
 void
 Player::handleEvent(Event const event)
 {
+    m_controller->handleEvent(event);
+
     // CPP20
     // https://en.cppreference.com/w/cpp/utility/functional/bind_front
     std::visit(
@@ -33,7 +35,8 @@ Player::update(glm::dvec2 const& terrainOffset, double dt)
     // HACK: m_position -= instead of +=.
     // -m_lookAtOffset.x. Probably some spooky stuff with
     // the coordinate system again. Look into.
-    m_position -= dt * m_scale * glm::rotateY(m_velocity, -m_lookAtOffset.x);
+    m_position += dt * m_scale
+                  * glm::rotateY(m_controller->velocity(), -m_lookAtOffset.x);
     if(m_autoZoom) {
         m_scale = m_position.y;
     }
@@ -51,18 +54,6 @@ void
 Player::keyDown(KeyDown const key)
 {
     switch(key.code) {
-    case GLFW_KEY_W: {
-        m_velocity.z += -movementSpeed;
-    } break;
-    case GLFW_KEY_A: {
-        m_velocity.x += -movementSpeed;
-    } break;
-    case GLFW_KEY_S: {
-        m_velocity.z += movementSpeed;
-    } break;
-    case GLFW_KEY_D: {
-        m_velocity.x += movementSpeed;
-    } break;
     case GLFW_KEY_J: {
         m_scaleVelocity += -1.0;
     } break;
@@ -79,18 +70,6 @@ void
 Player::keyUp(KeyUp const key)
 {
     switch(key.code) {
-    case GLFW_KEY_W: {
-        m_velocity.z += movementSpeed;
-    } break;
-    case GLFW_KEY_A: {
-        m_velocity.x += movementSpeed;
-    } break;
-    case GLFW_KEY_S: {
-        m_velocity.z += -movementSpeed;
-    } break;
-    case GLFW_KEY_D: {
-        m_velocity.x += -movementSpeed;
-    } break;
     case GLFW_KEY_J: {
         m_scaleVelocity += 1.0;
     } break;

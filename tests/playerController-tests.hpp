@@ -7,7 +7,7 @@
 
 #include "playerController.hpp"
 
-namespace {
+namespace PlayerControllerTest {
 
 glm::dvec3 constexpr G_DUMMY_INIT = {1.23, 6532936528529.363663, -0.00001};
 glm::dvec3 constexpr G_POST_EVENT = {666666666, -0.363663, -1.0 / 3.0};
@@ -43,6 +43,6 @@ TEST_CASE(
     REQUIRE(controller->velocity() == G_POST_EVENT);
 }
 
-}    // namespace
+}    // namespace PlayerControllerTest
 
 #endif

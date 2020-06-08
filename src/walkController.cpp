@@ -7,7 +7,7 @@
 glm::dvec3
 WalkController::velocity() const
 {
-    return m_velocity;
+    return m_movementSpeed * m_direction;
 }
 
 void
@@ -18,16 +18,16 @@ WalkController::handleEvent(Event const& event)
                     [this](KeyDown key) {
                         switch(key.code) {
                         case GLFW_KEY_W: {
-                            m_velocity.z += -1.0;
+                            m_direction.z += -1.0;
                         } break;
                         case GLFW_KEY_A: {
-                            m_velocity.x += -1.0;
+                            m_direction.x += -1.0;
                         } break;
                         case GLFW_KEY_S: {
-                            m_velocity.z += 1.0;
+                            m_direction.z += 1.0;
                         } break;
                         case GLFW_KEY_D: {
-                            m_velocity.x += 1.0;
+                            m_direction.x += 1.0;
                         } break;
                         }
                     },
@@ -35,16 +35,16 @@ WalkController::handleEvent(Event const& event)
                     [this](KeyUp key) {
                         switch(key.code) {
                         case GLFW_KEY_W: {
-                            m_velocity.z += 1.0;
+                            m_direction.z += 1.0;
                         } break;
                         case GLFW_KEY_A: {
-                            m_velocity.x += 1.0;
+                            m_direction.x += 1.0;
                         } break;
                         case GLFW_KEY_S: {
-                            m_velocity.z += -1.0;
+                            m_direction.z += -1.0;
                         } break;
                         case GLFW_KEY_D: {
-                            m_velocity.x += -1.0;
+                            m_direction.x += -1.0;
                         } break;
                         }
                     },

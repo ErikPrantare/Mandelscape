@@ -15,7 +15,8 @@ public:
     handleEvent(Event const&) override;
 
 private:
-    glm::dvec3 m_velocity{0.0, 0.0, 0.0};
+    static double constexpr m_movementSpeed = 1.0;
+    glm::dvec3 m_direction{0.0, 0.0, 0.0};
 };
 
 #endif

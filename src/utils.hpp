@@ -45,6 +45,9 @@ private:
     double const m_amount;
 };
 
+template<typename T>
+struct tag {};
+
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
 template<typename KeyType, typename ValueType>
 bool

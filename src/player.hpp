@@ -1,13 +1,21 @@
-#ifndef MANDELLANDSCAPE_PLAYER_H
-#define MANDELLANDSCAPE_PLAYER_H
+#ifndef MANDELLANDSCAPE_PLAYER_HPP
+#define MANDELLANDSCAPE_PLAYER_HPP
+
+#include <memory>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
 #include "event.hpp"
+#include "utils.hpp"
+#include "playerController.hpp"
 
 class Player {
 public:
+    template<typename T>
+    Player(util::tag<T>) : m_controller(new T)
+    {}
+
     void
     handleEvent(Event event);
 
@@ -59,9 +67,9 @@ private:
     double m_scaleVelocity     = 0.0;
     bool m_autoZoom            = false;
 
-    glm::dvec2 m_lookAtOffset = glm::dvec2(0.0, 0.0);
+    std::unique_ptr<PlayerController> m_controller;
 
-    static double constexpr movementSpeed = 1.0;
+    glm::dvec2 m_lookAtOffset = glm::dvec2(0.0, 0.0);
 
     void
     keyDown(KeyDown key);
