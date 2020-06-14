@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_UTILS_H
-#define MANDELLANDSCAPE_UTILS_H
+#ifndef MANDELLANDSCAPE_UTILS_HPP
+#define MANDELLANDSCAPE_UTILS_HPP
 
 #include <string>
 #include <fstream>
@@ -82,6 +82,9 @@ pop(std::queue<T, Container>& queue)
     return a;
 }
 
+double
+pixelsToAngle(double nrPixels, double sensitivity = 0.01);
+
 }    // namespace util
 
-#endif    // MANDELLANDSCAPE_UTILS_H
+#endif    // MANDELLANDSCAPE_UTILS_HPP

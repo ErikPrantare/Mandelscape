@@ -19,4 +19,10 @@ readFile(std::string const& filePath)
     return output;
 }
 
+double
+pixelsToAngle(double nrPixels, double sensitivity)
+{
+    return nrPixels * sensitivity;
+}
+
 }    // namespace util

@@ -8,15 +8,16 @@
 
 class WalkController : public PlayerController {
 public:
-    glm::dvec3
-    velocity() const override;
+    auto
+    handleEvent(Event const&) -> void override;
 
-    void
-    handleEvent(Event const&) override;
+    auto
+    update(Player* player, double dt) -> void override;
 
 private:
-    static double constexpr m_movementSpeed = 1.0;
+    static double constexpr movementSpeed = 1.0;
     glm::dvec3 m_direction{0.0, 0.0, 0.0};
+    glm::dvec2 m_dLookAtOffset{0.0, 0.0};
 };
 
 #endif

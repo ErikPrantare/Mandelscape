@@ -1,46 +1,49 @@
 #ifndef MANDELLANDSCAPE_PLAYERCONTROLLER_TESTS_HPP
 #define MANDELLANDSCAPE_PLAYERCONTROLLER_TESTS_HPP
 
+#include <catch2/catch.hpp>
 #include <memory>
 
 #include "event.hpp"
+#include "player.hpp"
 
 #include "playerController.hpp"
 
 namespace PlayerControllerTest {
 
-glm::dvec3 constexpr G_DUMMY_INIT = {1.23, 6532936528529.363663, -0.00001};
-glm::dvec3 constexpr G_POST_EVENT = {666666666, -0.363663, -1.0 / 3.0};
+glm::dvec3 constexpr dummyInit = {1.23, 6532936528529.363663, -0.00001};
+glm::dvec3 constexpr postEvent = {666666666, -0.363663, -1.0 / 3.0};
 
 class DummyController : public PlayerController {
 public:
-    glm::dvec3
-    velocity() const override
+    auto
+    handleEvent(Event const&) -> void override
     {
-        return m_val;
+        m_val = postEvent;
     }
 
-    void
-    handleEvent(Event const&) override
+    auto
+    update(Player* player, double /*dt*/) -> void override
     {
-        m_val = G_POST_EVENT;
+        player->position = m_val;
     }
 
 private:
-    glm::dvec3 m_val = G_DUMMY_INIT;
+    glm::dvec3 m_val = dummyInit;
 };
 
-TEST_CASE(
-        "playerController::getVelocity returns overloaded velocity",
-        "[PlayerController]")
+TEST_CASE("PlayerController can mutate a player", "[PlayerController]")
 {
     auto controller = std::unique_ptr<PlayerController>(new DummyController());
+    auto player     = Player();
 
-    REQUIRE(controller->velocity() == G_DUMMY_INIT);
+    controller->update(&player, 1.0);
+    REQUIRE(player.position == dummyInit);
 
     controller->handleEvent(MouseButtonDown{});
+    controller->update(&player, 1.0);
 
-    REQUIRE(controller->velocity() == G_POST_EVENT);
+    REQUIRE(player.position == postEvent);
 }
 
 }    // namespace PlayerControllerTest

@@ -43,11 +43,13 @@ int
 main(int, char**)
 {
     auto config = initConfig();
-    Window window(config);
+    auto window = Window(config);
 
-    Terrain terrain = Terrain();
+    auto terrain           = Terrain();
+    auto player            = Player();
+    auto walkController    = WalkController();
+    auto* playerController = &walkController;
 
-    auto player          = Player(util::Tag<WalkController>());
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
         const double currentTimepoint = glfwGetTime();
@@ -58,7 +60,7 @@ main(int, char**)
             auto const event = eventOpt.value();
 
             terrain.handleEvent(event);
-            player.handleEvent(event);
+            playerController->handleEvent(event);
             window.handleEvent(event);
         }
 
@@ -67,6 +69,7 @@ main(int, char**)
                 terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale());
         player.update(terrainOffset, dt);
         player.setHeight(terrain.heightAt({pos.x, pos.z}));
+        playerController->update(&player, dt);
 
         renderScene(terrain, player, config, dt);
     }
@@ -95,8 +98,8 @@ renderScene(
     // HACK: -x, look into why it is needed and if it can be resolved cleanly.
     camera.lookAt(
             glm::yawPitchRoll(
-                    -player.lookAtOffset().x,
-                    player.lookAtOffset().y,
+                    -player.lookAtOffset.x,
+                    player.lookAtOffset.y,
                     0.0)
             * glm::dvec4(0.0, 0.0, 1.0, 0.0));
 

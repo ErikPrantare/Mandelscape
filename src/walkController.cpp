@@ -1,17 +1,26 @@
 #include "walkController.hpp"
 
+#include <algorithm>
+
 #include <GLFW/glfw3.h>
+#include <glm/gtc/constants.hpp>
 
 #include "utils.hpp"
 
-glm::dvec3
-WalkController::velocity() const
+auto
+WalkController::update(Player* const player, double const dt) -> void
 {
-    return m_movementSpeed * m_direction;
+    auto constexpr pi = glm::pi<double>();
+
+    player->position += dt * movementSpeed * m_direction;
+    player->lookAtOffset += m_dLookAtOffset;
+    player->lookAtOffset.y =
+            std::clamp(player->lookAtOffset.y, -pi / 2 + 0.001, pi / 2 - 0.001);
+    m_dLookAtOffset = glm::dvec2{0.0, 0.0};
 }
 
-void
-WalkController::handleEvent(Event const& event)
+auto
+WalkController::handleEvent(Event const& event) -> void
 {
     std::visit(
             util::Overload{
@@ -48,6 +57,12 @@ WalkController::handleEvent(Event const& event)
                         } break;
                         }
                     },
+
+                    [this](MouseMove mouse) {
+                        m_dLookAtOffset.x += util::pixelsToAngle(mouse.dx);
+                        m_dLookAtOffset.y += util::pixelsToAngle(mouse.dy);
+                    },
+
                     // default
                     util::unaryNOP},
             event);

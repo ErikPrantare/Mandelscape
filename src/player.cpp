@@ -14,16 +14,12 @@
 void
 Player::handleEvent(Event const event)
 {
-    m_controller->handleEvent(event);
-
     // CPP20
     // https://en.cppreference.com/w/cpp/utility/functional/bind_front
     std::visit(
             util::Overload{
                     [this](KeyDown keyEvent) { keyDown(keyEvent); },
                     [this](KeyUp keyEvent) { keyUp(keyEvent); },
-                    [this](MouseMove mouseEvent) { mouseMove(mouseEvent); },
-
                     // default
                     util::unaryNOP},
             event);
@@ -32,13 +28,9 @@ Player::handleEvent(Event const event)
 void
 Player::update(glm::dvec2 const& terrainOffset, double dt)
 {
-    // HACK: m_position -= instead of +=.
-    // -m_lookAtOffset.x. Probably some spooky stuff with
-    // the coordinate system again. Look into.
-    m_position += dt * m_scale
-                  * glm::rotateY(m_controller->velocity(), -m_lookAtOffset.x);
+    position += dt * m_scale * glm::rotateY(m_velocity, lookAtOffset.x);
     if(m_autoZoom) {
-        m_scale = m_position.y;
+        m_scale = position.y;
     }
     else {
         m_scale *= std::exp(m_scaleVelocity * dt);
@@ -46,8 +38,8 @@ Player::update(glm::dvec2 const& terrainOffset, double dt)
 
     auto dPos       = terrainOffset - m_terrainOffset;
     m_terrainOffset = terrainOffset;
-    m_position.x -= dPos.x;
-    m_position.z -= dPos.y;
+    position.x -= dPos.x;
+    position.z -= dPos.y;
 }
 
 void
@@ -78,14 +70,3 @@ Player::keyUp(KeyUp const key)
     } break;
     }
 }
-
-void
-Player::mouseMove(MouseMove mouse)
-{
-    m_lookAtOffset.x += mouse.dx / 100.0;
-    m_lookAtOffset.y += mouse.dy / 100.0;
-    m_lookAtOffset.y = std::clamp(
-            m_lookAtOffset.y,
-            -glm::pi<double>() / 2 + 0.001,
-            glm::pi<double>() / 2 - 0.001);
-};
