@@ -21,6 +21,7 @@ option(BUILD_TESTING OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
+file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
 
 configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
     ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
