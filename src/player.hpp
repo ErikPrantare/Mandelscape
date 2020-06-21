@@ -35,12 +35,6 @@ public:
         return m_terrainOffset;
     }
 
-    double
-    scale() const
-    {
-        return m_scale;
-    }
-
     void
     setHeight(double y)
     {
@@ -49,10 +43,10 @@ public:
 
     glm::dvec3 position     = glm::dvec3(0, 0, 0);
     glm::dvec2 lookAtOffset = glm::dvec2(0.0, 0.0);
+    double scale            = 1.0;
 
 private:
     glm::dvec2 m_terrainOffset = glm::dvec2(0, 0);
-    double m_scale             = 1.0;
     double m_scaleVelocity     = 0.0;
     bool m_autoZoom            = false;
 

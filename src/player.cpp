@@ -28,13 +28,6 @@ Player::handleEvent(Event const event)
 void
 Player::update(glm::dvec2 const& terrainOffset, double dt)
 {
-    if(m_autoZoom) {
-        m_scale = position.y;
-    }
-    else {
-        m_scale *= std::exp(m_scaleVelocity * dt);
-    }
-
     auto dPos       = terrainOffset - m_terrainOffset;
     m_terrainOffset = terrainOffset;
     position.x -= dPos.x;

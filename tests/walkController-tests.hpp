@@ -202,6 +202,58 @@ TEST_CASE(
     REQUIRE(player.position.y == Approx(dPos.y));
     REQUIRE(player.position.z == Approx(dPos.z));
 }
+
+TEST_CASE("WalkController controlls player scale", "[WalkController]")
+{
+    auto controller = std::unique_ptr<PlayerController>(new WalkController);
+    auto player     = Player();
+    auto dontCare   = 0.0;
+
+    controller->update(&player, 1.0);
+    REQUIRE(player.scale == 1.0);
+
+    SECTION("J shrinks player scale")
+    {
+        controller->handleEvent(KeyDown{GLFW_KEY_J});
+        controller->update(&player, 1.0);
+        auto scale = player.scale;
+        REQUIRE(scale < 1.0);
+
+        controller->handleEvent(KeyUp{GLFW_KEY_J});
+        controller->update(&player, 1.0);
+        REQUIRE(player.scale == scale);
+    }
+
+    SECTION("K grows player scale")
+    {
+        controller->handleEvent(KeyDown{GLFW_KEY_K});
+        controller->update(&player, 1.0);
+        auto scale = player.scale;
+        REQUIRE(scale > 1.0);
+
+        controller->handleEvent(KeyUp{GLFW_KEY_K});
+        controller->update(&player, 1.0);
+        REQUIRE(player.scale == scale);
+    }
+
+    SECTION("Holding both J and K does nothing")
+    {
+        controller->handleEvent(KeyDown{GLFW_KEY_K});
+        controller->handleEvent(KeyDown{GLFW_KEY_J});
+        controller->update(&player, 1.0);
+        REQUIRE(player.scale == 1.0);
+    }
+
+    SECTION("O enables autozoom")
+    {
+        auto height       = 0.200468;
+        player.position.y = height;
+        controller->handleEvent(KeyDown{GLFW_KEY_O});
+        controller->update(&player, dontCare);
+        REQUIRE(player.scale == height);
+    }
+}
+
 }    // namespace WalkControllerTests
 
 #endif
