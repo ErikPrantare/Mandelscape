@@ -16,6 +16,9 @@ public:
 
 private:
     static double constexpr movementSpeed = 1.0;
+
+    double m_scalingVelocity = 0.0;
+    bool m_autoZoom          = false;
     glm::dvec3 m_direction{0.0, 0.0, 0.0};
     glm::dvec2 m_dLookAtOffset{0.0, 0.0};
 };

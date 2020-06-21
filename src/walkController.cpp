@@ -25,6 +25,13 @@ WalkController::update(Player* const player, double const dt) -> void
             {0.0, 1.0, 0.0});
     player->position += dt * movementSpeed
                         * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
+
+    if(m_autoZoom) {
+        player->scale = player->position.y;
+    }
+    else {
+        player->scale *= std::exp(dt * m_scalingVelocity);
+    }
 }
 
 auto
@@ -46,6 +53,15 @@ WalkController::handleEvent(Event const& event) -> void
                         case GLFW_KEY_D: {
                             m_direction.x += 1.0;
                         } break;
+                        case GLFW_KEY_J: {
+                            m_scalingVelocity += -1.0;
+                        } break;
+                        case GLFW_KEY_K: {
+                            m_scalingVelocity += 1.0;
+                        } break;
+                        case GLFW_KEY_O: {
+                            m_autoZoom = !m_autoZoom;
+                        } break;
                         }
                     },
 
@@ -62,6 +78,12 @@ WalkController::handleEvent(Event const& event) -> void
                         } break;
                         case GLFW_KEY_D: {
                             m_direction.x += -1.0;
+                        } break;
+                        case GLFW_KEY_J: {
+                            m_scalingVelocity += 1.0;
+                        } break;
+                        case GLFW_KEY_K: {
+                            m_scalingVelocity += -1.0;
                         } break;
                         }
                     },

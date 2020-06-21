@@ -264,14 +264,14 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
         SECTION("Double the delta time squares the scale change")
         {
             controller->update(&player, 2.0 * dt);
-            REQUIRE(scaleReference * scaleReference == player.scale);
+            REQUIRE(scaleReference * scaleReference == Approx(player.scale));
         }
 
         SECTION("Twice updating squares the scale change")
         {
-            controller->update(&player, 2.0 * dt);
-            controller->update(&player, 2.0 * dt);
-            REQUIRE(scaleReference * scaleReference == player.scale);
+            controller->update(&player, dt);
+            controller->update(&player, dt);
+            REQUIRE(scaleReference * scaleReference == Approx(player.scale));
         }
     }
 }
