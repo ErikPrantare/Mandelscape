@@ -252,6 +252,28 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
         controller->update(&player, dontCare);
         REQUIRE(player.scale == height);
     }
+
+    SECTION("Scaling happens exponentially")
+    {
+        auto dt = 3.60887;
+        controller->handleEvent(KeyDown{GLFW_KEY_J});
+        auto playerReference = Player();
+        controller->update(&playerReference, dt);
+        auto scaleReference = playerReference.scale;
+
+        SECTION("Double the delta time squares the scale change")
+        {
+            controller->update(&player, 2.0 * dt);
+            REQUIRE(scaleReference * scaleReference == player.scale);
+        }
+
+        SECTION("Twice updating squares the scale change")
+        {
+            controller->update(&player, 2.0 * dt);
+            controller->update(&player, 2.0 * dt);
+            REQUIRE(scaleReference * scaleReference == player.scale);
+        }
+    }
 }
 
 }    // namespace WalkControllerTests
