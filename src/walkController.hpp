@@ -9,10 +9,10 @@
 class WalkController : public PlayerController {
 public:
     auto
-    handleEvent(Event const&) -> void override;
+    update(Player* player, double dt) -> void override;
 
     auto
-    update(Player* player, double dt) -> void override;
+    handleEvent(Event const&) -> void override;
 
 private:
     static double constexpr movementSpeed = 1.0;

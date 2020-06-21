@@ -43,10 +43,8 @@ glm::dmat4
 Camera::lookAtMatrix() const
 {
     glm::dvec3 const forward = normalize(m_lookAt);
-    glm::dvec3 const right   = normalize(cross(m_up, forward));
-    glm::dvec3 const up      = normalize(cross(forward, right));
 
-    return glm::lookAt(m_pos, m_pos + forward, up);
+    return glm::lookAt(m_pos, m_pos + forward, m_up);
 }
 
 glm::dmat4

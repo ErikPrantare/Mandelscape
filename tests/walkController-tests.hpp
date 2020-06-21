@@ -6,12 +6,15 @@
 
 #include <GLFW/glfw3.h>
 #include <glm/gtc/constants.hpp>
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "event.hpp"
 #include "player.hpp"
 
 #include "utils.hpp"
 #include "walkController.hpp"
+#include "testUtils.hpp"
 
 namespace WalkControllerTests {
 
@@ -117,86 +120,87 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
 
     auto constexpr dontCare = 0.0;
 
-    auto dMovement = [](double dx, double dy) {
-        return MouseMove{0.0, 0.0, dx, dy};
+    auto dMovement = [](glm::dvec2 dPos) {
+        return MouseMove{0.0, 0.0, dPos.x, dPos.y};
+    };
+
+    auto directionTest = [&](glm::dvec2 pixelsMoved) {
+        auto const angleMoved = util::pixelsToAngle(pixelsMoved);
+
+        controller->handleEvent(dMovement(pixelsMoved));
+        controller->update(&player, dontCare);
+        REQUIRE(player.lookAtOffset == angleMoved);
+
+        controller->handleEvent(dMovement(-pixelsMoved));
+        controller->update(&player, dontCare);
+        REQUIRE(player.lookAtOffset == glm::dvec2{0.0, 0.0});
+
+        controller->handleEvent(dMovement(-pixelsMoved));
+        controller->update(&player, dontCare);
+        REQUIRE(player.lookAtOffset == -angleMoved);
     };
 
     REQUIRE(player.position == zero);
 
     SECTION("Mouse movement in vertical direction")
     {
-        auto constexpr pixelsMoved = 23.0;
-
-        controller->handleEvent(dMovement(0.0, pixelsMoved));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.y == util::pixelsToAngle(pixelsMoved));
-
-        controller->handleEvent(dMovement(0.0, -pixelsMoved));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.y == 0.0);
-        controller->handleEvent(dMovement(0.0, -pixelsMoved));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.y == -util::pixelsToAngle(pixelsMoved));
+        directionTest({0.0, 23.0});
     }
 
     SECTION("Mouse movement in horizontal direction")
     {
-        auto constexpr pixelsMoved = -177.0;
-
-        controller->handleEvent(dMovement(pixelsMoved, 0.0));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.x == util::pixelsToAngle(pixelsMoved));
-
-        controller->handleEvent(dMovement(-pixelsMoved, 0.0));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.x == 0.0);
-        controller->handleEvent(dMovement(-pixelsMoved, 0.0));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.x == -util::pixelsToAngle(pixelsMoved));
+        directionTest({-177.0, 0.0});
     }
 
     SECTION("Mouse movement in diagonal direction")
     {
-        auto constexpr pixelsMoved = glm::dvec2(230.0, -63.0);
-
-        controller->handleEvent(dMovement(pixelsMoved.x, pixelsMoved.y));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.x == util::pixelsToAngle(pixelsMoved.x));
-        REQUIRE(player.lookAtOffset.y == util::pixelsToAngle(pixelsMoved.y));
-
-        controller->handleEvent(dMovement(-pixelsMoved.x, -pixelsMoved.y));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset == glm::dvec2{0.0, 0.0});
-
-        controller->handleEvent(dMovement(-pixelsMoved.x, -pixelsMoved.y));
-        controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.x == -util::pixelsToAngle(pixelsMoved.x));
-        REQUIRE(player.lookAtOffset.y == -util::pixelsToAngle(pixelsMoved.y));
+        directionTest(glm::dvec2{230.0, -63.0});
     }
 
     SECTION("Multiple mouse events before update")
     {
         auto constexpr pixelsMoved = 73;
+        auto constexpr angleMoved  = util::pixelsToAngle({pixelsMoved, 0.0});
 
-        controller->handleEvent(dMovement(pixelsMoved, 0));
-        controller->handleEvent(dMovement(pixelsMoved, 0));
+        controller->handleEvent(dMovement({pixelsMoved, 0}));
+        controller->handleEvent(dMovement({pixelsMoved, 0}));
         controller->update(&player, dontCare);
-        REQUIRE(player.lookAtOffset.x
-                == 2.0 * util::pixelsToAngle(pixelsMoved));
+        REQUIRE(player.lookAtOffset == 2.0 * angleMoved);
     }
 
     SECTION("Vertical look direction does not exceed +-pi/2")
     {
         auto constexpr manyPixels = 9999999999;
 
-        controller->handleEvent(dMovement(0, manyPixels));
+        controller->handleEvent(dMovement({0, manyPixels}));
         controller->update(&player, dontCare);
         REQUIRE(player.lookAtOffset.y < glm::pi<double>() / 2.0);
 
-        controller->handleEvent(dMovement(0, -manyPixels));
+        controller->handleEvent(dMovement({0, -manyPixels}));
         controller->update(&player, dontCare);
         REQUIRE(player.lookAtOffset.y > -glm::pi<double>() / 2);
     }
+}
+
+TEST_CASE(
+        "WalkController moves player relative to lookAt direction",
+        "[WalkController]")
+{
+    auto controller = std::unique_ptr<PlayerController>(new WalkController);
+    auto player     = Player();
+
+    auto rotation         = -46.0997;
+    player.lookAtOffset.x = rotation;
+
+    controller->handleEvent(KeyDown{GLFW_KEY_W});
+    controller->update(&player, 1.0);
+
+    auto rotator = glm::rotate(glm::dmat4(1.0), rotation, {0.0, 1.0, 0.0});
+    auto dPos    = rotator * glm::dvec4(front, 0.0);
+
+    REQUIRE(player.position.x == Approx(dPos.x));
+    REQUIRE(player.position.y == Approx(dPos.y));
+    REQUIRE(player.position.z == Approx(dPos.z));
 }
 }    // namespace WalkControllerTests
 

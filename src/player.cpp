@@ -28,7 +28,6 @@ Player::handleEvent(Event const event)
 void
 Player::update(glm::dvec2 const& terrainOffset, double dt)
 {
-    position += dt * m_scale * glm::rotateY(m_velocity, lookAtOffset.x);
     if(m_autoZoom) {
         m_scale = position.y;
     }

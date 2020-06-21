@@ -9,6 +9,8 @@
 #include <queue>
 #include <optional>
 
+#include <glm/glm.hpp>
+
 #include "mandelTypeTraits.hpp"
 
 namespace util {
@@ -82,8 +84,13 @@ pop(std::queue<T, Container>& queue)
     return a;
 }
 
-double
-pixelsToAngle(double nrPixels, double sensitivity = 0.01);
+glm::dvec2 constexpr pixelsToAngle(
+        glm::dvec2 nrPixels,
+        double sensitivity = 0.01)
+{
+    //-x, refer to right hand rule with y up and positive pixels rightwards
+    return sensitivity * glm::dvec2(-nrPixels.x, nrPixels.y);
+}
 
 }    // namespace util
 

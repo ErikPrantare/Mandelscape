@@ -4,6 +4,8 @@
 
 #include <GLFW/glfw3.h>
 #include <glm/gtc/constants.hpp>
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "utils.hpp"
 
@@ -12,11 +14,17 @@ WalkController::update(Player* const player, double const dt) -> void
 {
     auto constexpr pi = glm::pi<double>();
 
-    player->position += dt * movementSpeed * m_direction;
     player->lookAtOffset += m_dLookAtOffset;
     player->lookAtOffset.y =
             std::clamp(player->lookAtOffset.y, -pi / 2 + 0.001, pi / 2 - 0.001);
     m_dLookAtOffset = glm::dvec2{0.0, 0.0};
+
+    auto rotator = glm::rotate(
+            glm::dmat4(1.0),
+            player->lookAtOffset.x,
+            {0.0, 1.0, 0.0});
+    player->position += dt * movementSpeed
+                        * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
 }
 
 auto
@@ -59,8 +67,8 @@ WalkController::handleEvent(Event const& event) -> void
                     },
 
                     [this](MouseMove mouse) {
-                        m_dLookAtOffset.x += util::pixelsToAngle(mouse.dx);
-                        m_dLookAtOffset.y += util::pixelsToAngle(mouse.dy);
+                        m_dLookAtOffset +=
+                                util::pixelsToAngle({mouse.dx, mouse.dy});
                     },
 
                     // default

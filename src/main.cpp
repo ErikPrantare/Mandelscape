@@ -14,6 +14,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "utils.hpp"
 #include "camera.hpp"
@@ -95,12 +96,16 @@ renderScene(
 
     camera.setPosition(cameraPosition);
 
-    // HACK: -x, look into why it is needed and if it can be resolved cleanly.
+    // + double(pi), because -z is regarded as the default lookAt forward
     camera.lookAt(
-            glm::yawPitchRoll(
-                    -player.lookAtOffset.x,
+            glm::rotate(
+                    glm::dmat4(1.0),
+                    player.lookAtOffset.x + double(pi),
+                    {0.0, 1.0, 0.0})
+            * glm::rotate(
+                    glm::dmat4(1.0),
                     player.lookAtOffset.y,
-                    0.0)
+                    {1.0, 0.0, 0.0})
             * glm::dvec4(0.0, 0.0, 1.0, 0.0));
 
     auto& program = terrain.shaderProgram();

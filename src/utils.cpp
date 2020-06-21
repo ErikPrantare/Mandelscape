@@ -3,6 +3,8 @@
 #include <string>
 #include <fstream>
 
+#include <glm/glm.hpp>
+
 namespace util {
 
 std::string
@@ -17,12 +19,6 @@ readFile(std::string const& filePath)
 
     in.close();
     return output;
-}
-
-double
-pixelsToAngle(double nrPixels, double sensitivity)
-{
-    return nrPixels * sensitivity;
 }
 
 }    // namespace util

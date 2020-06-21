@@ -51,7 +51,6 @@ public:
     glm::dvec2 lookAtOffset = glm::dvec2(0.0, 0.0);
 
 private:
-    glm::dvec3 m_velocity{0.0, 0.0, 0.0};
     glm::dvec2 m_terrainOffset = glm::dvec2(0, 0);
     double m_scale             = 1.0;
     double m_scaleVelocity     = 0.0;
