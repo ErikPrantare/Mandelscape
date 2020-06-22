@@ -1,9 +1,9 @@
 #ifndef MANDELLANDSCAPE_WALK_CONTROLLER_TESTS_HPP
 #define MANDELLANDSCAPE_WALK_CONTROLLER_TESTS_HPP
 
-#include <catch2/catch.hpp>
 #include <memory>
 
+#include <catch2/catch.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/constants.hpp>
 #include <glm/glm.hpp>
@@ -111,6 +111,36 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
         controller->update(&player, 1.0);
         REQUIRE(player.position == zero);
     }
+
+    SECTION("Movement is dependent on player scale")
+    {
+        auto scaleDiff = 0.689;
+
+        auto firstPos = player.position;
+        controller->handleEvent(KeyDown{GLFW_KEY_W});
+        controller->update(&player, 1.0);
+        auto dNormalPos = player.position - firstPos;
+
+        player.position = firstPos;
+        player.scale *= scaleDiff;
+        controller->update(&player, 1.0);
+        auto dScaledPos = player.position - firstPos;
+        REQUIRE(dNormalPos == Dvec3Approx{scaleDiff * dScaledPos});
+    }
+
+    SECTION("Movement is dependent on player look direction")
+    {
+        auto rotation         = -46.0997;
+        player.lookAtOffset.x = rotation;
+
+        controller->handleEvent(KeyDown{GLFW_KEY_W});
+        controller->update(&player, 1.0);
+
+        auto rotator = glm::rotate(glm::dmat4(1.0), rotation, {0.0, 1.0, 0.0});
+        auto dPos    = rotator * glm::dvec4(front, 0.0);
+
+        REQUIRE(player.position == Dvec3Approx{dPos});
+    }
 }
 
 TEST_CASE("WalkController handles mouse movement", "[WalkController]")
@@ -180,27 +210,6 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
         controller->update(&player, dontCare);
         REQUIRE(player.lookAtOffset.y > -glm::pi<double>() / 2);
     }
-}
-
-TEST_CASE(
-        "WalkController moves player relative to lookAt direction",
-        "[WalkController]")
-{
-    auto controller = std::unique_ptr<PlayerController>(new WalkController);
-    auto player     = Player();
-
-    auto rotation         = -46.0997;
-    player.lookAtOffset.x = rotation;
-
-    controller->handleEvent(KeyDown{GLFW_KEY_W});
-    controller->update(&player, 1.0);
-
-    auto rotator = glm::rotate(glm::dmat4(1.0), rotation, {0.0, 1.0, 0.0});
-    auto dPos    = rotator * glm::dvec4(front, 0.0);
-
-    REQUIRE(player.position.x == Approx(dPos.x));
-    REQUIRE(player.position.y == Approx(dPos.y));
-    REQUIRE(player.position.z == Approx(dPos.z));
 }
 
 TEST_CASE("WalkController controlls player scale", "[WalkController]")
