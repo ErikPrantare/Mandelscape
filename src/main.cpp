@@ -65,10 +65,12 @@ main(int, char**)
             window.handleEvent(event);
         }
 
-        auto pos = player.absolutePosition();
+        auto pos = player.position + player.positionOffset;
         auto terrainOffset =
                 terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
-        player.update(terrainOffset, dt);
+        auto dOffset          = terrainOffset - player.positionOffset;
+        player.positionOffset = terrainOffset;
+        player.position -= dOffset;
         player.position.y = terrain.heightAt({pos.x, pos.z});
         playerController->update(&player, dt);
 
@@ -88,7 +90,7 @@ renderScene(
     auto camera = Camera(config);
     camera.setScale(player.scale);
 
-    glm::vec3 cameraPosition = player.relativePosition();
+    glm::vec3 cameraPosition = player.position;
     cameraPosition.y += player.scale;
 
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);

@@ -11,8 +11,8 @@
 #include "shader.hpp"
 
 Terrain::Terrain() :
-            m_offset{0.0, 0.0},
-            m_loadingOffset{0.0, 0.0},
+            m_offset{0.0, 0.0, 0.0},
+            m_loadingOffset{0.0, 0.0, 0.0},
             m_scale{1.0},
             m_texture("textures/texture.png"),
             m_VBO{0},
@@ -110,7 +110,7 @@ Terrain::handleEvent(Event event)
 
 void
 Terrain::loadMesh(
-        glm::dvec2 offset,
+        glm::dvec3 offset,
         double const _scale,
         std::vector<glm::vec3>* const buffer)
 {
@@ -149,13 +149,13 @@ Terrain::loadMesh(
     for(int x = 0; x < granularity; ++x) {
         double const xQuant = quantized(xPos, normStepSize(x));
 
-        double zPos = -normMeshSpan / 2 + offset.y;
+        double zPos = -normMeshSpan / 2 + offset.z;
         for(int z = 0; z < granularity; ++z) {
             double const zQuant            = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - offset.x,
                     heightAt({xQuant, zQuant}),
-                    zQuant - offset.y);
+                    zQuant - offset.z);
 
             zPos += normStepSize(z);
         }
@@ -196,7 +196,7 @@ uploadMeshChunk(
     return (index + chunkSize) >= sourceMesh.size();
 }
 
-glm::dvec2
+glm::dvec3
 Terrain::updateMesh(double const x, double const z, double const scale)
 {
     const bool uploadingDone = uploadMeshChunk(
@@ -222,7 +222,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
             std::swap(m_VBO, m_loadingVBO);
 
             m_offset        = m_loadingOffset;
-            m_loadingOffset = {x, z};
+            m_loadingOffset = {x, 0.0, z};
             m_scale         = scale;
 
             startLoading();
@@ -301,7 +301,7 @@ void
 Terrain::render()
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
-    m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.y);
+    m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.z);
     m_texture.makeActiveOn(GL_TEXTURE0);
 
     int vertexCount = int(std::pow((granularity - 1), 2)) * 3 * 2;

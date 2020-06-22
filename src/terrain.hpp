@@ -35,7 +35,7 @@ public:
     void
     handleEvent(Event event);
 
-    glm::dvec2
+    glm::dvec3
     updateMesh(double, double, double);
 
     int
@@ -55,8 +55,8 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    glm::dvec2 m_offset;
-    glm::dvec2 m_loadingOffset;
+    glm::dvec3 m_offset;
+    glm::dvec3 m_loadingOffset;
     double m_scale;
 
     enum class State { Loading, Uploading };
@@ -94,7 +94,7 @@ private:
     generateMeshIndices();
 
     void
-    loadMesh(glm::dvec2, double, std::vector<glm::vec3>*);
+    loadMesh(glm::dvec3, double, std::vector<glm::vec3>*);
 };
 
 #endif
