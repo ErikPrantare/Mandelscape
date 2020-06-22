@@ -114,7 +114,7 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
 
     SECTION("Movement is dependent on player scale")
     {
-        auto scaleDiff = 0.689;
+        auto scaleFactor = 0.689;
 
         auto firstPos = player.position;
         controller->handleEvent(KeyDown{GLFW_KEY_W});
@@ -122,10 +122,10 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
         auto dNormalPos = player.position - firstPos;
 
         player.position = firstPos;
-        player.scale *= scaleDiff;
+        player.scale *= scaleFactor;
         controller->update(&player, 1.0);
         auto dScaledPos = player.position - firstPos;
-        REQUIRE(dNormalPos == Dvec3Approx{scaleDiff * dScaledPos});
+        REQUIRE(scaleFactor * dNormalPos == Dvec3Approx{dScaledPos});
     }
 
     SECTION("Movement is dependent on player look direction")

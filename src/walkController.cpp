@@ -23,7 +23,7 @@ WalkController::update(Player* const player, double const dt) -> void
             glm::dmat4(1.0),
             player->lookAtOffset.x,
             {0.0, 1.0, 0.0});
-    player->position += dt * movementSpeed
+    player->position += dt * player->scale * movementSpeed
                         * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
 
     if(m_autoZoom) {
