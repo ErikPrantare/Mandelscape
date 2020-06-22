@@ -6,6 +6,7 @@
 
 #include "event.hpp"
 #include "player.hpp"
+#include "testUtils.hpp"
 
 #include "playerController.hpp"
 
@@ -44,6 +45,23 @@ TEST_CASE("PlayerController can mutate a player", "[PlayerController]")
     controller->update(&player, 1.0);
 
     REQUIRE(player.position == postEvent);
+}
+
+auto
+movementDependentOnScaleTest(
+        std::unique_ptr<PlayerController>& controller,
+        Player player,
+        double scaleFactor) -> void
+{
+    auto firstPos = player.position;
+    controller->update(&player, 1.0);
+    auto dNormalPos = player.position - firstPos;
+
+    player.position = firstPos;
+    player.scale *= scaleFactor;
+    controller->update(&player, 1.0);
+    auto dScaledPos = player.position - firstPos;
+    REQUIRE(scaleFactor * dNormalPos == Dvec3Approx{dScaledPos});
 }
 
 }    // namespace PlayerControllerTest

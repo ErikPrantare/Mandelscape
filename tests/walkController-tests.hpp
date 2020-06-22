@@ -15,6 +15,7 @@
 #include "utils.hpp"
 #include "walkController.hpp"
 #include "testUtils.hpp"
+#include "playerController-tests.hpp"
 
 namespace WalkControllerTests {
 
@@ -114,18 +115,11 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
 
     SECTION("Movement is dependent on player scale")
     {
-        auto scaleFactor = 0.689;
-
-        auto firstPos = player.position;
         controller->handleEvent(KeyDown{GLFW_KEY_W});
-        controller->update(&player, 1.0);
-        auto dNormalPos = player.position - firstPos;
-
-        player.position = firstPos;
-        player.scale *= scaleFactor;
-        controller->update(&player, 1.0);
-        auto dScaledPos = player.position - firstPos;
-        REQUIRE(scaleFactor * dNormalPos == Dvec3Approx{dScaledPos});
+        PlayerControllerTest::movementDependentOnScaleTest(
+                controller,
+                player,
+                0.6838);
     }
 
     SECTION("Movement is dependent on player look direction")

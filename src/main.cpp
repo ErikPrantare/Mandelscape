@@ -24,6 +24,7 @@
 #include "window.hpp"
 #include "player.hpp"
 #include "walkController.hpp"
+#include "autoController.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -40,6 +41,13 @@ renderScene(
 Config
 initConfig();
 
+void
+metaHandleEvent(
+        Event const&,
+        PlayerController**,
+        WalkController*,
+        AutoController*);
+
 int
 main(int, char**)
 {
@@ -49,7 +57,8 @@ main(int, char**)
     auto terrain           = Terrain();
     auto player            = Player();
     auto walkController    = WalkController();
-    auto* playerController = &walkController;
+    auto autoController    = AutoController();
+    auto* playerController = (PlayerController*)&walkController;
 
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
@@ -63,6 +72,11 @@ main(int, char**)
             terrain.handleEvent(event);
             playerController->handleEvent(event);
             window.handleEvent(event);
+            metaHandleEvent(
+                    event,
+                    &playerController,
+                    &walkController,
+                    &autoController);
         }
 
         auto pos = player.position + player.positionOffset;
@@ -78,6 +92,31 @@ main(int, char**)
     }
 
     return 0;
+}
+
+void
+metaHandleEvent(
+        Event const& event,
+        PlayerController** playerController,
+        WalkController* walkController,
+        AutoController* autoController)
+{
+    std::visit(
+            util::Overload{
+                    [&](KeyDown key) {
+                        if(key.code == GLFW_KEY_C) {
+                            if(*playerController == walkController) {
+                                *playerController = autoController;
+                            }
+                            else {
+                                *playerController = walkController;
+                            }
+                        }
+                    },
+
+                    // default
+                    util::unaryNOP},
+            event);
 }
 
 void
