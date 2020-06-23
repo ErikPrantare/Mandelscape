@@ -10,10 +10,13 @@
 #include <optional>
 
 #include <glm/glm.hpp>
+#include <glm/ext/scalar_constants.hpp>
 
 #include "mandelTypeTraits.hpp"
 
 namespace util {
+
+long double constexpr pi = glm::pi<long double>();
 
 std::string
 readFile(std::string const& filePath);

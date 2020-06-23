@@ -9,21 +9,40 @@
 
 namespace AutoControllerTest {
 
-TEST_CASE("AutoController moves player")
+TEST_CASE("AutoController moves player", "[AutoController]")
 {
-    auto controller = std::unique_ptr<PlayerController>(new AutoController);
-    auto player     = Player();
+    auto heightFunc = [](auto x) {
+        return x.x;
+    };
+    auto controller =
+            std::unique_ptr<PlayerController>(new AutoController(heightFunc));
+    auto player = Player();
 
     auto prevPos = player.position;
     controller->update(&player, 1.0);
     REQUIRE(player.position != prevPos);
+}
 
-    SECTION("Movement is dependent on player scale")
-    {
-        PlayerControllerTest::movementDependentOnScaleTest(
-                controller,
-                player,
-                32.888);
+TEST_CASE(
+        "AutoController moves downwards relative to terrain",
+        "[AutoController]")
+{
+    auto player = Player();
+
+    auto heightFunc = [](glm::dvec2 pos) {
+        return std::abs(pos.x * pos.y);
+    };
+    auto controller =
+            std::unique_ptr<PlayerController>(new AutoController(heightFunc));
+
+    auto startPos = glm::dvec2{12.0, 47.0};
+
+    for(double t = 0.0; t < 2.0 * 3.14; t += 0.02) {
+        player.position.x = startPos.x;
+        player.position.z = startPos.y;
+        controller->update(&player, 1.0);
+        REQUIRE(heightFunc({player.position.x, player.position.z})
+                < heightFunc(startPos));
     }
 }
 

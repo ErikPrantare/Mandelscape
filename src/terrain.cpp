@@ -263,8 +263,9 @@ Terrain::generateMeshIndices()
 }
 
 double
-Terrain::heightAt(std::complex<double> const& c)
+Terrain::heightAt(glm::dvec2 const& pos)
 {
+    std::complex<double> c(pos.x, pos.y);
     std::complex<double> z(0.0, 0.0);
     std::complex<double> dz(0.0, 0.0);
 

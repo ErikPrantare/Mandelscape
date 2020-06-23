@@ -54,10 +54,11 @@ main(int, char**)
     auto config = initConfig();
     auto window = Window(config);
 
-    auto terrain           = Terrain();
-    auto player            = Player();
-    auto walkController    = WalkController();
-    auto autoController    = AutoController();
+    auto terrain        = Terrain();
+    auto player         = Player();
+    auto walkController = WalkController();
+    auto autoController =
+            AutoController([&](glm::dvec2 x) { return terrain.heightAt(x); });
     auto* playerController = (PlayerController*)&walkController;
 
     double lastTimepoint = glfwGetTime();

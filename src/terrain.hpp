@@ -42,7 +42,7 @@ public:
     iterations() const;
 
     double
-    heightAt(std::complex<double> const&);
+    heightAt(glm::dvec2 const&);
 
     void
     render();
