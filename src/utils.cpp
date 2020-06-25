@@ -21,4 +21,10 @@ readFile(std::string const& filePath)
     return output;
 }
 
+glm::dvec2
+unitVec2(double theta)
+{
+    return {std::cos(theta), std::sin(theta)};
+}
+
 }    // namespace util

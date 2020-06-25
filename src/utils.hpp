@@ -95,6 +95,15 @@ glm::dvec2 constexpr pixelsToAngle(
     return sensitivity * glm::dvec2(-nrPixels.x, nrPixels.y);
 }
 
+glm::dvec2 constexpr planePos(glm::dvec3 spacePos)
+{
+    return {spacePos.x, spacePos.z};
+}
+
+// CPP20 Make constexpr
+glm::dvec2
+unitVec2(double theta);
+
 }    // namespace util
 
 #endif    // MANDELLANDSCAPE_UTILS_HPP

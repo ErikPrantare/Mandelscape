@@ -8,23 +8,47 @@ AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
 auto
 AutoController::update(Player* const player, double const dt) -> void
 {
-    auto playerPos2d = glm::dvec2{player->position.x, player->position.z};
-    auto offset =
-            glm::dvec2{player->positionOffset.x, player->positionOffset.z};
-    auto bestPosition = playerPos2d;
-    auto bestHeight   = m_heightFunc(bestPosition + offset);
+    auto const relativePos = util::planePos(player->position);
+    auto const offset      = util::planePos(player->positionOffset);
+    auto const absolutePos = relativePos + offset;
 
-    for(double t = 0.0; t < 2.0 * util::pi; t += 0.02) {
-        auto testPos =
-                playerPos2d
-                + player->scale * dt * glm::dvec2{std::sin(t), std::cos(t)};
-        auto testHeight = m_heightFunc(testPos + offset);
-        if(testHeight < bestHeight) {
-            bestPosition = testPos;
-            bestHeight   = testHeight;
+    if(!m_targetFound) {
+        // minimize this function to find a proper goal
+        auto fitness = [this, &player](glm::dvec2 x) {
+            return std::abs(m_heightFunc(x) - player->scale);
+        };
+
+        auto constexpr distance = 100.0;
+        auto bestTarget         = absolutePos;
+        auto bestFitness        = 1e99;
+
+        for(double angle = 0.0; angle < 2.0 * util::pi; angle += 0.01) {
+            auto const testTarget =
+                    absolutePos
+                    + distance * player->scale * util::unitVec2(angle);
+            auto const testFitness = fitness(testTarget);
+
+            if(testFitness < bestFitness) {
+                bestTarget  = testTarget;
+                bestFitness = testFitness;
+            }
         }
+
+        m_target      = bestTarget;
+        m_targetFound = true;
     }
 
-    player->position.x = bestPosition.x;
-    player->position.z = bestPosition.y;
+    auto const distance = m_target - absolutePos;
+    if(distance == glm::dvec2{0.0, 0.0}) {
+        return;
+    }
+
+    auto const direction = glm::normalize(distance);
+    player->position.x += dt * player->scale * direction.x;
+    player->position.z += dt * player->scale * direction.y;
+
+    // flipped in atan2 and +pi because offset is relative to -z and not x
+    player->lookAtOffset.x = std::atan2(direction.x, direction.y) + util::pi;
+    // look slightly down
+    player->lookAtOffset.y = util::pi / 6;
 }

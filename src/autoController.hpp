@@ -18,6 +18,8 @@ public:
 
 private:
     std::function<double(glm::dvec2)> m_heightFunc;
+    bool m_targetFound  = false;
+    glm::dvec2 m_target = glm::dvec2{0.0, 0.0};
 };
 
 #endif

@@ -23,29 +23,6 @@ TEST_CASE("AutoController moves player", "[AutoController]")
     REQUIRE(player.position != prevPos);
 }
 
-TEST_CASE(
-        "AutoController moves downwards relative to terrain",
-        "[AutoController]")
-{
-    auto player = Player();
-
-    auto heightFunc = [](glm::dvec2 pos) {
-        return std::abs(pos.x * pos.y);
-    };
-    auto controller =
-            std::unique_ptr<PlayerController>(new AutoController(heightFunc));
-
-    auto startPos = glm::dvec2{12.0, 47.0};
-
-    for(double t = 0.0; t < 2.0 * 3.14; t += 0.02) {
-        player.position.x = startPos.x;
-        player.position.z = startPos.y;
-        controller->update(&player, 1.0);
-        REQUIRE(heightFunc({player.position.x, player.position.z})
-                < heightFunc(startPos));
-    }
-}
-
 }    // namespace AutoControllerTest
 
 #endif
