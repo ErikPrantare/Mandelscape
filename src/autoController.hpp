@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "playerController.hpp"
+#include "utils.hpp"
 
 class AutoController : public PlayerController {
 public:
@@ -20,6 +21,8 @@ private:
     std::function<double(glm::dvec2)> m_heightFunc;
     bool m_targetFound  = false;
     glm::dvec2 m_target = glm::dvec2{0.0, 0.0};
+    util::LowPassFilter<double> m_filteredLookAt{0.0, 0.99};
+    double m_prevTargetDirection = 0.0;
 };
 
 #endif

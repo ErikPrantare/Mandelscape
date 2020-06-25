@@ -1,5 +1,7 @@
 #include "autoController.hpp"
 
+#include <cmath>
+
 #include "utils.hpp"
 
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
@@ -14,11 +16,16 @@ AutoController::update(Player* const player, double const dt) -> void
 
     if(!m_targetFound) {
         // minimize this function to find a proper goal
-        auto fitness = [this, &player](glm::dvec2 x) {
-            return std::abs(m_heightFunc(x) - player->scale);
+        auto fitness = [this, &player](glm::dvec2 pos, double angle) -> double {
+            if(m_heightFunc(pos) == 0.0) {
+                return 1e99;
+            }
+
+            return std::abs(m_heightFunc(pos) - player->scale) / player->scale
+                   + std::fmod(angle - m_prevTargetDirection, 2 * util::pi);
         };
 
-        auto constexpr distance = 100.0;
+        auto constexpr distance = 40.0;
         auto bestTarget         = absolutePos;
         auto bestFitness        = 1e99;
 
@@ -26,11 +33,12 @@ AutoController::update(Player* const player, double const dt) -> void
             auto const testTarget =
                     absolutePos
                     + distance * player->scale * util::unitVec2(angle);
-            auto const testFitness = fitness(testTarget);
+            auto const testFitness = fitness(testTarget, angle);
 
             if(testFitness < bestFitness) {
-                bestTarget  = testTarget;
-                bestFitness = testFitness;
+                bestTarget            = testTarget;
+                bestFitness           = testFitness;
+                m_prevTargetDirection = angle;
             }
         }
 
@@ -52,7 +60,8 @@ AutoController::update(Player* const player, double const dt) -> void
     player->position.z += dt * player->scale * direction.y;
 
     // flipped in atan2 and +pi because offset is relative to -z and not x
-    player->lookAtOffset.x = std::atan2(direction.x, direction.y) + util::pi;
+    player->lookAtOffset.x =
+            m_filteredLookAt(std::atan2(direction.x, direction.y) + util::pi);
     // look slightly down
     player->lookAtOffset.y = util::pi / 6;
 }
