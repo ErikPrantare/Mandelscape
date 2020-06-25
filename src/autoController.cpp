@@ -39,7 +39,11 @@ AutoController::update(Player* const player, double const dt) -> void
     }
 
     auto const distance = m_target - absolutePos;
-    if(distance == glm::dvec2{0.0, 0.0}) {
+    if(std::sqrt(glm::dot(distance, distance)) < dt * player->scale) {
+        auto relativeTarget = m_target - offset;
+        player->position.x  = relativeTarget.x;
+        player->position.z  = relativeTarget.y;
+        m_targetFound       = false;
         return;
     }
 
