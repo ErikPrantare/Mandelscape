@@ -108,6 +108,7 @@ metaHandleEvent(
                         if(key.code == GLFW_KEY_C) {
                             if(*playerController == walkController) {
                                 *playerController = autoController;
+                                autoController->refresh();
                             }
                             else {
                                 *playerController = walkController;
