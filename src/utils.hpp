@@ -16,7 +16,7 @@
 
 namespace util {
 
-long double constexpr pi = glm::pi<long double>();
+double constexpr pi = glm::pi<double>();
 
 std::string
 readFile(std::string const& filePath);

@@ -1,6 +1,7 @@
 #include "autoController.hpp"
 
-#include <cmath>
+#include <random>
+#include <iostream>
 
 #include "utils.hpp"
 
@@ -15,35 +16,47 @@ AutoController::update(Player* const player, double const dt) -> void
     auto const absolutePos = relativePos + offset;
 
     if(!m_targetFound) {
+        auto rd = std::random_device();
+        auto const distance =
+                std::uniform_real_distribution<double>(2.0, 30.0)(rd);
+
         // minimize this function to find a proper goal
-        auto fitness = [this, &player](glm::dvec2 pos, double angle) -> double {
+        auto fitness = [this,
+                        &player,
+                        distance](glm::dvec2 pos, double angle) -> double {
             if(m_heightFunc(pos) == 0.0) {
                 return 1e99;
             }
 
+            auto const angleDiff = std::abs(angle - m_prevTargetDirection);
+            auto const anglePenalty =
+                    -std::abs(angleDiff - util::pi) * distance / 3.0;
             return std::abs(m_heightFunc(pos) - player->scale) / player->scale
-                   + std::fmod(angle - m_prevTargetDirection, 2 * util::pi);
+                   + anglePenalty;
         };
 
-        auto constexpr distance = 40.0;
-        auto bestTarget         = absolutePos;
-        auto bestFitness        = 1e99;
+        auto bestTarget  = absolutePos;
+        auto bestFitness = 1e99;
+        auto bestAngle   = 0.0;
 
-        for(double angle = 0.0; angle < 2.0 * util::pi; angle += 0.01) {
+        auto const angleInit =
+                std::uniform_real_distribution<double>(0.0, 0.01)(rd);
+        for(double angle = angleInit; angle < 2.0 * util::pi; angle += 0.01) {
             auto const testTarget =
                     absolutePos
                     + distance * player->scale * util::unitVec2(angle);
             auto const testFitness = fitness(testTarget, angle);
 
             if(testFitness < bestFitness) {
-                bestTarget            = testTarget;
-                bestFitness           = testFitness;
-                m_prevTargetDirection = angle;
+                bestTarget  = testTarget;
+                bestFitness = testFitness;
+                bestAngle   = angle;
             }
         }
 
-        m_target      = bestTarget;
-        m_targetFound = true;
+        m_prevTargetDirection = bestAngle;
+        m_target              = bestTarget;
+        m_targetFound         = true;
     }
 
     auto const distance = m_target - absolutePos;
