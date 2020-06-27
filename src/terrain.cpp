@@ -11,15 +11,8 @@
 #include "shader.hpp"
 
 Terrain::Terrain() :
-            m_offset{0.0, 0.0},
-            m_loadingOffset{0.0, 0.0},
-            m_scale{1.0},
-            m_texture("textures/texture.png"),
-            m_VBO{0},
-            m_loadingVBO{0},
-            m_EBO{0},
-            m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
-            m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
+            m_currentMeshPoints{std::make_unique<std::vector<glm::vec3>>()},
+            m_loadingMeshPoints{std::make_unique<std::vector<glm::vec3>>()}
 {
     loadMesh(m_loadingOffset, m_scale, m_currentMeshPoints.get());
     loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());

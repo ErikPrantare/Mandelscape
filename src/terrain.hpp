@@ -55,9 +55,9 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    glm::dvec2 m_offset;
-    glm::dvec2 m_loadingOffset;
-    double m_scale;
+    glm::dvec2 m_offset        = glm::dvec2{0.0, 0.0};
+    glm::dvec2 m_loadingOffset = glm::dvec2{0.0, 0.0};
+    double m_scale             = 1.0;
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
@@ -73,7 +73,7 @@ private:
             FragmentShader::fromFile("shaders/deepShader.frag");
 
     enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
-    Texture m_texture;
+    Texture m_texture = Texture("textures/texture.png");
 
     GLuint m_VAO        = 0;
     GLuint m_VBO        = 0;
@@ -84,8 +84,8 @@ private:
 
     std::future<void> m_loadingProcess;
 
-    std::shared_ptr<std::vector<glm::vec3>> m_currentMeshPoints;
-    std::shared_ptr<std::vector<glm::vec3>> m_loadingMeshPoints;
+    std::unique_ptr<std::vector<glm::vec3>> m_currentMeshPoints;
+    std::unique_ptr<std::vector<glm::vec3>> m_loadingMeshPoints;
 
     void
     startLoading();
