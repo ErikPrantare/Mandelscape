@@ -10,12 +10,10 @@
 #include "utils.hpp"
 #include "shader.hpp"
 
-Terrain::Terrain() :
-            m_currentMeshPoints{std::make_unique<std::vector<glm::vec3>>()},
-            m_loadingMeshPoints{std::make_unique<std::vector<glm::vec3>>()}
+Terrain::Terrain()
 {
-    loadMesh(m_loadingOffset, m_scale, m_currentMeshPoints.get());
-    loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());
+    loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints);
+    loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
 
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -28,15 +26,15 @@ Terrain::Terrain() :
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            m_currentMeshPoints->size() * sizeof(glm::vec3),
-            m_currentMeshPoints->data(),
+            m_currentMeshPoints.size() * sizeof(glm::vec3),
+            m_currentMeshPoints.data(),
             GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            m_loadingMeshPoints->size() * sizeof(glm::vec3),
-            m_loadingMeshPoints->data(),
+            m_loadingMeshPoints.size() * sizeof(glm::vec3),
+            m_loadingMeshPoints.data(),
             GL_DYNAMIC_DRAW);
 
     auto meshIndices = generateMeshIndices();
@@ -160,13 +158,13 @@ void
 Terrain::startLoading()
 {
     m_loadingProcess = std::async(std::launch::async, [this]() {
-        loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());
+        loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
     });
 }
 
 bool
 uploadMeshChunk(
-        std::vector<glm::vec3> const& sourceMesh,
+        std::vector<glm::vec3> const sourceMesh,
         GLuint const destinationVBO,
         size_t const index,
         size_t const maxChunkSize)
@@ -193,7 +191,7 @@ glm::dvec2
 Terrain::updateMesh(double const x, double const z, double const scale)
 {
     const bool uploadingDone = uploadMeshChunk(
-            *m_currentMeshPoints,
+            m_currentMeshPoints,
             m_loadingVBO,
             m_loadIndex,
             uploadChunkSize);

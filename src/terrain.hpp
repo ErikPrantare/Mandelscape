@@ -84,8 +84,8 @@ private:
 
     std::future<void> m_loadingProcess;
 
-    std::unique_ptr<std::vector<glm::vec3>> m_currentMeshPoints;
-    std::unique_ptr<std::vector<glm::vec3>> m_loadingMeshPoints;
+    std::vector<glm::vec3> m_currentMeshPoints;
+    std::vector<glm::vec3> m_loadingMeshPoints;
 
     void
     startLoading();
