@@ -15,15 +15,15 @@ Terrain::Terrain()
     loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints);
     loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
 
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
+    glGenVertexArrays(1, &m_mesh.m_VAO);
+    glBindVertexArray(m_mesh.m_VAO);
 
-    glGenBuffers(1, &m_VBO);
-    glGenBuffers(1, &m_EBO);
+    glGenBuffers(1, &m_mesh.m_VBO);
+    glGenBuffers(1, &m_mesh.m_EBO);
     glGenBuffers(1, &m_loadingVBO);
 
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_mesh.m_VBO);
     glBufferData(
             GL_ARRAY_BUFFER,
             m_currentMeshPoints.size() * sizeof(glm::vec3),
@@ -39,7 +39,7 @@ Terrain::Terrain()
 
     auto meshIndices = generateMeshIndices();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_mesh.m_EBO);
     glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             meshIndices.size() * sizeof(meshIndices[0]),
@@ -57,10 +57,10 @@ Terrain::~Terrain()
 {
     m_loadingProcess.wait();
 
-    glDeleteVertexArrays(1, &m_VAO);
-    glDeleteBuffers(1, &m_VBO);
+    glDeleteVertexArrays(1, &m_mesh.m_VAO);
+    glDeleteBuffers(1, &m_mesh.m_VBO);
     glDeleteBuffers(1, &m_loadingVBO);
-    glDeleteBuffers(1, &m_EBO);
+    glDeleteBuffers(1, &m_mesh.m_EBO);
 }
 
 ShaderProgram&
@@ -210,7 +210,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         } break;
 
         case State::Uploading: {
-            std::swap(m_VBO, m_loadingVBO);
+            std::swap(m_mesh.m_VBO, m_loadingVBO);
 
             m_offset        = m_loadingOffset;
             m_loadingOffset = {x, z};
@@ -297,7 +297,7 @@ Terrain::render()
 
     int vertexCount = int(std::pow((granularity - 1), 2)) * 3 * 2;
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_mesh.m_VBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);

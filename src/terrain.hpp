@@ -19,6 +19,7 @@
 #include "shader.hpp"
 #include "shaderProgram.hpp"
 #include "texture.hpp"
+#include "mesh.hpp"
 
 class Terrain {
 public:
@@ -75,10 +76,8 @@ private:
     enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
     Texture m_texture = Texture("textures/texture.png");
 
-    GLuint m_VAO        = 0;
-    GLuint m_VBO        = 0;
+    Mesh m_mesh         = Mesh();
     GLuint m_loadingVBO = 0;
-    GLuint m_EBO        = 0;
 
     unsigned int m_loadIndex = 0;
 
