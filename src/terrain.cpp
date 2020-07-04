@@ -15,11 +15,6 @@ Terrain::Terrain()
     loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints);
     loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
 
-    glGenVertexArrays(1, &m_mesh.m_VAO);
-    glBindVertexArray(m_mesh.m_VAO);
-
-    glGenBuffers(1, &m_mesh.m_VBO);
-    glGenBuffers(1, &m_mesh.m_EBO);
     glGenBuffers(1, &m_loadingVBO);
 
     glEnableVertexAttribArray(0);
@@ -57,10 +52,7 @@ Terrain::~Terrain()
 {
     m_loadingProcess.wait();
 
-    glDeleteVertexArrays(1, &m_mesh.m_VAO);
-    glDeleteBuffers(1, &m_mesh.m_VBO);
     glDeleteBuffers(1, &m_loadingVBO);
-    glDeleteBuffers(1, &m_mesh.m_EBO);
 }
 
 ShaderProgram&
