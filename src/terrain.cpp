@@ -15,31 +15,12 @@ Terrain::Terrain()
     loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints);
     loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
 
-    glGenBuffers(1, &m_loadingVBO);
-
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m_mesh.m_VBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            m_currentMeshPoints.size() * sizeof(glm::vec3),
-            m_currentMeshPoints.data(),
-            GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            m_loadingMeshPoints.size() * sizeof(glm::vec3),
-            m_loadingMeshPoints.data(),
-            GL_DYNAMIC_DRAW);
+    m_mesh.setVertices(m_currentMeshPoints);
+    m_loadingMesh.setVertices(m_currentMeshPoints);
 
     auto meshIndices = generateMeshIndices();
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_mesh.m_EBO);
-    glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            meshIndices.size() * sizeof(meshIndices[0]),
-            meshIndices.data(),
-            GL_STATIC_DRAW);
+    m_mesh.setIndices(meshIndices);
+    m_loadingMesh.setIndices(meshIndices);
 
     m_vertexShader.attachTo(m_shaderProgram);
     m_shallowFragShader.attachTo(m_shaderProgram);
@@ -51,8 +32,6 @@ Terrain::Terrain()
 Terrain::~Terrain()
 {
     m_loadingProcess.wait();
-
-    glDeleteBuffers(1, &m_loadingVBO);
 }
 
 ShaderProgram&
@@ -94,7 +73,7 @@ Terrain::handleEvent(Event event)
 void
 Terrain::loadMesh(
         glm::dvec2 offset,
-        double const _scale,
+        double const scale,
         std::vector<glm::vec3>* const buffer)
 {
     int constexpr nrIndices = granularity * granularity;
@@ -120,7 +99,7 @@ Terrain::loadMesh(
         meshSpan += stepSize(i);
     }
 
-    double const discreteScale = std::pow(2.0, int(log2(_scale)));
+    double const discreteScale = std::pow(2.0, int(log2(scale)));
     double const normMeshSpan  = 300.0 / discreteScale;
 
     double const normFactor = normMeshSpan / meshSpan;
@@ -154,41 +133,16 @@ Terrain::startLoading()
     });
 }
 
-bool
-uploadMeshChunk(
-        std::vector<glm::vec3> const sourceMesh,
-        GLuint const destinationVBO,
-        size_t const index,
-        size_t const maxChunkSize)
-{
-    if(index >= sourceMesh.size()) {
-        return true;
-    }
-
-    glm::vec3 const* position = &sourceMesh[index];
-
-    int chunkSize = std::min(maxChunkSize, sourceMesh.size() - index);
-
-    glBindBuffer(GL_ARRAY_BUFFER, destinationVBO);
-    glBufferSubData(
-            GL_ARRAY_BUFFER,
-            index * sizeof(glm::vec3),
-            chunkSize * sizeof(glm::vec3),
-            position);
-
-    return (index + chunkSize) >= sourceMesh.size();
-}
-
 glm::dvec2
 Terrain::updateMesh(double const x, double const z, double const scale)
 {
-    const bool uploadingDone = uploadMeshChunk(
-            m_currentMeshPoints,
-            m_loadingVBO,
-            m_loadIndex,
-            uploadChunkSize);
+    int const uploadSize = std::min(
+            uploadChunkSize,
+            (int)(m_currentMeshPoints.size() - m_loadIndex));
+    m_loadingMesh.setVertices(m_currentMeshPoints, m_loadIndex, uploadSize);
+    m_loadIndex += uploadSize;
 
-    m_loadIndex += uploadChunkSize;
+    const bool uploadingDone = m_loadIndex >= (int)m_currentMeshPoints.size();
 
     if(uploadingDone) {
         switch(m_state) {
@@ -202,7 +156,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         } break;
 
         case State::Uploading: {
-            std::swap(m_mesh.m_VBO, m_loadingVBO);
+            swap(m_mesh, m_loadingMesh);
 
             m_offset        = m_loadingOffset;
             m_loadingOffset = {x, z};
@@ -287,10 +241,5 @@ Terrain::render()
     m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.y);
     m_texture.makeActiveOn(GL_TEXTURE0);
 
-    int vertexCount = int(std::pow((granularity - 1), 2)) * 3 * 2;
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_mesh.m_VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+    m_mesh.render();
 }

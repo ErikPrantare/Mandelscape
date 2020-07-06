@@ -76,10 +76,10 @@ private:
     enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
     Texture m_texture = Texture("textures/texture.png");
 
-    Mesh m_mesh         = Mesh();
-    GLuint m_loadingVBO = 0;
+    Mesh m_mesh        = Mesh();
+    Mesh m_loadingMesh = Mesh();
 
-    unsigned int m_loadIndex = 0;
+    int m_loadIndex = 0;
 
     std::future<void> m_loadingProcess;
 
