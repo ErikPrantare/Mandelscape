@@ -55,8 +55,11 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    glm::dvec2 m_offset;
-    glm::dvec2 m_loadingOffset;
+    // Changing these to dvec2 will cause alignment problems between
+    // the mesh and the shader, as the shader only accepts floats.
+    glm::vec2 m_offset;
+    glm::vec2 m_loadingOffset;
+
     double m_scale;
 
     enum class State { Loading, Uploading };
