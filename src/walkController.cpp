@@ -26,11 +26,11 @@ WalkController::update(Player* const player, double const dt) -> void
     player->position += dt * player->scale * movementSpeed
                         * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
 
-    if(m_autoZoom) {
-        player->scale = player->position.y;
-    }
-    else {
+    if(!m_autoZoom) {
         player->scale *= std::exp(dt * m_scalingVelocity);
+    }
+    else if(player->position.y != 0.0) {
+        player->scale = player->position.y;
     }
 }
 
