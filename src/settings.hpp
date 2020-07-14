@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_SETTINGS_H
-#define MANDELLANDSCAPE_SETTINGS_H
+#ifndef MANDELLANDSCAPE_SETTINGS_HPP
+#define MANDELLANDSCAPE_SETTINGS_HPP
 
 #include "mandelTypeTraits.hpp"
 
@@ -26,4 +26,4 @@ using UseDeepShader     = Setting<bool, __LINE__>;
 using Iterations        = Setting<int, __LINE__>;
 }    // namespace Settings
 
-#endif    // MANDELLANDSCAPE_SETTINGS_H
+#endif    // MANDELLANDSCAPE_SETTINGS_HPP

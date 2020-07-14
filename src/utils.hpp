@@ -32,7 +32,7 @@ isDone(std::future<T> const& f)
 template<typename T>
 class LowPassFilter {
 public:
-    LowPassFilter(T const init, double const amount) :
+    LowPassFilter(T init, double amount) :
                 m_filteredValue(init),
                 m_amount(amount){};
 
@@ -49,6 +49,9 @@ private:
     T m_filteredValue;
     double const m_amount;
 };
+
+template<class T>
+LowPassFilter(T, double) -> LowPassFilter<T>;
 
 template<typename T>
 struct Tag {};
