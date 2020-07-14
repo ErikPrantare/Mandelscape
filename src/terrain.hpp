@@ -55,8 +55,8 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    glm::dvec3 m_offset;
-    glm::dvec3 m_loadingOffset;
+    glm::vec3 m_offset;
+    glm::vec3 m_loadingOffset;
     double m_scale;
 
     enum class State { Loading, Uploading };
