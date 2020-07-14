@@ -1,11 +1,9 @@
 #ifndef MANDELLANDSCAPE_AUTO_CONTROLLER_TESTS_HPP
 #define MANDELLANDSCAPE_AUTO_CONTROLLER_TESTS_HPP
 
-#include <catch2/catch.hpp>
-
-#include "playerController.hpp"
-
 #include "autoController.hpp"
+
+#include <catch2/catch.hpp>
 
 namespace AutoControllerTest {
 
@@ -15,7 +13,7 @@ TEST_CASE("AutoController moves player", "[AutoController]")
         return x.x;
     };
     auto controller =
-            std::unique_ptr<PlayerController>(new AutoController(heightFunc));
+            std::unique_ptr<AutoController>(new AutoController(heightFunc));
     auto player = Player();
 
     auto prevPos = player.position;

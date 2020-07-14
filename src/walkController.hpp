@@ -1,18 +1,18 @@
 #ifndef MANDELLANDSCAPE_WALKCONTROLLER_HPP
 #define MANDELLANDSCAPE_WALKCONTROLLER_HPP
 
+#include "event.hpp"
+#include "player.hpp"
+
 #include <glm/glm.hpp>
 
-#include "event.hpp"
-#include "playerController.hpp"
-
-class WalkController : public PlayerController {
+class WalkController {
 public:
     auto
-    update(Player* player, double dt) -> void override;
+    update(Player* player, double dt) -> void;
 
     auto
-    handleEvent(Event const&) -> void override;
+    handleEvent(Event const&) -> void;
 
 private:
     static double constexpr movementSpeed = 1.0;

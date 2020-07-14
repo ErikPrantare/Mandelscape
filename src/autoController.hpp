@@ -1,22 +1,22 @@
 #ifndef MANDELLANDSCAPE_AUTO_CONTROLLER_HPP
 #define MANDELLANDSCAPE_AUTO_CONTROLLER_HPP
 
-#include <functional>
+#include "utils.hpp"
+#include "player.hpp"
 
 #include <glm/glm.hpp>
 
-#include "playerController.hpp"
-#include "utils.hpp"
+#include <functional>
 
-class AutoController : public PlayerController {
+class AutoController {
 public:
     AutoController(std::function<double(glm::dvec2)>);
 
     auto
-    handleEvent(Event const&) -> void override{};
+    handleEvent(Event const&) -> void{};
 
     auto
-    update(Player*, double) -> void override;
+    update(Player*, double) -> void;
 
     auto
     refresh() -> void;
