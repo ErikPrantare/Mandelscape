@@ -29,14 +29,15 @@ isDone(std::future<T> const& f)
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
+template<typename T>
 class LowPassFilter {
 public:
-    LowPassFilter(double const init, double const amount) :
+    LowPassFilter(T init, double amount) :
                 m_filteredValue(init),
                 m_amount(amount){};
 
-    double
-    operator()(double const newValue, double const weight = 1.0f)
+    T
+    operator()(T const newValue, double const weight = 1.0f)
     {
         double const factor = std::pow(m_amount, weight);
 
@@ -45,9 +46,12 @@ public:
     }
 
 private:
-    double m_filteredValue;
+    T m_filteredValue;
     double const m_amount;
 };
+
+template<class T>
+LowPassFilter(T, double) -> LowPassFilter<T>;
 
 template<typename T>
 struct Tag {};
