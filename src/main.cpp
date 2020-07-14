@@ -1,3 +1,4 @@
+#include "event.hpp"
 #include "utils.hpp"
 #include "camera.hpp"
 #include "terrain.hpp"
@@ -11,6 +12,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <variant>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
@@ -41,27 +43,20 @@ renderScene(
 Config
 initConfig();
 
-using PlayerController = std::variant<WalkController*, AutoController*>;
-
-void
-metaHandleEvent(
-        Event const&,
-        PlayerController&,
-        WalkController*,
-        AutoController*);
-
 int
 main(int, char**)
 {
+    using PlayerController = std::variant<WalkController, AutoController>;
+
     auto config = initConfig();
     auto window = Window(config);
 
-    auto terrain        = Terrain();
-    auto player         = Player();
-    auto walkController = WalkController();
-    auto autoController =
-            AutoController([&](glm::dvec2 x) { return terrain.heightAt(x); });
-    auto playerController = PlayerController{&walkController};
+    auto terrain                = Terrain();
+    auto player                 = Player();
+    auto autoControllHeightFunc = [&](glm::dvec2 x) {
+        return terrain.heightAt(x);
+    };
+    auto playerController = PlayerController{WalkController{}};
 
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
@@ -74,14 +69,22 @@ main(int, char**)
 
             terrain.handleEvent(event);
             std::visit(
-                    [&](auto* controller) { controller->handleEvent(event); },
+                    [&](auto& controller) { controller.handleEvent(event); },
                     playerController);
             window.handleEvent(event);
-            metaHandleEvent(
-                    event,
-                    playerController,
-                    &walkController,
-                    &autoController);
+
+            if(std::holds_alternative<KeyDown>(event)) {
+                if(std::get<KeyDown>(event).code == GLFW_KEY_C) {
+                    if(std::holds_alternative<WalkController>(
+                               playerController)) {
+                        playerController =
+                                AutoController{autoControllHeightFunc};
+                    }
+                    else {
+                        playerController = WalkController{};
+                    }
+                }
+            }
         }
 
         auto pos = player.position + player.positionOffset;
@@ -92,40 +95,13 @@ main(int, char**)
         player.position -= dOffset;
         player.position.y = terrain.heightAt({pos.x, pos.z});
         std::visit(
-                [&](auto* controller) { controller->update(&player, dt); },
+                [&](auto& controller) { controller.update(&player, dt); },
                 playerController);
 
         renderScene(terrain, player, config, dt);
     }
 
     return 0;
-}
-
-void
-metaHandleEvent(
-        Event const& event,
-        PlayerController& playerController,
-        WalkController* walkController,
-        AutoController* autoController)
-{
-    std::visit(
-            util::Overload{
-                    [&](KeyDown key) {
-                        if(key.code == GLFW_KEY_C) {
-                            if(std::holds_alternative<WalkController*>(
-                                       playerController)) {
-                                playerController = autoController;
-                                autoController->refresh();
-                            }
-                            else {
-                                playerController = walkController;
-                            }
-                        }
-                    },
-
-                    // default
-                    util::unaryNOP},
-            event);
 }
 
 void

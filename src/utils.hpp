@@ -47,7 +47,7 @@ public:
 
 private:
     T m_filteredValue;
-    double const m_amount;
+    double m_amount;
 };
 
 template<class T>
