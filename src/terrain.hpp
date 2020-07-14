@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_TERRAIN_H
-#define MANDELLANDSCAPE_TERRAIN_H
+#ifndef MANDELLANDSCAPE_TERRAIN_HPP
+#define MANDELLANDSCAPE_TERRAIN_HPP
 
 #include <vector>
 #include <memory>
@@ -55,8 +55,11 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    glm::dvec3 m_offset;
-    glm::dvec3 m_loadingOffset;
+    // Changing these to dvec2 will cause alignment problems between
+    // the mesh and the shader, as the shader only accepts floats.
+    glm::vec2 m_offset;
+    glm::vec2 m_loadingOffset;
+
     double m_scale;
 
     enum class State { Loading, Uploading };

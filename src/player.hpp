@@ -1,8 +1,6 @@
 #ifndef MANDELLANDSCAPE_PLAYER_HPP
 #define MANDELLANDSCAPE_PLAYER_HPP
 
-#include <memory>
-
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
