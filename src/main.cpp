@@ -1,4 +1,5 @@
 #include "event.hpp"
+#include "metaController.hpp"
 #include "utils.hpp"
 #include "camera.hpp"
 #include "terrain.hpp"
@@ -46,17 +47,18 @@ initConfig();
 int
 main(int, char**)
 {
-    using PlayerController = std::variant<WalkController, AutoController>;
-
     auto config = initConfig();
     auto window = Window(config);
 
-    auto terrain                = Terrain();
-    auto player                 = Player();
+    auto terrain = Terrain();
+    auto player  = Player();
+
     auto autoControllHeightFunc = [&](glm::dvec2 x) {
         return terrain.heightAt(x);
     };
-    auto playerController = PlayerController{WalkController{}};
+    auto metacontroller = Metacontroller{
+            WalkController{},
+            AutoController{autoControllHeightFunc}};
 
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
@@ -68,23 +70,8 @@ main(int, char**)
             auto const event = eventOpt.value();
 
             terrain.handleEvent(event);
-            std::visit(
-                    [&](auto& controller) { controller.handleEvent(event); },
-                    playerController);
+            metacontroller.handleEvent(event);
             window.handleEvent(event);
-
-            if(std::holds_alternative<KeyDown>(event)) {
-                if(std::get<KeyDown>(event).code == GLFW_KEY_C) {
-                    if(std::holds_alternative<WalkController>(
-                               playerController)) {
-                        playerController =
-                                AutoController{autoControllHeightFunc};
-                    }
-                    else {
-                        playerController = WalkController{};
-                    }
-                }
-            }
         }
 
         auto pos = player.position + player.positionOffset;
@@ -94,9 +81,7 @@ main(int, char**)
         player.positionOffset = terrainOffset;
         player.position -= dOffset;
         player.position.y = terrain.heightAt({pos.x, pos.z});
-        std::visit(
-                [&](auto& controller) { controller.update(&player, dt); },
-                playerController);
+        metacontroller.update(&player, dt);
 
         renderScene(terrain, player, config, dt);
     }
