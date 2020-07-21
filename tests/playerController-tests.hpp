@@ -1,0 +1,8 @@
+#ifndef MANDELLANDSCAPE_PLAYER_CONTROLLER_TESTS_HPP
+#define MANDELLANDSCAPE_PLAYER_CONTROLLER_TESTS_HPP
+
+#include "playerController.hpp"
+
+#include <catch2/catch.hpp>
+
+#endif    // MANDELLANDSCAPE_PLAYER_CONTROLLER_TESTS_HPP
