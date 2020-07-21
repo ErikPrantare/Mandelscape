@@ -10,7 +10,6 @@
 #include <variant>
 #include <array>
 
-namespace {
 auto constexpr isNextController(Event const& event) -> bool
 {
     return std::holds_alternative<KeyDown>(event)
@@ -23,7 +22,6 @@ auto constexpr safeIncrement(size_t current, size_t bound, size_t stepSize)
 {
     return current + stepSize < bound ? current + stepSize : 0;
 }
-}    // namespace
 
 template<size_t numControllers>
 class Metacontroller {
@@ -45,7 +43,7 @@ public:
     }
 
     auto
-    update(Player* player, double deltaSeconds) -> void
+    update(Player& player, double deltaSeconds) -> void
     {
         m_controllers[m_activeController].update(player, deltaSeconds);
     }

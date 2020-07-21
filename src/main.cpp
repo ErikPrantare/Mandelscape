@@ -81,7 +81,7 @@ main(int, char**)
         player.positionOffset = terrainOffset;
         player.position -= dOffset;
         player.position.y = terrain.heightAt({pos.x, pos.z});
-        metacontroller.update(&player, dt);
+        metacontroller.update(player, dt);
 
         renderScene(terrain, player, config, dt);
     }

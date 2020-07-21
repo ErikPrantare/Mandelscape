@@ -5,22 +5,17 @@
 
 #include <catch2/catch.hpp>
 
-namespace AutoControllerTest {
-
 TEST_CASE("AutoController moves player", "[AutoController]")
 {
     auto heightFunc = [](auto x) {
         return x.x;
     };
-    auto controller =
-            std::unique_ptr<AutoController>(new AutoController(heightFunc));
-    auto player = Player();
+    auto controller = AutoController(heightFunc);
+    auto player     = Player();
 
     auto prevPos = player.position;
-    controller->update(&player, 1.0);
+    controller.update(player, 1.0);
     REQUIRE(player.position != prevPos);
 }
-
-}    // namespace AutoControllerTest
 
 #endif

@@ -14,7 +14,7 @@ struct ControllerModel {
     handleEvent(Event const& event) -> void = 0;
 
     virtual auto
-    update(Player* player, double deltaSeconds) -> void = 0;
+    update(Player& player, double deltaSeconds) -> void = 0;
 
     ControllerModel(ControllerModel const&) = default;
     ControllerModel(ControllerModel&&)      = default;
@@ -40,7 +40,7 @@ struct ControllerImpl final : ControllerModel {
     }
 
     auto
-    update(Player* player, double deltaSeconds) -> void final
+    update(Player& player, double deltaSeconds) -> void final
     {
         controller.update(player, deltaSeconds);
     }
@@ -63,7 +63,7 @@ public:
     }
 
     auto
-    update(Player* player, double deltaSeconds) -> void
+    update(Player& player, double deltaSeconds) -> void
     {
         m_controller->update(player, deltaSeconds);
     }

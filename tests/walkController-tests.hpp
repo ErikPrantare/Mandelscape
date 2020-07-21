@@ -26,129 +26,113 @@ glm::dvec3 constexpr zero{0.0, 0.0, 0.0};
 
 void
 handleEventAndUpdate(
-        WalkController* controller,
+        WalkController& controller,
         Event const& event,
-        Player* player,
+        Player& player,
         double dt)
 {
-    controller->handleEvent(event);
-    controller->update(player, 1.0);
+    controller.handleEvent(event);
+    controller.update(player, 1.0);
 }
 
 auto
 movementDependentOnScaleTest(
-        WalkController* controller,
+        WalkController& controller,
         Player player,
         double scaleFactor) -> void
 {
     auto firstPos = player.position;
-    controller->update(&player, 1.0);
+    controller.update(player, 1.0);
     auto dNormalPos = player.position - firstPos;
 
     player.position = firstPos;
     player.scale *= scaleFactor;
-    controller->update(&player, 1.0);
+    controller.update(player, 1.0);
     auto dScaledPos = player.position - firstPos;
     REQUIRE(scaleFactor * dNormalPos == Dvec3Approx{dScaledPos});
 }
 
 TEST_CASE("WalkController handles movement keys", "[WalkController]")
 {
-    auto controller = std::unique_ptr<WalkController>(new WalkController);
+    auto controller = WalkController{};
     auto player     = Player();
 
     SECTION("No buttons held -> no movement")
     {
-        controller->update(&player, 1.0);
+        controller.update(player, 1.0);
         REQUIRE(player.position == zero);
     }
 
     SECTION("\"A\" button hold moves left")
     {
-        handleEventAndUpdate(
-                controller.get(),
-                KeyDown{GLFW_KEY_A},
-                &player,
-                1.0);
+        handleEventAndUpdate(controller, KeyDown{GLFW_KEY_A}, player, 1.0);
         REQUIRE(player.position == left);
 
-        controller->update(&player, 1.0);
+        controller.update(player, 1.0);
         REQUIRE(player.position == 2.0 * left);
 
-        handleEventAndUpdate(controller.get(), KeyUp{GLFW_KEY_A}, &player, 1.0);
+        handleEventAndUpdate(controller, KeyUp{GLFW_KEY_A}, player, 1.0);
         REQUIRE(player.position == 2.0 * left);
     }
     SECTION("\"D\" button hold moves right")
     {
-        handleEventAndUpdate(
-                controller.get(),
-                KeyDown{GLFW_KEY_D},
-                &player,
-                1.0);
+        handleEventAndUpdate(controller, KeyDown{GLFW_KEY_D}, player, 1.0);
         REQUIRE(player.position == right);
 
-        controller->update(&player, 1.0);
+        controller.update(player, 1.0);
         REQUIRE(player.position == 2.0 * right);
 
-        handleEventAndUpdate(controller.get(), KeyUp{GLFW_KEY_D}, &player, 1.0);
+        handleEventAndUpdate(controller, KeyUp{GLFW_KEY_D}, player, 1.0);
         REQUIRE(player.position == 2.0 * right);
     }
     SECTION("\"W\" button hold moves forwards")
     {
-        handleEventAndUpdate(
-                controller.get(),
-                KeyDown{GLFW_KEY_W},
-                &player,
-                1.0);
+        handleEventAndUpdate(controller, KeyDown{GLFW_KEY_W}, player, 1.0);
         REQUIRE(player.position == front);
 
-        controller->update(&player, 1.0);
+        controller.update(player, 1.0);
         REQUIRE(player.position == 2.0 * front);
 
-        handleEventAndUpdate(controller.get(), KeyUp{GLFW_KEY_W}, &player, 1.0);
+        handleEventAndUpdate(controller, KeyUp{GLFW_KEY_W}, player, 1.0);
         REQUIRE(player.position == 2.0 * front);
     }
     SECTION("\"S\" button hold moves backwards")
     {
-        handleEventAndUpdate(
-                controller.get(),
-                KeyDown{GLFW_KEY_S},
-                &player,
-                1.0);
+        handleEventAndUpdate(controller, KeyDown{GLFW_KEY_S}, player, 1.0);
         REQUIRE(player.position == back);
 
-        controller->update(&player, 1.0);
+        controller.update(player, 1.0);
         REQUIRE(player.position == 2.0 * back);
 
-        handleEventAndUpdate(controller.get(), KeyUp{GLFW_KEY_S}, &player, 1.0);
+        handleEventAndUpdate(controller, KeyUp{GLFW_KEY_S}, player, 1.0);
         REQUIRE(player.position == 2.0 * back);
     }
 
     SECTION("Combination of inputs accelerate in multiple directions")
     {
-        controller->handleEvent(KeyDown{GLFW_KEY_S});
-        controller->handleEvent(KeyDown{GLFW_KEY_A});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyDown{GLFW_KEY_S});
+        controller.handleEvent(KeyDown{GLFW_KEY_A});
+        controller.update(player, 1.0);
         REQUIRE(player.position == back + left);
     }
 
     SECTION("Movement in opposite directions yields no velocity")
     {
-        controller->handleEvent(KeyDown{GLFW_KEY_A});
-        controller->handleEvent(KeyDown{GLFW_KEY_D});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyDown{GLFW_KEY_A});
+        controller.handleEvent(KeyDown{GLFW_KEY_D});
+        controller.update(player, 1.0);
         REQUIRE(player.position == zero);
-        controller->handleEvent(KeyDown{GLFW_KEY_W});
-        controller->handleEvent(KeyDown{GLFW_KEY_S});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyDown{GLFW_KEY_W});
+        controller.handleEvent(KeyDown{GLFW_KEY_S});
+        controller.update(player, 1.0);
         REQUIRE(player.position == zero);
     }
 
     SECTION("Movement is dependent on player scale")
     {
-        controller->handleEvent(KeyDown{GLFW_KEY_W});
+        controller.handleEvent(KeyDown{GLFW_KEY_W});
 
-        movementDependentOnScaleTest(controller.get(), player, 0.6838);
+        movementDependentOnScaleTest(controller, player, 0.6838);
     }
 
     SECTION("Movement is dependent on player look direction")
@@ -156,8 +140,8 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
         auto rotation         = -46.0997;
         player.lookAtOffset.x = rotation;
 
-        controller->handleEvent(KeyDown{GLFW_KEY_W});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyDown{GLFW_KEY_W});
+        controller.update(player, 1.0);
 
         auto rotator = glm::rotate(glm::dmat4(1.0), rotation, {0.0, 1.0, 0.0});
         auto dPos    = rotator * glm::dvec4(front, 0.0);
@@ -168,7 +152,7 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
 
 TEST_CASE("WalkController handles mouse movement", "[WalkController]")
 {
-    auto controller = std::unique_ptr<WalkController>(new WalkController);
+    auto controller = WalkController{};
     auto player     = Player();
 
     auto constexpr dontCare = 0.0;
@@ -180,16 +164,16 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
     auto directionTest = [&](glm::dvec2 pixelsMoved) {
         auto const angleMoved = util::pixelsToAngle(pixelsMoved);
 
-        controller->handleEvent(dMovement(pixelsMoved));
-        controller->update(&player, dontCare);
+        controller.handleEvent(dMovement(pixelsMoved));
+        controller.update(player, dontCare);
         REQUIRE(player.lookAtOffset == angleMoved);
 
-        controller->handleEvent(dMovement(-pixelsMoved));
-        controller->update(&player, dontCare);
+        controller.handleEvent(dMovement(-pixelsMoved));
+        controller.update(player, dontCare);
         REQUIRE(player.lookAtOffset == glm::dvec2{0.0, 0.0});
 
-        controller->handleEvent(dMovement(-pixelsMoved));
-        controller->update(&player, dontCare);
+        controller.handleEvent(dMovement(-pixelsMoved));
+        controller.update(player, dontCare);
         REQUIRE(player.lookAtOffset == -angleMoved);
     };
 
@@ -215,9 +199,9 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
         auto constexpr pixelsMoved = 73;
         auto constexpr angleMoved  = util::pixelsToAngle({pixelsMoved, 0.0});
 
-        controller->handleEvent(dMovement({pixelsMoved, 0}));
-        controller->handleEvent(dMovement({pixelsMoved, 0}));
-        controller->update(&player, dontCare);
+        controller.handleEvent(dMovement({pixelsMoved, 0}));
+        controller.handleEvent(dMovement({pixelsMoved, 0}));
+        controller.update(player, dontCare);
         REQUIRE(player.lookAtOffset == 2.0 * angleMoved);
     }
 
@@ -225,54 +209,54 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
     {
         auto constexpr manyPixels = 9999999999;
 
-        controller->handleEvent(dMovement({0, manyPixels}));
-        controller->update(&player, dontCare);
+        controller.handleEvent(dMovement({0, manyPixels}));
+        controller.update(player, dontCare);
         REQUIRE(player.lookAtOffset.y < glm::pi<double>() / 2.0);
 
-        controller->handleEvent(dMovement({0, -manyPixels}));
-        controller->update(&player, dontCare);
+        controller.handleEvent(dMovement({0, -manyPixels}));
+        controller.update(player, dontCare);
         REQUIRE(player.lookAtOffset.y > -glm::pi<double>() / 2);
     }
 }
 
 TEST_CASE("WalkController controlls player scale", "[WalkController]")
 {
-    auto controller = std::unique_ptr<WalkController>(new WalkController);
+    auto controller = WalkController{};
     auto player     = Player();
     auto dontCare   = 0.0;
 
-    controller->update(&player, 1.0);
+    controller.update(player, 1.0);
     REQUIRE(player.scale == 1.0);
 
     SECTION("J shrinks player scale")
     {
-        controller->handleEvent(KeyDown{GLFW_KEY_J});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyDown{GLFW_KEY_J});
+        controller.update(player, 1.0);
         auto scale = player.scale;
         REQUIRE(scale < 1.0);
 
-        controller->handleEvent(KeyUp{GLFW_KEY_J});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyUp{GLFW_KEY_J});
+        controller.update(player, 1.0);
         REQUIRE(player.scale == scale);
     }
 
     SECTION("K grows player scale")
     {
-        controller->handleEvent(KeyDown{GLFW_KEY_K});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyDown{GLFW_KEY_K});
+        controller.update(player, 1.0);
         auto scale = player.scale;
         REQUIRE(scale > 1.0);
 
-        controller->handleEvent(KeyUp{GLFW_KEY_K});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyUp{GLFW_KEY_K});
+        controller.update(player, 1.0);
         REQUIRE(player.scale == scale);
     }
 
     SECTION("Holding both J and K does nothing")
     {
-        controller->handleEvent(KeyDown{GLFW_KEY_K});
-        controller->handleEvent(KeyDown{GLFW_KEY_J});
-        controller->update(&player, 1.0);
+        controller.handleEvent(KeyDown{GLFW_KEY_K});
+        controller.handleEvent(KeyDown{GLFW_KEY_J});
+        controller.update(player, 1.0);
         REQUIRE(player.scale == 1.0);
     }
 
@@ -280,29 +264,29 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
     {
         auto height       = 0.200468;
         player.position.y = height;
-        controller->handleEvent(KeyDown{GLFW_KEY_O});
-        controller->update(&player, dontCare);
+        controller.handleEvent(KeyDown{GLFW_KEY_O});
+        controller.update(player, dontCare);
         REQUIRE(player.scale == height);
     }
 
     SECTION("Scaling happens exponentially")
     {
         auto dt = 3.60887;
-        controller->handleEvent(KeyDown{GLFW_KEY_J});
+        controller.handleEvent(KeyDown{GLFW_KEY_J});
         auto playerReference = Player();
-        controller->update(&playerReference, dt);
+        controller.update(playerReference, dt);
         auto scaleReference = playerReference.scale;
 
         SECTION("Double the delta time squares the scale change")
         {
-            controller->update(&player, 2.0 * dt);
+            controller.update(player, 2.0 * dt);
             REQUIRE(scaleReference * scaleReference == Approx(player.scale));
         }
 
         SECTION("Twice updating squares the scale change")
         {
-            controller->update(&player, dt);
-            controller->update(&player, dt);
+            controller.update(player, dt);
+            controller.update(player, dt);
             REQUIRE(scaleReference * scaleReference == Approx(player.scale));
         }
     }

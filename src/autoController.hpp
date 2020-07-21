@@ -16,14 +16,14 @@ public:
     handleEvent(Event const&) -> void{};
 
     auto
-    update(Player*, double) -> void;
+    update(Player&, double) -> void;
 
     auto
     refresh() -> void;
 
 private:
     auto
-    locateTarget(Player* player) -> void;
+    locateTarget(Player& player) -> void;
 
     std::function<double(glm::dvec2)> m_heightFunc;
 

@@ -9,7 +9,7 @@
 class WalkController {
 public:
     auto
-    update(Player* player, double dt) -> void;
+    update(Player& player, double dt) -> void;
 
     auto
     handleEvent(Event const&) -> void;
