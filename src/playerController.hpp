@@ -9,7 +9,6 @@
 #include <memory>
 #include <utility>
 
-namespace {
 struct ControllerModel {
     virtual auto
     handleEvent(Event const& event) -> void = 0;
@@ -48,7 +47,6 @@ struct ControllerImpl final : ControllerModel {
 
     Controller controller;
 };
-}    // namespace
 
 class PlayerController {
 public:
