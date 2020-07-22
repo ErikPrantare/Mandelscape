@@ -18,16 +18,16 @@ public:
     auto
     update(Player&, double) -> void;
 
-    auto
-    refresh() -> void;
-
 private:
     auto
     locateTarget(Player& player) -> void;
 
     std::function<double(glm::dvec2)> m_heightFunc;
 
-    bool m_hasTarget             = false;
+    static auto constexpr maxTravelTime     = 20.0;
+    static auto constexpr minimumTravelTime = 7.0;
+    static auto constexpr travelSpeed       = 1.0;
+
     glm::dvec2 m_target          = glm::dvec2{0.0, 0.0};
     double m_prevTargetDirection = 0.0;
 

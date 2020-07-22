@@ -12,8 +12,8 @@ TEST_CASE("AutoController moves player", "[AutoController]")
     auto heightFunc = [](auto x) {
         return x.x;
     };
-    auto controller = AutoController(heightFunc);
     auto player     = Player();
+    auto controller = AutoController(heightFunc);
 
     for(auto i = 0; i < 10; ++i) {
         auto prevPos = player.position;
