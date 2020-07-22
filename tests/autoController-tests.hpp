@@ -5,6 +5,8 @@
 
 #include <catch2/catch.hpp>
 
+namespace AutoControllerTests {
+
 TEST_CASE("AutoController moves player", "[AutoController]")
 {
     auto heightFunc = [](auto x) {
@@ -13,9 +15,13 @@ TEST_CASE("AutoController moves player", "[AutoController]")
     auto controller = AutoController(heightFunc);
     auto player     = Player();
 
-    auto prevPos = player.position;
-    controller.update(player, 1.0);
-    REQUIRE(player.position != prevPos);
+    for(auto i = 0; i < 10; ++i) {
+        auto prevPos = player.position;
+        controller.update(player, 1.0);
+        REQUIRE(player.position != prevPos);
+    }
 }
+
+}    // namespace AutoControllerTests
 
 #endif

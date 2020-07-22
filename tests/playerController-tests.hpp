@@ -7,6 +7,8 @@
 
 #include <functional>
 
+namespace PlayerControllerTests {
+
 struct Controller {
     std::reference_wrapper<bool> handleEventFlag;
     std::reference_wrapper<bool> updateFlag;
@@ -58,5 +60,7 @@ TEST_CASE(
         REQUIRE(updateFlag);
     }
 }
+
+}    // namespace PlayerControllerTests
 
 #endif    // MANDELLANDSCAPE_PLAYER_CONTROLLER_TESTS_HPP
