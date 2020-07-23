@@ -8,24 +8,6 @@
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
             m_heightFunc(heightFunc){};
 
-auto constexpr targetTooFar(
-        double distanceToTarget,
-        double maxTravelTime,
-        double speed) -> bool
-{
-    return distanceToTarget / speed > maxTravelTime;
-}
-
-auto constexpr targetTooClose(
-        double distanceToTarget,
-        double speed,
-        double deltaSeconds) -> bool
-{
-    auto const distanceTraveled = speed * deltaSeconds;
-
-    return distanceToTarget < distanceTraveled;
-}
-
 auto
 AutoController::update(Player& player, double const dt) -> void
 {
@@ -35,9 +17,8 @@ AutoController::update(Player& player, double const dt) -> void
 
     auto const distanceToTarget = glm::length(m_target - absolutePos);
 
-    if(targetTooFar(distanceToTarget, maxTravelTime, player.scale * travelSpeed)
-       || targetTooClose(distanceToTarget, player.scale * travelSpeed, dt)
-       || m_target == glm::dvec2{0.0, 0.0}) {
+    if(distanceToTarget > maxTravelTime * player.scale * travelSpeed
+       || distanceToTarget < dt * player.scale * travelSpeed) {
         locateTarget(player);
     }
 
@@ -59,12 +40,12 @@ AutoController::locateTarget(Player& player) -> void
     auto const offset      = util::planePos(player.positionOffset);
     auto const absolutePos = relativePos + offset;
 
-    auto constexpr maxTravelDistance     = maxTravelTime / travelSpeed;
-    auto constexpr minimumTravelDistance = minimumTravelTime / travelSpeed;
+    auto constexpr maxTravelDistance = maxTravelTime / travelSpeed;
+    auto constexpr minTravelDistance = minTravelTime / travelSpeed;
 
     auto rd             = std::random_device();
     auto const distance = std::uniform_real_distribution<double>(
-            minimumTravelDistance,
+            minTravelDistance,
             maxTravelDistance)(rd);
 
     // minimize this function to find a proper goal

@@ -25,9 +25,9 @@ private:
 
     std::function<double(glm::dvec2)> m_heightFunc;
 
-    static auto constexpr maxTravelTime     = 20.0;
-    static auto constexpr minimumTravelTime = 7.0;
-    static auto constexpr travelSpeed       = 1.0;
+    static auto constexpr maxTravelTime = 20.0;
+    static auto constexpr minTravelTime = 7.0;
+    static auto constexpr travelSpeed   = 1.0;
 
     glm::dvec2 m_target          = glm::dvec2{0.0, 0.0};
     double m_prevTargetDirection = 0.0;
