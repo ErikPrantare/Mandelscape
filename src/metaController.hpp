@@ -19,17 +19,16 @@ auto constexpr isNextController(Event const& event) -> bool
                    : false;
 }
 
-auto constexpr safeIncrement(size_t current, size_t bound, size_t stepSize)
-        -> size_t
+auto constexpr safeIncrement(size_t current, size_t bound) -> size_t
 {
-    return current + stepSize < bound ? current + stepSize : 0;
+    return ++current < bound ? current : 0Lu;
 }
 
 template<size_t numControllers>
-class Metacontroller {
+class MetaController {
 public:
     template<class... Controllers>
-    Metacontroller(Controllers&&... controllers) :
+    MetaController(Controllers&&... controllers) :
                 m_controllers{std::move(controllers)...}
     {}
 
@@ -38,7 +37,7 @@ public:
     {
         if(isNextController(event)) {
             m_activeController =
-                    safeIncrement(m_activeController, numControllers, 1);
+                    safeIncrement(m_activeController, numControllers);
         }
         else {
             m_controllers[m_activeController]->handleEvent(event);
@@ -57,6 +56,6 @@ private:
 };
 
 template<class... Controllers>
-Metacontroller(Controllers...) -> Metacontroller<sizeof...(Controllers)>;
+MetaController(Controllers...) -> MetaController<sizeof...(Controllers)>;
 
 #endif    // MANDELLANDSCAPE_META_CONTROLLER_HPP

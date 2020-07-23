@@ -6,7 +6,11 @@
 #include "utils.hpp"
 
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
-            m_heightFunc(heightFunc){};
+            m_heightFunc(heightFunc)
+{
+    auto dummyPlayer = Player{};
+    locateTarget(dummyPlayer);
+};
 
 auto constexpr targetTooFar(
         double distanceToTarget,
@@ -36,8 +40,7 @@ AutoController::update(Player& player, double const dt) -> void
     auto const distanceToTarget = glm::length(m_target - absolutePos);
 
     if(targetTooFar(distanceToTarget, maxTravelTime, player.scale * travelSpeed)
-       || targetTooClose(distanceToTarget, player.scale * travelSpeed, dt)
-       || m_target == glm::dvec2{0.0, 0.0}) {
+       || targetTooClose(distanceToTarget, player.scale * travelSpeed, dt)) {
         locateTarget(player);
     }
 
