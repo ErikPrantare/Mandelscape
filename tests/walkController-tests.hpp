@@ -7,8 +7,9 @@
 #include "walkController.hpp"
 #include "testUtils.hpp"
 
-#include <catch2/catch.hpp>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <catch2/catch.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
