@@ -3,20 +3,21 @@
 
 #include "utils.hpp"
 #include "player.hpp"
+#include "playerController.hpp"
 
 #include <glm/glm.hpp>
 
 #include <functional>
 
-class AutoController {
+class AutoController final : public PlayerController {
 public:
     AutoController(std::function<double(glm::dvec2)>);
 
     auto
-    handleEvent(Event const&) -> void{};
+    handleEvent(Event const&) -> void final{};
 
     auto
-    update(Player&, double) -> void;
+    update(Player&, double) -> void final;
 
 private:
     auto

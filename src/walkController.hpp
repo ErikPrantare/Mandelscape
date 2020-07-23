@@ -3,16 +3,17 @@
 
 #include "event.hpp"
 #include "player.hpp"
+#include "playerController.hpp"
 
 #include <glm/glm.hpp>
 
-class WalkController {
+class WalkController final : public PlayerController {
 public:
     auto
-    update(Player& player, double dt) -> void;
+    update(Player& player, double dt) -> void final;
 
     auto
-    handleEvent(Event const&) -> void;
+    handleEvent(Event const&) -> void final;
 
 private:
     static double constexpr movementSpeed = 1.0;

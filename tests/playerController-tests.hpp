@@ -1,6 +1,8 @@
 #ifndef MANDELLANDSCAPE_PLAYER_CONTROLLER_TESTS_HPP
 #define MANDELLANDSCAPE_PLAYER_CONTROLLER_TESTS_HPP
 
+#include "event.hpp"
+#include "player.hpp"
 #include "playerController.hpp"
 
 #include <catch2/catch.hpp>
@@ -9,7 +11,7 @@
 
 namespace PlayerControllerTests {
 
-struct Controller {
+struct Controller : PlayerController {
     std::reference_wrapper<bool> handleEventFlag;
     std::reference_wrapper<bool> updateFlag;
 
@@ -22,13 +24,13 @@ struct Controller {
     }
 
     auto
-    handleEvent(Event const&) -> void
+    handleEvent(Event const&) -> void final
     {
         handleEventFlag.get() = !handleEventFlag.get();
     }
 
     auto
-    update(Player&, double) -> void
+    update(Player&, double) -> void final
     {
         updateFlag.get() = !updateFlag.get();
     }
@@ -41,13 +43,13 @@ TEST_CASE(
     auto handleEventFlag = false;
     auto updateFlag      = false;
 
-    auto playerController =
-            PlayerController{Controller{handleEventFlag, updateFlag}};
+    auto playerController = std::unique_ptr<PlayerController>{
+            new Controller{handleEventFlag, updateFlag}};
 
     SECTION("PlayerController::handleEvent")
     {
         auto const dummyEvent = Event{KeyDown{}};
-        playerController.handleEvent(dummyEvent);
+        playerController->handleEvent(dummyEvent);
         REQUIRE(handleEventFlag);
         REQUIRE_FALSE(updateFlag);
     }
@@ -55,7 +57,7 @@ TEST_CASE(
     SECTION("PlayerController::update")
     {
         auto dummyPlayer = Player{};
-        playerController.update(dummyPlayer, {});
+        playerController->update(dummyPlayer, {});
         REQUIRE_FALSE(handleEventFlag);
         REQUIRE(updateFlag);
     }

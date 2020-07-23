@@ -7,8 +7,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <type_traits>
 #include <variant>
 #include <array>
+#include <memory>
 
 auto constexpr isNextController(Event const& event) -> bool
 {
@@ -27,7 +29,8 @@ template<size_t numControllers>
 class Metacontroller {
 public:
     template<class... Controllers>
-    Metacontroller(Controllers&&... controllers) : m_controllers{controllers...}
+    Metacontroller(Controllers&&... controllers) :
+                m_controllers{std::move(controllers)...}
     {}
 
     auto
@@ -38,18 +41,18 @@ public:
                     safeIncrement(m_activeController, numControllers, 1);
         }
         else {
-            m_controllers[m_activeController].handleEvent(event);
+            m_controllers[m_activeController]->handleEvent(event);
         }
     }
 
     auto
     update(Player& player, double deltaSeconds) -> void
     {
-        m_controllers[m_activeController].update(player, deltaSeconds);
+        m_controllers[m_activeController]->update(player, deltaSeconds);
     }
 
 private:
-    std::array<PlayerController, numControllers> m_controllers;
+    std::array<std::unique_ptr<PlayerController>, numControllers> m_controllers;
     size_t m_activeController = 0;
 };
 

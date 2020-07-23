@@ -56,9 +56,10 @@ main(int, char**)
     auto autoControllHeightFunc = [&](glm::dvec2 x) {
         return terrain.heightAt(x);
     };
+
     auto metacontroller = Metacontroller{
-            WalkController{},
-            AutoController{autoControllHeightFunc}};
+            std::make_unique<WalkController>(),
+            std::make_unique<AutoController>(autoControllHeightFunc)};
 
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
