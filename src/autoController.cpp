@@ -6,7 +6,8 @@
 #include "utils.hpp"
 
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
-            m_heightFunc(heightFunc){};
+            m_heightFunc(heightFunc)
+{}
 
 auto
 AutoController::update(Player& player, double const dt) -> void
@@ -15,16 +16,20 @@ AutoController::update(Player& player, double const dt) -> void
     auto const offset      = util::planePos(player.positionOffset);
     auto const absolutePos = relativePos + offset;
 
-    auto const distanceToTarget = glm::length(m_target - absolutePos);
+    auto const speed          = player.scale * travelSpeed;
+    auto const targetDistance = glm::length(m_target - absolutePos);
 
-    if(distanceToTarget > maxTravelTime * player.scale * travelSpeed
-       || distanceToTarget < dt * player.scale * travelSpeed) {
+    m_hasTarget = m_hasTarget && targetDistance < maxTravelTime * speed
+                  && targetDistance > dt * speed;
+
+    if(!m_hasTarget) {
         locateTarget(player);
+        m_hasTarget = true;
     }
 
     auto const direction = glm::normalize(m_target - absolutePos);
-    player.position.x += dt * player.scale * direction.x;
-    player.position.z += dt * player.scale * direction.y;
+    player.position.x += dt * speed * direction.x;
+    player.position.z += dt * speed * direction.y;
 
     // flipped in atan2 and +pi because offset is relative to -z and not x
     player.lookAtOffset.x =
@@ -40,34 +45,31 @@ AutoController::locateTarget(Player& player) -> void
     auto const offset      = util::planePos(player.positionOffset);
     auto const absolutePos = relativePos + offset;
 
-    auto constexpr maxTravelDistance = maxTravelTime / travelSpeed;
-    auto constexpr minTravelDistance = minTravelTime / travelSpeed;
+    auto rd               = std::random_device();
+    auto const travelTime = std::uniform_real_distribution<double>(
+            minTravelTime,
+            maxTravelTime)(rd);
 
-    auto rd             = std::random_device();
-    auto const distance = std::uniform_real_distribution<double>(
-            minTravelDistance,
-            maxTravelDistance)(rd);
+    auto const distance = travelTime * travelSpeed;
 
-    // minimize this function to find a proper goal
-    auto fitness =
-            [this, &player, distance](glm::dvec2 pos, double angle) -> double {
+    auto const anglePenalty = [this, distance](double angle) -> double {
+        // angleDiff is in [0, 2*pi]
+        auto const angleDiff     = std::abs(angle - m_prevTargetDirection);
+        auto const angleDistance = -std::abs(angleDiff - util::pi) + util::pi;
+        return angleDistance * distance / 3.0;
+    };
+
+    auto const heightPenalty = [this, &player](glm::dvec2 pos) -> double {
         if(m_heightFunc(pos) == 0.0) {
             return 1e99;
         }
 
-        // angleDiff is in [0, 2*pi]
-        auto const angleDiff     = std::abs(angle - m_prevTargetDirection);
-        auto const angleDistance = -std::abs(angleDiff - util::pi) + util::pi;
-        auto const anglePenalty  = angleDistance * distance / 3.0;
-
         // Divide by player.scale to normalize height pos.
-        auto const heightPenalty =
-                std::abs(m_heightFunc(pos) / player.scale - 1.0);
-        return heightPenalty + anglePenalty;
+        return std::abs(m_heightFunc(pos) / player.scale - 1.0);
     };
 
     auto bestTarget  = absolutePos;
-    auto bestFitness = 1e99;
+    auto bestPenalty = 1e99;
     auto bestAngle   = 0.0;
 
     auto const angleInit =
@@ -75,11 +77,12 @@ AutoController::locateTarget(Player& player) -> void
     for(double angle = angleInit; angle < 2.0 * util::pi; angle += 0.01) {
         auto const testTarget =
                 absolutePos + distance * player.scale * util::unitVec2(angle);
-        auto const testFitness = fitness(testTarget, angle);
+        auto const testPenalty =
+                heightPenalty(testTarget) + anglePenalty(angle);
 
-        if(testFitness < bestFitness) {
+        if(testPenalty < bestPenalty) {
             bestTarget  = testTarget;
-            bestFitness = testFitness;
+            bestPenalty = testPenalty;
             bestAngle   = angle;
         }
     }

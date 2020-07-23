@@ -57,7 +57,7 @@ main(int, char**)
         return terrain.heightAt(x);
     };
 
-    auto metacontroller = Metacontroller{
+    auto metacontroller = MetaController{
             std::make_unique<WalkController>(),
             std::make_unique<AutoController>(autoControllHeightFunc)};
 

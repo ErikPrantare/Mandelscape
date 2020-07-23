@@ -33,6 +33,8 @@ private:
     double m_prevTargetDirection = 0.0;
 
     util::LowPassFilter<double> m_filteredLookAt{0.0, 0.99};
+
+    bool m_hasTarget = false;
 };
 
 #endif
