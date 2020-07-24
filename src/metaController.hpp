@@ -3,6 +3,7 @@
 
 #include "event.hpp"
 #include "playerController.hpp"
+#include "utils.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,18 +12,6 @@
 #include <variant>
 #include <array>
 #include <memory>
-
-auto constexpr isNextController(Event const& event) -> bool
-{
-    return std::holds_alternative<KeyDown>(event)
-                   ? std::get<KeyDown>(event).code == GLFW_KEY_C
-                   : false;
-}
-
-auto constexpr safeIncrement(size_t current, size_t bound) -> size_t
-{
-    return ++current < bound ? current : 0Lu;
-}
 
 template<size_t numControllers>
 class MetaController {
@@ -35,19 +24,20 @@ public:
     auto
     handleEvent(Event const& event) -> void
     {
-        if(isNextController(event)) {
-            m_activeController =
-                    safeIncrement(m_activeController, numControllers);
+        bool switchController = std::holds_alternative<KeyDown>(event)
+                                && std::get<KeyDown>(event).code == GLFW_KEY_C;
+
+        if(switchController) {
+            m_activeController = (m_activeController + 1) % numControllers;
         }
-        else {
-            m_controllers[m_activeController]->handleEvent(event);
-        }
+
+        m_controllers[m_activeController]->handleEvent(event);
     }
 
     auto
-    update(Player& player, double deltaSeconds) -> void
+    update(Player& player, double dt) -> void
     {
-        m_controllers[m_activeController]->update(player, deltaSeconds);
+        m_controllers[m_activeController]->update(player, dt);
     }
 
 private:

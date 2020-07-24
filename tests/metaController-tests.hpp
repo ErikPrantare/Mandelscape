@@ -1,62 +1,66 @@
 #ifndef MANDELLANDSCAPE_META_CONTROLLER_TESTS_HPP
 #define MANDELLANDSCAPE_META_CONTROLLER_TESTS_HPP
 
+#include <array>
+#include <variant>
+
 #include "metaController.hpp"
+#include "playerController.hpp"
+#include "event.hpp"
+#include "player.hpp"
 
 #include <catch2/catch.hpp>
+#include <variant>
 
 namespace MetaControllerTests {
 
-TEST_CASE(
-        "MetaController helper functions",
-        "[isNextController][safeIncrement]")
+auto switchCalls         = std::array{0, 0, 0};
+auto updateCalled        = std::array{false, false, false};
+auto constexpr switchKey = GLFW_KEY_C;
+
+template<int n>
+class Controller final : public PlayerController {
+public:
+    auto
+    handleEvent(Event const& event) -> void final
+    {
+        if(std::holds_alternative<KeyDown>(event)
+           && std::get<KeyDown>(event).code == switchKey) {
+            ++switchCalls[n];
+        }
+    }
+
+    auto
+    update(Player&, double) -> void final
+    {
+        updateCalled[n] = true;
+    };
+};
+
+TEST_CASE("MetaController switches controllers", "[MetaController]")
 {
-    SECTION("isNextController returns true for a 'c' keypress")
-    {
-        auto constexpr event = Event{KeyDown{GLFW_KEY_C}};
-        STATIC_REQUIRE(isNextController(event));
-    }
-    SECTION("isNextController can accept an Event not holding a KeyDown")
-    {
-        auto constexpr event = Event{MouseMove{}};
-        STATIC_REQUIRE_FALSE(isNextController(event));
-    }
+    auto meta = MetaController(
+            std::make_unique<Controller<0>>(),
+            std::make_unique<Controller<1>>(),
+            std::make_unique<Controller<2>>());
 
-    auto constexpr start = 0;
-    static_assert(start == 0);
+    auto player = Player();
 
-    auto constexpr bound = 10;
-    static_assert(bound > 1);
+    meta.handleEvent(KeyDown{switchKey});
+    REQUIRE(switchCalls == std::array{0, 1, 0});
+    meta.update(player, 0.0);
+    REQUIRE(updateCalled == std::array{false, true, false});
 
-    auto constexpr incrementLoop =
-            [](auto const start, auto const bound, auto const times) {
-                auto result = start;
-                for(auto i = 0; i < times; ++i) {
-                    result = safeIncrement(result, bound);
-                }
+    meta.handleEvent(KeyDown{switchKey});
+    REQUIRE(switchCalls == std::array{0, 1, 1});
+    meta.update(player, 0.0);
+    REQUIRE(updateCalled == std::array{false, true, true});
 
-                return result;
-            };
-
-    SECTION("safeIncrement increments by 1")
-    {
-        auto constexpr increments = 5;
-        auto constexpr result     = incrementLoop(start, bound, increments);
-
-        STATIC_REQUIRE(result == start + increments);
-    }
-
-    SECTION("safeIncrement wraps around to 0 if it increments to bound")
-    {
-        auto constexpr increments = bound + 1;
-        auto constexpr result     = incrementLoop(start, bound, increments);
-
-        STATIC_REQUIRE(result == 1);
-    }
+    meta.handleEvent(KeyDown{switchKey});
+    REQUIRE(switchCalls == std::array{1, 1, 1});
+    meta.update(player, 0.0);
+    REQUIRE(updateCalled == std::array{true, true, true});
 }
-
-TEST_CASE("MetaController construction", "[MetaController]")
-{}
 
 }    // namespace MetaControllerTests
 
