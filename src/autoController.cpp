@@ -41,18 +41,16 @@ AutoController::update(Player& player, double const dt) -> void
 auto
 AutoController::locateTarget(Player& player) -> void
 {
+    using distribution = std::uniform_real_distribution<double>;
+
     auto const relativePos = util::planePos(player.position);
     auto const offset      = util::planePos(player.positionOffset);
     auto const absolutePos = relativePos + offset;
 
     auto rd               = std::random_device();
-    auto const travelTime = std::uniform_real_distribution<double>(
-            minTravelTime,
-            maxTravelTime)(rd);
+    auto const travelTime = distribution(minTravelTime, maxTravelTime)(rd);
 
-    auto const distance = travelTime * travelSpeed;
-
-    auto const anglePenalty = [this, distance](double angle) -> double {
+    auto const anglePenalty = [this](double angle, double distance) -> double {
         // angleDiff is in [0, 2*pi]
         auto const angleDiff     = std::abs(angle - m_prevTargetDirection);
         auto const angleDistance = -std::abs(angleDiff - util::pi) + util::pi;
@@ -72,13 +70,14 @@ AutoController::locateTarget(Player& player) -> void
     auto bestPenalty = 1e99;
     auto bestAngle   = 0.0;
 
-    auto const angleInit =
-            std::uniform_real_distribution<double>(0.0, 0.01)(rd);
+    auto const distance  = travelTime * travelSpeed;
+    auto const angleInit = distribution(0.0, 0.01)(rd);
+
     for(double angle = angleInit; angle < 2.0 * util::pi; angle += 0.01) {
         auto const testTarget =
                 absolutePos + distance * player.scale * util::unitVec2(angle);
         auto const testPenalty =
-                heightPenalty(testTarget) + anglePenalty(angle);
+                heightPenalty(testTarget) + anglePenalty(angle, distance);
 
         if(testPenalty < bestPenalty) {
             bestTarget  = testTarget;
