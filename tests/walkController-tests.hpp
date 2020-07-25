@@ -7,9 +7,9 @@
 #include "walkController.hpp"
 #include "testUtils.hpp"
 
+#include <catch2/catch.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <catch2/catch.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -17,6 +17,24 @@
 #include <memory>
 
 namespace WalkControllerTests {
+
+glm::dvec3 constexpr left{-1.0, 0.0, 0.0};
+glm::dvec3 constexpr right{1.0, 0.0, 0.0};
+glm::dvec3 constexpr front{0.0, 0.0, -1.0};
+glm::dvec3 constexpr back{0.0, 0.0, 1.0};
+
+glm::dvec3 constexpr zero{0.0, 0.0, 0.0};
+
+void
+handleEventAndUpdate(
+        WalkController& controller,
+        Event const& event,
+        Player& player,
+        double dt)
+{
+    controller.handleEvent(event);
+    controller.update(player, 1.0);
+}
 
 auto
 movementDependentOnScaleTest(
@@ -37,137 +55,71 @@ movementDependentOnScaleTest(
 
 TEST_CASE("WalkController handles movement keys", "[WalkController]")
 {
-    auto constexpr forward  = GLFW_KEY_W;
-    auto constexpr backward = GLFW_KEY_S;
-    auto constexpr left     = GLFW_KEY_A;
-    auto constexpr right    = GLFW_KEY_D;
-
-    auto constexpr timeStep = 1.0;
-
     auto controller = WalkController{};
     auto player     = Player();
 
+    REQUIRE(player.position == zero);
+
+    auto testDirection = [&controller](int key, glm::dvec3 direction) {
+        auto player = Player();
+
+        handleEventAndUpdate(controller, KeyDown{key}, player, 1.0);
+        REQUIRE(player.position == direction);
+
+        controller.update(player, 1.0);
+        REQUIRE(player.position == 2.0 * direction);
+
+        handleEventAndUpdate(controller, KeyUp{key}, player, 1.0);
+        REQUIRE(player.position == 2.0 * direction);
+    };
+
     SECTION("No buttons held -> no movement")
     {
-        auto const currentPosition = player.position;
-
-        controller.update(player, timeStep);
-        REQUIRE(player.position == currentPosition);
-    }
-
-    SECTION("\"A\" button hold moves left")
-    {
-        auto const initialPos = player.position.x;
-
-        controller.handleEvent(KeyDown{left});
-
-        controller.update(player, timeStep);
-        auto const leftPos = player.position.x;
-
-        REQUIRE(leftPos < initialPos);
-
-        controller.update(player, timeStep);
-        auto const leftestPos = player.position.x;
-
-        REQUIRE(leftestPos == 2.0 * (leftPos - initialPos) + initialPos);
-
-        controller.handleEvent(KeyUp{left});
-        controller.update(player, timeStep);
-        REQUIRE(player.position.x == leftestPos);
-    }
-
-    SECTION("\"D\" button hold moves right")
-    {
-        auto const initialPos = player.position.x;
-
-        controller.handleEvent(KeyDown{right});
-
-        controller.update(player, timeStep);
-        auto const rightPos = player.position.x;
-
-        REQUIRE(rightPos > initialPos);
-
-        controller.update(player, timeStep);
-        auto const rightestPos = player.position.x;
-
-        REQUIRE(rightestPos == 2.0 * (rightPos - initialPos) + initialPos);
-
-        controller.handleEvent(KeyUp{right});
-        controller.update(player, timeStep);
-        REQUIRE(player.position.x == rightestPos);
-    }
-
-    SECTION("\"W\" button hold moves forward")
-    {
-        auto const initialPos = player.position.z;
-
-        controller.handleEvent(KeyDown{forward});
-
-        controller.update(player, timeStep);
-        auto const forwardPos = player.position.z;
-
-        REQUIRE(forwardPos < initialPos);
-
-        controller.update(player, timeStep);
-        auto const forwardestPos = player.position.z;
-
-        REQUIRE(forwardestPos == 2.0 * (forwardPos - initialPos) + initialPos);
-
-        controller.handleEvent(KeyUp{forward});
-        controller.update(player, timeStep);
-        REQUIRE(player.position.z == forwardestPos);
-    }
-
-    SECTION("\"S\" button hold moves forward")
-    {
-        auto const initialPos = player.position.z;
-
-        controller.handleEvent(KeyDown{backward});
-
-        controller.update(player, timeStep);
-        auto const backwardPos = player.position.z;
-
-        REQUIRE(backwardPos > initialPos);
-
-        controller.update(player, timeStep);
-        auto const backwardestPos = player.position.z;
-
-        REQUIRE(backwardestPos
-                == 2.0 * (backwardPos - initialPos) + initialPos);
-
-        controller.handleEvent(KeyUp{backward});
-        controller.update(player, timeStep);
-        REQUIRE(player.position.z == backwardestPos);
-    }
-
-    SECTION("Combination of inputs move in multiple directions")
-    {
-        auto const initialPos = player.position;
-
-        controller.handleEvent(KeyDown{forward});
-        controller.handleEvent(KeyDown{left});
         controller.update(player, 1.0);
+        REQUIRE(player.position == zero);
+    }
 
-        auto const upLeftPos = player.position;
-        REQUIRE(upLeftPos.x < initialPos.x);
-        REQUIRE(upLeftPos.z < initialPos.z);
+    SECTION("WASD moves correctly")
+    {
+        testDirection(GLFW_KEY_W, front);
+        testDirection(GLFW_KEY_A, left);
+        testDirection(GLFW_KEY_S, back);
+        testDirection(GLFW_KEY_D, right);
+    }
+
+    SECTION("Combination of inputs accelerate in multiple directions")
+    {
+        controller.handleEvent(KeyDown{GLFW_KEY_S});
+        controller.handleEvent(KeyDown{GLFW_KEY_A});
+        controller.update(player, 1.0);
+        REQUIRE(player.position == back + left);
+    }
+
+    SECTION("Movement in opposite directions yields no velocity")
+    {
+        controller.handleEvent(KeyDown{GLFW_KEY_A});
+        controller.handleEvent(KeyDown{GLFW_KEY_D});
+        controller.update(player, 1.0);
+        REQUIRE(player.position == zero);
+        controller.handleEvent(KeyDown{GLFW_KEY_W});
+        controller.handleEvent(KeyDown{GLFW_KEY_S});
+        controller.update(player, 1.0);
+        REQUIRE(player.position == zero);
     }
 
     SECTION("Movement is dependent on player scale")
     {
-        controller.handleEvent(KeyDown{forward});
+        controller.handleEvent(KeyDown{GLFW_KEY_W});
 
         movementDependentOnScaleTest(controller, player, 0.6838);
     }
 
     SECTION("Movement is dependent on player look direction")
     {
-        auto constexpr front = glm::dvec3{0.0, 0.0, -1.0};
-
         auto rotation         = -46.0997;
         player.lookAtOffset.x = rotation;
 
-        controller.handleEvent(KeyDown{forward});
+        controller.handleEvent(KeyDown{GLFW_KEY_W});
         controller.update(player, 1.0);
 
         auto rotator = glm::rotate(glm::dmat4(1.0), rotation, {0.0, 1.0, 0.0});
@@ -203,6 +155,8 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
         controller.update(player, dontCare);
         REQUIRE(player.lookAtOffset == -angleMoved);
     };
+
+    REQUIRE(player.position == zero);
 
     SECTION("Mouse movement in vertical direction")
     {

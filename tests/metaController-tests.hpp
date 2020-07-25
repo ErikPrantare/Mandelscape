@@ -4,13 +4,12 @@
 #include <array>
 #include <variant>
 
+#include <catch2/catch.hpp>
+
 #include "metaController.hpp"
 #include "playerController.hpp"
 #include "event.hpp"
 #include "player.hpp"
-
-#include <catch2/catch.hpp>
-#include <variant>
 
 namespace MetaControllerTests {
 

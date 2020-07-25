@@ -17,7 +17,7 @@ AutoController::handleEvent(Event const& event) -> void
 {
     // Controller was switched to
     if(std::holds_alternative<KeyDown>(event)
-            && std::get<KeyDown>(event).code == GLFW_KEY_C) {
+       && std::get<KeyDown>(event).code == GLFW_KEY_C) {
         m_needsRelocation = true;
     }
 }
@@ -62,7 +62,6 @@ AutoController::locateTarget(Player& player) -> void
     auto rd               = std::random_device();
     auto const travelTime = distribution(minTravelTime, maxTravelTime)(rd);
 
-
     auto const anglePenalty = [this](double angle, double distance) -> double {
         // angleDiff is in [0, 2*pi]
         auto const angleDiff     = std::abs(angle - m_prevTargetDirection);
@@ -83,7 +82,7 @@ AutoController::locateTarget(Player& player) -> void
     auto bestPenalty = 1e99;
     auto bestAngle   = 0.0;
 
-    auto const distance = travelTime * travelSpeed;
+    auto const distance  = travelTime * travelSpeed;
     auto const angleInit = distribution(0.0, 0.01)(rd);
 
     for(double angle = angleInit; angle < 2.0 * util::pi; angle += 0.01) {

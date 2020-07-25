@@ -50,12 +50,6 @@ private:
     double m_amount;
 };
 
-template<class T>
-LowPassFilter(T, double) -> LowPassFilter<T>;
-
-template<typename T>
-struct Tag {};
-
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
 template<typename KeyType, typename ValueType>
 bool

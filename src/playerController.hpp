@@ -12,7 +12,7 @@ public:
     handleEvent(Event const& event) -> void = 0;
 
     virtual auto
-    update(Player& player, double deltaSeconds) -> void = 0;
+    update(Player& player, double dt) -> void = 0;
 
     virtual ~PlayerController() = default;
 

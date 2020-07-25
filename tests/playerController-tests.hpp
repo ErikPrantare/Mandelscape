@@ -11,56 +11,36 @@
 
 namespace PlayerControllerTests {
 
+auto eventHandled = false;
+auto updateCalled = false;
+
 struct Controller : PlayerController {
-    std::reference_wrapper<bool> handleEventFlag;
-    std::reference_wrapper<bool> updateFlag;
-
-    Controller(bool& _handleEventFlag, bool& _updateFlag) :
-                handleEventFlag{_handleEventFlag},
-                updateFlag{_updateFlag}
-    {
-        REQUIRE(handleEventFlag.get() == false);
-        REQUIRE(updateFlag.get() == false);
-    }
-
     auto
     handleEvent(Event const&) -> void final
     {
-        handleEventFlag.get() = !handleEventFlag.get();
+        eventHandled = true;
     }
 
     auto
     update(Player&, double) -> void final
     {
-        updateFlag.get() = !updateFlag.get();
+        updateCalled = true;
     }
 };
 
 TEST_CASE(
-        "PlayerController calls erased controllers implementations",
+        "PlayerController calls derived controllers implementations",
         "[PlayerController]")
 {
-    auto handleEventFlag = false;
-    auto updateFlag      = false;
+    auto playerController = std::unique_ptr<PlayerController>{new Controller};
 
-    auto playerController = std::unique_ptr<PlayerController>{
-            new Controller{handleEventFlag, updateFlag}};
+    auto const dummyEvent = Event{KeyDown{}};
+    playerController->handleEvent(dummyEvent);
+    REQUIRE(eventHandled);
 
-    SECTION("PlayerController::handleEvent")
-    {
-        auto const dummyEvent = Event{KeyDown{}};
-        playerController->handleEvent(dummyEvent);
-        REQUIRE(handleEventFlag);
-        REQUIRE_FALSE(updateFlag);
-    }
-
-    SECTION("PlayerController::update")
-    {
-        auto dummyPlayer = Player{};
-        playerController->update(dummyPlayer, {});
-        REQUIRE_FALSE(handleEventFlag);
-        REQUIRE(updateFlag);
-    }
+    auto dummyPlayer = Player{};
+    playerController->update(dummyPlayer, {});
+    REQUIRE(updateCalled);
 }
 
 }    // namespace PlayerControllerTests

@@ -55,8 +55,10 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
+    // Must be 32 bit float, 64 bit will cause alignment issues with shader
     glm::vec3 m_offset;
     glm::vec3 m_loadingOffset;
+
     double m_scale;
 
     enum class State { Loading, Uploading };
