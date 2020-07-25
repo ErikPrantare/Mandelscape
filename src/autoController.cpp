@@ -2,12 +2,25 @@
 
 #include <random>
 #include <iostream>
+#include <variant>
+
+#include <GLFW/glfw3.h>
 
 #include "utils.hpp"
 
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
             m_heightFunc(heightFunc)
 {}
+
+auto
+AutoController::handleEvent(Event const& event) -> void
+{
+    // Controller was switched to
+    if(std::holds_alternative<KeyDown>(event)
+            && std::get<KeyDown>(event).code == GLFW_KEY_C) {
+        m_needsRelocation = true;
+    }
+}
 
 auto
 AutoController::update(Player& player, double const dt) -> void
@@ -19,12 +32,11 @@ AutoController::update(Player& player, double const dt) -> void
     auto const speed          = player.scale * travelSpeed;
     auto const targetDistance = glm::length(m_target - absolutePos);
 
-    m_hasTarget = m_hasTarget && targetDistance < maxTravelTime * speed
-                  && targetDistance > dt * speed;
+    m_needsRelocation = m_needsRelocation || targetDistance < dt * speed;
 
-    if(!m_hasTarget) {
+    if(m_needsRelocation) {
         locateTarget(player);
-        m_hasTarget = true;
+        m_needsRelocation = false;
     }
 
     auto const direction = glm::normalize(m_target - absolutePos);
@@ -50,6 +62,7 @@ AutoController::locateTarget(Player& player) -> void
     auto rd               = std::random_device();
     auto const travelTime = distribution(minTravelTime, maxTravelTime)(rd);
 
+
     auto const anglePenalty = [this](double angle, double distance) -> double {
         // angleDiff is in [0, 2*pi]
         auto const angleDiff     = std::abs(angle - m_prevTargetDirection);
@@ -70,7 +83,7 @@ AutoController::locateTarget(Player& player) -> void
     auto bestPenalty = 1e99;
     auto bestAngle   = 0.0;
 
-    auto const distance  = travelTime * travelSpeed;
+    auto const distance = travelTime * travelSpeed;
     auto const angleInit = distribution(0.0, 0.01)(rd);
 
     for(double angle = angleInit; angle < 2.0 * util::pi; angle += 0.01) {

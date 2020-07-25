@@ -14,7 +14,7 @@ public:
     AutoController(std::function<double(glm::dvec2)>);
 
     auto
-    handleEvent(Event const&) -> void final{};
+    handleEvent(Event const&) -> void final;
 
     auto
     update(Player&, double) -> void final;
@@ -34,7 +34,7 @@ private:
 
     util::LowPassFilter<double> m_filteredLookAt{0.0, 0.99};
 
-    bool m_hasTarget = false;
+    bool m_needsRelocation = true;
 };
 
 #endif
