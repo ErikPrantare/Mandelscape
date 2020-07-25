@@ -1,25 +1,28 @@
-#ifndef MANDELLANDSCAPE_PLAYERCONTROLLER_HPP
-#define MANDELLANDSCAPE_PLAYERCONTROLLER_HPP
-
-#include <glm/glm.hpp>
+#ifndef MANDELLANDSCAPE_PLAYER_CONTROLLER_HPP
+#define MANDELLANDSCAPE_PLAYER_CONTROLLER_HPP
 
 #include "event.hpp"
 #include "player.hpp"
 
+#include <glm/vec2.hpp>
+
 class PlayerController {
 public:
-    PlayerController()                              = default;
-    PlayerController(PlayerController const& other) = default;
-    PlayerController&
-    operator=(PlayerController const& other)   = default;
-    PlayerController(PlayerController&& other) = default;
-    PlayerController&
-    operator=(PlayerController&& other) = default;
+    virtual auto
+    handleEvent(Event const& event) -> void = 0;
+
+    virtual auto
+    update(Player* player, double dt) -> void = 0;
 
     virtual ~PlayerController() = default;
 
-    auto virtual handleEvent(Event const&) -> void = 0;
-    auto virtual update(Player*, double) -> void   = 0;
+    PlayerController()                        = default;
+    PlayerController(PlayerController&&)      = default;
+    PlayerController(PlayerController const&) = default;
+
+    auto operator=(PlayerController &&) -> PlayerController& = default;
+    auto
+    operator=(PlayerController const&) -> PlayerController& = default;
 };
 
-#endif
+#endif    // MANDELLANDSCAPE_PLAYER_CONTROLLER_HPP

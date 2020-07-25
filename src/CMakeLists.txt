@@ -31,7 +31,7 @@ set_target_properties(MandelLandscape
     PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED TRUE)
-
+        
 if(CMAKE_BUILD_TYPE STREQUAL Release)
     set_target_properties(MandelLandscape
         PROPERTIES
@@ -43,12 +43,19 @@ if(CLANG_TIDY)
         CXX_CLANG_TIDY "clang-tidy;-header-filter=./src")
 endif()
 
-if(MSVC)
+if(WIN32)
     target_compile_options(MandelLandscape
         PRIVATE /W4)
+
 else()
     target_compile_options(MandelLandscape
         PRIVATE -Wall
         PRIVATE -Werror
         PRIVATE -Wextra)
+endif()
+
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL Release)
+    target_link_options(MandelLandscape
+        PRIVATE /SUBSYSTEM:WINDOWS
+        PRIVATE /ENTRY:mainCRTStartup)
 endif()

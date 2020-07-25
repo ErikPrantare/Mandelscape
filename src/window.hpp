@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_WINDOW_H
-#define MANDELLANDSCAPE_WINDOW_H
+#ifndef MANDELLANDSCAPE_WINDOW_HPP
+#define MANDELLANDSCAPE_WINDOW_HPP
 
 #include <queue>
 #include <optional>

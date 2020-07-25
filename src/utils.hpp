@@ -32,7 +32,7 @@ isDone(std::future<T> const& f)
 template<typename T>
 class LowPassFilter {
 public:
-    LowPassFilter(T const init, double const amount) :
+    LowPassFilter(T init, double amount) :
                 m_filteredValue(init),
                 m_amount(amount){};
 
@@ -47,11 +47,8 @@ public:
 
 private:
     T m_filteredValue;
-    double const m_amount;
+    double m_amount;
 };
-
-template<typename T>
-struct Tag {};
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
 template<typename KeyType, typename ValueType>

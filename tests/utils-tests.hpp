@@ -8,6 +8,8 @@
 
 #include "utils.hpp"
 
+namespace UtilsTests {
+
 TEST_CASE(
         "util::pop pops and returns the top element of a std::queue",
         "[utils]")
@@ -20,5 +22,7 @@ TEST_CASE(
         REQUIRE(!nullopt.has_value());
     }
 }
+
+}    // namespace UtilsTests
 
 #endif    // MANDELLANDSCAPE_UTILS_TESTS_HPP

@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_CONFIG_H
-#define MANDELLANDSCAPE_CONFIG_H
+#ifndef MANDELLANDSCAPE_CONFIG_HPP
+#define MANDELLANDSCAPE_CONFIG_HPP
 
 #include <map>
 #include <vector>
@@ -45,4 +45,4 @@ private:
     std::map<int, std::any> m_settings;
 };
 
-#endif    // MANDELLANDSCAPE_CONFIG_H
+#endif    // MANDELLANDSCAPE_CONFIG_HPP

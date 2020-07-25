@@ -1,7 +1,16 @@
 #---------------------------CMake Project Config-------------------------------
-cmake_minimum_required(VERSION 3.12)
+if(WIN32)
+    cmake_minimum_required(VERSION 3.15)
+    cmake_policy(SET CMP0091 NEW)
+else()
+    cmake_minimum_required(VERSION 3.12)
+endif()
 
 project(MandelLandscape LANGUAGES CXX)
+
+if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
+endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -12,6 +21,7 @@ option(BUILD_TESTING OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
+file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
 
 configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
     ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
@@ -58,6 +68,7 @@ if(NOT GLFW_FOUND)
   option(BUILD_SHARED_LIBS OFF)
   option(GLFW_BUILD_DOCS OFF)
   option(GLFW_INSTALL OFF)
+  option(USE_MSVC_RUNTIME_LIBRARY_DLL OFF)
 
   add_subdirectory(extern/glfw)
 endif()
