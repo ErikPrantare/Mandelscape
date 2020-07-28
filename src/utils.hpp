@@ -9,9 +9,14 @@
 #include <queue>
 #include <optional>
 
+#include <glm/glm.hpp>
+#include <glm/ext/scalar_constants.hpp>
+
 #include "mandelTypeTraits.hpp"
 
 namespace util {
+
+double constexpr pi = glm::pi<double>();
 
 std::string
 readFile(std::string const& filePath);
@@ -24,14 +29,15 @@ isDone(std::future<T> const& f)
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
+template<typename T>
 class LowPassFilter {
 public:
-    LowPassFilter(double const init, double const amount) :
+    LowPassFilter(T init, double amount) :
                 m_filteredValue(init),
                 m_amount(amount){};
 
-    double
-    operator()(double const newValue, double const weight = 1.0f)
+    T
+    operator()(T const newValue, double const weight = 1.0f)
     {
         double const factor = std::pow(m_amount, weight);
 
@@ -40,8 +46,8 @@ public:
     }
 
 private:
-    double m_filteredValue;
-    double const m_amount;
+    T m_filteredValue;
+    double m_amount;
 };
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
@@ -77,6 +83,23 @@ pop(std::queue<T, Container>& queue)
     queue.pop();
     return a;
 }
+
+glm::dvec2 constexpr pixelsToAngle(
+        glm::dvec2 nrPixels,
+        double sensitivity = 0.01)
+{
+    //-x, refer to right hand rule with y up and positive pixels rightwards
+    return sensitivity * glm::dvec2(-nrPixels.x, nrPixels.y);
+}
+
+glm::dvec2 constexpr planePos(glm::dvec3 spacePos)
+{
+    return {spacePos.x, spacePos.z};
+}
+
+// CPP20 Make constexpr
+glm::dvec2
+unitVec2(double theta);
 
 }    // namespace util
 

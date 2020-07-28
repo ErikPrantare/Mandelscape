@@ -37,13 +37,13 @@ public:
     handleEvent(Event event) -> void;
 
     auto
-    updateMesh(double, double, double) -> glm::dvec2;
+    updateMesh(double, double, double) -> glm::dvec3;
 
     auto
     iterations() const -> int;
 
     auto
-    heightAt(std::complex<double> const&) -> double;
+    heightAt(glm::dvec2 const&) -> double;
 
     auto
     render() -> void;
@@ -56,9 +56,11 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    glm::dvec2 m_offset        = glm::dvec2{0.0, 0.0};
-    glm::dvec2 m_loadingOffset = glm::dvec2{0.0, 0.0};
-    double m_scale             = 1.0;
+    // Must be 32 bit float, 64 bit will cause alignment issues with shader
+    glm::vec3 m_offset        = glm::vec3{0.0, 0.0, 0.0};
+    glm::vec3 m_loadingOffset = glm::vec3{0.0, 0.0, 0.0};
+
+    double m_scale;
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
@@ -93,7 +95,7 @@ private:
     generateMeshIndices() -> std::vector<GLuint>;
 
     auto
-    loadMesh(glm::dvec2, double, std::vector<glm::vec3>*) -> void;
+    loadMesh(glm::dvec3, double, std::vector<glm::vec3>*) -> void;
 };
 
 #endif

@@ -1,12 +1,14 @@
-#ifndef MANDELLANDSCAPE_UTILS_TESTS_H
-#define MANDELLANDSCAPE_UTILS_TESTS_H
+#ifndef MANDELLANDSCAPE_UTILS_TESTS_HPP
+#define MANDELLANDSCAPE_UTILS_TESTS_HPP
 
 #include <queue>
 #include <optional>
 
 #include <catch2/catch.hpp>
 
-#include <utils.hpp>
+#include "utils.hpp"
+
+namespace UtilsTests {
 
 TEST_CASE(
         "util::pop pops and returns the top element of a std::queue",
@@ -21,4 +23,6 @@ TEST_CASE(
     }
 }
 
-#endif    // MANDELLANDSCAPE_UTILS_TESTS_H
+}    // namespace UtilsTests
+
+#endif    // MANDELLANDSCAPE_UTILS_TESTS_HPP

@@ -72,7 +72,7 @@ Terrain::handleEvent(Event event) -> void
 
 auto
 Terrain::loadMesh(
-        glm::dvec2 offset,
+        glm::dvec3 offset,
         double const scale,
         std::vector<glm::vec3>* const buffer) -> void
 {
@@ -111,13 +111,13 @@ Terrain::loadMesh(
     for(int x = 0; x < granularity; ++x) {
         auto const xQuant = quantized(xPos, normStepSize(x));
 
-        auto zPos = -normMeshSpan / 2 + offset.y;
+        auto zPos = -normMeshSpan / 2 + offset.z;
         for(int z = 0; z < granularity; ++z) {
             auto const zQuant              = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - offset.x,
                     heightAt({xQuant, zQuant}),
-                    zQuant - offset.y);
+                    zQuant - offset.z);
 
             zPos += normStepSize(z);
         }
@@ -135,7 +135,7 @@ Terrain::startLoading() -> void
 
 auto
 Terrain::updateMesh(double const x, double const z, double const scale)
-        -> glm::dvec2
+        -> glm::dvec3
 {
     auto const uploadSize = std::min(
             uploadChunkSize,
@@ -160,7 +160,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
             swap(m_mesh, m_loadingMesh);
 
             m_offset        = m_loadingOffset;
-            m_loadingOffset = {x, z};
+            m_loadingOffset = {x, 0.0, z};
             m_scale         = scale;
 
             startLoading();
@@ -201,8 +201,9 @@ Terrain::generateMeshIndices() -> std::vector<GLuint>
 }
 
 auto
-Terrain::heightAt(std::complex<double> const& c) -> double
+Terrain::heightAt(glm::dvec2 const& pos) -> double
 {
+    auto c  = std::complex<double>(pos.x, pos.y);
     auto z  = std::complex<double>(0.0, 0.0);
     auto dz = std::complex<double>(0.0, 0.0);
 
@@ -238,7 +239,7 @@ auto
 Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
-    m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.y);
+    m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.z);
     m_texture.makeActiveOn(GL_TEXTURE0);
 
     m_mesh.render();
