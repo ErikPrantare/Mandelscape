@@ -40,8 +40,8 @@ Terrain::shaderProgram()
     return m_shaderProgram;
 };
 
-void
-Terrain::handleEvent(Event event)
+auto
+Terrain::handleEvent(Event event) -> void
 {
     auto const changeIterationCount = [this](KeyDown const keyEvent) {
         switch(keyEvent.code) {
@@ -70,19 +70,19 @@ Terrain::handleEvent(Event event)
     std::visit(util::Overload{changeIterationCount, util::unaryNOP}, event);
 }
 
-void
+auto
 Terrain::loadMesh(
         glm::dvec2 offset,
         double const scale,
-        std::vector<glm::vec3>* const buffer)
+        std::vector<glm::vec3>* const buffer) -> void
 {
-    int constexpr nrIndices = granularity * granularity;
+    auto constexpr nrVertices = granularity * granularity;
 
-    if(buffer->size() != nrIndices) {
-        buffer->resize(nrIndices);
+    if(buffer->size() != nrVertices) {
+        buffer->resize(nrVertices);
     }
 
-    int constexpr doublingInterval = 40;
+    auto constexpr doublingInterval = 40;
 
     // The default capture is for compatibility with MSVC, it doesn't seem to
     // get constexpr fully
@@ -90,30 +90,30 @@ Terrain::loadMesh(
         return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 
-    auto const& quantized = [](double x, double stepSize) {
+    auto const quantized = [](double x, double stepSize) {
         return std::floor(x / stepSize) * stepSize;
     };
 
-    double meshSpan = 0.0;
+    auto meshSpan = 0.0;
     for(int i = 0; i < granularity; ++i) {
         meshSpan += stepSize(i);
     }
 
-    double const discreteScale = std::pow(2.0, int(log2(scale)));
-    double const normMeshSpan  = 300.0 / discreteScale;
+    auto const discreteScale = std::pow(2.0, int(log2(scale)));
+    auto const normMeshSpan  = 300.0 / discreteScale;
 
-    double const normFactor = normMeshSpan / meshSpan;
+    auto const normFactor   = normMeshSpan / meshSpan;
     auto const normStepSize = [normFactor, stepSize](int i) {
         return normFactor * stepSize(i);
     };
 
-    double xPos = -normMeshSpan / 2 + offset.x;
+    auto xPos = -normMeshSpan / 2 + offset.x;
     for(int x = 0; x < granularity; ++x) {
-        double const xQuant = quantized(xPos, normStepSize(x));
+        auto const xQuant = quantized(xPos, normStepSize(x));
 
-        double zPos = -normMeshSpan / 2 + offset.y;
+        auto zPos = -normMeshSpan / 2 + offset.y;
         for(int z = 0; z < granularity; ++z) {
-            double const zQuant            = quantized(zPos, normStepSize(z));
+            auto const zQuant              = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - offset.x,
                     heightAt({xQuant, zQuant}),
@@ -125,24 +125,25 @@ Terrain::loadMesh(
     }
 }
 
-void
-Terrain::startLoading()
+auto
+Terrain::startLoading() -> void
 {
     m_loadingProcess = std::async(std::launch::async, [this]() {
         loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
     });
 }
 
-glm::dvec2
+auto
 Terrain::updateMesh(double const x, double const z, double const scale)
+        -> glm::dvec2
 {
-    int const uploadSize = std::min(
+    auto const uploadSize = std::min(
             uploadChunkSize,
             (int)(m_currentMeshPoints.size() - m_loadIndex));
     m_loadingMesh.setVertices(m_currentMeshPoints, m_loadIndex, uploadSize);
     m_loadIndex += uploadSize;
 
-    const bool uploadingDone = m_loadIndex >= (int)m_currentMeshPoints.size();
+    auto const uploadingDone = m_loadIndex >= (int)m_currentMeshPoints.size();
 
     if(uploadingDone) {
         switch(m_state) {
@@ -172,14 +173,14 @@ Terrain::updateMesh(double const x, double const z, double const scale)
     return m_offset;
 }
 
-int
-Terrain::iterations() const
+auto
+Terrain::iterations() const -> int
 {
     return m_iterations;
 }
 
-std::vector<GLuint>
-Terrain::generateMeshIndices()
+auto
+Terrain::generateMeshIndices() -> std::vector<GLuint>
 {
     std::vector<GLuint> meshIndices;
     meshIndices.reserve(granularity * granularity * 6);
@@ -199,14 +200,14 @@ Terrain::generateMeshIndices()
     return meshIndices;
 }
 
-double
-Terrain::heightAt(std::complex<double> const& c)
+auto
+Terrain::heightAt(std::complex<double> const& c) -> double
 {
-    std::complex<double> z(0.0, 0.0);
-    std::complex<double> dz(0.0, 0.0);
+    auto z  = std::complex<double>(0.0, 0.0);
+    auto dz = std::complex<double>(0.0, 0.0);
 
     // main cardioid check
-    double q = pow(c.real() - 0.25, 2.0) + c.imag() * c.imag();
+    auto const q = pow(c.real() - 0.25, 2.0) + c.imag() * c.imag();
     if(q * (q + (c.real() - 0.25)) < 0.25 * c.imag() * c.imag()) {
         return 0.0;
     }
@@ -222,20 +223,19 @@ Terrain::heightAt(std::complex<double> const& c)
         z  = z * z + c;
 
         if(std::abs(z) > 256) {
-            double r  = std::abs(z);
-            double dr = std::abs(dz);
-            double de = 2.0 * r * std::log(r) / dr;    // estimated
-                                                       // distance from
-                                                       // set
-            return de;
+            auto const r                  = std::abs(z);
+            auto const dr                 = std::abs(dz);
+            auto const distanceEstimation = 2.0 * r * std::log(r) / dr;
+
+            return distanceEstimation;
         }
     }
 
     return 0.0;
 }
 
-void
-Terrain::render()
+auto
+Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
     m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.y);

@@ -33,20 +33,20 @@ public:
 
     ~Terrain();
 
-    void
-    handleEvent(Event event);
+    auto
+    handleEvent(Event event) -> void;
 
-    glm::dvec2
-    updateMesh(double, double, double);
+    auto
+    updateMesh(double, double, double) -> glm::dvec2;
 
-    int
-    iterations() const;
+    auto
+    iterations() const -> int;
 
-    double
-    heightAt(std::complex<double> const&);
+    auto
+    heightAt(std::complex<double> const&) -> double;
 
-    void
-    render();
+    auto
+    render() -> void;
 
     ShaderProgram&
     shaderProgram();
@@ -86,14 +86,14 @@ private:
     std::vector<glm::vec3> m_currentMeshPoints;
     std::vector<glm::vec3> m_loadingMeshPoints;
 
-    void
-    startLoading();
+    auto
+    startLoading() -> void;
 
-    static std::vector<GLuint>
-    generateMeshIndices();
+    static auto
+    generateMeshIndices() -> std::vector<GLuint>;
 
-    void
-    loadMesh(glm::dvec2, double, std::vector<glm::vec3>*);
+    auto
+    loadMesh(glm::dvec2, double, std::vector<glm::vec3>*) -> void;
 };
 
 #endif
