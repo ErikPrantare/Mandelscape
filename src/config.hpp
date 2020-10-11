@@ -45,4 +45,7 @@ private:
     std::map<int, std::any> m_settings;
 };
 
+auto
+initConfig() noexcept -> Config;
+
 #endif    // MANDELLANDSCAPE_CONFIG_HPP

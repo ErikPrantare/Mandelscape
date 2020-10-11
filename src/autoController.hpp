@@ -1,6 +1,5 @@
 #ifndef MANDELLANDSCAPE_AUTO_CONTROLLER_HPP
 #define MANDELLANDSCAPE_AUTO_CONTROLLER_HPP
-
 #include "utils.hpp"
 #include "player.hpp"
 #include "playerController.hpp"

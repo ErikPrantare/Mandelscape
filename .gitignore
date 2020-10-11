@@ -37,3 +37,6 @@ compile_commands.json
 
 #Coverage files
 coverage/
+
+#ctags
+tags

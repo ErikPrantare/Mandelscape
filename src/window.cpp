@@ -15,7 +15,7 @@ glfwErrorCallback(int code, char const* description)
 }
 
 GLFWwindow*
-createWindow(Config const& conf)
+createWindow(int width, int height)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -24,25 +24,23 @@ createWindow(Config const& conf)
 
     glfwSetErrorCallback(&glfwErrorCallback);
 
-    return glfwCreateWindow(
-            conf.get<Settings::WindowWidth>(),
-            conf.get<Settings::WindowHeight>(),
-            "MandelLandscape",
-            nullptr,
-            nullptr);
+    return glfwCreateWindow(width, height, "MandelLandscape", nullptr, nullptr);
 }
 
-Window::Window(Config const& conf) : m_window(createWindow(conf))
+Window::Window(Config const& conf) :
+            m_window(createWindow(
+                    conf.get<Settings::WindowWidth>(),
+                    conf.get<Settings::WindowHeight>()))
 {
     if(m_window == nullptr) {
-        std::cerr << "Error: GLFWwindow was not created\n";
+        std::cerr << "GLFW window was not created\n";
         throw;
     }
 
     glfwMakeContextCurrent(m_window.get());
 
     if(gladLoadGL() == 0) {
-        std::cerr << "Something went wrong!\n";
+        std::cerr << "glad failed to initialize\n";
         throw;
     }
 
@@ -128,9 +126,9 @@ void
 Window::keyboardCB(
         GLFWwindow* glfwWindow,
         int key,
-        [[maybe_unused]] int scancode,
+        int /*scancode*/,
         int action,
-        [[maybe_unused]] int mods)
+        int mods)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
@@ -150,7 +148,7 @@ Window::mouseButtonCB(
         GLFWwindow* glfwWindow,
         int button,
         int action,
-        [[maybe_unused]] int mods)
+        int /*mods*/)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 

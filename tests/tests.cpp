@@ -9,3 +9,4 @@
 #include "walkController-tests.hpp"
 #include "autoController-tests.hpp"
 #include "metaController-tests.hpp"
+#include "toActions-tests.hpp"

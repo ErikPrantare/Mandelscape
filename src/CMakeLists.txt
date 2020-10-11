@@ -1,5 +1,4 @@
 file(GLOB SRC 
-    "*.hpp"
     "*.cpp")
 
 list(FILTER SRC EXCLUDE REGEX "main.cpp")

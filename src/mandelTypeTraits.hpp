@@ -3,8 +3,8 @@
 
 #include <type_traits>
 
-template<bool predicate>
-using Require = std::enable_if_t<predicate>;
+template<bool predicate, class T = void>
+using Require = std::enable_if_t<predicate, T>;
 
 template<class T1, class T2>
 inline bool constexpr same = std::is_same_v<T1, T2>;

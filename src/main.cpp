@@ -41,9 +41,6 @@ renderScene(
         Config const& config,
         double dt);
 
-Config
-initConfig();
-
 int
 main(int, char**)
 {
@@ -125,19 +122,4 @@ renderScene(
     program.setUniformMatrix4("projection", camera.projection());
 
     terrain.render();
-}
-
-Config
-initConfig()
-{
-    Config conf;
-    conf.set<Settings::WindowWidth>(1366);
-    conf.set<Settings::WindowHeight>(768);
-    conf.set<Settings::ClippingPlaneNear>(0.01);
-    conf.set<Settings::ClippingPlaneFar>(150.0);
-    conf.set<Settings::FOV>(pi / 2);
-    conf.set<Settings::UseDeepShader>(false);
-    conf.set<Settings::Iterations>(100);
-
-    return conf;
 }
