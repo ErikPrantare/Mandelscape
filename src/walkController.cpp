@@ -15,8 +15,10 @@ WalkController::update(Player* const player, double const dt) -> void
     auto constexpr pi = glm::pi<double>();
 
     player->lookAtOffset += m_dLookAtOffset;
-    player->lookAtOffset.y =
-            std::clamp(player->lookAtOffset.y, -pi / 2 + 0.001, pi / 2 - 0.001);
+    player->lookAtOffset.y = std::clamp(
+            player->lookAtOffset.y,
+            -pi / 2 + 0.001,
+            pi / 2 - 0.001);
     m_dLookAtOffset = glm::dvec2{0.0, 0.0};
 
     auto rotator = glm::rotate(

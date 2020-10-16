@@ -24,7 +24,12 @@ createWindow(int width, int height)
 
     glfwSetErrorCallback(&glfwErrorCallback);
 
-    return glfwCreateWindow(width, height, "MandelLandscape", nullptr, nullptr);
+    return glfwCreateWindow(
+            width,
+            height,
+            "MandelLandscape",
+            nullptr,
+            nullptr);
 }
 
 Window::Window(Config const& conf) :

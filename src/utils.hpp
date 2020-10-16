@@ -6,6 +6,7 @@
 #include <future>
 #include <cmath>
 #include <map>
+#include <set>
 #include <queue>
 #include <optional>
 
@@ -55,7 +56,15 @@ template<typename KeyType, typename ValueType>
 bool
 contains(std::map<KeyType, ValueType> const& map, KeyType key)
 {
-    return map.find(key) != std::end(map);
+    return map.find(key) != map.end();
+}
+
+// CPP20 https://en.cppreference.com/w/cpp/container/set/contains
+template<typename ValueType>
+bool
+contains(std::set<ValueType> const& set, ValueType key)
+{
+    return set.find(key) != set.end();
 }
 
 template<typename... Callables>

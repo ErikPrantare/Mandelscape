@@ -67,7 +67,8 @@ private:
 
     ShaderProgram m_shaderProgram = ShaderProgram();
 
-    VertexShader m_vertexShader = VertexShader::fromFile("shaders/shader.vert");
+    VertexShader m_vertexShader =
+            VertexShader::fromFile("shaders/shader.vert");
 
     FragmentShader m_shallowFragShader =
             FragmentShader::fromFile("shaders/shader.frag");

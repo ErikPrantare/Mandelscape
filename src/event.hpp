@@ -28,7 +28,14 @@ struct MouseButtonUp {
     int const button;
 };
 
-using Event =
-        std::variant<KeyUp, KeyDown, MouseMove, MouseButtonUp, MouseButtonDown>;
+using Event = std::
+        variant<KeyUp, KeyDown, MouseMove, MouseButtonUp, MouseButtonDown>;
+
+bool
+operator<(MouseMove a, MouseMove b);
+bool
+operator<(MouseButtonUp a, MouseButtonUp b);
+bool
+operator<(MouseButtonDown a, MouseButtonDown b);
 
 #endif

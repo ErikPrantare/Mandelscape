@@ -41,7 +41,8 @@ public:
     }
 
 private:
-    std::array<std::unique_ptr<PlayerController>, numControllers> m_controllers;
+    std::array<std::unique_ptr<PlayerController>, numControllers>
+            m_controllers;
     size_t m_activeController = 0;
 };
 

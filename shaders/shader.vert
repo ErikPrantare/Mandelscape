@@ -1,9 +1,8 @@
 #version 140
-#extension GL_ARB_separate_shader_objects : enable
 
 precision highp float;
 
-layout(location = 0) in vec3 pos;
+in vec3 pos;
 
 uniform mat4 cameraSpace;
 uniform mat4 projection;

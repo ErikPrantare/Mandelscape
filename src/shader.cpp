@@ -27,7 +27,11 @@ Shader<type>::createShader(std::string const& sourceCode)
     glGetShaderiv(*location, GL_COMPILE_STATUS, &success);
     if(success == 0) {
         auto infoLog = std::array<GLchar, 1024>();
-        glGetShaderInfoLog(*location, sizeof(infoLog), nullptr, infoLog.data());
+        glGetShaderInfoLog(
+                *location,
+                sizeof(infoLog),
+                nullptr,
+                infoLog.data());
         auto typeStr = shaderType == GL_FRAGMENT_SHADER ? std::string("FRAG")
                                                         : std::string("VERT");
 

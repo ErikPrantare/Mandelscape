@@ -1,3 +1,5 @@
+#include "terrain.hpp"
+
 #include <vector>
 #include <cmath>
 #include <complex>
@@ -6,7 +8,6 @@
 
 #include <glad/glad.h>
 
-#include "terrain.hpp"
 #include "utils.hpp"
 #include "shader.hpp"
 
