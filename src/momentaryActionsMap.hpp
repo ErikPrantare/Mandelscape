@@ -7,7 +7,7 @@
 
 #include "event.hpp"
 #include "momentaryAction.hpp"
-#include "glfwInput.hpp"
+#include "glfwEnums.hpp"
 
 class MomentaryActionsMap {
 public:

@@ -9,7 +9,7 @@
 #include "event.hpp"
 #include "utils.hpp"
 
-namespace ToActionTests {
+namespace MomentaryActionsMapTests {
 
 TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[ToActions]")
 {
@@ -37,6 +37,6 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[ToActions]")
     }
 }
 
-}    // namespace ToActionTests
+}    // namespace MomentaryActionsMapTests
 
 #endif
