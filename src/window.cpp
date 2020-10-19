@@ -87,20 +87,12 @@ Window::update()
     return glfwWindowShouldClose(m_window.get()) == 0;
 }
 
-void
-Window::handleEvent(const Event& event)
+auto
+Window::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    std::visit(
-            util::Overload{
-                    [this](KeyDown key) {
-                        if(key.code == GLFW_KEY_Q) {
-                            close();
-                        }
-                    },
-
-                    // default
-                    util::unaryNOP},
-            event);
+    if(sameAction(action, TriggerAction::CloseWindow)) {
+        close();
+    }
 }
 
 void
@@ -139,11 +131,11 @@ Window::keyboardCB(
 
     switch(action) {
     case GLFW_PRESS: {
-        window->registerEvent(KeyDown{key, mods});
+        window->registerEvent(KeyDown{(Input::Key)key, mods});
     } break;
 
     case GLFW_RELEASE: {
-        window->registerEvent(KeyUp{key, mods});
+        window->registerEvent(KeyUp{(Input::Key)key, mods});
     } break;
     }
 }

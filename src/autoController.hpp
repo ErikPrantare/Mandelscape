@@ -1,22 +1,27 @@
 #ifndef MANDELLANDSCAPE_AUTO_CONTROLLER_HPP
 #define MANDELLANDSCAPE_AUTO_CONTROLLER_HPP
-#include "utils.hpp"
-#include "player.hpp"
-#include "playerController.hpp"
+
+#include <functional>
 
 #include <glm/glm.hpp>
 
-#include <functional>
+#include "utils.hpp"
+#include "player.hpp"
+#include "playerController.hpp"
+#include "persistentActionMap.hpp"
 
 class AutoController final : public PlayerController {
 public:
     AutoController(std::function<double(glm::dvec2)>);
 
     auto
-    handleEvent(Event const&) -> void final;
+    update(Player*, double) -> void final;
 
     auto
-    update(Player*, double) -> void final;
+    handleMomentaryAction(MomentaryAction const&) -> void final;
+
+    auto
+    updateState(PersistentActionMap const & /*map*/) -> void{};
 
 private:
     auto
@@ -33,7 +38,7 @@ private:
 
     util::LowPassFilter<double> m_filteredLookAt{0.0, 0.99};
 
-    bool m_needsRelocation = true;
+    bool m_needsRetarget = true;
 };
 
 #endif

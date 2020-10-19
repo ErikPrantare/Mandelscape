@@ -11,7 +11,7 @@
 
 namespace MomentaryActionsMapTests {
 
-TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[ToActions]")
+TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
 {
     using namespace Input;
 
@@ -21,7 +21,7 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[ToActions]")
 
     SECTION("Mapping gives correct result")
     {
-        Event event  = KeyDown{(int)Key::U};
+        Event event  = KeyDown{Key::U};
         auto actions = map(event);
 
         REQUIRE(actions.size() == 2);
@@ -31,7 +31,7 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[ToActions]")
 
     SECTION("No given mapping -> empty container")
     {
-        auto event   = KeyDown{(int)Key::K};
+        auto event   = KeyDown{Key::K};
         auto actions = map(event);
         REQUIRE(actions.size() == 0);
     }

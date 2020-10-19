@@ -42,17 +42,17 @@ Terrain::shaderProgram()
 };
 
 auto
-Terrain::handleEvent(Event event) -> void
+Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    auto const changeIterationCount = [this](KeyDown const keyEvent) {
-        switch(keyEvent.code) {
-        case GLFW_KEY_I: {
+    auto const applyAction = [this](TriggerAction const action) {
+        switch(action) {
+        case TriggerAction::IncreaseIterations: {
             m_iterations += 20;
         } break;
-        case GLFW_KEY_U: {
+        case TriggerAction::DecreaseIterations: {
             m_iterations -= 20;
         } break;
-        case GLFW_KEY_H: {
+        case TriggerAction::SwitchShader: {
             switch(m_nextFrag) {
             case NextFrag::Shallow: {
                 m_shallowFragShader.attachTo(m_shaderProgram);
@@ -66,9 +66,11 @@ Terrain::handleEvent(Event event) -> void
             }
             m_shaderProgram.compile();
         } break;
+        default:
+            break;
         }
     };
-    std::visit(util::Overload{changeIterationCount, util::unaryNOP}, event);
+    std::visit(util::Overload{applyAction, util::unaryNOP}, action);
 }
 
 auto

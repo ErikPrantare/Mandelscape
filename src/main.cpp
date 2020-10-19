@@ -1,14 +1,13 @@
-#include "event.hpp"
-#include "metaController.hpp"
-#include "utils.hpp"
-#include "camera.hpp"
-#include "terrain.hpp"
-#include "config.hpp"
-#include "texture.hpp"
-#include "window.hpp"
-#include "player.hpp"
-#include "walkController.hpp"
-#include "autoController.hpp"
+#include <functional>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <functional>
+#include <tuple>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -22,15 +21,19 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include <functional>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cmath>
-#include <vector>
-#include <algorithm>
-#include <memory>
-#include <functional>
+#include "event.hpp"
+#include "metaController.hpp"
+#include "utils.hpp"
+#include "camera.hpp"
+#include "terrain.hpp"
+#include "config.hpp"
+#include "texture.hpp"
+#include "window.hpp"
+#include "player.hpp"
+#include "walkController.hpp"
+#include "autoController.hpp"
+#include "persistentActionMap.hpp"
+#include "momentaryActionsMap.hpp"
 
 long double constexpr pi = glm::pi<long double>();
 
@@ -41,6 +44,27 @@ renderScene(
         Config const& config,
         double dt);
 
+auto
+initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
+{
+    auto momentaryMap = MomentaryActionsMap();
+    momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
+    momentaryMap.add(Input::Key::U, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::I, TriggerAction::DecreaseIterations);
+
+    auto persistentMap = PersistentActionMap();
+    persistentMap.add(Input::Key::W, PersistentAction::MoveForwards);
+    persistentMap.add(Input::Key::S, PersistentAction::MoveBackwards);
+    persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
+    persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
+    persistentMap.add(Input::Key::J, PersistentAction::ZoomIn);
+    persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
+
+    return {momentaryMap, persistentMap};
+}
+
 int
 main(int, char**)
 {
@@ -50,7 +74,9 @@ main(int, char**)
     auto terrain = Terrain();
     auto player  = Player();
 
-    auto autoControllHeightFunc = [&](glm::dvec2 x) {
+    auto [momentaryMap, persistentMap] = initControls();
+
+    auto autoControllHeightFunc = [&terrain](glm::dvec2 x) {
         return terrain.heightAt(x);
     };
 
@@ -67,10 +93,17 @@ main(int, char**)
         while(auto eventOpt = window.nextEvent()) {
             auto const event = eventOpt.value();
 
-            terrain.handleEvent(event);
-            metacontroller.handleEvent(event);
-            window.handleEvent(event);
+            auto const actions = momentaryMap(event);
+            for(auto const& action : actions) {
+                terrain.handleMomentaryAction(action);
+                metacontroller.handleMomentaryAction(action);
+                window.handleMomentaryAction(action);
+            }
+
+            persistentMap.updateState(event);
         }
+
+        metacontroller.updateState(persistentMap);
 
         auto pos = player.position + player.positionOffset;
         auto terrainOffset =

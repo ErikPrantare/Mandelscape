@@ -1,17 +1,18 @@
 #ifndef MANDELLANDSCAPE_META_CONTROLLER_HPP
 #define MANDELLANDSCAPE_META_CONTROLLER_HPP
 
-#include "event.hpp"
-#include "playerController.hpp"
-#include "utils.hpp"
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include <type_traits>
 #include <variant>
 #include <array>
 #include <memory>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "event.hpp"
+#include "playerController.hpp"
+#include "utils.hpp"
+#include "momentaryAction.hpp"
 
 template<size_t numControllers>
 class MetaController {
@@ -22,16 +23,23 @@ public:
     {}
 
     auto
-    handleEvent(Event const& event) -> void
+    handleMomentaryAction(MomentaryAction const& action) -> void
     {
-        bool switchController = std::holds_alternative<KeyDown>(event)
-                                && std::get<KeyDown>(event).code == GLFW_KEY_C;
+        bool switchController = std::holds_alternative<TriggerAction>(action)
+                                && std::get<TriggerAction>(action)
+                                           == TriggerAction::ToggleAutoWalk;
 
         if(switchController) {
             m_activeController = (m_activeController + 1) % numControllers;
         }
 
-        m_controllers[m_activeController]->handleEvent(event);
+        m_controllers[m_activeController]->handleMomentaryAction(action);
+    }
+
+    auto
+    updateState(PersistentActionMap const& actionMap) -> void
+    {
+        m_controllers[m_activeController]->updateState(actionMap);
     }
 
     auto

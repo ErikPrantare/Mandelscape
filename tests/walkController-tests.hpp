@@ -1,11 +1,7 @@
 #ifndef MANDELLANDSCAPE_WALK_CONTROLLER_TESTS_HPP
 #define MANDELLANDSCAPE_WALK_CONTROLLER_TESTS_HPP
 
-#include "event.hpp"
-#include "player.hpp"
-#include "utils.hpp"
-#include "walkController.hpp"
-#include "testUtils.hpp"
+#include <memory>
 
 #include <catch2/catch.hpp>
 #include <glad/glad.h>
@@ -14,7 +10,12 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include <memory>
+#include "event.hpp"
+#include "player.hpp"
+#include "utils.hpp"
+#include "walkController.hpp"
+#include "testUtils.hpp"
+#include "momentaryActionsMap.hpp"
 
 namespace WalkControllerTests {
 
@@ -25,53 +26,24 @@ glm::dvec3 constexpr back{0.0, 0.0, 1.0};
 
 glm::dvec3 constexpr zero{0.0, 0.0, 0.0};
 
-void
-handleEventAndUpdate(
-        WalkController& controller,
-        Event const& event,
-        Player* const player,
-        double dt)
-{
-    controller.handleEvent(event);
-    controller.update(player, 1.0);
-}
-
-auto
-movementDependentOnScaleTest(
-        WalkController& controller,
-        Player player,
-        double scaleFactor) -> void
-{
-    auto firstPos = player.position;
-    controller.update(&player, 1.0);
-    auto dNormalPos = player.position - firstPos;
-
-    player.position = firstPos;
-    player.scale *= scaleFactor;
-    controller.update(&player, 1.0);
-    auto dScaledPos = player.position - firstPos;
-    REQUIRE(scaleFactor * dNormalPos == Dvec3Approx{dScaledPos});
-}
-
 TEST_CASE("WalkController handles movement keys", "[WalkController]")
 {
+    using namespace Input;
+    auto constexpr frontKey = Key::W;
+    auto constexpr backKey  = Key::S;
+    auto constexpr leftKey  = Key::A;
+    auto constexpr rightKey = Key::D;
+
     auto controller = WalkController{};
-    auto player     = Player();
+    PersistentActionMap persistentMap;
+    persistentMap.add(frontKey, PersistentAction::MoveForwards);
+    persistentMap.add(backKey, PersistentAction::MoveBackwards);
+    persistentMap.add(leftKey, PersistentAction::MoveLeft);
+    persistentMap.add(rightKey, PersistentAction::MoveRight);
+
+    auto player = Player();
 
     REQUIRE(player.position == zero);
-
-    auto testDirection = [&controller](int key, glm::dvec3 direction) {
-        auto player = Player();
-
-        handleEventAndUpdate(controller, KeyDown{key}, &player, 1.0);
-        REQUIRE(player.position == direction);
-
-        controller.update(&player, 1.0);
-        REQUIRE(player.position == 2.0 * direction);
-
-        handleEventAndUpdate(controller, KeyUp{key}, &player, 1.0);
-        REQUIRE(player.position == 2.0 * direction);
-    };
 
     SECTION("No buttons held -> no movement")
     {
@@ -79,39 +51,74 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
         REQUIRE(player.position == zero);
     }
 
-    SECTION("WASD moves correctly")
+    SECTION("Player walks in base directions correctly")
     {
-        testDirection(GLFW_KEY_W, front);
-        testDirection(GLFW_KEY_A, left);
-        testDirection(GLFW_KEY_S, back);
-        testDirection(GLFW_KEY_D, right);
+        auto testDirection = [&controller,
+                              &persistentMap](Key key, glm::dvec3 direction) {
+            auto player = Player();
+
+            persistentMap.updateState(KeyDown{key});
+            controller.updateState(persistentMap);
+            controller.update(&player, 1.0);
+            REQUIRE(player.position == direction);
+
+            controller.updateState(persistentMap);
+            controller.update(&player, 1.0);
+            REQUIRE(player.position == 2.0 * direction);
+
+            persistentMap.updateState(KeyUp{key});
+            controller.updateState(persistentMap);
+            controller.update(&player, 1.0);
+            REQUIRE(player.position == 2.0 * direction);
+        };
+
+        testDirection(frontKey, front);
+        testDirection(leftKey, left);
+        testDirection(backKey, back);
+        testDirection(rightKey, right);
     }
 
     SECTION("Combination of inputs accelerate in multiple directions")
     {
-        controller.handleEvent(KeyDown{GLFW_KEY_S});
-        controller.handleEvent(KeyDown{GLFW_KEY_A});
+        persistentMap.updateState(KeyDown{backKey});
+        persistentMap.updateState(KeyDown{leftKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
         REQUIRE(player.position == back + left);
     }
 
     SECTION("Movement in opposite directions yields no velocity")
     {
-        controller.handleEvent(KeyDown{GLFW_KEY_A});
-        controller.handleEvent(KeyDown{GLFW_KEY_D});
+        persistentMap.updateState(KeyDown{leftKey});
+        persistentMap.updateState(KeyDown{rightKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
         REQUIRE(player.position == zero);
-        controller.handleEvent(KeyDown{GLFW_KEY_W});
-        controller.handleEvent(KeyDown{GLFW_KEY_S});
+
+        persistentMap.updateState(KeyDown{backKey});
+        persistentMap.updateState(KeyDown{frontKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
         REQUIRE(player.position == zero);
     }
 
     SECTION("Movement is dependent on player scale")
     {
-        controller.handleEvent(KeyDown{GLFW_KEY_W});
+        persistentMap.updateState(KeyDown{leftKey});
 
-        movementDependentOnScaleTest(controller, player, 0.6838);
+        auto firstPos = player.position;
+        controller.updateState(persistentMap);
+        controller.update(&player, 1.0);
+        auto dNormalPos = player.position - firstPos;
+
+        double scaleFactor = 0.6838;
+        player.position    = firstPos;
+        player.scale *= scaleFactor;
+        controller.updateState(persistentMap);
+        controller.update(&player, 1.0);
+
+        auto dScaledPos = player.position - firstPos;
+        REQUIRE(scaleFactor * dNormalPos == Dvec3Approx{dScaledPos});
     }
 
     SECTION("Movement is dependent on player look direction")
@@ -119,7 +126,8 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
         auto rotation         = -46.0997;
         player.lookAtOffset.x = rotation;
 
-        controller.handleEvent(KeyDown{GLFW_KEY_W});
+        persistentMap.updateState(KeyDown{frontKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
 
         auto rotator = glm::rotate(glm::dmat4(1.0), rotation, {0.0, 1.0, 0.0});
@@ -131,8 +139,9 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
 
 TEST_CASE("WalkController handles mouse movement", "[WalkController]")
 {
-    auto controller = WalkController{};
-    auto player     = Player();
+    auto controller         = WalkController{};
+    auto player             = Player();
+    auto const momentaryMap = MomentaryActionsMap();
 
     auto constexpr dontCare = 0.0;
 
@@ -143,15 +152,21 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
     auto directionTest = [&](glm::dvec2 pixelsMoved) {
         auto const angleMoved = util::pixelsToAngle(pixelsMoved);
 
-        controller.handleEvent(dMovement(pixelsMoved));
+        auto actions = momentaryMap(dMovement(pixelsMoved));
+        for(auto const& action : actions)
+            controller.handleMomentaryAction(action);
         controller.update(&player, dontCare);
         REQUIRE(player.lookAtOffset == angleMoved);
 
-        controller.handleEvent(dMovement(-pixelsMoved));
+        actions = momentaryMap(dMovement(-pixelsMoved));
+        for(auto const& action : actions)
+            controller.handleMomentaryAction(action);
         controller.update(&player, dontCare);
         REQUIRE(player.lookAtOffset == glm::dvec2{0.0, 0.0});
 
-        controller.handleEvent(dMovement(-pixelsMoved));
+        actions = momentaryMap(dMovement(-pixelsMoved));
+        for(auto const& action : actions)
+            controller.handleMomentaryAction(action);
         controller.update(&player, dontCare);
         REQUIRE(player.lookAtOffset == -angleMoved);
     };
@@ -178,8 +193,11 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
         auto constexpr pixelsMoved = 73;
         auto constexpr angleMoved  = util::pixelsToAngle({pixelsMoved, 0.0});
 
-        controller.handleEvent(dMovement({pixelsMoved, 0}));
-        controller.handleEvent(dMovement({pixelsMoved, 0}));
+        auto actions = momentaryMap(dMovement({pixelsMoved, 0}));
+        for(auto const& action : actions) {
+            controller.handleMomentaryAction(action);
+            controller.handleMomentaryAction(action);
+        }
         controller.update(&player, dontCare);
         REQUIRE(player.lookAtOffset == 2.0 * angleMoved);
     }
@@ -188,11 +206,15 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
     {
         auto constexpr manyPixels = 9999999999;
 
-        controller.handleEvent(dMovement({0, manyPixels}));
+        auto actions = momentaryMap(dMovement({0, manyPixels}));
+        for(auto const& action : actions)
+            controller.handleMomentaryAction(action);
         controller.update(&player, dontCare);
         REQUIRE(player.lookAtOffset.y < glm::pi<double>() / 2.0);
 
-        controller.handleEvent(dMovement({0, -manyPixels}));
+        actions = momentaryMap(dMovement({0, -manyPixels}));
+        for(auto const& action : actions)
+            controller.handleMomentaryAction(action);
         controller.update(&player, dontCare);
         REQUIRE(player.lookAtOffset.y > -glm::pi<double>() / 2);
     }
@@ -200,50 +222,72 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
 
 TEST_CASE("WalkController controlls player scale", "[WalkController]")
 {
-    auto controller = WalkController{};
+    using namespace Input;
+
     auto player     = Player();
+    auto controller = WalkController{};
     auto dontCare   = 0.0;
 
-    controller.update(&player, 1.0);
+    auto constexpr inKey   = Key::J;
+    auto constexpr outKey  = Key::K;
+    auto constexpr autoKey = Key::O;
+
+    PersistentActionMap persistentMap;
+    persistentMap.add(inKey, PersistentAction::ZoomIn);
+    persistentMap.add(outKey, PersistentAction::ZoomOut);
+
+    auto momentaryMap = MomentaryActionsMap();
+    momentaryMap.add(autoKey, TriggerAction::ToggleAutoZoom);
+
     REQUIRE(player.scale == 1.0);
 
-    SECTION("J shrinks player scale")
+    SECTION("Player can shrink")
     {
-        controller.handleEvent(KeyDown{GLFW_KEY_J});
+        persistentMap.updateState(KeyDown{inKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
         auto scale = player.scale;
         REQUIRE(scale < 1.0);
 
-        controller.handleEvent(KeyUp{GLFW_KEY_J});
+        persistentMap.updateState(KeyUp{inKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
         REQUIRE(player.scale == scale);
     }
 
-    SECTION("K grows player scale")
+    SECTION("Player can grow")
     {
-        controller.handleEvent(KeyDown{GLFW_KEY_K});
+        persistentMap.updateState(KeyDown{outKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
         auto scale = player.scale;
         REQUIRE(scale > 1.0);
 
-        controller.handleEvent(KeyUp{GLFW_KEY_K});
+        persistentMap.updateState(KeyUp{outKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
         REQUIRE(player.scale == scale);
     }
 
-    SECTION("Holding both J and K does nothing")
+    SECTION("Growing and shrinking at the same time does nothing")
     {
-        controller.handleEvent(KeyDown{GLFW_KEY_K});
-        controller.handleEvent(KeyDown{GLFW_KEY_J});
+        persistentMap.updateState(KeyDown{inKey});
+        persistentMap.updateState(KeyDown{outKey});
+        controller.updateState(persistentMap);
         controller.update(&player, 1.0);
-        REQUIRE(player.scale == 1.0);
+        REQUIRE(player.scale == Approx(1.0));
     }
 
-    SECTION("O enables autozoom")
+    SECTION("Player can enable automatic zooming")
     {
         auto height       = 0.200468;
         player.position.y = height;
-        controller.handleEvent(KeyDown{GLFW_KEY_O});
+
+        auto actions = momentaryMap(KeyDown{autoKey});
+        for(auto const& action : actions)
+            controller.handleMomentaryAction(action);
+
+        controller.updateState(persistentMap);
         controller.update(&player, dontCare);
         REQUIRE(player.scale == height);
     }
@@ -251,7 +295,9 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
     SECTION("Scaling happens exponentially")
     {
         auto dt = 3.60887;
-        controller.handleEvent(KeyDown{GLFW_KEY_J});
+        persistentMap.updateState(KeyDown{inKey});
+        controller.updateState(persistentMap);
+
         auto playerReference = Player();
         controller.update(&playerReference, dt);
         auto scaleReference = playerReference.scale;

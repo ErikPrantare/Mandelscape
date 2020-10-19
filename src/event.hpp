@@ -3,13 +3,15 @@
 
 #include <variant>
 
+#include "glfwEnums.hpp"
+
 struct KeyDown {
-    int const code;
+    Input::Key code;
     int const mods;
 };
 
 struct KeyUp {
-    int const code;
+    Input::Key code;
     int const mods;
 };
 

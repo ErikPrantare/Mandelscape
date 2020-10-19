@@ -20,6 +20,7 @@
 #include "shaderProgram.hpp"
 #include "texture.hpp"
 #include "mesh.hpp"
+#include "momentaryAction.hpp"
 
 class Terrain {
 public:
@@ -34,7 +35,7 @@ public:
     ~Terrain();
 
     auto
-    handleEvent(Event event) -> void;
+    handleMomentaryAction(MomentaryAction const& action) -> void;
 
     auto
     updateMesh(double, double, double) -> glm::dvec3;

@@ -10,6 +10,7 @@
 
 #include "config.hpp"
 #include "event.hpp"
+#include "momentaryAction.hpp"
 
 class Window {
 public:
@@ -32,8 +33,8 @@ public:
     bool
     update();
 
-    void
-    handleEvent(Event const& event);
+    auto
+    handleMomentaryAction(MomentaryAction const& action) -> void;
 
 private:
     struct WindowDeleter {

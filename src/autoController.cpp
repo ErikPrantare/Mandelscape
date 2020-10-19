@@ -13,12 +13,12 @@ AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
 {}
 
 auto
-AutoController::handleEvent(Event const& event) -> void
+AutoController::handleMomentaryAction(MomentaryAction const& action) -> void
 {
     // Controller was switched to
-    if(std::holds_alternative<KeyDown>(event)
-       && std::get<KeyDown>(event).code == GLFW_KEY_C) {
-        m_needsRelocation = true;
+    if(std::holds_alternative<TriggerAction>(action)
+       && std::get<TriggerAction>(action) == TriggerAction::ToggleAutoWalk) {
+        m_needsRetarget = true;
     }
 }
 
@@ -32,11 +32,11 @@ AutoController::update(Player* const player, double const dt) -> void
     auto const speed          = player->scale * travelSpeed;
     auto const targetDistance = glm::length(m_target - absolutePos);
 
-    m_needsRelocation = m_needsRelocation || targetDistance < dt * speed;
+    m_needsRetarget = m_needsRetarget || targetDistance < dt * speed;
 
-    if(m_needsRelocation) {
+    if(m_needsRetarget) {
         locateTarget(*player);
-        m_needsRelocation = false;
+        m_needsRetarget = false;
     }
 
     auto const direction = glm::normalize(m_target - absolutePos);

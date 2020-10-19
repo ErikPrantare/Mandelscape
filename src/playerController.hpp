@@ -1,15 +1,20 @@
 #ifndef MANDELLANDSCAPE_PLAYER_CONTROLLER_HPP
 #define MANDELLANDSCAPE_PLAYER_CONTROLLER_HPP
 
+#include <glm/vec2.hpp>
+
 #include "event.hpp"
 #include "player.hpp"
-
-#include <glm/vec2.hpp>
+#include "momentaryAction.hpp"
+#include "persistentActionMap.hpp"
 
 class PlayerController {
 public:
     virtual auto
-    handleEvent(Event const& event) -> void = 0;
+    handleMomentaryAction(MomentaryAction const& action) -> void = 0;
+
+    virtual auto
+    updateState(PersistentActionMap const& map) -> void = 0;
 
     virtual auto
     update(Player* player, double dt) -> void = 0;

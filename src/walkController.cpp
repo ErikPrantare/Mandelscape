@@ -37,65 +37,41 @@ WalkController::update(Player* const player, double const dt) -> void
 }
 
 auto
-WalkController::handleEvent(Event const& event) -> void
+WalkController::handleMomentaryAction(MomentaryAction const& action) -> void
 {
     std::visit(
             util::Overload{
-                    [this](KeyDown key) {
-                        switch(key.code) {
-                        case GLFW_KEY_W: {
-                            m_direction.z += -1.0;
-                        } break;
-                        case GLFW_KEY_A: {
-                            m_direction.x += -1.0;
-                        } break;
-                        case GLFW_KEY_S: {
-                            m_direction.z += 1.0;
-                        } break;
-                        case GLFW_KEY_D: {
-                            m_direction.x += 1.0;
-                        } break;
-                        case GLFW_KEY_J: {
-                            m_scalingVelocity += -1.0;
-                        } break;
-                        case GLFW_KEY_K: {
-                            m_scalingVelocity += 1.0;
-                        } break;
-                        case GLFW_KEY_O: {
+                    [this](TriggerAction action) {
+                        if(action == TriggerAction::ToggleAutoZoom) {
                             m_autoZoom = !m_autoZoom;
-                        } break;
                         }
                     },
 
-                    [this](KeyUp key) {
-                        switch(key.code) {
-                        case GLFW_KEY_W: {
-                            m_direction.z += 1.0;
-                        } break;
-                        case GLFW_KEY_A: {
-                            m_direction.x += 1.0;
-                        } break;
-                        case GLFW_KEY_S: {
-                            m_direction.z += -1.0;
-                        } break;
-                        case GLFW_KEY_D: {
-                            m_direction.x += -1.0;
-                        } break;
-                        case GLFW_KEY_J: {
-                            m_scalingVelocity += 1.0;
-                        } break;
-                        case GLFW_KEY_K: {
-                            m_scalingVelocity += -1.0;
-                        } break;
-                        }
-                    },
-
-                    [this](MouseMove mouse) {
+                    [this](MouseDelta mouse) {
                         m_dLookAtOffset +=
                                 util::pixelsToAngle({mouse.dx, mouse.dy});
                     },
 
                     // default
                     util::unaryNOP},
-            event);
+            action);
+}
+auto
+WalkController::updateState(PersistentActionMap const& active) -> void
+{
+    m_direction = {0, 0, 0};
+    if(active(PersistentAction::MoveForwards))
+        m_direction.z -= 1.0;
+    if(active(PersistentAction::MoveBackwards))
+        m_direction.z += 1.0;
+    if(active(PersistentAction::MoveLeft))
+        m_direction.x -= 1.0;
+    if(active(PersistentAction::MoveRight))
+        m_direction.x += 1.0;
+
+    m_scalingVelocity = 0.0;
+    if(active(PersistentAction::ZoomIn))
+        m_scalingVelocity -= 1.0;
+    if(active(PersistentAction::ZoomOut))
+        m_scalingVelocity += 1.0;
 }

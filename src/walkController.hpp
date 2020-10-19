@@ -1,19 +1,24 @@
 #ifndef MANDELLANDSCAPE_WALKCONTROLLER_HPP
 #define MANDELLANDSCAPE_WALKCONTROLLER_HPP
 
+#include <glm/glm.hpp>
+
 #include "event.hpp"
 #include "player.hpp"
 #include "playerController.hpp"
-
-#include <glm/glm.hpp>
+#include "momentaryAction.hpp"
+#include "persistentActionMap.hpp"
 
 class WalkController final : public PlayerController {
 public:
     auto
-    update(Player* player, double dt) -> void final;
+    handleMomentaryAction(MomentaryAction const&) -> void final;
 
     auto
-    handleEvent(Event const&) -> void final;
+    updateState(PersistentActionMap const& map) -> void;
+
+    auto
+    update(Player* player, double dt) -> void final;
 
 private:
     static double constexpr movementSpeed = 1.0;
