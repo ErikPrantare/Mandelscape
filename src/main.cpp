@@ -50,9 +50,10 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     auto momentaryMap = MomentaryActionsMap();
     momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
     momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add(Input::Key::I, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::U, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
     momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
-    momentaryMap.add(Input::Key::U, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::I, TriggerAction::DecreaseIterations);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add(Input::Key::W, PersistentAction::MoveForwards);
@@ -93,26 +94,27 @@ main(int, char**)
         while(auto eventOpt = window.nextEvent()) {
             auto const event = eventOpt.value();
 
+            persistentMap.updateState(event);
             auto const actions = momentaryMap(event);
             for(auto const& action : actions) {
+                window.handleMomentaryAction(action);
                 terrain.handleMomentaryAction(action);
                 metacontroller.handleMomentaryAction(action);
-                window.handleMomentaryAction(action);
             }
-
-            persistentMap.updateState(event);
         }
 
-        metacontroller.updateState(persistentMap);
+        if(!window.paused()) {
+            metacontroller.updateState(persistentMap);
 
-        auto pos = player.position + player.positionOffset;
-        auto terrainOffset =
-                terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
-        auto dOffset          = terrainOffset - player.positionOffset;
-        player.positionOffset = terrainOffset;
-        player.position -= dOffset;
-        player.position.y = terrain.heightAt({pos.x, pos.z});
-        metacontroller.update(&player, dt);
+            auto pos = player.position + player.positionOffset;
+            auto terrainOffset =
+                    terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
+            auto dOffset          = terrainOffset - player.positionOffset;
+            player.positionOffset = terrainOffset;
+            player.position -= dOffset;
+            player.position.y = terrain.heightAt({pos.x, pos.z});
+            metacontroller.update(&player, dt);
+        }
 
         renderScene(terrain, player, config, dt);
     }
