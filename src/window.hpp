@@ -27,14 +27,17 @@ public:
     Window&
     operator=(Window const&) = delete;
 
-    std::optional<Event>
-    nextEvent();
+    auto
+    nextEvent() -> std::optional<Event>;
 
-    bool
-    update();
+    auto
+    update() -> bool;
 
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void;
+
+    auto
+    paused() -> bool;
 
 private:
     struct WindowDeleter {
@@ -74,6 +77,8 @@ private:
 
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
+
+    bool m_paused = false;
 };
 
 #endif

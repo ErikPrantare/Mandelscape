@@ -90,9 +90,27 @@ Window::update()
 auto
 Window::handleMomentaryAction(MomentaryAction const& action) -> void
 {
+    if(sameAction(action, TriggerAction::TogglePause)) {
+        m_paused = !m_paused;
+        if(m_paused) {
+            glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+        else {
+            glfwSetInputMode(
+                    m_window.get(),
+                    GLFW_CURSOR,
+                    GLFW_CURSOR_DISABLED);
+        }
+    }
     if(sameAction(action, TriggerAction::CloseWindow)) {
         close();
     }
+}
+
+auto
+Window::paused() -> bool
+{
+    return m_paused;
 }
 
 void

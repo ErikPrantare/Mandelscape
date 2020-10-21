@@ -9,6 +9,7 @@ enum class TriggerAction {
     ToggleAutoWalk,
     ToggleAutoZoom,
     SwitchShader,
+    TogglePause,
     CloseWindow
 };
 
