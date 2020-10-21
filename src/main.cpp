@@ -7,24 +7,33 @@
 #include <algorithm>
 #include <memory>
 #include <functional>
+#include <tuple>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <variant>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
-
-#include "utils.h"
-#include "camera.h"
-#include "terrain.h"
-#include "config.h"
-#include "texture.h"
-#include "window.h"
-#include "player.h"
+#include <glm/ext/matrix_transform.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+#include "event.hpp"
+#include "metaController.hpp"
+#include "utils.hpp"
+#include "camera.hpp"
+#include "terrain.hpp"
+#include "config.hpp"
+#include "texture.hpp"
+#include "window.hpp"
+#include "player.hpp"
+#include "walkController.hpp"
+#include "autoController.hpp"
+#include "persistentActionMap.hpp"
+#include "momentaryActionsMap.hpp"
 
 long double constexpr pi = glm::pi<long double>();
 
@@ -35,18 +44,46 @@ renderScene(
         Config const& config,
         double dt);
 
-Config
-initConfig();
+auto
+initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
+{
+    auto momentaryMap = MomentaryActionsMap();
+    momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
+    momentaryMap.add(Input::Key::U, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::I, TriggerAction::DecreaseIterations);
+
+    auto persistentMap = PersistentActionMap();
+    persistentMap.add(Input::Key::W, PersistentAction::MoveForwards);
+    persistentMap.add(Input::Key::S, PersistentAction::MoveBackwards);
+    persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
+    persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
+    persistentMap.add(Input::Key::J, PersistentAction::ZoomIn);
+    persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
+
+    return {momentaryMap, persistentMap};
+}
 
 int
-main(int argc, char** argv)
+main(int, char**)
 {
     auto config = initConfig();
-    Window window(config);
+    auto window = Window(config);
 
-    Terrain terrain = Terrain();
+    auto terrain = Terrain();
+    auto player  = Player();
 
-    Player player;
+    auto [momentaryMap, persistentMap] = initControls();
+
+    auto autoControllHeightFunc = [&terrain](glm::dvec2 x) {
+        return terrain.heightAt(x);
+    };
+
+    auto metacontroller = MetaController{
+            std::make_unique<WalkController>(),
+            std::make_unique<AutoController>(autoControllHeightFunc)};
+
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
         const double currentTimepoint = glfwGetTime();
@@ -56,16 +93,26 @@ main(int argc, char** argv)
         while(auto eventOpt = window.nextEvent()) {
             auto const event = eventOpt.value();
 
-            terrain.handleEvent(event);
-            player.handleEvent(event);
-            window.handleEvent(event);
+            auto const actions = momentaryMap(event);
+            for(auto const& action : actions) {
+                terrain.handleMomentaryAction(action);
+                metacontroller.handleMomentaryAction(action);
+                window.handleMomentaryAction(action);
+            }
+
+            persistentMap.updateState(event);
         }
 
-        auto pos = player.absolutePosition();
+        metacontroller.updateState(persistentMap);
+
+        auto pos = player.position + player.positionOffset;
         auto terrainOffset =
-                terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale());
-        player.update(terrainOffset, dt);
-        player.setHeight(terrain.heightAt({pos.x, pos.z}));
+                terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
+        auto dOffset          = terrainOffset - player.positionOffset;
+        player.positionOffset = terrainOffset;
+        player.position -= dOffset;
+        player.position.y = terrain.heightAt({pos.x, pos.z});
+        metacontroller.update(&player, dt);
 
         renderScene(terrain, player, config, dt);
     }
@@ -81,22 +128,26 @@ renderScene(
         double dt)
 {
     auto camera = Camera(config);
-    camera.setScale(player.scale());
+    camera.setScale(player.scale);
 
-    glm::vec3 cameraPosition = player.relativePosition();
-    cameraPosition.y += player.scale();
+    glm::vec3 cameraPosition = player.position;
+    cameraPosition.y += player.scale;
 
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
     cameraPosition.y = filteredHeight(cameraPosition.y, dt);
 
     camera.setPosition(cameraPosition);
 
-    // HACK: -x, look into why it is needed and if it can be resolved cleanly.
+    // + double(pi), because -z is regarded as the default lookAt forward
     camera.lookAt(
-            glm::yawPitchRoll(
-                    -player.lookAtOffset().x,
-                    player.lookAtOffset().y,
-                    0.0)
+            glm::rotate(
+                    glm::dmat4(1.0),
+                    player.lookAtOffset.x + double(pi),
+                    {0.0, 1.0, 0.0})
+            * glm::rotate(
+                    glm::dmat4(1.0),
+                    player.lookAtOffset.y,
+                    {1.0, 0.0, 0.0})
             * glm::dvec4(0.0, 0.0, 1.0, 0.0));
 
     auto& program = terrain.shaderProgram();
@@ -104,19 +155,4 @@ renderScene(
     program.setUniformMatrix4("projection", camera.projection());
 
     terrain.render();
-}
-
-Config
-initConfig()
-{
-    Config conf;
-    conf.set<Settings::WindowWidth>(1366);
-    conf.set<Settings::WindowHeight>(768);
-    conf.set<Settings::ClippingPlaneNear>(0.01);
-    conf.set<Settings::ClippingPlaneFar>(150.0);
-    conf.set<Settings::FOV>(pi / 2);
-    conf.set<Settings::UseDeepShader>(false);
-    conf.set<Settings::Iterations>(100);
-
-    return conf;
 }

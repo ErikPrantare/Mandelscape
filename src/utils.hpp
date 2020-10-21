@@ -1,17 +1,23 @@
-#ifndef MANDELLANDSCAPE_UTILS_H
-#define MANDELLANDSCAPE_UTILS_H
+#ifndef MANDELLANDSCAPE_UTILS_HPP
+#define MANDELLANDSCAPE_UTILS_HPP
 
 #include <string>
 #include <fstream>
 #include <future>
 #include <cmath>
 #include <map>
+#include <set>
 #include <queue>
 #include <optional>
 
-#include "mandelTypeTraits.h"
+#include <glm/glm.hpp>
+#include <glm/ext/scalar_constants.hpp>
+
+#include "mandelTypeTraits.hpp"
 
 namespace util {
+
+double constexpr pi = glm::pi<double>();
 
 std::string
 readFile(std::string const& filePath);
@@ -27,7 +33,7 @@ isDone(std::future<T> const& f)
 template<typename T>
 class LowPassFilter {
 public:
-    LowPassFilter(T const init, double const amount) :
+    LowPassFilter(T init, double amount) :
                 m_filteredValue(init),
                 m_amount(amount){};
 
@@ -42,7 +48,7 @@ public:
 
 private:
     T m_filteredValue;
-    double const m_amount;
+    double m_amount;
 };
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
@@ -50,7 +56,15 @@ template<typename KeyType, typename ValueType>
 bool
 contains(std::map<KeyType, ValueType> const& map, KeyType key)
 {
-    return map.find(key) != std::end(map);
+    return map.find(key) != map.end();
+}
+
+// CPP20 https://en.cppreference.com/w/cpp/container/set/contains
+template<typename ValueType>
+bool
+contains(std::set<ValueType> const& set, ValueType key)
+{
+    return set.find(key) != set.end();
 }
 
 template<typename... Callables>
@@ -79,6 +93,23 @@ pop(std::queue<T, Container>& queue)
     return a;
 }
 
+glm::dvec2 constexpr pixelsToAngle(
+        glm::dvec2 nrPixels,
+        double sensitivity = 0.01)
+{
+    //-x, refer to right hand rule with y up and positive pixels rightwards
+    return sensitivity * glm::dvec2(-nrPixels.x, nrPixels.y);
+}
+
+glm::dvec2 constexpr planePos(glm::dvec3 spacePos)
+{
+    return {spacePos.x, spacePos.z};
+}
+
+// CPP20 Make constexpr
+glm::dvec2
+unitVec2(double theta);
+
 }    // namespace util
 
-#endif    // MANDELLANDSCAPE_UTILS_H
+#endif    // MANDELLANDSCAPE_UTILS_HPP

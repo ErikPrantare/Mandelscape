@@ -1,12 +1,22 @@
-# Build Guide (Linux)
-To build, run:
+# Build Guides
+# Linux
 ```
 git clone https://github.com/ErikPrantare/MandelLandscape.git
 cd MandelLandscape
-cmake . -Bbuild
-cmake --build ./build/
-mv ./build/src/MandelLandscape .
+cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target MandelLandscape
+mv build/src/MandelLandscape .
 ```
+# Windows
+```
+git clone https://github.com/ErikPrantare/MandelLandscape.git
+cd MandelLandscape
+cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja
+cmake --build build --target MandelLandscape
+move build\src\MandelLandscape.exe .
+```
+It requires an environment already setup though, so either use an IDE instead
+or get the binary below.
 
 If everything built correctly, the program can now be run from `./MandelLandscape`
 

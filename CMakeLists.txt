@@ -1,20 +1,27 @@
 #---------------------------CMake Project Config-------------------------------
-cmake_minimum_required(VERSION 3.12)
+if(WIN32)
+    cmake_minimum_required(VERSION 3.15)
+    cmake_policy(SET CMP0091 NEW)
+else()
+    cmake_minimum_required(VERSION 3.12)
+endif()
 
 project(MandelLandscape LANGUAGES CXX)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-if(NOT DEFINED CMAKE_BUILD_TYPE AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 option(CLANG_TIDY "Run clang-tidy on MandelLandscape" OFF)
+option(BUILD_TESTING OFF)
 
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
+file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
 
 configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
     ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
@@ -29,6 +36,7 @@ endif()
 
 #---------------------------CCache setup---------------------------------------
 find_program(CCACHE_PROGRAM ccache)
+
 if(CCACHE_PROGRAM)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
 endif()
@@ -40,9 +48,7 @@ find_package(Threads REQUIRED)
 add_subdirectory(extern/glad)
 
 #---------------------------glm------------------------------------------------
-if(NOT CMAKE_CROSSCOMPILING)
-  find_package(glm CONFIG QUIET)
-endif()
+find_package(glm CONFIG QUIET)
 
 if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
@@ -56,14 +62,13 @@ if(NOT TARGET glm::glm)
 endif()
 
 #---------------------------glfw-----------------------------------------------
-if(NOT CMAKE_CROSSCOMPILING)
-  find_package(GLFW QUIET)
-endif()
+find_package(GLFW QUIET)
 
 if(NOT GLFW_FOUND)
   option(BUILD_SHARED_LIBS OFF)
   option(GLFW_BUILD_DOCS OFF)
   option(GLFW_INSTALL OFF)
+  option(USE_MSVC_RUNTIME_LIBRARY_DLL OFF)
 
   add_subdirectory(extern/glfw)
 endif()
@@ -76,9 +81,7 @@ if(NOT TARGET glfw::glfw)
 endif()
 
 #---------------------------stb------------------------------------------------
-if(NOT CMAKE_CROSSCOMPILING)
-  find_package(stb QUIET)
-endif()
+find_package(stb QUIET)
 
 if(NOT TARGET stb::stb)
   add_library(stb::stb INTERFACE IMPORTED)
@@ -92,10 +95,17 @@ if(NOT TARGET stb::stb)
   endif()
 endif()
 
-#---------------------------Testing setup--------------------------------------
-option(BUILD_TESTING OFF)
+#---------------------------Catch2---------------------------------------------
+if(BUILD_TESTING)
+    find_package(Catch2 QUIET)
 
-if(BUILD_TESTING AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    if(NOT Catch2_FOUND)
+        add_subdirectory(${PROJECT_SOURCE_DIR}/extern/Catch2)
+    endif()
+endif()
+
+#---------------------------tests----------------------------------------------
+if(BUILD_TESTING)
     option(COVERAGE "Run gcovr after testing" ON)
     option(GCOVR_GEN_HTML "Generate html files from coverage" OFF)
 

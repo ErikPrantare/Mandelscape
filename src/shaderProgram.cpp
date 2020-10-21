@@ -1,4 +1,4 @@
-#include "shaderProgram.h"
+#include "shaderProgram.hpp"
 
 #include <iostream>
 #include <array>

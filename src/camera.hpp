@@ -1,10 +1,10 @@
-#ifndef MANDELLANDSCAPE_CAMERA_H
-#define MANDELLANDSCAPE_CAMERA_H
+#ifndef MANDELLANDSCAPE_CAMERA_HPP
+#define MANDELLANDSCAPE_CAMERA_HPP
 #include <tuple>
 
 #include <glm/glm.hpp>
 
-#include "config.h"
+#include "config.hpp"
 
 class Camera {
 public:

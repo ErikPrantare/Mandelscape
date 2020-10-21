@@ -30,9 +30,13 @@ compile_commands.json
 #Local diagnostic files
 *.cap
 
-#Visual studio artifacts
+#IDE artifacts
 /.vs
 /CMakeSettings.json
+.vscode/
 
 #Coverage files
 coverage/
+
+#ctags
+tags
