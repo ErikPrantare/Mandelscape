@@ -14,7 +14,7 @@
 
 class Window {
 public:
-    Window(Config const& conf);
+    Window(glm::ivec2 conf);
 
     Window()  = default;
     ~Window() = default;
@@ -39,6 +39,12 @@ public:
     auto
     paused() -> bool;
 
+    auto
+    size() -> glm::ivec2
+    {
+        return m_size;
+    }
+
 private:
     struct WindowDeleter {
         void
@@ -54,6 +60,9 @@ private:
 
     void
     close();
+
+    void
+    screenshot();
 
     void
     registerEvent(Event&& event);
@@ -75,10 +84,14 @@ private:
     static void
     mouseButtonCB(GLFWwindow* window, int button, int action, int mods);
 
+    static void
+    resizeCB(GLFWwindow* glfwWindow, int width, int height);
+
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
 
     bool m_paused = false;
+    glm::ivec2 m_size;
 };
 
 #endif
