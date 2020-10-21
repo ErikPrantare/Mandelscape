@@ -45,29 +45,13 @@ renderScene(
         double dt);
 
 auto
-initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
-{
-    auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
-    momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add(Input::Key::I, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::U, TriggerAction::DecreaseIterations);
-    momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
-    momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
+initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
-    auto persistentMap = PersistentActionMap();
-    persistentMap.add(Input::Key::W, PersistentAction::MoveForwards);
-    persistentMap.add(Input::Key::S, PersistentAction::MoveBackwards);
-    persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
-    persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
-    persistentMap.add(Input::Key::J, PersistentAction::ZoomIn);
-    persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
-
-    return {momentaryMap, persistentMap};
-}
+auto
+initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
 int
-main(int, char**)
+main(int numArgs, char** args)
 {
     auto config = initConfig();
     auto window = Window(config);
@@ -75,7 +59,15 @@ main(int, char**)
     auto terrain = Terrain();
     auto player  = Player();
 
-    auto [momentaryMap, persistentMap] = initControls();
+    MomentaryActionsMap momentaryMap;
+    PersistentActionMap persistentMap;
+
+    if(numArgs == 2 && args[1] == std::string("--dvorak")) {
+        std::tie(momentaryMap, persistentMap) = initControlsDvorak();
+    }
+    else {
+        std::tie(momentaryMap, persistentMap) = initControls();
+    }
 
     auto autoControllHeightFunc = [&terrain](glm::dvec2 x) {
         return terrain.heightAt(x);
@@ -157,4 +149,52 @@ renderScene(
     program.setUniformMatrix4("projection", camera.projection());
 
     terrain.render();
+}
+
+auto
+initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
+{
+    auto momentaryMap = MomentaryActionsMap();
+    momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add(Input::Key::I, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::U, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::H, TriggerAction::SwitchShader);
+    momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
+    momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
+    momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
+
+    auto persistentMap = PersistentActionMap();
+    persistentMap.add(Input::Key::W, PersistentAction::MoveForwards);
+    persistentMap.add(Input::Key::S, PersistentAction::MoveBackwards);
+    persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
+    persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
+    persistentMap.add(Input::Key::J, PersistentAction::ZoomIn);
+    persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
+
+    return {momentaryMap, persistentMap};
+}
+
+auto
+initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
+{
+    auto momentaryMap = MomentaryActionsMap();
+    momentaryMap.add(Input::Key::J, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add(Input::Key::R, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add(Input::Key::C, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::G, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::D, TriggerAction::SwitchShader);
+    momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
+    momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
+    momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
+
+    auto persistentMap = PersistentActionMap();
+    persistentMap.add(Input::Key::COMMA, PersistentAction::MoveForwards);
+    persistentMap.add(Input::Key::O, PersistentAction::MoveBackwards);
+    persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
+    persistentMap.add(Input::Key::E, PersistentAction::MoveRight);
+    persistentMap.add(Input::Key::H, PersistentAction::ZoomIn);
+    persistentMap.add(Input::Key::T, PersistentAction::ZoomOut);
+
+    return {momentaryMap, persistentMap};
 }
