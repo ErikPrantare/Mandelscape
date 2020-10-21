@@ -21,13 +21,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "event.hpp"
 #include "metaController.hpp"
 #include "utils.hpp"
 #include "camera.hpp"
 #include "terrain.hpp"
 #include "config.hpp"
-#include "texture.hpp"
 #include "window.hpp"
 #include "player.hpp"
 #include "walkController.hpp"
@@ -54,7 +52,7 @@ int
 main(int numArgs, char** args)
 {
     auto config = initConfig();
-    auto window = Window(config);
+    auto window = Window({1366, 768});
 
     auto terrain = Terrain();
     auto player  = Player();
@@ -83,12 +81,12 @@ main(int numArgs, char** args)
         const double dt               = currentTimepoint - lastTimepoint;
         lastTimepoint                 = currentTimepoint;
 
-        while(auto eventOpt = window.nextEvent()) {
+        while(auto const eventOpt = window.nextEvent()) {
             auto const event = eventOpt.value();
 
             persistentMap.updateState(event);
-            auto const actions = momentaryMap(event);
-            for(auto const& action : actions) {
+
+            for(auto const& action : momentaryMap(event)) {
                 window.handleMomentaryAction(action);
                 terrain.handleMomentaryAction(action);
                 metacontroller.handleMomentaryAction(action);
@@ -108,6 +106,8 @@ main(int numArgs, char** args)
             metacontroller.update(&player, dt);
         }
 
+        config.set<Settings::WindowWidth>(window.size().x);
+        config.set<Settings::WindowHeight>(window.size().y);
         renderScene(terrain, player, config, dt);
     }
 
@@ -161,6 +161,7 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(Input::Key::U, TriggerAction::DecreaseIterations);
     momentaryMap.add(Input::Key::H, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
+    momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
     momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
     momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
 
@@ -185,6 +186,7 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(Input::Key::G, TriggerAction::DecreaseIterations);
     momentaryMap.add(Input::Key::D, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
+    momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
     momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
     momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
 

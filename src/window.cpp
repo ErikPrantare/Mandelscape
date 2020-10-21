@@ -3,6 +3,9 @@
 #include <iostream>
 #include <variant>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 #include "config.hpp"
 #include "event.hpp"
 #include "utils.hpp"
@@ -15,7 +18,7 @@ glfwErrorCallback(int code, char const* description)
 }
 
 GLFWwindow*
-createWindow(int width, int height)
+createWindow(glm::ivec2 const size)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -25,17 +28,16 @@ createWindow(int width, int height)
     glfwSetErrorCallback(&glfwErrorCallback);
 
     return glfwCreateWindow(
-            width,
-            height,
+            size.x,
+            size.y,
             "MandelLandscape",
             nullptr,
             nullptr);
 }
 
-Window::Window(Config const& conf) :
-            m_window(createWindow(
-                    conf.get<Settings::WindowWidth>(),
-                    conf.get<Settings::WindowHeight>()))
+Window::Window(glm::ivec2 const size) :
+            m_window(createWindow(size)),
+            m_size(size)
 {
     if(m_window == nullptr) {
         std::cerr << "GLFW window was not created\n";
@@ -68,6 +70,7 @@ Window::setCallbacks()
     glfwSetCursorPosCallback(m_window.get(), &cursorPositionCB);
     glfwSetKeyCallback(m_window.get(), &keyboardCB);
     glfwSetMouseButtonCallback(m_window.get(), &mouseButtonCB);
+    glfwSetWindowSizeCallback(m_window.get(), &resizeCB);
 }
 
 std::optional<Event>
@@ -102,6 +105,9 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
                     GLFW_CURSOR_DISABLED);
         }
     }
+    if(sameAction(action, TriggerAction::TakeScreenshot)) {
+        screenshot();
+    }
     if(sameAction(action, TriggerAction::CloseWindow)) {
         close();
     }
@@ -117,6 +123,26 @@ void
 Window::close()
 {
     glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
+}
+
+void
+Window::screenshot()
+{
+    /*
+    glfwMakeContextCurrent(m_window.get());
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    int x        = viewport[0];
+    int y        = viewport[1];
+    int width    = viewport[2];
+    int height   = viewport[3];
+    char* pixels = new char[3 * width * height];
+    glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+    stbi_write_png("test.png", width, height, 3, pixels, 0);
+    delete[] pixels;
+    */
 }
 
 void
@@ -175,4 +201,13 @@ Window::mouseButtonCB(
         window->registerEvent(MouseButtonUp{button});
     }
     }
+}
+
+void
+Window::resizeCB(GLFWwindow* glfwWindow, int width, int height)
+{
+    auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+
+    glViewport(0, 0, width, height);
+    window->m_size = {width, height};
 }
