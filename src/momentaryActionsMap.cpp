@@ -12,7 +12,7 @@ auto
 MomentaryActionsMap::operator()(Event const& event) const
         -> std::set<MomentaryAction>
 {
-    return std::visit([this](auto x) { return getActions(x); }, event);
+    return std::visit([this](auto x) { return this->getActions(x); }, event);
 }
 
 auto
@@ -25,25 +25,24 @@ MomentaryActionsMap::getActions(KeyDown key) const -> std::set<MomentaryAction>
 }
 
 auto
-MomentaryActionsMap::getActions(MouseMove mouse) const
-        -> std::set<MomentaryAction>
+MomentaryActionsMap::getActions(MouseMove mouse) -> std::set<MomentaryAction>
 {
     return {MouseDelta{mouse.dx, mouse.dy}};
 }
 
-auto MomentaryActionsMap::getActions(KeyUp /*key*/) const
+auto MomentaryActionsMap::getActions(KeyUp /*key*/)
         -> std::set<MomentaryAction>
 {
     return {};
 }
 
-auto MomentaryActionsMap::getActions(MouseButtonUp /*mouse*/) const
+auto MomentaryActionsMap::getActions(MouseButtonUp /*mouse*/)
         -> std::set<MomentaryAction>
 {
     return {};
 }
 
-auto MomentaryActionsMap::getActions(MouseButtonDown /*mouse*/) const
+auto MomentaryActionsMap::getActions(MouseButtonDown /*mouse*/)
         -> std::set<MomentaryAction>
 {
     return {};

@@ -21,17 +21,17 @@ private:
     auto
     getActions(KeyDown key) const -> std::set<MomentaryAction>;
 
-    auto
-    getActions(MouseMove mouse) const -> std::set<MomentaryAction>;
+    static auto
+    getActions(MouseMove mouse) -> std::set<MomentaryAction>;
 
-    auto
-    getActions(KeyUp key) const -> std::set<MomentaryAction>;
+    static auto
+    getActions(KeyUp key) -> std::set<MomentaryAction>;
 
-    auto
-    getActions(MouseButtonUp mouse) const -> std::set<MomentaryAction>;
+    static auto
+    getActions(MouseButtonUp mouse) -> std::set<MomentaryAction>;
 
-    auto
-    getActions(MouseButtonDown mouse) const -> std::set<MomentaryAction>;
+    static auto
+    getActions(MouseButtonDown mouse) -> std::set<MomentaryAction>;
 
     std::map<Input::Key, std::set<MomentaryAction>> m_keyMap;
 };

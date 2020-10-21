@@ -19,12 +19,8 @@ PersistentActionMap::updateState(Event const& event) -> void
 
     std::visit(
             util::Overload{
-                    [this, &setValue](KeyDown key) {
-                        setValue(key.code, true);
-                    },
-                    [this, &setValue](KeyUp key) {
-                        setValue(key.code, false);
-                    },
+                    [&setValue](KeyDown key) { setValue(key.code, true); },
+                    [&setValue](KeyUp key) { setValue(key.code, false); },
 
                     // default
                     util::unaryNOP},

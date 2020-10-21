@@ -61,7 +61,7 @@ private:
     glm::vec3 m_offset        = glm::vec3{0.0, 0.0, 0.0};
     glm::vec3 m_loadingOffset = glm::vec3{0.0, 0.0, 0.0};
 
-    double m_scale;
+    double m_scale = 1.0;
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;

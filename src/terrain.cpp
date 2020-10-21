@@ -44,33 +44,26 @@ Terrain::shaderProgram()
 auto
 Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    auto const applyAction = [this](TriggerAction const action) {
-        switch(action) {
-        case TriggerAction::IncreaseIterations: {
-            m_iterations += 20;
+    if(sameAction(action, TriggerAction::IncreaseIterations)) {
+        m_iterations += 20;
+    }
+    if(sameAction(action, TriggerAction::DecreaseIterations)) {
+        m_iterations -= 20;
+    }
+    if(sameAction(action, TriggerAction::SwitchShader)) {
+        switch(m_nextFrag) {
+        case NextFrag::Shallow: {
+            m_shallowFragShader.attachTo(m_shaderProgram);
+            m_nextFrag = NextFrag::Deep;
         } break;
-        case TriggerAction::DecreaseIterations: {
-            m_iterations -= 20;
-        } break;
-        case TriggerAction::SwitchShader: {
-            switch(m_nextFrag) {
-            case NextFrag::Shallow: {
-                m_shallowFragShader.attachTo(m_shaderProgram);
-                m_nextFrag = NextFrag::Deep;
-            } break;
 
-            case NextFrag::Deep: {
-                m_deepFragShader.attachTo(m_shaderProgram);
-                m_nextFrag = NextFrag::Shallow;
-            } break;
-            }
-            m_shaderProgram.compile();
+        case NextFrag::Deep: {
+            m_deepFragShader.attachTo(m_shaderProgram);
+            m_nextFrag = NextFrag::Shallow;
         } break;
-        default:
-            break;
         }
-    };
-    std::visit(util::Overload{applyAction, util::unaryNOP}, action);
+        m_shaderProgram.compile();
+    }
 }
 
 auto

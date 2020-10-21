@@ -21,7 +21,7 @@ public:
     handleMomentaryAction(MomentaryAction const&) -> void final;
 
     auto
-    updateState(PersistentActionMap const & /*map*/) -> void{};
+    updateState(PersistentActionMap const & /*map*/) -> void final{};
 
 private:
     auto

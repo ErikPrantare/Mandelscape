@@ -60,18 +60,24 @@ auto
 WalkController::updateState(PersistentActionMap const& active) -> void
 {
     m_direction = {0, 0, 0};
-    if(active(PersistentAction::MoveForwards))
+    if(active(PersistentAction::MoveForwards)) {
         m_direction.z -= 1.0;
-    if(active(PersistentAction::MoveBackwards))
+    }
+    if(active(PersistentAction::MoveBackwards)) {
         m_direction.z += 1.0;
-    if(active(PersistentAction::MoveLeft))
+    }
+    if(active(PersistentAction::MoveLeft)) {
         m_direction.x -= 1.0;
-    if(active(PersistentAction::MoveRight))
+    }
+    if(active(PersistentAction::MoveRight)) {
         m_direction.x += 1.0;
+    }
 
     m_scalingVelocity = 0.0;
-    if(active(PersistentAction::ZoomIn))
+    if(active(PersistentAction::ZoomIn)) {
         m_scalingVelocity -= 1.0;
-    if(active(PersistentAction::ZoomOut))
+    }
+    if(active(PersistentAction::ZoomOut)) {
         m_scalingVelocity += 1.0;
+    }
 }
