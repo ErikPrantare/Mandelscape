@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_WINDOW_H
-#define MANDELLANDSCAPE_WINDOW_H
+#ifndef MANDELLANDSCAPE_WINDOW_HPP
+#define MANDELLANDSCAPE_WINDOW_HPP
 
 #include <queue>
 #include <optional>
@@ -8,8 +8,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "config.h"
-#include "event.h"
+#include "config.hpp"
+#include "event.hpp"
+#include "momentaryAction.hpp"
 
 class Window {
 public:
@@ -32,8 +33,8 @@ public:
     bool
     update();
 
-    void
-    handleEvent(Event const& event);
+    auto
+    handleMomentaryAction(MomentaryAction const& action) -> void;
 
 private:
     struct WindowDeleter {
@@ -61,7 +62,12 @@ private:
     cursorPositionCB(GLFWwindow* window, double x, double y);
 
     static void
-    keyboardCB(GLFWwindow* window, int key, int scancode, int action, int mods);
+    keyboardCB(
+            GLFWwindow* window,
+            int key,
+            int scancode,
+            int action,
+            int mods);
 
     static void
     mouseButtonCB(GLFWwindow* window, int button, int action, int mods);

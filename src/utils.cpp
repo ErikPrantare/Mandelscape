@@ -1,7 +1,9 @@
-#include "utils.h"
+#include "utils.hpp"
 
 #include <string>
 #include <fstream>
+
+#include <glm/glm.hpp>
 
 namespace util {
 
@@ -17,6 +19,12 @@ readFile(std::string const& filePath)
 
     in.close();
     return output;
+}
+
+glm::dvec2
+unitVec2(double theta)
+{
+    return {std::cos(theta), std::sin(theta)};
 }
 
 }    // namespace util

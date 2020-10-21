@@ -1,5 +1,5 @@
-file(GLOB 
-    SRC "*.cpp")
+file(GLOB SRC 
+    "*.cpp")
 
 list(FILTER SRC EXCLUDE REGEX "main.cpp")
 
@@ -29,21 +29,32 @@ target_link_libraries(MandelLandscape
 set_target_properties(MandelLandscape
     PROPERTIES
         CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED TRUE
-        INTERPROCEDURAL_OPTIMIZATION TRUE)
+        CXX_STANDARD_REQUIRED TRUE)
+        
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+    set_target_properties(MandelLandscape
+        PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 
 if(CLANG_TIDY)
     set_target_properties(MandelLandscape PROPERTIES
         CXX_CLANG_TIDY "clang-tidy;-header-filter=./src")
 endif()
 
-if(MSVC)
+if(WIN32)
     target_compile_options(MandelLandscape
         PRIVATE /W4)
+
 else()
     target_compile_options(MandelLandscape
         PRIVATE -Wall
         PRIVATE -Werror
-        PRIVATE -Wextra
-        PRIVATE -Wno-unused-parameter)
+        PRIVATE -Wextra)
+endif()
+
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL Release)
+    target_link_options(MandelLandscape
+        PRIVATE /SUBSYSTEM:WINDOWS
+        PRIVATE /ENTRY:mainCRTStartup)
 endif()

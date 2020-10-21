@@ -1,10 +1,10 @@
-#ifndef MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_H
-#define MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_H
+#ifndef MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_HPP
+#define MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_HPP
 
 #include <type_traits>
 
-template<bool predicate>
-using Require = std::enable_if_t<predicate>;
+template<bool predicate, class T = void>
+using Require = std::enable_if_t<predicate, T>;
 
 template<class T1, class T2>
 inline bool constexpr same = std::is_same_v<T1, T2>;
@@ -38,4 +38,4 @@ struct SpecialisationOf<Template<Args...>, Template> : std::true_type {
     using type = Template<Args...>;
 };
 
-#endif    // MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_H
+#endif    // MANDELLANDSCAPE_MANDEL_TYPE_TRAITS_HPP

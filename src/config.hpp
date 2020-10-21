@@ -1,15 +1,15 @@
-#ifndef MANDELLANDSCAPE_CONFIG_H
-#define MANDELLANDSCAPE_CONFIG_H
+#ifndef MANDELLANDSCAPE_CONFIG_HPP
+#define MANDELLANDSCAPE_CONFIG_HPP
 
 #include <map>
 #include <vector>
 #include <any>
 #include <functional>
-
-#include "mandelTypeTraits.h"
-#include "settings.h"
-#include "utils.h"
 #include <iostream>
+
+#include "mandelTypeTraits.hpp"
+#include "settings.hpp"
+#include "utils.hpp"
 
 class Config {
 private:
@@ -45,4 +45,7 @@ private:
     std::map<int, std::any> m_settings;
 };
 
-#endif    // MANDELLANDSCAPE_CONFIG_H
+auto
+initConfig() noexcept -> Config;
+
+#endif    // MANDELLANDSCAPE_CONFIG_HPP

@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_TEXTURE_H
-#define MANDELLANDSCAPE_TEXTURE_H
+#ifndef MANDELLANDSCAPE_TEXTURE_HPP
+#define MANDELLANDSCAPE_TEXTURE_HPP
 
 #include <string>
 #include <memory>
@@ -35,4 +35,4 @@ private:
     std::unique_ptr<GLuint, TextureDeleter> m_location;
 };
 
-#endif    // MANDELLANDSCAPE_TEXTURE_H
+#endif    // MANDELLANDSCAPE_TEXTURE_HPP

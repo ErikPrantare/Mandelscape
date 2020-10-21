@@ -1,11 +1,11 @@
-#include "window.h"
+#include "window.hpp"
 
 #include <iostream>
 #include <variant>
 
-#include "config.h"
-#include "event.h"
-#include "utils.h"
+#include "config.hpp"
+#include "event.hpp"
+#include "utils.hpp"
 
 void
 glfwErrorCallback(int code, char const* description)
@@ -15,32 +15,37 @@ glfwErrorCallback(int code, char const* description)
 }
 
 GLFWwindow*
-createWindow(Config const& conf)
+createWindow(int width, int height)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+
+    glfwSetErrorCallback(&glfwErrorCallback);
 
     return glfwCreateWindow(
-            conf.get<Settings::WindowWidth>(),
-            conf.get<Settings::WindowHeight>(),
+            width,
+            height,
             "MandelLandscape",
             nullptr,
             nullptr);
 }
 
-Window::Window(Config const& conf) : m_window(createWindow(conf))
+Window::Window(Config const& conf) :
+            m_window(createWindow(
+                    conf.get<Settings::WindowWidth>(),
+                    conf.get<Settings::WindowHeight>()))
 {
     if(m_window == nullptr) {
-        std::cerr << "Error: GLFWwindow was not created\n";
+        std::cerr << "GLFW window was not created\n";
         throw;
     }
 
     glfwMakeContextCurrent(m_window.get());
 
     if(gladLoadGL() == 0) {
-        std::cerr << "Something went wrong!\n";
+        std::cerr << "glad failed to initialize\n";
         throw;
     }
 
@@ -82,21 +87,12 @@ Window::update()
     return glfwWindowShouldClose(m_window.get()) == 0;
 }
 
-void
-Window::handleEvent(const Event& event)
+auto
+Window::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    std::visit(
-            util::Overload{
-                    [this](KeyDown key) {
-                        if(key.code == GLFW_KEY_Q) {
-                            close();
-                        }
-                    },
-
-                    // default
-                    [](auto x) {
-                    }},
-            event);
+    if(sameAction(action, TriggerAction::CloseWindow)) {
+        close();
+    }
 }
 
 void
@@ -127,7 +123,7 @@ void
 Window::keyboardCB(
         GLFWwindow* glfwWindow,
         int key,
-        int scancode,
+        int /*scancode*/,
         int action,
         int mods)
 {
@@ -135,17 +131,21 @@ Window::keyboardCB(
 
     switch(action) {
     case GLFW_PRESS: {
-        window->registerEvent(KeyDown{key, mods});
+        window->registerEvent(KeyDown{(Input::Key)key, mods});
     } break;
 
     case GLFW_RELEASE: {
-        window->registerEvent(KeyUp{key, mods});
+        window->registerEvent(KeyUp{(Input::Key)key, mods});
     } break;
     }
 }
 
 void
-Window::mouseButtonCB(GLFWwindow* glfwWindow, int button, int action, int mods)
+Window::mouseButtonCB(
+        GLFWwindow* glfwWindow,
+        int button,
+        int action,
+        int /*mods*/)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 

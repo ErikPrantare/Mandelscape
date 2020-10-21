@@ -1,3 +1,5 @@
+#include "terrain.hpp"
+
 #include <vector>
 #include <cmath>
 #include <complex>
@@ -6,54 +8,20 @@
 
 #include <glad/glad.h>
 
-#include "terrain.h"
-#include "utils.h"
-#include "shader.h"
+#include "utils.hpp"
+#include "shader.hpp"
 
-Terrain::Terrain() :
-            m_offset{0.0, 0.0},
-            m_loadingOffset{0.0, 0.0},
-            m_scale{1.0},
-            m_texture("textures/texture.png"),
-            m_VBO{0},
-            m_loadingVBO{0},
-            m_EBO{0},
-            m_currentMeshPoints{std::make_shared<std::vector<glm::vec3>>()},
-            m_loadingMeshPoints{std::make_shared<std::vector<glm::vec3>>()}
+Terrain::Terrain()
 {
-    loadMesh(m_loadingOffset, m_scale, m_currentMeshPoints.get());
-    loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());
+    loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints);
+    loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
 
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
-
-    glGenBuffers(1, &m_VBO);
-    glGenBuffers(1, &m_EBO);
-    glGenBuffers(1, &m_loadingVBO);
-
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            m_currentMeshPoints->size() * sizeof(glm::vec3),
-            m_currentMeshPoints->data(),
-            GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_loadingVBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            m_loadingMeshPoints->size() * sizeof(glm::vec3),
-            m_loadingMeshPoints->data(),
-            GL_DYNAMIC_DRAW);
+    m_mesh.setVertices(m_currentMeshPoints);
+    m_loadingMesh.setVertices(m_currentMeshPoints);
 
     auto meshIndices = generateMeshIndices();
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-    glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            meshIndices.size() * sizeof(meshIndices[0]),
-            meshIndices.data(),
-            GL_STATIC_DRAW);
+    m_mesh.setIndices(meshIndices);
+    m_loadingMesh.setIndices(meshIndices);
 
     m_vertexShader.attachTo(m_shaderProgram);
     m_shallowFragShader.attachTo(m_shaderProgram);
@@ -65,11 +33,6 @@ Terrain::Terrain() :
 Terrain::~Terrain()
 {
     m_loadingProcess.wait();
-
-    glDeleteVertexArrays(1, &m_VAO);
-    glDeleteBuffers(1, &m_VBO);
-    glDeleteBuffers(1, &m_loadingVBO);
-    glDeleteBuffers(1, &m_EBO);
 }
 
 ShaderProgram&
@@ -78,49 +41,44 @@ Terrain::shaderProgram()
     return m_shaderProgram;
 };
 
-void
-Terrain::handleEvent(Event event)
+auto
+Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    auto const changeIterationCount = [this](KeyDown const keyEvent) {
-        switch(keyEvent.code) {
-        case GLFW_KEY_I: {
-            m_iterations += 20;
+    if(sameAction(action, TriggerAction::IncreaseIterations)) {
+        m_iterations += 20;
+    }
+    if(sameAction(action, TriggerAction::DecreaseIterations)) {
+        m_iterations -= 20;
+    }
+    if(sameAction(action, TriggerAction::SwitchShader)) {
+        switch(m_nextFrag) {
+        case NextFrag::Shallow: {
+            m_shallowFragShader.attachTo(m_shaderProgram);
+            m_nextFrag = NextFrag::Deep;
         } break;
-        case GLFW_KEY_U: {
-            m_iterations -= 20;
-        } break;
-        case GLFW_KEY_H: {
-            switch(m_nextFrag) {
-            case NextFrag::Shallow: {
-                m_shallowFragShader.attachTo(m_shaderProgram);
-                m_nextFrag = NextFrag::Deep;
-            } break;
 
-            case NextFrag::Deep: {
-                m_deepFragShader.attachTo(m_shaderProgram);
-                m_nextFrag = NextFrag::Shallow;
-            } break;
-            }
-            m_shaderProgram.compile();
+        case NextFrag::Deep: {
+            m_deepFragShader.attachTo(m_shaderProgram);
+            m_nextFrag = NextFrag::Shallow;
         } break;
         }
-    };
-    std::visit(util::Overload{changeIterationCount, util::unaryNOP}, event);
+        m_shaderProgram.compile();
+    }
 }
 
-void
+auto
 Terrain::loadMesh(
-        glm::dvec2 offset,
-        double const _scale,
-        std::vector<glm::vec3>* const buffer)
+        glm::dvec3 offset,
+        double const scale,
+        std::vector<glm::vec3>* const buffer) -> void
 {
-    int constexpr nrIndices = granularity * granularity;
+    auto constexpr nrVertices = granularity * granularity;
 
-    if(buffer->size() != nrIndices) {
-        buffer->resize(nrIndices);
+    if(buffer->size() != nrVertices) {
+        buffer->resize(nrVertices);
     }
 
-    int constexpr doublingInterval = 40;
+    auto constexpr doublingInterval = 40;
 
     // The default capture is for compatibility with MSVC, it doesn't seem to
     // get constexpr fully
@@ -128,34 +86,34 @@ Terrain::loadMesh(
         return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 
-    auto const& quantized = [](double x, double stepSize) {
+    auto const quantized = [](double x, double stepSize) {
         return std::floor(x / stepSize) * stepSize;
     };
 
-    double meshSpan = 0.0;
+    auto meshSpan = 0.0;
     for(int i = 0; i < granularity; ++i) {
         meshSpan += stepSize(i);
     }
 
-    double const discreteScale = std::pow(2.0, int(log2(_scale)));
-    double const normMeshSpan  = 300.0 / discreteScale;
+    auto const discreteScale = std::pow(2.0, int(log2(scale)));
+    auto const normMeshSpan  = 300.0 / discreteScale;
 
-    double const normFactor = normMeshSpan / meshSpan;
+    auto const normFactor   = normMeshSpan / meshSpan;
     auto const normStepSize = [normFactor, stepSize](int i) {
         return normFactor * stepSize(i);
     };
 
-    double xPos = -normMeshSpan / 2 + offset.x;
+    auto xPos = -normMeshSpan / 2 + offset.x;
     for(int x = 0; x < granularity; ++x) {
-        double const xQuant = quantized(xPos, normStepSize(x));
+        auto const xQuant = quantized(xPos, normStepSize(x));
 
-        double zPos = -normMeshSpan / 2 + offset.y;
+        auto zPos = -normMeshSpan / 2 + offset.z;
         for(int z = 0; z < granularity; ++z) {
-            double const zQuant            = quantized(zPos, normStepSize(z));
+            auto const zQuant              = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
                     xQuant - offset.x,
                     heightAt({xQuant, zQuant}),
-                    zQuant - offset.y);
+                    zQuant - offset.z);
 
             zPos += normStepSize(z);
         }
@@ -163,49 +121,25 @@ Terrain::loadMesh(
     }
 }
 
-void
-Terrain::startLoading()
+auto
+Terrain::startLoading() -> void
 {
     m_loadingProcess = std::async(std::launch::async, [this]() {
-        loadMesh(m_loadingOffset, m_scale, m_loadingMeshPoints.get());
+        loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
     });
 }
 
-bool
-uploadMeshChunk(
-        std::vector<glm::vec3> const& sourceMesh,
-        GLuint const destinationVBO,
-        size_t const index,
-        size_t const maxChunkSize)
-{
-    if(index >= sourceMesh.size()) {
-        return true;
-    }
-
-    glm::vec3 const* position = &sourceMesh[index];
-
-    int chunkSize = std::min(maxChunkSize, sourceMesh.size() - index);
-
-    glBindBuffer(GL_ARRAY_BUFFER, destinationVBO);
-    glBufferSubData(
-            GL_ARRAY_BUFFER,
-            index * sizeof(glm::vec3),
-            chunkSize * sizeof(glm::vec3),
-            position);
-
-    return (index + chunkSize) >= sourceMesh.size();
-}
-
-glm::dvec2
+auto
 Terrain::updateMesh(double const x, double const z, double const scale)
+        -> glm::dvec3
 {
-    const bool uploadingDone = uploadMeshChunk(
-            *m_currentMeshPoints,
-            m_loadingVBO,
-            m_loadIndex,
-            uploadChunkSize);
+    auto const uploadSize = std::min(
+            uploadChunkSize,
+            (int)(m_currentMeshPoints.size() - m_loadIndex));
+    m_loadingMesh.setVertices(m_currentMeshPoints, m_loadIndex, uploadSize);
+    m_loadIndex += uploadSize;
 
-    m_loadIndex += uploadChunkSize;
+    auto const uploadingDone = m_loadIndex >= (int)m_currentMeshPoints.size();
 
     if(uploadingDone) {
         switch(m_state) {
@@ -219,10 +153,10 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         } break;
 
         case State::Uploading: {
-            std::swap(m_VBO, m_loadingVBO);
+            swap(m_mesh, m_loadingMesh);
 
             m_offset        = m_loadingOffset;
-            m_loadingOffset = {x, z};
+            m_loadingOffset = {x, 0.0, z};
             m_scale         = scale;
 
             startLoading();
@@ -235,14 +169,14 @@ Terrain::updateMesh(double const x, double const z, double const scale)
     return m_offset;
 }
 
-int
-Terrain::iterations() const
+auto
+Terrain::iterations() const -> int
 {
     return m_iterations;
 }
 
-std::vector<GLuint>
-Terrain::generateMeshIndices()
+auto
+Terrain::generateMeshIndices() -> std::vector<GLuint>
 {
     std::vector<GLuint> meshIndices;
     meshIndices.reserve(granularity * granularity * 6);
@@ -262,14 +196,15 @@ Terrain::generateMeshIndices()
     return meshIndices;
 }
 
-double
-Terrain::heightAt(std::complex<double> const& c)
+auto
+Terrain::heightAt(glm::dvec2 const& pos) -> double
 {
-    std::complex<double> z(0.0, 0.0);
-    std::complex<double> dz(0.0, 0.0);
+    auto c  = std::complex<double>(pos.x, pos.y);
+    auto z  = std::complex<double>(0.0, 0.0);
+    auto dz = std::complex<double>(0.0, 0.0);
 
     // main cardioid check
-    double q = pow(c.real() - 0.25, 2.0) + c.imag() * c.imag();
+    auto const q = pow(c.real() - 0.25, 2.0) + c.imag() * c.imag();
     if(q * (q + (c.real() - 0.25)) < 0.25 * c.imag() * c.imag()) {
         return 0.0;
     }
@@ -285,29 +220,23 @@ Terrain::heightAt(std::complex<double> const& c)
         z  = z * z + c;
 
         if(std::abs(z) > 256) {
-            double r  = std::abs(z);
-            double dr = std::abs(dz);
-            double de = 2.0 * r * std::log(r) / dr;    // estimated
-                                                       // distance from
-                                                       // set
-            return de;
+            auto const r                  = std::abs(z);
+            auto const dr                 = std::abs(dz);
+            auto const distanceEstimation = 2.0 * r * std::log(r) / dr;
+
+            return distanceEstimation;
         }
     }
 
     return 0.0;
 }
 
-void
-Terrain::render()
+auto
+Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
-    m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.y);
+    m_shaderProgram.setUniformVec2("offset", m_offset.x, m_offset.z);
     m_texture.makeActiveOn(GL_TEXTURE0);
 
-    int vertexCount = int(std::pow((granularity - 1), 2)) * 3 * 2;
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+    m_mesh.render();
 }
