@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <ctime>
 #include <variant>
+#include <filesystem>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
@@ -96,23 +97,33 @@ Window::update()
 auto
 Window::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    if(sameAction(action, TriggerAction::TogglePause)) {
-        m_paused = !m_paused;
-        if(m_paused) {
-            glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        }
-        else {
-            glfwSetInputMode(
-                    m_window.get(),
-                    GLFW_CURSOR,
-                    GLFW_CURSOR_DISABLED);
+    if(std::holds_alternative<TriggerAction>(action)) {
+        switch(std::get<TriggerAction>(action)) {
+        case TriggerAction::TogglePause:
+            togglePause();
+            break;
+        case TriggerAction::TakeScreenshot:
+            screenshot();
+            break;
+        case TriggerAction::CloseWindow:
+            close();
+            break;
+        default:
+            break;
         }
     }
-    if(sameAction(action, TriggerAction::TakeScreenshot)) {
-        screenshot();
+}
+
+auto
+Window::togglePause() -> void
+{
+    m_paused = !m_paused;
+
+    if(m_paused) {
+        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
-    if(sameAction(action, TriggerAction::CloseWindow)) {
-        close();
+    else {
+        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 }
 
@@ -138,11 +149,18 @@ Window::screenshot()
     char* pixels = new char[3 * m_size.x * m_size.y];
     glReadPixels(0, 0, m_size.x, m_size.y, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
-    std::time_t t = std::time(nullptr);
-    std::tm tm    = *std::localtime(&t);
+    std::time_t const t = std::time(nullptr);
+    std::tm const tm    = *std::localtime(&t);
     std::stringstream buffer;
     buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
-    std::string filename = "screenshots/" + buffer.str();
+
+    namespace fs          = std::filesystem;
+    std::string const dir = "screenshots";
+    if(!fs::is_directory(dir) || !fs::exists(dir)) {
+        fs::create_directory(dir);
+    }
+
+    std::string filename = dir + "/" + buffer.str();
 
     stbi_flip_vertically_on_write(1);
     stbi_write_png(filename.c_str(), m_size.x, m_size.y, 3, pixels, 0);
