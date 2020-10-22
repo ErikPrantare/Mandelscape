@@ -1,6 +1,9 @@
 #include "window.hpp"
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <ctime>
 #include <variant>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -128,21 +131,22 @@ Window::close()
 void
 Window::screenshot()
 {
-    /*
     glfwMakeContextCurrent(m_window.get());
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
+    glReadBuffer(GL_FRONT);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    int x        = viewport[0];
-    int y        = viewport[1];
-    int width    = viewport[2];
-    int height   = viewport[3];
-    char* pixels = new char[3 * width * height];
-    glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    char* pixels = new char[3 * m_size.x * m_size.y];
+    glReadPixels(0, 0, m_size.x, m_size.y, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
-    stbi_write_png("test.png", width, height, 3, pixels, 0);
+    std::time_t t = std::time(nullptr);
+    std::tm tm    = *std::localtime(&t);
+    std::stringstream buffer;
+    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
+    std::string filename = "screenshots/" + buffer.str();
+
+    stbi_flip_vertically_on_write(1);
+    stbi_write_png(filename.c_str(), m_size.x, m_size.y, 3, pixels, 0);
     delete[] pixels;
-    */
 }
 
 void
@@ -207,6 +211,8 @@ void
 Window::resizeCB(GLFWwindow* glfwWindow, int width, int height)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+
+    glfwMakeContextCurrent(window->m_window.get());
 
     glViewport(0, 0, width, height);
     window->m_size = {width, height};

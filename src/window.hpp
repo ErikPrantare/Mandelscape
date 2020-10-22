@@ -14,9 +14,9 @@
 
 class Window {
 public:
-    Window(glm::ivec2 conf);
+    Window(glm::ivec2 size);
 
-    Window()  = default;
+    Window()  = delete;
     ~Window() = default;
 
     Window(Window&&) = default;
