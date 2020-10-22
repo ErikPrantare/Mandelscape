@@ -38,8 +38,8 @@ long double constexpr pi = glm::pi<long double>();
 void
 renderScene(
         Terrain& terrain,
-        const Player& player,
-        Config const& config,
+        Player const& player,
+        glm::ivec2 viewSize,
         double dt);
 
 auto
@@ -49,7 +49,7 @@ auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
 int
-main(int numArgs, char** args)
+main(int numArgs, char* args[])
 {
     auto config = initConfig();
     auto window = Window({1366, 768});
@@ -106,9 +106,7 @@ main(int numArgs, char** args)
             metacontroller.update(&player, dt);
         }
 
-        config.set<Settings::WindowWidth>(window.size().x);
-        config.set<Settings::WindowHeight>(window.size().y);
-        renderScene(terrain, player, config, dt);
+        renderScene(terrain, player, window.size(), dt);
     }
 
     return 0;
@@ -117,34 +115,28 @@ main(int numArgs, char** args)
 void
 renderScene(
         Terrain& terrain,
-        const Player& player,
-        Config const& config,
+        Player const& player,
+        glm::ivec2 const viewSize,
         double dt)
 {
-    auto camera = Camera(config);
-    camera.setScale(player.scale);
-
-    glm::vec3 cameraPosition = player.position;
+    glm::dvec3 cameraPosition = player.position;
     cameraPosition.y += player.scale;
-
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
     cameraPosition.y = filteredHeight(cameraPosition.y, dt);
 
-    camera.setPosition(cameraPosition);
-
     // + double(pi), because -z is regarded as the default lookAt forward
-    camera.lookAt(
-            glm::rotate(
-                    glm::dmat4(1.0),
-                    player.lookAtOffset.x + double(pi),
-                    {0.0, 1.0, 0.0})
-            * glm::rotate(
-                    glm::dmat4(1.0),
-                    player.lookAtOffset.y,
-                    {1.0, 0.0, 0.0})
-            * glm::dvec4(0.0, 0.0, 1.0, 0.0));
+    auto const lookAt = glm::rotate(
+                                glm::dmat4(1.0),
+                                player.lookAtOffset.x + double(pi),
+                                {0.0, 1.0, 0.0})
+                        * glm::rotate(
+                                glm::dmat4(1.0),
+                                player.lookAtOffset.y,
+                                {1.0, 0.0, 0.0})
+                        * glm::dvec4(0.0, 0.0, 1.0, 0.0);
 
-    auto& program = terrain.shaderProgram();
+    auto const camera = Camera(cameraPosition, lookAt, viewSize, player.scale);
+    auto& program     = terrain.shaderProgram();
     program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program.setUniformMatrix4("projection", camera.projection());
 

@@ -5,20 +5,16 @@
 #include <glm/glm.hpp>
 
 #include "config.hpp"
+#include "utils.hpp"
 
 class Camera {
 public:
-    Camera();
+    Camera() = delete;
 
-    Camera(Config const& config);
-
-    Camera(double Xdimension,
-           double Ydimension,
-           double clippingPlaneNear,
-           double clippingPlaneFar,
-           double FOV,
-           glm::dvec3 const& startPosition = {1.0, 0.0, 1.0},
-           glm::dvec3 const& worldUp       = {0.0, 1.0, 0.0});
+    Camera(glm::dvec3 position,
+           glm::dvec3 lookAt,
+           glm::ivec2 viewSize,
+           double scale);
 
     glm::dmat4
     projection() const;
@@ -26,27 +22,17 @@ public:
     glm::dmat4
     cameraSpace() const;
 
-    glm::dvec3
-    position() const;
-
-    void
-    lookAt(glm::dvec3 const&);
-
-    void
-    setPosition(glm::dvec3 const&);
-
-    void
-    setScale(double scale);
-
 private:
     glm::dmat4
     lookAtMatrix() const;
 
-    double m_width, m_height;
-    double m_zNear, m_zFar;
-    double m_FOV;
+    static double constexpr zNear  = 0.01;
+    static double constexpr zFar   = 150.0;
+    static double constexpr fov    = util::pi / 2;
+    static glm::dvec3 constexpr up = {0.0, 1.0, 0.0};
+
+    glm::ivec2 m_viewSize;
     glm::dvec3 m_pos;
-    glm::dvec3 m_up;
     glm::dvec3 m_lookAt;
     double m_worldScale;
 };
