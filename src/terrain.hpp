@@ -14,7 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 
-#include "utils.hpp"
+#include "util.hpp"
 #include "event.hpp"
 #include "shader.hpp"
 #include "shaderProgram.hpp"

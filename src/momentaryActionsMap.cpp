@@ -1,6 +1,6 @@
 #include "momentaryActionsMap.hpp"
 
-#include "utils.hpp"
+#include "util.hpp"
 
 auto
 MomentaryActionsMap::add(Input::Key key, TriggerAction action) -> void

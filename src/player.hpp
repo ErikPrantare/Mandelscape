@@ -5,7 +5,7 @@
 #include <glm/vec3.hpp>
 
 #include "event.hpp"
-#include "utils.hpp"
+#include "util.hpp"
 
 struct Player {
     glm::dvec3 position       = glm::dvec3{0.0, 0.0, 0.0};

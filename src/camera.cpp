@@ -7,8 +7,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "config.hpp"
-
 Camera::Camera(
         glm::dvec3 const position,
         glm::dvec3 const lookAt,

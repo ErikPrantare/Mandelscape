@@ -8,7 +8,7 @@
 
 #include <glad/glad.h>
 
-#include "utils.hpp"
+#include "util.hpp"
 #include "shader.hpp"
 
 Terrain::Terrain()

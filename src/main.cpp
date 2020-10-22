@@ -1,39 +1,23 @@
-#include <functional>
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <cmath>
-#include <vector>
-#include <algorithm>
-#include <memory>
-#include <functional>
 #include <tuple>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <variant>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/ext/matrix_transform.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "metaController.hpp"
-#include "utils.hpp"
+#include "util.hpp"
 #include "camera.hpp"
 #include "terrain.hpp"
-#include "config.hpp"
 #include "window.hpp"
 #include "player.hpp"
 #include "walkController.hpp"
 #include "autoController.hpp"
+#include "metaController.hpp"
 #include "persistentActionMap.hpp"
 #include "momentaryActionsMap.hpp"
-
-long double constexpr pi = glm::pi<long double>();
 
 void
 renderScene(
@@ -51,7 +35,6 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 int
 main(int numArgs, char* args[])
 {
-    auto config = initConfig();
     auto window = Window({1366, 768});
 
     auto terrain = Terrain();
@@ -124,10 +107,10 @@ renderScene(
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
     cameraPosition.y = filteredHeight(cameraPosition.y, dt);
 
-    // + double(pi), because -z is regarded as the default lookAt forward
+    // + util::pi, because -z is regarded as the default lookAt forward
     auto const lookAt = glm::rotate(
                                 glm::dmat4(1.0),
-                                player.lookAtOffset.x + double(pi),
+                                player.lookAtOffset.x + util::pi,
                                 {0.0, 1.0, 0.0})
                         * glm::rotate(
                                 glm::dmat4(1.0),

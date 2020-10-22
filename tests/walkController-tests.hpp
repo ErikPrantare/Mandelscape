@@ -12,7 +12,7 @@
 
 #include "event.hpp"
 #include "player.hpp"
-#include "utils.hpp"
+#include "util.hpp"
 #include "walkController.hpp"
 #include "testUtils.hpp"
 #include "momentaryActionsMap.hpp"
