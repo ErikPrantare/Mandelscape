@@ -4,7 +4,7 @@
 #include <iostream>
 #include <array>
 
-#include "utils.hpp"
+#include "util.hpp"
 
 template<ShaderType type>
 GLuint const*

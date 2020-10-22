@@ -1,6 +1,6 @@
 #include "persistentActionMap.hpp"
 
-#include "utils.hpp"
+#include "util.hpp"
 
 auto
 PersistentActionMap::add(Input::Key key, PersistentAction action) -> void

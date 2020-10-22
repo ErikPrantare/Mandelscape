@@ -6,7 +6,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "utils.hpp"
+#include "util.hpp"
 
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
             m_heightFunc(heightFunc)

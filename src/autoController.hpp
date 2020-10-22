@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-#include "utils.hpp"
+#include "util.hpp"
 #include "player.hpp"
 #include "playerController.hpp"
 #include "persistentActionMap.hpp"

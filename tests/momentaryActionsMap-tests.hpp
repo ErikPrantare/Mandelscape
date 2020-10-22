@@ -7,7 +7,7 @@
 #include "glfwEnums.hpp"
 #include "momentaryActionsMap.hpp"
 #include "event.hpp"
-#include "utils.hpp"
+#include "util.hpp"
 
 namespace MomentaryActionsMapTests {
 

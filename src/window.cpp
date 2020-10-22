@@ -10,9 +10,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-#include "config.hpp"
 #include "event.hpp"
-#include "utils.hpp"
+#include "util.hpp"
 
 void
 glfwErrorCallback(int code, char const* description)

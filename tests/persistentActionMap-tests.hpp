@@ -7,7 +7,7 @@
 #include "glfwEnums.hpp"
 #include "persistentActionMap.hpp"
 #include "event.hpp"
-#include "utils.hpp"
+#include "util.hpp"
 
 namespace PersistentActionMapTests {
 

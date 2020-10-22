@@ -6,7 +6,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "utils.hpp"
+#include "util.hpp"
 
 namespace UtilsTests {
 

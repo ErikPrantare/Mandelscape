@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "utils.hpp"
+#include "util.hpp"
 
 auto
 WalkController::update(Player* const player, double const dt) -> void
