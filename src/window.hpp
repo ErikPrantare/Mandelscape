@@ -59,6 +59,9 @@ private:
     std::queue<Event> m_events;
 
     void
+    togglePause();
+
+    void
     close();
 
     void
