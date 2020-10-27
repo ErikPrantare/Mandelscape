@@ -7,7 +7,13 @@ enum class PersistentAction {
     MoveLeft,
     MoveRight,
     ZoomIn,
-    ZoomOut
+    ZoomOut,
+    IncreaseParam,
+    DecreaseParam,
+    ChangeRedOffset,
+    ChangeGreenOffset,
+    ChangeBlueOffset,
+    ChangeFrequency,
 };
 
 #endif

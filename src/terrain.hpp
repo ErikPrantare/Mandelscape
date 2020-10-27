@@ -5,8 +5,6 @@
 #include <memory>
 #include <complex>
 #include <future>
-#include <functional>
-#include <variant>
 #include <tuple>
 
 #include <glad/glad.h>
@@ -15,12 +13,12 @@
 #include <GLFW/glfw3.h>
 
 #include "util.hpp"
-#include "event.hpp"
 #include "shader.hpp"
 #include "shaderProgram.hpp"
 #include "texture.hpp"
 #include "mesh.hpp"
 #include "momentaryAction.hpp"
+#include "persistentActionMap.hpp"
 
 class Terrain {
 public:
@@ -36,6 +34,9 @@ public:
 
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void;
+
+    auto
+    updateState(PersistentActionMap const& active, double dt) -> void;
 
     auto
     updateMesh(double, double, double) -> glm::dvec3;
@@ -71,13 +72,14 @@ private:
     VertexShader m_vertexShader =
             VertexShader::fromFile("shaders/shader.vert");
 
-    FragmentShader m_shallowFragShader =
-            FragmentShader::fromFile("shaders/shader.frag");
+    int m_currentFragmentShader                     = 0;
+    std::array<FragmentShader, 2> m_fragmentShaders = {
+            FragmentShader::fromFile("shaders/shader.frag"),
+            FragmentShader::fromFile("shaders/deepShader.frag")};
 
-    FragmentShader m_deepFragShader =
-            FragmentShader::fromFile("shaders/deepShader.frag");
+    float m_colorFrequency  = 0.1;
+    glm::vec3 m_colorOffset = {0.0, 1.0, 2.0};
 
-    enum class NextFrag { Shallow, Deep } m_nextFrag = NextFrag::Deep;
     Texture m_texture = Texture("textures/texture.png");
 
     Mesh m_mesh        = Mesh();

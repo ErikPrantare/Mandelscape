@@ -78,6 +78,7 @@ main(int numArgs, char* args[])
 
         if(!window.paused()) {
             metacontroller.updateState(persistentMap);
+            terrain.updateState(persistentMap, dt);
 
             auto pos = player.position + player.positionOffset;
             auto terrainOffset =
@@ -147,6 +148,12 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
     persistentMap.add(Input::Key::J, PersistentAction::ZoomIn);
     persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
+    persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
+    persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
+    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
+    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
 
     return {momentaryMap, persistentMap};
 }
@@ -172,6 +179,12 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::E, PersistentAction::MoveRight);
     persistentMap.add(Input::Key::H, PersistentAction::ZoomIn);
     persistentMap.add(Input::Key::T, PersistentAction::ZoomOut);
+    persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
+    persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
+    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
+    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
 
     return {momentaryMap, persistentMap};
 }

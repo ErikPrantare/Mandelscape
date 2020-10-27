@@ -9,6 +9,8 @@ out vec4 fragColor;
 uniform sampler2D tex;
 uniform vec2 offset;
 uniform int iterations;
+uniform float colorFrequency;
+uniform vec3 colorOffset;
 
 vec2
 complexSquare(const in vec2 a)
@@ -49,15 +51,16 @@ main()
     for(int i = 0; i < iterations; ++i) {
         z = complexSquare(z) + c;
         if(dot(z, z) > 256.0f * 256.0f) {
-            float colorVal = float(i) - log2(log2(dot(z, z)));
+            float val = float(i) - log2(log2(dot(z, z)));
+            vec3 colorVal = val * colorFrequency + colorOffset;
             fragColor =
                     fog * vec4(1.0, 1.0, 1.0, 1.0)
-                    + (1.0 - fog) * texture(tex, vec2(0.0, colorVal))
+                    + (1.0 - fog) * texture(tex, vec2(0.0, val))
                     * vec4(
-                              0.5f * sin(colorVal * 0.1f) + 0.5f,
-                              0.5f * sin(colorVal * 0.13f + 1.0f) + 0.5f,
-                              0.5f * sin(colorVal * 0.15f + 2.0f) + 0.5f,
-                              1.0f);
+                          0.5f * sin(colorVal.r) + 0.5f,
+                          0.5f * sin(colorVal.g) + 0.5f,
+                          0.5f * sin(colorVal.b) + 0.5f,
+                          1.0f);
             return;
         }
     }
