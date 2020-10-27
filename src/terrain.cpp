@@ -60,26 +60,6 @@ Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 }
 
 auto
-Terrain::updateState(PersistentActionMap const& active, double dt) -> void
-{
-    int change = (active(PersistentAction::IncreaseParam) ? 1 : 0)
-                 - (active(PersistentAction::DecreaseParam) ? 1 : 0);
-
-    if(active(PersistentAction::ChangeFrequency)) {
-        m_colorFrequency *= std::exp(change * dt);
-    }
-    if(active(PersistentAction::ChangeRedOffset)) {
-        m_colorOffset.x += 0.3 * change / m_colorFrequency * dt;
-    }
-    if(active(PersistentAction::ChangeGreenOffset)) {
-        m_colorOffset.y += 0.3 * change / m_colorFrequency * dt;
-    }
-    if(active(PersistentAction::ChangeBlueOffset)) {
-        m_colorOffset.z += 0.3 * change / m_colorFrequency * dt;
-    }
-}
-
-auto
 Terrain::loadMesh(
         glm::dvec3 offset,
         double const scale,
@@ -249,8 +229,6 @@ Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
     m_shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
-    m_shaderProgram.setUniformFloat("colorFrequency", m_colorFrequency);
-    m_shaderProgram.setUniformVec3("colorOffset", m_colorOffset);
     m_texture.makeActiveOn(GL_TEXTURE0);
 
     m_mesh.render();

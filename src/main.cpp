@@ -18,6 +18,7 @@
 #include "metaController.hpp"
 #include "persistentActionMap.hpp"
 #include "momentaryActionsMap.hpp"
+#include "colorController.hpp"
 
 void
 renderScene(
@@ -58,6 +59,8 @@ main(int numArgs, char* args[])
             std::make_unique<WalkController>(),
             std::make_unique<AutoController>(autoControllHeightFunc)};
 
+    auto colorController = ColorController();
+
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
@@ -81,7 +84,6 @@ main(int numArgs, char* args[])
             time += dt;
 
             metacontroller.updateState(persistentMap);
-            terrain.updateState(persistentMap, dt);
 
             auto pos = player.position + player.positionOffset;
             auto terrainOffset =
@@ -91,9 +93,12 @@ main(int numArgs, char* args[])
             player.position -= dOffset;
             player.position.y = terrain.heightAt({pos.x, pos.z});
             metacontroller.update(&player, dt);
+
+            colorController.update(persistentMap, dt);
         }
 
         renderScene(terrain, player, window.size(), dt);
+        colorController.updateShaderVariables(&terrain.shaderProgram());
         terrain.shaderProgram().setUniformFloat("time", time);
     }
 

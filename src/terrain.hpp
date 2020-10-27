@@ -36,9 +36,6 @@ public:
     handleMomentaryAction(MomentaryAction const& action) -> void;
 
     auto
-    updateState(PersistentActionMap const& active, double dt) -> void;
-
-    auto
     updateMesh(double, double, double) -> glm::dvec3;
 
     auto
@@ -76,9 +73,6 @@ private:
     std::array<FragmentShader, 2> m_fragmentShaders = {
             FragmentShader::fromFile("shaders/shader.frag"),
             FragmentShader::fromFile("shaders/deepShader.frag")};
-
-    float m_colorFrequency  = 0.1;
-    glm::vec3 m_colorOffset = {0.0, 1.0, 2.0};
 
     Texture m_texture = Texture("textures/texture.png");
 
