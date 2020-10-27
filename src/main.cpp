@@ -58,6 +58,7 @@ main(int numArgs, char* args[])
             std::make_unique<WalkController>(),
             std::make_unique<AutoController>(autoControllHeightFunc)};
 
+    auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
         const double currentTimepoint = glfwGetTime();
@@ -77,6 +78,8 @@ main(int numArgs, char* args[])
         }
 
         if(!window.paused()) {
+            time += dt;
+
             metacontroller.updateState(persistentMap);
             terrain.updateState(persistentMap, dt);
 
@@ -91,6 +94,7 @@ main(int numArgs, char* args[])
         }
 
         renderScene(terrain, player, window.size(), dt);
+        terrain.shaderProgram().setUniformFloat("time", time);
     }
 
     return 0;
