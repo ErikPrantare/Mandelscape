@@ -97,8 +97,8 @@ main(int numArgs, char* args[])
             colorController.update(persistentMap, dt);
         }
 
-        renderScene(terrain, player, window.size(), dt);
         colorController.updateShaderVariables(&terrain.shaderProgram());
+        renderScene(terrain, player, window.size(), dt);
         terrain.shaderProgram().setUniformFloat("time", time);
     }
 

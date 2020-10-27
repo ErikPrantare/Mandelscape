@@ -14,7 +14,7 @@
 Terrain::Terrain()
 {
     loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints);
-    loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
+    // loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
 
     m_mesh.setVertices(m_currentMeshPoints);
     m_loadingMesh.setVertices(m_currentMeshPoints);
