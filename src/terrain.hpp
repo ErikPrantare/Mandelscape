@@ -39,9 +39,6 @@ public:
     updateMesh(double, double, double) -> glm::dvec3;
 
     auto
-    iterations() const -> int;
-
-    auto
     heightAt(glm::dvec2 const&) -> double;
 
     auto

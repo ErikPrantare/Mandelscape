@@ -163,12 +163,6 @@ Terrain::updateMesh(double const x, double const z, double const scale)
 }
 
 auto
-Terrain::iterations() const -> int
-{
-    return m_iterations;
-}
-
-auto
 Terrain::generateMeshIndices() -> std::vector<GLuint>
 {
     std::vector<GLuint> meshIndices;
