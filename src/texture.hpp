@@ -8,19 +8,19 @@
 
 class Texture {
 public:
-    Texture(std::string const& path);
+    Texture(std::string const& path, GLenum textureUnit);
 
-    Texture()               = delete;
+    Texture() = delete;
+
     Texture(Texture const&) = delete;
     Texture&
     operator=(Texture const&) = delete;
-    Texture(Texture&&)        = default;
+
+    Texture(Texture&&) = default;
     Texture&
     operator=(Texture&&) = default;
-    ~Texture()           = default;
 
-    void
-    makeActiveOn(GLenum textureUnit) const;
+    ~Texture() = default;
 
 private:
     struct TextureDeleter {

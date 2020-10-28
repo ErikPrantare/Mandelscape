@@ -71,7 +71,7 @@ private:
             FragmentShader::fromFile("shaders/shader.frag"),
             FragmentShader::fromFile("shaders/deepShader.frag")};
 
-    Texture m_texture = Texture("textures/texture.png");
+    Texture m_texture = Texture("textures/texture.png", GL_TEXTURE0);
 
     Mesh m_mesh        = Mesh();
     Mesh m_loadingMesh = Mesh();

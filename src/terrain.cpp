@@ -14,7 +14,7 @@
 Terrain::Terrain()
 {
     loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints);
-    // loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
+    loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints);
 
     m_mesh.setVertices(m_currentMeshPoints);
     m_loadingMesh.setVertices(m_currentMeshPoints);
@@ -223,7 +223,6 @@ Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
     m_shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
-    m_texture.makeActiveOn(GL_TEXTURE0);
 
     m_mesh.render();
 }

@@ -36,7 +36,7 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 int
 main(int numArgs, char* args[])
 {
-    auto window = Window({1366, 768});
+    auto window = Window({1368, 768});
 
     auto terrain = Terrain();
     auto player  = Player();
@@ -98,8 +98,8 @@ main(int numArgs, char* args[])
         }
 
         colorController.updateShaderVariables(&terrain.shaderProgram());
-        renderScene(terrain, player, window.size(), dt);
         terrain.shaderProgram().setUniformFloat("time", time);
+        renderScene(terrain, player, window.size(), dt);
     }
 
     return 0;
