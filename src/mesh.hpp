@@ -2,13 +2,17 @@
 #define MANDELLANDSCAPE_MESH_HPP
 
 #include <vector>
+#include <memory>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "texture.hpp"
+
 class Mesh {
 public:
     Mesh();
+
     Mesh(Mesh const&) = delete;
     Mesh&
     operator=(Mesh const&) = delete;
@@ -31,6 +35,9 @@ public:
     auto
     setIndices(std::vector<GLuint> const& indices) -> void;
 
+    auto
+    setTexture(std::shared_ptr<Texture> texture) -> void;
+
     friend auto
     swap(Mesh&, Mesh&) -> void;
 
@@ -40,6 +47,8 @@ private:
     GLuint m_EBO = 0;
 
     int m_nrVertices = 0;
+
+    std::shared_ptr<Texture> m_texture = nullptr;
 };
 
 auto

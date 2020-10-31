@@ -16,7 +16,8 @@ generateTexture()
 }
 
 Texture::Texture(std::string const& path, GLenum textureUnit) :
-            m_location(generateTexture())
+            m_location(generateTexture()),
+            m_textureUnit(textureUnit)
 {
     int width      = 0;
     int height     = 0;
@@ -28,7 +29,7 @@ Texture::Texture(std::string const& path, GLenum textureUnit) :
         throw;
     }
 
-    glActiveTexture(textureUnit);
+    glActiveTexture(m_textureUnit);
     glBindTexture(GL_TEXTURE_2D, *m_location);
     glTexImage2D(
             GL_TEXTURE_2D,
@@ -45,4 +46,11 @@ Texture::Texture(std::string const& path, GLenum textureUnit) :
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     stbi_image_free(image);
+}
+
+auto
+Texture::activate() -> void
+{
+    glActiveTexture(m_textureUnit);
+    glBindTexture(GL_TEXTURE_2D, *m_location);
 }

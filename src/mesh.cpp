@@ -27,6 +27,10 @@ Mesh::~Mesh()
 auto
 Mesh::render() -> void
 {
+    if(m_texture != nullptr) {
+        m_texture->activate();
+    }
+
     glBindVertexArray(m_VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
@@ -85,6 +89,12 @@ Mesh::setIndices(std::vector<GLuint> const& indices) -> void
     m_nrVertices = indices.size();
 
     glBindVertexArray(0);
+}
+
+auto
+Mesh::setTexture(std::shared_ptr<Texture> texture) -> void
+{
+    m_texture = texture;
 }
 
 auto

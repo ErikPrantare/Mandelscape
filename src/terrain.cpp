@@ -19,6 +19,10 @@ Terrain::Terrain()
     m_mesh.setVertices(m_currentMeshPoints);
     m_loadingMesh.setVertices(m_currentMeshPoints);
 
+    auto texture = std::make_shared<Texture>("textures/texture.png");
+    m_mesh.setTexture(texture);
+    m_loadingMesh.setTexture(texture);
+
     auto meshIndices = generateMeshIndices();
     m_mesh.setIndices(meshIndices);
     m_loadingMesh.setIndices(meshIndices);

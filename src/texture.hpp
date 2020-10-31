@@ -8,7 +8,7 @@
 
 class Texture {
 public:
-    Texture(std::string const& path, GLenum textureUnit);
+    Texture(std::string const& path, GLenum textureUnit = GL_TEXTURE0);
 
     Texture() = delete;
 
@@ -22,6 +22,9 @@ public:
 
     ~Texture() = default;
 
+    auto
+    activate() -> void;
+
 private:
     struct TextureDeleter {
         void
@@ -33,6 +36,8 @@ private:
     };
 
     std::unique_ptr<GLuint, TextureDeleter> m_location;
+
+    GLenum m_textureUnit;
 };
 
 #endif    // MANDELLANDSCAPE_TEXTURE_HPP
