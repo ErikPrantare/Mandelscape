@@ -48,19 +48,29 @@ Terrain::shaderProgram()
 auto
 Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    if(sameAction(action, TriggerAction::IncreaseIterations)) {
-        m_iterations += 20;
-    }
-    else if(sameAction(action, TriggerAction::DecreaseIterations)) {
-        m_iterations -= 20;
-    }
-    else if(sameAction(action, TriggerAction::SwitchShader)) {
-        m_currentFragmentShader =
-                (m_currentFragmentShader + 1) % m_fragmentShaders.size();
-        m_fragmentShaders[m_currentFragmentShader].attachTo(m_shaderProgram);
+    auto onTrigger = [this](TriggerAction action) {
+        switch(action) {
+        case TriggerAction::IncreaseIterations: {
+            m_iterations += 20;
+        } break;
+        case TriggerAction::DecreaseIterations: {
+            m_iterations -= 20;
+        } break;
+        case TriggerAction::SwitchShader: {
+            m_currentFragmentShader++;
+            m_currentFragmentShader %= m_fragmentShaders.size();
 
-        m_shaderProgram.compile();
-    }
+            m_fragmentShaders[m_currentFragmentShader].attachTo(
+                    m_shaderProgram);
+
+            m_shaderProgram.compile();
+        } break;
+        default:
+            break;
+        }
+    };
+
+    std::visit(util::Overload{onTrigger, util::unaryNOP}, action);
 }
 
 auto
