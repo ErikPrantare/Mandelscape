@@ -15,8 +15,8 @@ public:
     updateShaderVariables(ShaderProgram* program) const -> void;
 
 private:
-    float m_colorFrequency  = 0.1;
-    glm::vec3 m_colorOffset = {0.0, 1.0, 2.0};
+    double m_colorFrequency  = 0.1;
+    glm::dvec3 m_colorOffset = {0.0, 1.0, 2.0};
 };
 
 #endif

@@ -25,6 +25,6 @@ ColorController::update(PersistentActionMap const& active, double dt) -> void
 auto
 ColorController::updateShaderVariables(ShaderProgram* program) const -> void
 {
-    program->setUniformFloat("colorFrequency", m_colorFrequency);
+    program->setUniformFloat("colorFrequency", (float)m_colorFrequency);
     program->setUniformVec3("colorOffset", m_colorOffset);
 }
