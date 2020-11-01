@@ -18,43 +18,43 @@ target_link_libraries(MandelInterface
     INTERFACE glm::glm
     INTERFACE stb::stb)
 
-add_executable(MandelLandscape)
+add_executable(Mandelscape)
 
-target_sources(MandelLandscape
+target_sources(Mandelscape
     PRIVATE main.cpp)
 
-target_link_libraries(MandelLandscape
+target_link_libraries(Mandelscape
     PRIVATE MandelInterface)
 
-set_target_properties(MandelLandscape
+set_target_properties(Mandelscape
     PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED TRUE)
         
 if(CMAKE_BUILD_TYPE STREQUAL Release)
-    set_target_properties(MandelLandscape
+    set_target_properties(Mandelscape
         PROPERTIES
             INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
 if(CLANG_TIDY)
-    set_target_properties(MandelLandscape PROPERTIES
+    set_target_properties(Mandelscape PROPERTIES
         CXX_CLANG_TIDY "clang-tidy;-header-filter=./src")
 endif()
 
 if(WIN32)
-    target_compile_options(MandelLandscape
+    target_compile_options(Mandelscape
         PRIVATE /W4)
 
 else()
-    target_compile_options(MandelLandscape
+    target_compile_options(Mandelscape
         PRIVATE -Wall
         PRIVATE -Werror
         PRIVATE -Wextra)
 endif()
 
 if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL Release)
-    target_link_options(MandelLandscape
+    target_link_options(Mandelscape
         PRIVATE /SUBSYSTEM:WINDOWS
         PRIVATE /ENTRY:mainCRTStartup)
 endif()

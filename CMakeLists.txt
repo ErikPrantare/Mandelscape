@@ -6,7 +6,7 @@ else()
     cmake_minimum_required(VERSION 3.12)
 endif()
 
-project(MandelLandscape LANGUAGES CXX)
+project(Mandelscape LANGUAGES CXX)
 
 if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
     set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
@@ -14,7 +14,7 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-option(CLANG_TIDY "Run clang-tidy on MandelLandscape" OFF)
+option(CLANG_TIDY "Run clang-tidy on Mandelscape" OFF)
 option(BUILD_TESTING OFF)
 
 #---------------------------Compilation database generation--------------------
@@ -112,6 +112,6 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
-#---------------------------MandelLandscape------------------------------------
+#---------------------------Mandelscape----------------------------------------
 
 add_subdirectory(src)

@@ -30,12 +30,7 @@ createWindow(glm::ivec2 const size)
 
     glfwSetErrorCallback(&glfwErrorCallback);
 
-    return glfwCreateWindow(
-            size.x,
-            size.y,
-            "MandelLandscape",
-            nullptr,
-            nullptr);
+    return glfwCreateWindow(size.x, size.y, "Mandelscape", nullptr, nullptr);
 }
 
 Window::Window(glm::ivec2 const size) :
