@@ -57,4 +57,4 @@ use different coloring algorithms. shaders/orbit\_trap.frag contains a
 coloring algorithm using orbit traps and the `time` variable to move them
 around. Rename orbit\_trap.frag to shader.frag to see how it looks.
 
-![](preview.jpeg?raw=true "Title")
+![](preview.jpg?raw=true "Title")
