@@ -28,14 +28,25 @@ magnet:?xt=urn:btih:2f841aba7d86c77499ce7428f49ee78542341cee&dn=Mandelscape-0.0.
 # Controls
 - <kbd>w</kbd><kbd>a</kbd><kbd>s</kbd><kbd>d</kbd> + mouse to walk and look around.
 
+- <kbd>p</kbd> to pause/unpause.
+
 - <kbd>j</kbd>/<kbd>k</kbd> to zoom in/out.
 
 - <kbd>u</kbd>/<kbd>i</kbd> to change iteration count.
 
+- <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd>/<kbd>4</kbd> + <kbd>up</kbd>/<kbd>down</kbd> to change colors
+
+- <kbd>x</kbd> to take screenshot.
+    Will be put inside directory named screenshots.
+
 - <kbd>h</kbd> to allow for a bit deeper zooms. Will increase lag drastically.
 
-- <kbd>o</kbd> to toggle autozoom. Do not enable while standing on the black area.
+- <kbd>o</kbd> to toggle autozoom.
 
-- <kbd>q</kbd> to quit.
+- <kbd>c</kbd> to toggle autowalk.
+
+- <kbd>q</kbd> or <kbd>escape</kbd> to quit.
+
+
 
 ![](preview.jpeg?raw=true "Title")
