@@ -47,6 +47,8 @@ magnet:?xt=urn:btih:2f841aba7d86c77499ce7428f49ee78542341cee&dn=Mandelscape-0.0.
 
 - <kbd>q</kbd> or <kbd>escape</kbd> to quit.
 
-
+# Options
+To use dvorak mode, start Mandelscape with `--dvorak` flag.
+Controls can be found at the bottom of src/main.cpp.
 
 ![](preview.jpeg?raw=true "Title")
