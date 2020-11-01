@@ -12,13 +12,13 @@ ColorController::update(PersistentActionMap const& active, double dt) -> void
         m_colorFrequency *= std::exp(change * dt);
     }
     if(active(PersistentAction::ChangeRedOffset)) {
-        m_colorOffset.x += 0.3 * change / m_colorFrequency * dt;
+        m_colorOffset.x += 3 * change * dt;
     }
     if(active(PersistentAction::ChangeGreenOffset)) {
-        m_colorOffset.y += 0.3 * change / m_colorFrequency * dt;
+        m_colorOffset.y += 3 * change * dt;
     }
     if(active(PersistentAction::ChangeBlueOffset)) {
-        m_colorOffset.z += 0.3 * change / m_colorFrequency * dt;
+        m_colorOffset.z += 3 * change * dt;
     }
 }
 
