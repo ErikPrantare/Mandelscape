@@ -154,7 +154,7 @@ Window::screenshot()
         fs::create_directory(dir);
     }
 
-    std::string filename = dir + "/" + buffer.str();
+    std::string filename = dir + "/" + buffer.str() + ".png";
 
     stbi_flip_vertically_on_write(1);
     stbi_write_png(filename.c_str(), m_size.x, m_size.y, 3, pixels, 0);
