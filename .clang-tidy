@@ -12,7 +12,9 @@ cppcoreguidelines-*,
 -cppcoreguidelines-pro-bounds-constant-array-index,
 -cppcoreguidelines-pro-bounds-pointer-arithmetic,
 
-modernize-*'
+modernize-*
+
+misc-*'
 
 CheckOptions:
   - key: readability-identifier-naming.VariableCase
