@@ -34,7 +34,7 @@ magnet:?xt=urn:btih:2f841aba7d86c77499ce7428f49ee78542341cee&dn=Mandelscape-0.0.
 
 - <kbd>u</kbd>/<kbd>i</kbd> to change iteration count.
 
-- <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd>/<kbd>4</kbd>/<kbd>5</kbd> + <kbd>up</kbd>/<kbd>down</kbd> to change colors
+- <kbd>1</kbd>-<kbd>5</kbd> + <kbd>up</kbd>/<kbd>down</kbd> to change colors
 
 - <kbd>x</kbd> to take screenshot.
     Will be put inside directory named screenshots.
