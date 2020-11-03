@@ -6,7 +6,7 @@ and changed/other with a '.'.
 
 This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 
-0.1.0 (2020-11-01):
+0.1.0 (2020-13-01):
 + Add automatic walking
 + Add ability to pause
 + Add ability to change window size
