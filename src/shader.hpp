@@ -20,18 +20,17 @@ class Shader {
 public:
     Shader()              = delete;
     Shader(Shader const&) = delete;
-    Shader&
-    operator=(Shader const&) = delete;
-    Shader(Shader&&)         = default;
-    Shader&
-    operator=(Shader&&) = default;
-    ~Shader()           = default;
+    auto
+    operator=(Shader const&) -> Shader& = delete;
+    Shader(Shader&&)                    = default;
+    auto operator=(Shader &&) -> Shader& = default;
+    ~Shader()                            = default;
 
-    static Shader
-    fromFile(std::string const& filePath);
+    static auto
+    fromFile(std::string const& filePath) -> Shader;
 
-    static Shader
-    fromCode(std::string const& sourceCode);
+    static auto
+    fromCode(std::string const& sourceCode) -> Shader;
 
     void
     attachTo(ShaderProgram& program) const;
@@ -50,8 +49,8 @@ private:
 
     std::unique_ptr<GLuint const, LocationDeleter> m_location;
 
-    static GLuint const*
-    createShader(std::string const& sourceCode);
+    static auto
+    createShader(std::string const& sourceCode) -> GLuint const*;
 };
 
 using VertexShader   = Shader<ShaderType::Vertex>;

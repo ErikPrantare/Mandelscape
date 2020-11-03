@@ -10,7 +10,9 @@ cppcoreguidelines-*,
 -cppcoreguidelines-pro-type-union-access,
 -cppcoreguidelines-avoid-magic-numbers,
 -cppcoreguidelines-pro-bounds-constant-array-index,
--cppcoreguidelines-pro-bounds-pointer-arithmetic'
+-cppcoreguidelines-pro-bounds-pointer-arithmetic,
+
+modernize-*'
 
 CheckOptions:
   - key: readability-identifier-naming.VariableCase

@@ -34,9 +34,9 @@ Mesh::render() -> void
     glBindVertexArray(m_VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    glDrawElements(GL_TRIANGLES, m_nrVertices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_nrVertices, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
 }
@@ -94,7 +94,7 @@ Mesh::setIndices(std::vector<GLuint> const& indices) -> void
 auto
 Mesh::setTexture(std::shared_ptr<Texture> texture) -> void
 {
-    m_texture = texture;
+    m_texture = std::move(texture);
 }
 
 auto

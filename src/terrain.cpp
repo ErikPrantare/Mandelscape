@@ -39,8 +39,8 @@ Terrain::~Terrain()
     m_loadingProcess.wait();
 }
 
-ShaderProgram&
-Terrain::shaderProgram()
+auto
+Terrain::shaderProgram() -> ShaderProgram&
 {
     return m_shaderProgram;
 };

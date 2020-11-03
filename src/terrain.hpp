@@ -24,11 +24,10 @@ class Terrain {
 public:
     Terrain();
     Terrain(const Terrain&) = delete;
-    Terrain&
-    operator=(const Terrain&) = delete;
-    Terrain(Terrain&&)        = delete;
-    Terrain&
-    operator=(Terrain&&) = delete;
+    auto
+    operator=(const Terrain&) -> Terrain& = delete;
+    Terrain(Terrain&&)                    = delete;
+    auto operator=(Terrain &&) -> Terrain& = delete;
 
     ~Terrain();
 
@@ -44,8 +43,8 @@ public:
     auto
     render() -> void;
 
-    ShaderProgram&
-    shaderProgram();
+    auto
+    shaderProgram() -> ShaderProgram&;
 
 private:
     static int constexpr granularity     = 400;

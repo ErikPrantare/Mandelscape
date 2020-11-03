@@ -5,15 +5,9 @@
 
 #include <glm/glm.hpp>
 
-GLuint*
-createProgram()
+ShaderProgram::ShaderProgram() : m_location(new GLuint(glCreateProgram()))
 {
-    return new GLuint(glCreateProgram());
-}
-
-ShaderProgram::ShaderProgram() : m_location(createProgram())
-{
-    if(m_location == 0) {
+    if(*m_location == 0) {
         std::cerr << "Error creating shader program" << std::endl;
         throw;
     }
@@ -117,8 +111,8 @@ ShaderProgram::setUniformVec3(const std::string& name, glm::vec3 v)
     glUniform3f(uniformLocation(name), v.x, v.y, v.z);
 }
 
-GLuint
-ShaderProgram::uniformLocation(std::string const& name) const
+auto
+ShaderProgram::uniformLocation(std::string const& name) const -> GLuint
 {
     // It's ok if name doesn't exist.
     // This will then return 0xFFFFFF,

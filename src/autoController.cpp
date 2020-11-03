@@ -9,7 +9,7 @@
 #include "util.hpp"
 
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
-            m_heightFunc(heightFunc)
+            m_heightFunc(std::move(heightFunc))
 {}
 
 auto
