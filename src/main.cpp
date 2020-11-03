@@ -162,7 +162,8 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
     persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
     persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeTotalOffset);
+    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeFrequency);
 
     return {momentaryMap, persistentMap};
 }
@@ -193,7 +194,8 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
     persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
     persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeTotalOffset);
+    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeFrequency);
 
     return {momentaryMap, persistentMap};
 }

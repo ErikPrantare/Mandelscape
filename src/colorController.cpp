@@ -20,6 +20,9 @@ ColorController::update(PersistentActionMap const& active, double dt) -> void
     if(active(PersistentAction::ChangeBlueOffset)) {
         m_colorOffset.z += 3 * change * dt;
     }
+    if(active(PersistentAction::ChangeTotalOffset)) {
+        m_colorOffset += 3 * change * dt * glm::dvec3{1.0, 1.0, 1.0};
+    }
 }
 
 auto

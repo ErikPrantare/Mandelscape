@@ -13,6 +13,7 @@ enum class PersistentAction {
     ChangeRedOffset,
     ChangeGreenOffset,
     ChangeBlueOffset,
+    ChangeTotalOffset,
     ChangeFrequency,
 };
 
