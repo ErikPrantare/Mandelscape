@@ -7,10 +7,10 @@
 
 #include <stb_image.h>
 
-GLuint*
-generateTexture()
+auto
+generateTexture() -> GLuint*
 {
-    GLuint* texture = new GLuint;
+    auto* const texture = new GLuint;
     glGenTextures(1, texture);
     return texture;
 }

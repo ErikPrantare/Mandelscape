@@ -7,13 +7,13 @@
 #include "util.hpp"
 
 template<ShaderType type>
-GLuint const*
-Shader<type>::createShader(std::string const& sourceCode)
+auto
+Shader<type>::createShader(std::string const& sourceCode) -> GLuint const*
 {
-    auto shaderType      = static_cast<GLenum>(type);
-    auto* const location = new GLuint(glCreateShader(shaderType));
+    auto const shaderType = static_cast<GLenum>(type);
+    auto* const location  = new GLuint(glCreateShader(shaderType));
 
-    if(location == 0) {
+    if(*location == 0) {
         std::cerr << "Error creating shader type " << shaderType << std::endl;
         throw;
     }
@@ -49,15 +49,15 @@ Shader<type>::Shader(std::string const& sourceCode) :
 {}
 
 template<ShaderType type>
-Shader<type>
-Shader<type>::fromFile(std::string const& filePath)
+auto
+Shader<type>::fromFile(std::string const& filePath) -> Shader<type>
 {
     return Shader<type>(util::readFile(filePath));
 }
 
 template<ShaderType type>
-Shader<type>
-Shader<type>::fromCode(std::string const& sourceCode)
+auto
+Shader<type>::fromCode(std::string const& sourceCode) -> Shader<type>
 {
     return Shader<type>(sourceCode);
 }

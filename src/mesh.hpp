@@ -14,11 +14,10 @@ public:
     Mesh();
 
     Mesh(Mesh const&) = delete;
-    Mesh&
-    operator=(Mesh const&) = delete;
-    Mesh(Mesh&&)           = delete;
-    Mesh&
-    operator=(Mesh&&) = delete;
+    auto
+    operator=(Mesh const&) -> Mesh& = delete;
+    Mesh(Mesh&&)                    = delete;
+    auto operator=(Mesh &&) -> Mesh& = delete;
 
     ~Mesh();
 

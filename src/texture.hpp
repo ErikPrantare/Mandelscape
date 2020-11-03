@@ -13,12 +13,11 @@ public:
     Texture() = delete;
 
     Texture(Texture const&) = delete;
-    Texture&
-    operator=(Texture const&) = delete;
+    auto
+    operator=(Texture const&) -> Texture& = delete;
 
     Texture(Texture&&) = default;
-    Texture&
-    operator=(Texture&&) = default;
+    auto operator=(Texture &&) -> Texture& = default;
 
     ~Texture() = default;
 

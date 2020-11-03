@@ -20,8 +20,8 @@ glfwErrorCallback(int code, char const* description)
               << '\n';
 }
 
-GLFWwindow*
-createWindow(glm::ivec2 const size)
+auto
+createWindow(glm::ivec2 const size) -> GLFWwindow*
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -71,14 +71,14 @@ Window::setCallbacks()
     glfwSetWindowSizeCallback(m_window.get(), &resizeCB);
 }
 
-std::optional<Event>
-Window::nextEvent()
+auto
+Window::nextEvent() -> std::optional<Event>
 {
     return util::pop(m_events);
 }
 
-bool
-Window::update()
+auto
+Window::update() -> bool
 {
     glfwSwapBuffers(m_window.get());
 

@@ -33,8 +33,8 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
-int
-main(int numArgs, char* args[])
+auto
+main(int numArgs, char* args[]) -> int
 {
     auto window = Window({1368, 768});
 

@@ -13,12 +13,11 @@ public:
     ShaderProgram();
 
     ShaderProgram(ShaderProgram const&) = delete;
-    ShaderProgram&
-    operator=(ShaderProgram const&) = delete;
-    ShaderProgram(ShaderProgram&&)  = default;
-    ShaderProgram&
-    operator=(ShaderProgram&&) = default;
-    ~ShaderProgram()           = default;
+    auto
+    operator=(ShaderProgram const&) -> ShaderProgram& = delete;
+    ShaderProgram(ShaderProgram&&)                    = default;
+    auto operator=(ShaderProgram &&) -> ShaderProgram& = default;
+    ~ShaderProgram()                                   = default;
 
     void
     attachShader(GLuint shader, GLenum shaderType);
@@ -53,11 +52,11 @@ private:
 
     std::unique_ptr<GLuint, ShaderDeleter> m_location;
 
-    GLuint
-    uniformLocation(const std::string& name) const;
+    [[nodiscard]] auto
+    uniformLocation(const std::string& name) const -> GLuint;
 
-    GLuint
-    getLocation(std::string const& path, GLenum shaderType) const;
+    [[nodiscard]] auto
+    getLocation(std::string const& path, GLenum shaderType) const -> GLuint;
 };
 
 #endif

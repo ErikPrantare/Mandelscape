@@ -20,12 +20,11 @@ public:
     ~Window() = default;
 
     Window(Window&&) = default;
-    Window&
-    operator=(Window&&) = default;
+    auto operator=(Window &&) -> Window& = default;
 
     Window(Window const&) = delete;
-    Window&
-    operator=(Window const&) = delete;
+    auto
+    operator=(Window const&) -> Window& = delete;
 
     auto
     nextEvent() -> std::optional<Event>;
