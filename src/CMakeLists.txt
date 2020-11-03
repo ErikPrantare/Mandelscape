@@ -23,8 +23,15 @@ add_executable(Mandelscape)
 target_sources(Mandelscape
     PRIVATE main.cpp)
 
-target_link_libraries(Mandelscape
-    PRIVATE MandelInterface)
+
+if(MINGW) 
+    target_link_libraries(Mandelscape
+        PRIVATE -static
+        PRIVATE MandelInterface)
+else()
+    target_link_libraries(Mandelscape
+        PRIVATE MandelInterface)
+endif()
 
 set_target_properties(Mandelscape
     PROPERTIES
@@ -42,10 +49,9 @@ if(CLANG_TIDY)
         CXX_CLANG_TIDY "clang-tidy;-header-filter=./src")
 endif()
 
-if(WIN32)
+if(MSVC)
     target_compile_options(Mandelscape
         PRIVATE /W4)
-
 else()
     target_compile_options(Mandelscape
         PRIVATE -Wall
