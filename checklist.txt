@@ -7,7 +7,7 @@ Update readme with new link
 Review control documentation
 Update changelog
 
-Push to master
+Push to master (no fastforward)
 
 Remove dead branches
 

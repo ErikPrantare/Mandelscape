@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_WINDOW_H
-#define MANDELLANDSCAPE_WINDOW_H
+#ifndef MANDELLANDSCAPE_WINDOW_HPP
+#define MANDELLANDSCAPE_WINDOW_HPP
 
 #include <queue>
 #include <optional>
@@ -7,15 +7,16 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
-#include "config.h"
-#include "event.h"
+#include "event.hpp"
+#include "momentaryAction.hpp"
 
 class Window {
 public:
-    Window(Config const& conf);
+    Window(glm::ivec2 size);
 
-    Window()  = default;
+    Window()  = delete;
     ~Window() = default;
 
     Window(Window&&) = default;
@@ -26,14 +27,23 @@ public:
     Window&
     operator=(Window const&) = delete;
 
-    std::optional<Event>
-    nextEvent();
+    auto
+    nextEvent() -> std::optional<Event>;
 
-    bool
-    update();
+    auto
+    update() -> bool;
 
-    void
-    handleEvent(Event const& event);
+    auto
+    handleMomentaryAction(MomentaryAction const& action) -> void;
+
+    auto
+    paused() -> bool;
+
+    auto
+    size() -> glm::ivec2
+    {
+        return m_size;
+    }
 
 private:
     struct WindowDeleter {
@@ -49,7 +59,13 @@ private:
     std::queue<Event> m_events;
 
     void
+    togglePause();
+
+    void
     close();
+
+    void
+    screenshot();
 
     void
     registerEvent(Event&& event);
@@ -61,13 +77,24 @@ private:
     cursorPositionCB(GLFWwindow* window, double x, double y);
 
     static void
-    keyboardCB(GLFWwindow* window, int key, int scancode, int action, int mods);
+    keyboardCB(
+            GLFWwindow* window,
+            int key,
+            int scancode,
+            int action,
+            int mods);
 
     static void
     mouseButtonCB(GLFWwindow* window, int button, int action, int mods);
 
+    static void
+    resizeCB(GLFWwindow* glfwWindow, int width, int height);
+
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
+
+    bool m_paused = false;
+    glm::ivec2 m_size;
 };
 
 #endif

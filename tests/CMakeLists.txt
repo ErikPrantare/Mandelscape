@@ -1,11 +1,3 @@
-if(NOT CMAKE_CROSSCOMPILING)
-    find_package(Catch2 QUIET)
-endif()
-
-if(NOT Catch2_FOUND)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/extern/Catch2)
-endif()
-
 add_executable(tests)
 
 target_sources(tests
@@ -33,15 +25,25 @@ if(GCOVR_GEN_HTML)
         "--html-details ${PROJECT_SOURCE_DIR}/coverage/coverage.html")
 endif()
 
-add_custom_command(TARGET tests
-    POST_BUILD
-    COMMAND tests --use-colour yes
-    COMMAND echo $<$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>:${GCOVR_CALL}> | sh
-    COMMAND echo $<$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>:${GEN_HTML}> | sh)
 
-target_link_options(tests
-    PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-fprofile-arcs>)
+if(WIN32)
+    add_custom_command(TARGET tests
+        POST_BUILD
+        COMMAND tests --use-colour yes)
+else()
+    set(COVERAGE_AND_DEBUG 
+        "$<AND:$<BOOL:COVERAGE>,$<CONFIG:Debug>>")
 
-target_compile_options(tests
-    PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-fprofile-arcs>
-    PRIVATE $<$<AND:$<CONFIG:Debug>,$<BOOL:COVERAGE>>:-ftest-coverage>)
+    add_custom_command(TARGET tests
+        POST_BUILD
+        COMMAND tests --use-colour yes
+        COMMAND echo $<${COVERAGE_AND_DEBUG}:${GCOVR_CALL}> | sh
+        COMMAND echo $<${COVERAGE_AND_DEBUG}:${GEN_HTML}> | sh)
+
+    target_link_options(tests
+        PRIVATE $<${COVERAGE_AND_DEBUG}:-fprofile-arcs>)
+    
+    target_compile_options(tests
+        PRIVATE $<${COVERAGE_AND_DEBUG}:-fprofile-arcs>
+        PRIVATE $<${COVERAGE_AND_DEBUG}:-ftest-coverage>)
+endif()

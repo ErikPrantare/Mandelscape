@@ -1,4 +1,4 @@
-#include "shaderProgram.h"
+#include "shaderProgram.hpp"
 
 #include <iostream>
 #include <array>
@@ -106,21 +106,22 @@ ShaderProgram::setUniformInt(const std::string& name, int const x)
 }
 
 void
-ShaderProgram::setUniformVec2(
-        const std::string& name,
-        float const x,
-        float const y)
+ShaderProgram::setUniformVec2(const std::string& name, glm::vec2 v)
 {
-    glUniform2f(uniformLocation(name), x, y);
+    glUniform2f(uniformLocation(name), v.x, v.y);
+}
+
+void
+ShaderProgram::setUniformVec3(const std::string& name, glm::vec3 v)
+{
+    glUniform3f(uniformLocation(name), v.x, v.y, v.z);
 }
 
 GLuint
 ShaderProgram::uniformLocation(std::string const& name) const
 {
-    GLuint location = glGetUniformLocation(*m_location, name.c_str());
-    if(location == 0xFFFFFFFF) {
-        std::cerr << "Failed to find variable " << name << std::endl;
-        throw;
-    }
-    return location;
+    // It's ok if name doesn't exist.
+    // This will then return 0xFFFFFF,
+    // and setting that adress will have no effect
+    return glGetUniformLocation(*m_location, name.c_str());
 }

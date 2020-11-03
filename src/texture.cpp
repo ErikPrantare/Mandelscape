@@ -1,4 +1,4 @@
-#include "texture.h"
+#include "texture.hpp"
 
 #include <string>
 #include <iostream>
@@ -15,7 +15,9 @@ generateTexture()
     return texture;
 }
 
-Texture::Texture(std::string const& path) : m_location(generateTexture())
+Texture::Texture(std::string const& path, GLenum textureUnit) :
+            m_location(generateTexture()),
+            m_textureUnit(textureUnit)
 {
     int width      = 0;
     int height     = 0;
@@ -27,6 +29,7 @@ Texture::Texture(std::string const& path) : m_location(generateTexture())
         throw;
     }
 
+    glActiveTexture(m_textureUnit);
     glBindTexture(GL_TEXTURE_2D, *m_location);
     glTexImage2D(
             GL_TEXTURE_2D,
@@ -45,9 +48,9 @@ Texture::Texture(std::string const& path) : m_location(generateTexture())
     stbi_image_free(image);
 }
 
-void
-Texture::makeActiveOn(GLenum const textureUnit) const
+auto
+Texture::activate() -> void
 {
-    glActiveTexture(textureUnit);
+    glActiveTexture(m_textureUnit);
     glBindTexture(GL_TEXTURE_2D, *m_location);
 }

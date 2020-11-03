@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_TEXTURE_H
-#define MANDELLANDSCAPE_TEXTURE_H
+#ifndef MANDELLANDSCAPE_TEXTURE_HPP
+#define MANDELLANDSCAPE_TEXTURE_HPP
 
 #include <string>
 #include <memory>
@@ -8,19 +8,22 @@
 
 class Texture {
 public:
-    Texture(std::string const& path);
+    Texture(std::string const& path, GLenum textureUnit = GL_TEXTURE0);
 
-    Texture()               = delete;
+    Texture() = delete;
+
     Texture(Texture const&) = delete;
     Texture&
     operator=(Texture const&) = delete;
-    Texture(Texture&&)        = default;
+
+    Texture(Texture&&) = default;
     Texture&
     operator=(Texture&&) = default;
-    ~Texture()           = default;
 
-    void
-    makeActiveOn(GLenum textureUnit) const;
+    ~Texture() = default;
+
+    auto
+    activate() -> void;
 
 private:
     struct TextureDeleter {
@@ -33,6 +36,8 @@ private:
     };
 
     std::unique_ptr<GLuint, TextureDeleter> m_location;
+
+    GLenum m_textureUnit;
 };
 
-#endif    // MANDELLANDSCAPE_TEXTURE_H
+#endif    // MANDELLANDSCAPE_TEXTURE_HPP

@@ -1,5 +1,5 @@
-#ifndef MANDELLANDSCAPE_SHADER_H
-#define MANDELLANDSCAPE_SHADER_H
+#ifndef MANDELLANDSCAPE_SHADER_HPP
+#define MANDELLANDSCAPE_SHADER_HPP
 
 #include <string>
 #include <memory>
@@ -8,7 +8,7 @@
 
 #include <glad/glad.h>
 
-#include "shaderProgram.h"
+#include "shaderProgram.hpp"
 
 enum class ShaderType {
     Vertex   = GL_VERTEX_SHADER,

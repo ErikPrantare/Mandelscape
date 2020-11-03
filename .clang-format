@@ -53,7 +53,7 @@ BreakConstructorInitializers:                   AfterColon
 BreakInheritanceList:                           AfterColon
 BreakStringLiterals:                            false
 
-ColumnLimit:                                    80
+ColumnLimit:                                    79
 CompactNamespaces:                              false
 
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
