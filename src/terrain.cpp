@@ -288,6 +288,7 @@ Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
     m_shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
+    m_shaderProgram.setUniformInt("fastMode", true);
 
     m_mesh.render();
 }

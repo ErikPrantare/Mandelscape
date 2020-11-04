@@ -4,6 +4,7 @@ precision highp float;
 
 in vec2 position;
 in float distance;
+in float preCalculated;
 out vec4 fragColor;
 
 uniform sampler2D tex;
@@ -11,11 +12,12 @@ uniform vec2 offset;
 uniform int iterations;
 uniform float colorFrequency;
 uniform vec3 colorOffset;
+uniform bool fastMode;
 
 // HACK: Use variable to suppress floating point optimizations
 float ONE = 1.0;
 
-//a > b
+// prerequisite: a > b
 vec2
 quickTwoSum(float a, float b) 
 {
@@ -77,30 +79,51 @@ doubleCompSum(vec4 a, vec4 b)
     return vec4(doubleSum(a.xy, b.xy), doubleSum(a.zw, b.zw));
 }
 
-void
-main()
+vec4
+calculateColor(const in float val)
 {
-    ONE = float(iterations/iterations);
     float fogHardStart = 100.0;
     float fogHardEnd   = 150.0;
     float fog          = 1.0 - pow(0.98, distance);
-    fog +=
-            clamp((distance - fogHardStart) / (fogHardEnd - fogHardStart),
-                  0.0,
-                  1.0);
-    fog       = pow(fog, 2.0);
-    fragColor = vec4(fog, fog, fog, 1.0);
+    
+    fog += clamp(
+            (distance - fogHardStart) / (fogHardEnd - fogHardStart),
+            0.0,
+            1.0);
+    
+    fog = pow(fog, 2.0);
+
+    if(val == -1.0) return vec4(fog, fog, fog, 1.0);
+
+    vec3 colorVal = val * colorFrequency + colorOffset;
+    return vec4(fog, fog, fog, 1.0)
+            + (1.0 - fog) * texture(tex, vec2(0.0, val))
+            * vec4(
+                  0.5f * sin(colorVal) + 0.5f, 1.0f);
+}
+
+void
+main()
+{
+    if(fastMode) {
+        fragColor = calculateColor(preCalculated);
+        return;
+    }
+
+    ONE = float(iterations/iterations);
 
     vec2 c_ = position + offset;
 
     // main cardioid check
     float q = pow(c_.x - 0.25f, 2.0f) + c_.y * c_.y;
     if(q * (q + (c_.x - 0.25f)) < 0.25f * c_.y * c_.y) {
+        fragColor = calculateColor(-1.0);
         return;
     }
 
     // period-2 bulb check
     if((c_.x + 1.0f) * (c_.x + 1.0f) + c_.y * c_.y < 0.25f * 0.25f) {
+        fragColor = calculateColor(-1.0);
         return;
     }
 
@@ -122,16 +145,10 @@ main()
 
         if(realSquare.x + imagSquare.x > 256.0f * 256.0f) {
             float val = float(i) - log2(log2(dot(z, z)));
-            vec3 colorVal = val * colorFrequency + colorOffset;
-            fragColor =
-                    fog * vec4(1.0, 1.0, 1.0, 1.0)
-                    + (1.0 - fog) * texture(tex, vec2(0.0, val))
-                    * vec4(
-                          0.5f * sin(colorVal.r) + 0.5f,
-                          0.5f * sin(colorVal.g) + 0.5f,
-                          0.5f * sin(colorVal.b) + 0.5f,
-                          1.0f);
+            fragColor = calculateColor(val);
             return;
         }
     }
+
+    fragColor = calculateColor(-1.0);
 }
