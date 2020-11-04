@@ -51,9 +51,8 @@ private:
     int m_iterations                     = 100;
     static int constexpr uploadChunkSize = 90'000;
 
-    // Must be 32 bit float, 64 bit will cause alignment issues with shader
-    glm::vec3 m_offset        = glm::vec3{0.0, 0.0, 0.0};
-    glm::vec3 m_loadingOffset = glm::vec3{0.0, 0.0, 0.0};
+    glm::dvec3 m_offset        = glm::dvec3{0.0, 0.0, 0.0};
+    glm::dvec3 m_loadingOffset = glm::dvec3{0.0, 0.0, 0.0};
 
     double m_scale = 1.0;
 

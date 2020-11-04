@@ -73,12 +73,14 @@ Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
     std::visit(util::Overload{onTrigger, util::unaryNOP}, action);
 }
 
+#include <iostream>
 auto
 Terrain::loadMesh(
         glm::dvec3 offset,
         double const scale,
         std::vector<glm::vec3>* const buffer) -> void
 {
+    std::cout << scale << std::endl;
     auto constexpr nrVertices = granularity * granularity;
 
     if(buffer->size() != nrVertices) {
@@ -118,9 +120,9 @@ Terrain::loadMesh(
         for(int z = 0; z < granularity; ++z) {
             auto const zQuant              = quantized(zPos, normStepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
-                    xQuant - offset.x,
+                    xQuant - (float)offset.x,
                     heightAt({xQuant, zQuant}),
-                    zQuant - offset.z);
+                    zQuant - (float)offset.z);
 
             zPos += normStepSize(z);
         }
@@ -173,7 +175,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         }
     }
 
-    return m_offset;
+    return static_cast<glm::vec3>(m_offset);
 }
 
 auto
@@ -236,7 +238,9 @@ auto
 Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
-    m_shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
+    m_shaderProgram.setUniformVec2(
+            "offset",
+            {(float)m_offset.x, (float)m_offset.z});
 
     m_mesh.render();
 }
