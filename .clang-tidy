@@ -1,5 +1,6 @@
 Checks: '
 -*,
+
 readability-*,
 -readability-named-parameter,
 -readability-magic-numbers,

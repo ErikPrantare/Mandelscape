@@ -73,14 +73,21 @@ Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
     std::visit(util::Overload{onTrigger, util::unaryNOP}, action);
 }
 
-#include <iostream>
+auto
+toGpuVec(glm::dvec3 const v) -> glm::vec3
+{
+    return static_cast<glm::vec3>(v);
+}
+
 auto
 Terrain::loadMesh(
         glm::dvec3 offset,
         double const scale,
         std::vector<glm::vec3>* const buffer) -> void
 {
-    std::cout << scale << std::endl;
+    // The mesh points need to be clamped in such a way that
+    // reloading yields a smooth transition without big jumps.
+
     auto constexpr nrVertices = granularity * granularity;
 
     if(buffer->size() != nrVertices) {
@@ -89,44 +96,50 @@ Terrain::loadMesh(
 
     auto constexpr doublingInterval = 40;
 
-    // The default capture is for compatibility with MSVC, it doesn't seem to
-    // get constexpr fully
-    auto const stepSize = [&](int i) {
+    // Take longer steps for indices far away from middle
+    auto const unscaledStepSize = [](int i) {
         return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
     };
 
+    // CPP20 use ranges
+    double const unscaledMeshSize = [&unscaledStepSize]{
+        auto sum = 0.0;
+        for(int i = 0; i < granularity; ++i) {
+            sum += unscaledStepSize(i);
+        }
+        return sum;
+    }();
+
+    auto const quantizedScale = std::pow(2.0, int(log2(scale)));
+    auto const meshSize  = 300.0 / quantizedScale;
+
+    auto const scaleFactor   = meshSize / unscaledMeshSize;
+    auto const stepSize = [scaleFactor, &unscaledStepSize](int i) {
+        return scaleFactor * unscaledStepSize(i);
+    };
+
+    // Quantize x to grid, with distance stepSize between gridlines.
     auto const quantized = [](double x, double stepSize) {
         return std::floor(x / stepSize) * stepSize;
     };
+    
+    glm::vec3 const gpuOffset = toGpuVec(offset);
 
-    auto meshSpan = 0.0;
-    for(int i = 0; i < granularity; ++i) {
-        meshSpan += stepSize(i);
-    }
-
-    auto const discreteScale = std::pow(2.0, int(log2(scale)));
-    auto const normMeshSpan  = 300.0 / discreteScale;
-
-    auto const normFactor   = normMeshSpan / meshSpan;
-    auto const normStepSize = [normFactor, stepSize](int i) {
-        return normFactor * stepSize(i);
-    };
-
-    auto xPos = -normMeshSpan / 2 + offset.x;
+    auto xPos = -meshSize / 2 + offset.x;
     for(int x = 0; x < granularity; ++x) {
-        auto const xQuant = quantized(xPos, normStepSize(x));
+        auto const xQuant = quantized(xPos, stepSize(x));
 
-        auto zPos = -normMeshSpan / 2 + offset.z;
+        auto zPos = -meshSize / 2 + offset.z;
         for(int z = 0; z < granularity; ++z) {
-            auto const zQuant              = quantized(zPos, normStepSize(z));
+            auto const zQuant              = quantized(zPos, stepSize(z));
             (*buffer)[x * granularity + z] = glm::vec3(
-                    xQuant - (float)offset.x,
+                    xQuant - gpuOffset.x,
                     heightAt({xQuant, zQuant}),
-                    zQuant - (float)offset.z);
+                    zQuant - gpuOffset.z);
 
-            zPos += normStepSize(z);
+            zPos += stepSize(z);
         }
-        xPos += normStepSize(x);
+        xPos += stepSize(x);
     }
 }
 
@@ -175,7 +188,8 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         }
     }
 
-    return static_cast<glm::vec3>(m_offset);
+    //offset must be consistent with shader offset (32 bit float)
+    return toGpuVec(m_offset);
 }
 
 auto
@@ -238,9 +252,7 @@ auto
 Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
-    m_shaderProgram.setUniformVec2(
-            "offset",
-            {(float)m_offset.x, (float)m_offset.z});
+    m_shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
 
     m_mesh.render();
 }
