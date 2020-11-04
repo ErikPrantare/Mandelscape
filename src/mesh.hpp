@@ -25,6 +25,12 @@ public:
     render() -> void;
 
     auto
+    setColors(std::vector<float> const& colors) -> void;
+
+    auto
+    setColors(std::vector<float> const& colors, int start, int size) -> void;
+
+    auto
     setVertices(std::vector<glm::vec3> const& vertices) -> void;
 
     auto
@@ -41,9 +47,10 @@ public:
     swap(Mesh&, Mesh&) -> void;
 
 private:
-    GLuint m_VAO = 0;
-    GLuint m_VBO = 0;
-    GLuint m_EBO = 0;
+    GLuint m_VAO      = 0;
+    GLuint m_colorVBO = 0;
+    GLuint m_VBO      = 0;
+    GLuint m_EBO      = 0;
 
     int m_nrVertices = 0;
 

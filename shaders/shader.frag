@@ -4,6 +4,7 @@ precision highp float;
 
 in vec2 position;
 in float distance;
+in float color;
 out vec4 fragColor;
 
 uniform sampler2D tex;
@@ -47,6 +48,16 @@ main()
     }
 
     vec2 z   = vec2(0.0, 0.0);
+
+    if(color == -1.0) return;
+    float val = color;
+    vec3 colorVal = val * colorFrequency + colorOffset;
+    fragColor =
+            fog * vec4(1.0, 1.0, 1.0, 1.0)
+            + (1.0 - fog) * texture(tex, vec2(0.0, val))
+            * vec4(
+                  0.5f * sin(colorVal) + 0.5f, 1.0f);
+    return;
 
     for(int i = 0; i < iterations; ++i) {
         z = complexSquare(z) + c;

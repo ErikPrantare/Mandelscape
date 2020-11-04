@@ -78,6 +78,8 @@ private:
 
     std::vector<glm::vec3> m_currentMeshPoints;
     std::vector<glm::vec3> m_loadingMeshPoints;
+    std::vector<float> m_colors;
+    std::vector<float> m_loadingColors;
 
     auto
     startLoading() -> void;
@@ -86,7 +88,8 @@ private:
     generateMeshIndices() -> std::vector<GLuint>;
 
     auto
-    loadMesh(glm::dvec3, double, std::vector<glm::vec3>*) -> void;
+    loadMesh(glm::dvec3, double, std::vector<glm::vec3>*, std::vector<float>*)
+            -> void;
 };
 
 #endif

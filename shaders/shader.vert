@@ -3,6 +3,7 @@
 precision highp float;
 
 in vec3 pos;
+in float val;
 
 uniform mat4 cameraSpace;
 uniform mat4 projection;
@@ -10,6 +11,7 @@ uniform vec2 offset;
 
 out vec2 position;
 out float distance;
+out float color;
 
 void
 main()
@@ -18,6 +20,7 @@ main()
 
     position = pos.xz;
     distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
+    color = val;
 
     gl_Position = projection * gl_Position;
 }
