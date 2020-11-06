@@ -144,6 +144,7 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
     momentaryMap.add(Input::Key::I, TriggerAction::IncreaseIterations);
     momentaryMap.add(Input::Key::U, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
     momentaryMap.add(Input::Key::H, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
     momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
@@ -176,6 +177,7 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(Input::Key::R, TriggerAction::ToggleAutoZoom);
     momentaryMap.add(Input::Key::C, TriggerAction::IncreaseIterations);
     momentaryMap.add(Input::Key::G, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
     momentaryMap.add(Input::Key::D, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
     momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);

@@ -5,6 +5,7 @@ precision highp float;
 in vec2 position;
 in float distance;
 in float preCalculated;
+in float outside;
 out vec4 fragColor;
 
 uniform sampler2D tex;
@@ -21,7 +22,7 @@ complexSquare(const in vec2 a)
 }
 
 vec4
-calculateColor(const in float val)
+addFog(const in vec4 color)
 {
     float fogHardStart = 100.0;
     float fogHardEnd   = 150.0;
@@ -34,20 +35,26 @@ calculateColor(const in float val)
     
     fog = pow(fog, 2.0);
 
-    if(val == -1.0) return vec4(fog, fog, fog, 1.0);
+    return vec4(fog, fog, fog, 1.0) + (1.0 - fog) * color;
+}
+
+vec4
+calculateColor(const in float val)
+{
+    if(val == -1.0) return addFog(vec4(0.0, 0.0, 0.0, 1.0));
 
     vec3 colorVal = val * colorFrequency + colorOffset;
-    return vec4(fog, fog, fog, 1.0)
-            + (1.0 - fog) * texture(tex, vec2(0.0, val))
-            * vec4(
-                  0.5f * sin(colorVal) + 0.5f, 1.0f);
+    vec4 color = texture(tex, vec2(0.0, val))
+            * vec4(0.5f * sin(colorVal) + 0.5f, 1.0f);
+
+    return addFog(color);
 }
 
 void
 main()
 {
     if(fastMode) {
-        fragColor = calculateColor(preCalculated);
+        fragColor = outside * calculateColor(preCalculated);
         return;
     }
 

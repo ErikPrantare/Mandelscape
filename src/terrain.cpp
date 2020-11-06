@@ -75,6 +75,9 @@ Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 
             m_shaderProgram.compile();
         } break;
+        case TriggerAction::ToggleFastMode: {
+            m_fastMode = !m_fastMode;
+        } break;
         default:
             break;
         }
@@ -288,7 +291,7 @@ Terrain::render() -> void
 {
     m_shaderProgram.setUniformInt("iterations", m_iterations);
     m_shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
-    m_shaderProgram.setUniformInt("fastMode", true);
+    m_shaderProgram.setUniformInt("fastMode", m_fastMode);
 
     m_mesh.render();
 }

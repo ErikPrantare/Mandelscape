@@ -12,6 +12,7 @@ uniform vec2 offset;
 out vec2 position;
 out float distance;
 out float preCalculated;
+out float outside;
 
 void
 main()
@@ -20,7 +21,9 @@ main()
 
     position = pos.xz;
     distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
+
     preCalculated = colorValue;
+    outside = colorValue == -1.0 ? 0.0 : 1.0;
 
     gl_Position = projection * gl_Position;
 }

@@ -66,8 +66,10 @@ private:
 
     int m_currentFragmentShader                     = 0;
     std::array<FragmentShader, 2> m_fragmentShaders = {
-            FragmentShader::fromFile("shaders/shader.frag"),
+            FragmentShader::fromFile("shaders/orbit_trap.frag"),
             FragmentShader::fromFile("shaders/deepShader.frag")};
+
+    bool m_fastMode = false;
 
     Mesh m_mesh        = Mesh();
     Mesh m_loadingMesh = Mesh();
