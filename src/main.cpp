@@ -19,12 +19,13 @@
 #include "persistentActionMap.hpp"
 #include "momentaryActionsMap.hpp"
 #include "colorController.hpp"
+#include "shaderController.hpp"
 
 void
 renderScene(
-        Terrain& terrain,
         Player const& player,
         glm::ivec2 viewSize,
+        ShaderProgram* program,
         double dt);
 
 auto
@@ -41,8 +42,8 @@ main(int numArgs, char* args[]) -> int
     auto terrain = Terrain();
     auto player  = Player();
 
-    MomentaryActionsMap momentaryMap;
-    PersistentActionMap persistentMap;
+    auto momentaryMap  = MomentaryActionsMap();
+    auto persistentMap = PersistentActionMap();
 
     if(numArgs == 2 && args[1] == std::string("--dvorak")) {
         std::tie(momentaryMap, persistentMap) = initControlsDvorak();
@@ -59,7 +60,9 @@ main(int numArgs, char* args[]) -> int
             std::make_unique<WalkController>(),
             std::make_unique<AutoController>(autoControllHeightFunc)};
 
-    auto colorController = ColorController();
+    auto colorController  = ColorController();
+    auto shaderProgram    = ShaderProgram();
+    auto shaderController = ShaderController(&shaderProgram);
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
@@ -77,6 +80,7 @@ main(int numArgs, char* args[]) -> int
                 window.handleMomentaryAction(action);
                 terrain.handleMomentaryAction(action);
                 metacontroller.handleMomentaryAction(action);
+                shaderController.handleMomentaryAction(action);
             }
         }
 
@@ -97,9 +101,11 @@ main(int numArgs, char* args[]) -> int
             colorController.update(persistentMap, dt);
         }
 
-        colorController.updateShaderVariables(&terrain.shaderProgram());
-        terrain.shaderProgram().setUniformFloat("time", time);
-        renderScene(terrain, player, window.size(), dt);
+        colorController.updateShaderVariables(&shaderProgram);
+        shaderController.update(&shaderProgram);
+        shaderProgram.setUniformFloat("time", time);
+        renderScene(player, window.size(), &shaderProgram, dt);
+        terrain.render(&shaderProgram);
     }
 
     return 0;
@@ -107,9 +113,9 @@ main(int numArgs, char* args[]) -> int
 
 void
 renderScene(
-        Terrain& terrain,
         Player const& player,
         glm::ivec2 const viewSize,
+        ShaderProgram* const program,
         double dt)
 {
     glm::dvec3 cameraPosition = player.position;
@@ -129,11 +135,8 @@ renderScene(
                         * glm::dvec4(0.0, 0.0, 1.0, 0.0);
 
     auto const camera = Camera(cameraPosition, lookAt, viewSize, player.scale);
-    auto& program     = terrain.shaderProgram();
-    program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
-    program.setUniformMatrix4("projection", camera.projection());
-
-    terrain.render();
+    program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
+    program->setUniformMatrix4("projection", camera.projection());
 }
 
 auto

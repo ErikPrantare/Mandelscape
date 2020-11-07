@@ -37,10 +37,6 @@ Terrain::Terrain()
     m_mesh.setIndices(meshIndices);
     m_loadingMesh.setIndices(meshIndices);
 
-    m_vertexShader.attachTo(m_shaderProgram);
-    m_fragmentShaders[m_currentFragmentShader].attachTo(m_shaderProgram);
-    m_shaderProgram.compile();
-
     startLoading();
 }
 
@@ -48,12 +44,6 @@ Terrain::~Terrain()
 {
     m_loadingProcess.wait();
 }
-
-auto
-Terrain::shaderProgram() -> ShaderProgram&
-{
-    return m_shaderProgram;
-};
 
 auto
 Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
@@ -65,18 +55,6 @@ Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
         } break;
         case TriggerAction::DecreaseIterations: {
             m_iterations -= 20;
-        } break;
-        case TriggerAction::SwitchShader: {
-            m_currentFragmentShader++;
-            m_currentFragmentShader %= m_fragmentShaders.size();
-
-            m_fragmentShaders[m_currentFragmentShader].attachTo(
-                    m_shaderProgram);
-
-            m_shaderProgram.compile();
-        } break;
-        case TriggerAction::ToggleFastMode: {
-            m_fastMode = !m_fastMode;
         } break;
         default:
             break;
@@ -287,11 +265,10 @@ Terrain::heightAt(glm::dvec2 const& pos) -> double
 }
 
 auto
-Terrain::render() -> void
+Terrain::render(ShaderProgram* shaderProgram) -> void
 {
-    m_shaderProgram.setUniformInt("iterations", m_iterations);
-    m_shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
-    m_shaderProgram.setUniformInt("fastMode", m_fastMode);
+    shaderProgram->setUniformInt("iterations", m_iterations);
+    shaderProgram->setUniformVec2("offset", {m_offset.x, m_offset.z});
 
     m_mesh.render();
 }

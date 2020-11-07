@@ -41,10 +41,7 @@ public:
     heightAt(glm::dvec2 const&) -> double;
 
     auto
-    render() -> void;
-
-    auto
-    shaderProgram() -> ShaderProgram&;
+    render(ShaderProgram* shaderProgram) -> void;
 
 private:
     static int constexpr granularity     = 400;
@@ -58,18 +55,6 @@ private:
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
-
-    ShaderProgram m_shaderProgram = ShaderProgram();
-
-    VertexShader m_vertexShader =
-            VertexShader::fromFile("shaders/shader.vert");
-
-    int m_currentFragmentShader                     = 0;
-    std::array<FragmentShader, 2> m_fragmentShaders = {
-            FragmentShader::fromFile("shaders/orbit_trap.frag"),
-            FragmentShader::fromFile("shaders/deepShader.frag")};
-
-    bool m_fastMode = false;
 
     Mesh m_mesh        = Mesh();
     Mesh m_loadingMesh = Mesh();
