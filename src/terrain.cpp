@@ -157,39 +157,43 @@ auto
 Terrain::updateMesh(double const x, double const z, double const scale)
         -> glm::dvec3
 {
-    auto const uploadSize = std::min(
-            uploadChunkSize,
-            (int)(m_currentMeshPoints.size() - m_loadIndex));
-    m_loadingMesh.setVertices(m_currentMeshPoints, m_loadIndex, uploadSize);
-    m_loadingMesh.setColors(m_colors, m_loadIndex, uploadSize);
-    m_loadIndex += uploadSize;
+    if(m_loadIndex < m_currentMeshPoints.size()) {
+        auto const uploadSize = std::min(
+                uploadChunkSize,
+                (int)(m_currentMeshPoints.size() - m_loadIndex));
 
-    auto const uploadingDone = m_loadIndex >= (int)m_currentMeshPoints.size();
+        m_loadingMesh.setVertices(
+                m_currentMeshPoints,
+                m_loadIndex,
+                uploadSize);
+        m_loadingMesh.setColors(m_colors, m_loadIndex, uploadSize);
+        m_loadIndex += uploadSize;
 
-    if(uploadingDone) {
-        switch(m_state) {
-        case State::Loading: {
-            if(util::isDone(m_loadingProcess)) {
-                std::swap(m_currentMeshPoints, m_loadingMeshPoints);
-                std::swap(m_colors, m_loadingColors);
-                m_loadIndex = 0;
+        return toGpuVec(m_offset);
+    }
 
-                m_state = State::Uploading;
-            }
-        } break;
+    switch(m_state) {
+    case State::Loading: {
+        if(util::isDone(m_loadingProcess)) {
+            std::swap(m_currentMeshPoints, m_loadingMeshPoints);
+            std::swap(m_colors, m_loadingColors);
+            m_loadIndex = 0;
 
-        case State::Uploading: {
-            swap(m_mesh, m_loadingMesh);
-
-            m_offset        = m_loadingOffset;
-            m_loadingOffset = {x, 0.0, z};
-            m_scale         = scale;
-
-            startLoading();
-
-            m_state = State::Loading;
-        } break;
+            m_state = State::Uploading;
         }
+    } break;
+
+    case State::Uploading: {
+        swap(m_mesh, m_loadingMesh);
+
+        m_offset        = m_loadingOffset;
+        m_loadingOffset = {x, 0.0, z};
+        m_scale         = scale;
+
+        startLoading();
+
+        m_state = State::Loading;
+    } break;
     }
 
     // offset must be consistent with shader offset (32 bit float)
