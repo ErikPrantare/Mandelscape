@@ -27,6 +27,7 @@ target_sources(Mandelscape
 if(MINGW) 
     target_link_libraries(Mandelscape
         PRIVATE -static
+        PRIVATE -mwindows
         PRIVATE MandelInterface)
 else()
     target_link_libraries(Mandelscape

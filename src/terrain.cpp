@@ -78,7 +78,7 @@ Terrain::loadMesh(
         std::vector<float>* const colors) -> void
 {
     // The mesh points need to be clamped in such a way that
-    // reloading yields a smooth transition without big jumps.
+    // reloading yields a smooth transition without any jumps.
 
     auto constexpr nrVertices = granularity * granularity;
 

@@ -47,14 +47,14 @@ calculateColor(const in float val)
     vec4 color = texture(tex, vec2(0.0, val))
             * vec4(0.5f * sin(colorVal) + 0.5f, 1.0f);
 
-    return addFog(color);
+    return color;
 }
 
 void
 main()
 {
     if(fastMode) {
-        fragColor = outside * calculateColor(preCalculated);
+        fragColor = addFog(outside * calculateColor(preCalculated));
         return;
     }
 
@@ -63,13 +63,13 @@ main()
     // main cardioid check
     float q = pow(c.x - 0.25f, 2.0f) + c.y * c.y;
     if(q * (q + (c.x - 0.25f)) < 0.25f * c.y * c.y) {
-        fragColor = calculateColor(-1.0);
+        fragColor = addFog(calculateColor(-1.0));
         return;
     }
 
     // period-2 bulb check
     if((c.x + 1.0f) * (c.x + 1.0f) + c.y * c.y < 0.25f * 0.25f) {
-        fragColor = calculateColor(-1.0);
+        fragColor = addFog(calculateColor(-1.0));
         return;
     }
 
@@ -79,10 +79,10 @@ main()
         z = complexSquare(z) + c;
         if(dot(z, z) > 256.0f * 256.0f) {
             float val = float(i) - log2(log2(dot(z, z)));
-            fragColor = calculateColor(val);
+            fragColor = addFog(calculateColor(val));
             return;
         }
     }
 
-    fragColor = calculateColor(-1.0);
+    fragColor = addFog(calculateColor(-1.0));
 }
