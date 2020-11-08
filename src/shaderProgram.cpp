@@ -13,7 +13,7 @@ ShaderProgram::ShaderProgram() : m_location(new GLuint(glCreateProgram()))
     }
 }
 
-void
+static void
 attachVertexShader(GLuint const program, GLuint const shader)
 {
     static GLuint currentVertexShader = 0;
@@ -22,7 +22,7 @@ attachVertexShader(GLuint const program, GLuint const shader)
     currentVertexShader = shader;
 }
 
-void
+static void
 attachFragmentShader(GLuint const program, GLuint const shader)
 {
     static GLuint currentFragmentShader = 0;
@@ -77,6 +77,12 @@ ShaderProgram::compile()
     }
 
     glUseProgram(*m_location);
+}
+
+void
+ShaderProgram::bindAttributeLocation(std::string const& name, int const index)
+{
+    glBindAttribLocation(*m_location, index, name.c_str());
 }
 
 void

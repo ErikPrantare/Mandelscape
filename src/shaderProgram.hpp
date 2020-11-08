@@ -25,6 +25,9 @@ public:
     void
     compile();
 
+    auto
+    bindAttributeLocation(std::string const& name, int index) -> void;
+
     void
     setUniformFloat(std::string const& name, float);
 

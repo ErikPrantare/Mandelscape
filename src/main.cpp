@@ -61,6 +61,8 @@ main(int numArgs, char* args[]) -> int
 
     auto shaderProgram    = ShaderProgram();
     auto shaderController = ShaderController(&shaderProgram);
+    shaderProgram.bindAttributeLocation("pos", 0);
+    shaderProgram.bindAttributeLocation("val", 1);
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
