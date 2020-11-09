@@ -21,13 +21,16 @@ pointData(glm::dvec2 const& pos, int iterations) -> PointData;
 
 Terrain::Terrain()
 {
-    loadMesh(m_loadingOffset, m_scale, &m_currentMeshPoints, &m_colors);
-    loadMesh(m_loadingOffset, m_scale, &m_loadingMeshPoints, &m_loadingColors);
+    loadMesh(m_loadingOffset, m_scale, &m_meshPoints, &m_colors);
 
-    m_mesh.setVertices(m_currentMeshPoints);
-    m_loadingMesh.setVertices(m_currentMeshPoints);
-    m_mesh.setColors(m_colors);
-    m_loadingMesh.setColors(m_colors);
+    m_mesh.setVertices(m_meshPoints);
+    m_loadingMesh.setVertices(m_meshPoints);
+
+    m_mesh.newAttribute(1);
+    m_loadingMesh.newAttribute(1);
+
+    m_mesh.setAttribute(1, m_colors);
+    m_loadingMesh.setAttribute(1, m_colors);
 
     auto texture = std::make_shared<Texture>("textures/texture.png");
     m_mesh.setTexture(texture);
@@ -145,11 +148,7 @@ auto
 Terrain::startLoading() -> void
 {
     m_loadingProcess = std::async(std::launch::async, [this]() {
-        loadMesh(
-                m_loadingOffset,
-                m_scale,
-                &m_loadingMeshPoints,
-                &m_loadingColors);
+        loadMesh(m_loadingOffset, m_scale, &m_meshPoints, &m_colors);
     });
 }
 
@@ -157,16 +156,13 @@ auto
 Terrain::updateMesh(double const x, double const z, double const scale)
         -> glm::dvec3
 {
-    if(m_loadIndex < m_currentMeshPoints.size()) {
+    if(m_loadIndex < m_meshPoints.size()) {
         auto const uploadSize = std::min(
                 uploadChunkSize,
-                (int)(m_currentMeshPoints.size() - m_loadIndex));
+                (int)(m_meshPoints.size() - m_loadIndex));
 
-        m_loadingMesh.setVertices(
-                m_currentMeshPoints,
-                m_loadIndex,
-                uploadSize);
-        m_loadingMesh.setColors(m_colors, m_loadIndex, uploadSize);
+        m_loadingMesh.setVertices(m_meshPoints, m_loadIndex, uploadSize);
+        m_loadingMesh.setAttribute(1, m_colors, m_loadIndex, uploadSize);
         m_loadIndex += uploadSize;
 
         return toGpuVec(m_offset);
@@ -175,8 +171,6 @@ Terrain::updateMesh(double const x, double const z, double const scale)
     switch(m_state) {
     case State::Loading: {
         if(util::isDone(m_loadingProcess)) {
-            std::swap(m_currentMeshPoints, m_loadingMeshPoints);
-            std::swap(m_colors, m_loadingColors);
             m_loadIndex = 0;
 
             m_state = State::Uploading;

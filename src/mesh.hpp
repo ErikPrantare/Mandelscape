@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -25,12 +26,6 @@ public:
     render() -> void;
 
     auto
-    setColors(std::vector<float> const& colors) -> void;
-
-    auto
-    setColors(std::vector<float> const& colors, int start, int size) -> void;
-
-    auto
     setVertices(std::vector<glm::vec3> const& vertices) -> void;
 
     auto
@@ -40,6 +35,20 @@ public:
     auto
     setIndices(std::vector<GLuint> const& indices) -> void;
 
+    // CPP20 nodiscard("Index of created attribute array")]
+    auto
+    newAttribute(int location) -> void;
+
+    auto
+    setAttribute(int index, std::vector<float> const& values) -> void;
+
+    auto
+    setAttribute(
+            int index,
+            std::vector<float> const& values,
+            int start,
+            int size) -> void;
+
     auto
     setTexture(std::shared_ptr<Texture> texture) -> void;
 
@@ -47,12 +56,13 @@ public:
     swap(Mesh&, Mesh&) -> void;
 
 private:
-    GLuint m_VAO      = 0;
-    GLuint m_colorVBO = 0;
-    GLuint m_VBO      = 0;
-    GLuint m_EBO      = 0;
-
+    GLuint m_VAO     = 0;
+    GLuint m_VBO     = 0;
+    GLuint m_EBO     = 0;
     int m_nrVertices = 0;
+
+    // location -> VBO
+    std::map<int, GLuint> m_attributes = {};
 
     std::shared_ptr<Texture> m_texture = nullptr;
 };

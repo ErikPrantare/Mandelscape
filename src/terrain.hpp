@@ -63,10 +63,8 @@ private:
 
     std::future<void> m_loadingProcess;
 
-    std::vector<glm::vec3> m_currentMeshPoints;
-    std::vector<glm::vec3> m_loadingMeshPoints;
+    std::vector<glm::vec3> m_meshPoints;
     std::vector<float> m_colors;
-    std::vector<float> m_loadingColors;
 
     auto
     startLoading() -> void;

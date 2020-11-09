@@ -13,9 +13,6 @@ Mesh::Mesh()
     glGenBuffers(1, &m_VBO);
     glGenBuffers(1, &m_EBO);
 
-    glEnableVertexAttribArray(1);
-    glGenBuffers(1, &m_colorVBO);
-
     glBindVertexArray(0);
 }
 
@@ -23,6 +20,9 @@ Mesh::~Mesh()
 {
     glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_VBO);
+    for(auto const& [location, VBO] : m_attributes) {
+        glDeleteBuffers(1, &VBO);
+    }
     glDeleteBuffers(1, &m_EBO);
 }
 
@@ -38,43 +38,12 @@ Mesh::render() -> void
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
+    for(auto const& [location, VBO] : m_attributes) {
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glVertexAttribPointer(location, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
+    }
 
     glDrawElements(GL_TRIANGLES, m_nrVertices, GL_UNSIGNED_INT, nullptr);
-
-    glBindVertexArray(0);
-}
-
-auto
-Mesh::setColors(std::vector<float> const& colors) -> void
-{
-    glBindVertexArray(m_VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            colors.size() * sizeof(colors[0]),
-            colors.data(),
-            GL_DYNAMIC_DRAW);
-
-    glBindVertexArray(0);
-}
-
-auto
-Mesh::setColors(
-        std::vector<float> const& colors,
-        int const start,
-        int const size) -> void
-{
-    glBindVertexArray(m_VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
-    glBufferSubData(
-            GL_ARRAY_BUFFER,
-            start * sizeof(colors[0]),
-            size * sizeof(colors[0]),
-            &colors[start]);
 
     glBindVertexArray(0);
 }
@@ -130,6 +99,54 @@ Mesh::setIndices(std::vector<GLuint> const& indices) -> void
 }
 
 auto
+Mesh::newAttribute(int location) -> void
+{
+    glBindVertexArray(m_VAO);
+
+    GLuint VBO;
+    glEnableVertexAttribArray(location);
+    glGenBuffers(location, &VBO);
+
+    glBindVertexArray(0);
+
+    // CPP20 {.VBO = VBO...}
+    m_attributes[location] = VBO;
+}
+
+auto
+Mesh::setAttribute(int location, std::vector<float> const& values) -> void
+{
+    glBindVertexArray(m_VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+    glBufferData(
+            GL_ARRAY_BUFFER,
+            values.size() * sizeof(values[0]),
+            values.data(),
+            GL_DYNAMIC_DRAW);
+
+    glBindVertexArray(0);
+}
+
+auto
+Mesh::setAttribute(
+        int location,
+        std::vector<float> const& values,
+        int const start,
+        int const size) -> void
+{
+    glBindVertexArray(m_VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+    glBufferSubData(
+            GL_ARRAY_BUFFER,
+            start * sizeof(values[0]),
+            size * sizeof(values[0]),
+            &values[start]);
+
+    glBindVertexArray(0);
+}
+auto
 Mesh::setTexture(std::shared_ptr<Texture> texture) -> void
 {
     m_texture = std::move(texture);
@@ -139,7 +156,7 @@ auto
 swap(Mesh& a, Mesh& b) -> void
 {
     std::swap(a.m_VAO, b.m_VAO);
-    std::swap(a.m_colorVBO, b.m_colorVBO);
+    std::swap(a.m_attributes, b.m_attributes);
     std::swap(a.m_VBO, b.m_VBO);
     std::swap(a.m_EBO, b.m_EBO);
     std::swap(a.m_nrVertices, b.m_nrVertices);
