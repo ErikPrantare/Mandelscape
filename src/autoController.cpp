@@ -71,7 +71,7 @@ AutoController::locateTarget(Player const& player) -> void
 
     auto const heightPenalty = [this, &player](glm::dvec2 pos) -> double {
         if(m_heightFunc(pos) == 0.0) {
-            return 1e99;
+            return 1e98;
         }
 
         // Divide by player.scale to normalize height pos.
