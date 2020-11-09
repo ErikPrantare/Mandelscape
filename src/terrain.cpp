@@ -244,9 +244,10 @@ pointData(glm::dvec2 const& pos, int iterations) -> PointData
             auto const dr                 = std::abs(dz);
             auto const distanceEstimation = 2.0 * r * std::log(r) / dr;
 
-            float val = float(i)
-                        - std::log(std::log(dist * dist) / std::log(2.0))
-                                  / std::log(2.0);
+            auto constexpr log2 = [](double x) {
+                return std::log(x) / std::log(2.0);
+            };
+            auto const val = i - log2(log2(dist * dist));
 
             // CPP20 {.height = distanceEstimation, .val = val}
             return {distanceEstimation, val};
