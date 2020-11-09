@@ -43,6 +43,8 @@ public:
     auto
     render(ShaderProgram* shaderProgram) -> void;
 
+    static int constexpr colorLocation = 1;
+
 private:
     static int constexpr granularity     = 400;
     int m_iterations                     = 100;

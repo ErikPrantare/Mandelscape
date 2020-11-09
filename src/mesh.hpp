@@ -55,6 +55,8 @@ public:
     friend auto
     swap(Mesh&, Mesh&) -> void;
 
+    static int constexpr vertexLocation = 0;
+
 private:
     GLuint m_VAO     = 0;
     GLuint m_VBO     = 0;

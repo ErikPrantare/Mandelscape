@@ -61,8 +61,8 @@ main(int numArgs, char* args[]) -> int
 
     auto shaderProgram    = ShaderProgram();
     auto shaderController = ShaderController(&shaderProgram);
-    shaderProgram.bindAttributeLocation("pos", 0);
-    shaderProgram.bindAttributeLocation("val", 1);
+    shaderProgram.bindAttributeLocation("pos", Mesh::vertexLocation);
+    shaderProgram.bindAttributeLocation("val", Terrain::colorLocation);
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
