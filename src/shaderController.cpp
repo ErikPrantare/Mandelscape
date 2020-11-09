@@ -67,7 +67,9 @@ ShaderController::update(ShaderProgram* const shaderProgram) -> void
         shaderProgram->compile();
     }
 
-    shaderProgram->setUniformInt("fastMode", m_fastMode);
-    shaderProgram->setUniformFloat("colorFrequency", (float)m_colorFrequency);
+    shaderProgram->setUniformInt("fastMode", static_cast<int>(m_fastMode));
+    shaderProgram->setUniformFloat(
+            "colorFrequency",
+            static_cast<float>(m_colorFrequency));
     shaderProgram->setUniformVec3("colorOffset", m_colorOffset);
 }

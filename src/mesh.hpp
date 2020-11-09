@@ -40,11 +40,11 @@ public:
     newAttribute(int location) -> void;
 
     auto
-    setAttribute(int index, std::vector<float> const& values) -> void;
+    setAttribute(int location, std::vector<float> const& values) -> void;
 
     auto
     setAttribute(
-            int index,
+            int location,
             std::vector<float> const& values,
             int start,
             int size) -> void;
@@ -58,9 +58,9 @@ public:
     static int constexpr vertexLocation = 0;
 
 private:
-    GLuint m_VAO     = 0;
-    GLuint m_VBO     = 0;
-    GLuint m_EBO     = 0;
+    GLuint m_vao     = 0;
+    GLuint m_vbo     = 0;
+    GLuint m_ebo     = 0;
     int m_nrVertices = 0;
 
     // location -> VBO

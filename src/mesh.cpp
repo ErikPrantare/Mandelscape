@@ -6,24 +6,24 @@
 
 Mesh::Mesh()
 {
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
 
     glEnableVertexAttribArray(0);
-    glGenBuffers(1, &m_VBO);
-    glGenBuffers(1, &m_EBO);
+    glGenBuffers(1, &m_vbo);
+    glGenBuffers(1, &m_ebo);
 
     glBindVertexArray(0);
 }
 
 Mesh::~Mesh()
 {
-    glDeleteVertexArrays(1, &m_VAO);
-    glDeleteBuffers(1, &m_VBO);
-    for(auto const& [location, VBO] : m_attributes) {
-        glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+    for(auto const& [location, vbo] : m_attributes) {
+        glDeleteBuffers(1, &vbo);
     }
-    glDeleteBuffers(1, &m_EBO);
+    glDeleteBuffers(1, &m_ebo);
 }
 
 auto
@@ -33,13 +33,13 @@ Mesh::render() -> void
         m_texture->activate();
     }
 
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    for(auto const& [location, VBO] : m_attributes) {
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    for(auto const& [location, vbo] : m_attributes) {
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glVertexAttribPointer(location, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
 
@@ -51,9 +51,9 @@ Mesh::render() -> void
 auto
 Mesh::setVertices(std::vector<glm::vec3> const& vertices) -> void
 {
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(
             GL_ARRAY_BUFFER,
             vertices.size() * sizeof(vertices[0]),
@@ -69,9 +69,9 @@ Mesh::setVertices(
         int const start,
         int const size) -> void
 {
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferSubData(
             GL_ARRAY_BUFFER,
             start * sizeof(vertices[0]),
@@ -84,9 +84,9 @@ Mesh::setVertices(
 auto
 Mesh::setIndices(std::vector<GLuint> const& indices) -> void
 {
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
     glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             indices.size() * sizeof(indices[0]),
@@ -101,22 +101,22 @@ Mesh::setIndices(std::vector<GLuint> const& indices) -> void
 auto
 Mesh::newAttribute(int location) -> void
 {
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
-    GLuint VBO;
+    GLuint vbo = 0;
     glEnableVertexAttribArray(location);
-    glGenBuffers(location, &VBO);
+    glGenBuffers(location, &vbo);
 
     glBindVertexArray(0);
 
-    // CPP20 {.VBO = VBO...}
-    m_attributes[location] = VBO;
+    // CPP20 {.vbo = vbo...}
+    m_attributes[location] = vbo;
 }
 
 auto
 Mesh::setAttribute(int location, std::vector<float> const& values) -> void
 {
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
     glBufferData(
@@ -135,7 +135,7 @@ Mesh::setAttribute(
         int const start,
         int const size) -> void
 {
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
     glBufferSubData(
@@ -155,9 +155,9 @@ Mesh::setTexture(std::shared_ptr<Texture> texture) -> void
 auto
 swap(Mesh& a, Mesh& b) -> void
 {
-    std::swap(a.m_VAO, b.m_VAO);
+    std::swap(a.m_vao, b.m_vao);
     std::swap(a.m_attributes, b.m_attributes);
-    std::swap(a.m_VBO, b.m_VBO);
-    std::swap(a.m_EBO, b.m_EBO);
+    std::swap(a.m_vbo, b.m_vbo);
+    std::swap(a.m_ebo, b.m_ebo);
     std::swap(a.m_nrVertices, b.m_nrVertices);
 }
