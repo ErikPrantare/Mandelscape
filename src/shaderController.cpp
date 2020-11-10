@@ -34,6 +34,17 @@ ShaderController::updateState(
     if(active(PersistentAction::ChangeTotalOffset)) {
         m_colorOffset += 3 * direction * dt * glm::dvec3{1.0, 1.0, 1.0};
     }
+    if(active(PersistentAction::ChangeYScale)) {
+        if(m_yScale > 1.0) {
+            m_yScale *= std::exp(direction * dt);
+        }
+        else if(m_yScale < -1.0) {
+            m_yScale *= std::exp(-direction * dt);
+        }
+        else {
+            m_yScale += direction * dt;
+        }
+    }
 }
 
 auto
@@ -72,4 +83,5 @@ ShaderController::update(ShaderProgram* const shaderProgram) -> void
             "colorFrequency",
             static_cast<float>(m_colorFrequency));
     shaderProgram->setUniformVec3("colorOffset", m_colorOffset);
+    shaderProgram->setUniformFloat("yScale", m_yScale);
 }

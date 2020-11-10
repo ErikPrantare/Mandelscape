@@ -98,6 +98,8 @@ main(int numArgs, char* args[]) -> int
             player.position -= dOffset;
             player.position.y = terrain.heightAt({pos.x, pos.z});
             metacontroller.update(&player, dt);
+            // Do this after .update, as autozoom is dependent on position.y
+            player.position.y *= shaderController.m_yScale;
         }
 
         shaderController.update(&shaderProgram);
@@ -161,11 +163,11 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeTotalOffset);
     persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
     persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }
@@ -194,11 +196,11 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::T, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeTotalOffset);
     persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
     persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }

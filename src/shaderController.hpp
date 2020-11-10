@@ -8,6 +8,7 @@
 #include "shader.hpp"
 #include "shaderProgram.hpp"
 
+/* Control shader parameters, such as color and y scaling */
 class ShaderController {
 public:
     ShaderController(ShaderProgram* shaderProgram);
@@ -20,6 +21,8 @@ public:
 
     auto
     update(ShaderProgram* shaderProgram) -> void;
+
+    double m_yScale = 1.0;
 
 private:
     VertexShader m_vertexShader =
