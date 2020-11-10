@@ -85,3 +85,9 @@ ShaderController::update(ShaderProgram* const shaderProgram) -> void
     shaderProgram->setUniformVec3("colorOffset", m_colorOffset);
     shaderProgram->setUniformFloat("yScale", m_yScale);
 }
+
+auto
+ShaderController::yScale() const -> double
+{
+    return m_yScale;
+}

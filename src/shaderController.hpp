@@ -8,7 +8,7 @@
 #include "shader.hpp"
 #include "shaderProgram.hpp"
 
-/* Control shader parameters, such as color and y scaling */
+/* Control shader parameters, e.g. coloring */
 class ShaderController {
 public:
     ShaderController(ShaderProgram* shaderProgram);
@@ -22,7 +22,8 @@ public:
     auto
     update(ShaderProgram* shaderProgram) -> void;
 
-    double m_yScale = 1.0;
+    [[nodiscard]] auto
+    yScale() const -> double;
 
 private:
     VertexShader m_vertexShader =
@@ -38,6 +39,7 @@ private:
 
     double m_colorFrequency  = 0.1;
     glm::dvec3 m_colorOffset = {0.0, 1.0, 2.0};
+    double m_yScale          = 1.0;
 };
 
 #endif

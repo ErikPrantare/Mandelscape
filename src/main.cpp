@@ -99,7 +99,7 @@ main(int numArgs, char* args[]) -> int
             player.position.y = terrain.heightAt({pos.x, pos.z});
             metacontroller.update(&player, dt);
             // Do this after .update, as autozoom is dependent on position.y
-            player.position.y *= shaderController.m_yScale;
+            player.position.y *= shaderController.yScale();
         }
 
         shaderController.update(&shaderProgram);
@@ -139,7 +139,7 @@ renderScene(
     program->setUniformMatrix4("projection", camera.projection());
 }
 
-auto
+[[nodiscard]] auto
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
     auto momentaryMap = MomentaryActionsMap();
@@ -172,7 +172,7 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     return {momentaryMap, persistentMap};
 }
 
-auto
+[[nodiscard]] auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
     auto momentaryMap = MomentaryActionsMap();
