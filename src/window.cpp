@@ -191,11 +191,11 @@ Window::keyboardCB(
 
     switch(action) {
     case GLFW_PRESS: {
-        window->registerEvent(KeyDown{(Input::Key)key, mods});
+        window->registerEvent(KeyDown{static_cast<Input::Key>(key), mods});
     } break;
 
     case GLFW_RELEASE: {
-        window->registerEvent(KeyUp{(Input::Key)key, mods});
+        window->registerEvent(KeyUp{static_cast<Input::Key>(key), mods});
     } break;
     }
 }
@@ -211,10 +211,12 @@ Window::mouseButtonCB(
 
     switch(action) {
     case GLFW_PRESS: {
-        window->registerEvent(MouseButtonDown{button});
+        window->registerEvent(
+                MouseButtonDown{static_cast<Input::MouseButton>(button)});
     } break;
     case GLFW_RELEASE: {
-        window->registerEvent(MouseButtonUp{button});
+        window->registerEvent(
+                MouseButtonUp{static_cast<Input::MouseButton>(button)});
     }
     }
 }

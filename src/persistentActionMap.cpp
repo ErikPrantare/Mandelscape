@@ -7,11 +7,19 @@ PersistentActionMap::add(Input::Key key, PersistentAction action) -> void
 {
     m_keyMap[key].insert(action);
 }
+
+auto
+PersistentActionMap::add(Input::MouseButton button, PersistentAction action)
+        -> void
+{
+    m_mouseButtonMap[button].insert(action);
+}
+
 auto
 PersistentActionMap::updateState(Event const& event) -> void
 {
-    auto const setValue = [this](Input::Key key, bool value) {
-        auto const actions = m_keyMap[key];
+    auto const setActions = [this](std::set<PersistentAction>& actions,
+                                   bool value) {
         for(auto const& action : actions) {
             m_actionMap[action] = value;
         }
@@ -19,9 +27,19 @@ PersistentActionMap::updateState(Event const& event) -> void
 
     std::visit(
             util::Overload{
-                    [&setValue](KeyDown key) { setValue(key.code, true); },
-                    [&setValue](KeyUp key) { setValue(key.code, false); },
+                    [this, &setActions](KeyDown key) {
+                        setActions(m_keyMap[key.code], true);
+                    },
+                    [this, &setActions](KeyUp key) {
+                        setActions(m_keyMap[key.code], false);
+                    },
 
+                    [this, &setActions](MouseButtonDown button) {
+                        setActions(m_mouseButtonMap[button.button], true);
+                    },
+                    [this, &setActions](MouseButtonUp button) {
+                        setActions(m_mouseButtonMap[button.button], false);
+                    },
                     // default
                     util::unaryNOP},
             event);

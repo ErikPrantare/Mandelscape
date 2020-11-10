@@ -6,12 +6,12 @@
 #include "glfwEnums.hpp"
 
 struct KeyDown {
-    Input::Key code;
+    Input::Key const code;
     int const mods;
 };
 
 struct KeyUp {
-    Input::Key code;
+    Input::Key const code;
     int const mods;
 };
 
@@ -23,11 +23,11 @@ struct MouseMove {
 };
 
 struct MouseButtonDown {
-    int const button;
+    Input::MouseButton const button;
 };
 
 struct MouseButtonUp {
-    int const button;
+    Input::MouseButton const button;
 };
 
 using Event = std::

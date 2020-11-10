@@ -145,8 +145,8 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     auto momentaryMap = MomentaryActionsMap();
     momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
     momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add(Input::Key::I, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::U, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::K, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::J, TriggerAction::DecreaseIterations);
     momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
     momentaryMap.add(Input::Key::H, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
@@ -159,8 +159,8 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::S, PersistentAction::MoveBackwards);
     persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
     persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
-    persistentMap.add(Input::Key::J, PersistentAction::ZoomIn);
-    persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
+    persistentMap.add(Input::MouseButton::LEFT, PersistentAction::ZoomIn);
+    persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
     persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeTotalOffset);
@@ -178,8 +178,8 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     auto momentaryMap = MomentaryActionsMap();
     momentaryMap.add(Input::Key::J, TriggerAction::ToggleAutoWalk);
     momentaryMap.add(Input::Key::R, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add(Input::Key::C, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::G, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::T, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::H, TriggerAction::DecreaseIterations);
     momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
     momentaryMap.add(Input::Key::D, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
@@ -192,8 +192,8 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::O, PersistentAction::MoveBackwards);
     persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
     persistentMap.add(Input::Key::E, PersistentAction::MoveRight);
-    persistentMap.add(Input::Key::H, PersistentAction::ZoomIn);
-    persistentMap.add(Input::Key::T, PersistentAction::ZoomOut);
+    persistentMap.add(Input::MouseButton::LEFT, PersistentAction::ZoomIn);
+    persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
     persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeTotalOffset);
