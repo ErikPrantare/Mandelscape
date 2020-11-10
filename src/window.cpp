@@ -80,6 +80,7 @@ Window::nextEvent() -> std::optional<Event>
 auto
 Window::update() -> bool
 {
+    glfwMakeContextCurrent(m_window.get());
     glfwSwapBuffers(m_window.get());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -91,6 +92,7 @@ Window::update() -> bool
 auto
 Window::handleMomentaryAction(MomentaryAction const& action) -> void
 {
+    glfwMakeContextCurrent(m_window.get());
     if(std::holds_alternative<TriggerAction>(action)) {
         switch(std::get<TriggerAction>(action)) {
         case TriggerAction::TogglePause:
@@ -140,8 +142,15 @@ Window::screenshot()
     glReadBuffer(GL_FRONT);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    char* pixels = new char[3 * m_size.x * m_size.y];
-    glReadPixels(0, 0, m_size.x, m_size.y, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    std::vector<char> pixels(3 * m_size.x * m_size.y);
+    glReadPixels(
+            0,
+            0,
+            m_size.x,
+            m_size.y,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            pixels.data());
 
     std::time_t const t = std::time(nullptr);
     std::tm const tm    = *std::localtime(&t);
@@ -157,8 +166,7 @@ Window::screenshot()
     std::string filename = dir + "/" + buffer.str() + ".png";
 
     stbi_flip_vertically_on_write(1);
-    stbi_write_png(filename.c_str(), m_size.x, m_size.y, 3, pixels, 0);
-    delete[] pixels;
+    stbi_write_png(filename.c_str(), m_size.x, m_size.y, 3, pixels.data(), 0);
 }
 
 void
