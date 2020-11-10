@@ -83,7 +83,7 @@ ShaderController::update(ShaderProgram* const shaderProgram) -> void
             "colorFrequency",
             static_cast<float>(m_colorFrequency));
     shaderProgram->setUniformVec3("colorOffset", m_colorOffset);
-    shaderProgram->setUniformFloat("yScale", m_yScale);
+    shaderProgram->setUniformFloat("yScale", static_cast<float>(m_yScale));
 }
 
 auto
