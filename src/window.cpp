@@ -9,6 +9,8 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb_image_resize.h>
 
 #include "event.hpp"
 #include "util.hpp"
@@ -142,7 +144,7 @@ Window::screenshot()
     glReadBuffer(GL_FRONT);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    std::vector<char> pixels(3 * m_size.x * m_size.y);
+    std::vector<unsigned char> pixels(3 * m_size.x * m_size.y);
     glReadPixels(
             0,
             0,
@@ -162,6 +164,18 @@ Window::screenshot()
     if(!fs::is_directory(dir) || !fs::exists(dir)) {
         fs::create_directory(dir);
     }
+
+    std::vector<unsigned char> aa(3 * (m_size.x / 2) * (m_size.y / 2));
+    stbir_resize_uint8(
+            pixels.data(),
+            m_size.x,
+            m_size.y,
+            0,
+            aa.data(),
+            m_size.x / 2,
+            m_size.y / 2,
+            0,
+            3);
 
     std::string filename = dir + "/" + buffer.str() + ".png";
 
