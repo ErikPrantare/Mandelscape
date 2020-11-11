@@ -29,6 +29,7 @@ createWindow(glm::ivec2 const size) -> GLFWwindow*
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     glfwSetErrorCallback(&glfwErrorCallback);
 
@@ -54,6 +55,7 @@ Window::Window(glm::ivec2 const size) :
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     glDepthFunc(GL_LESS);
 
     setCallbacks();
@@ -83,6 +85,11 @@ auto
 Window::update() -> bool
 {
     glfwMakeContextCurrent(m_window.get());
+    if(m_queueScreenshot) {
+        screenshot();
+        resizeBuffer(m_size / 2);
+        m_queueScreenshot = false;
+    }
     glfwSwapBuffers(m_window.get());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -94,14 +101,14 @@ Window::update() -> bool
 auto
 Window::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    glfwMakeContextCurrent(m_window.get());
     if(std::holds_alternative<TriggerAction>(action)) {
         switch(std::get<TriggerAction>(action)) {
         case TriggerAction::TogglePause:
             togglePause();
             break;
         case TriggerAction::TakeScreenshot:
-            screenshot();
+            resizeBuffer(2 * m_size);
+            m_queueScreenshot = true;
             break;
         case TriggerAction::CloseWindow:
             close();
@@ -180,7 +187,22 @@ Window::screenshot()
     std::string filename = dir + "/" + buffer.str() + ".png";
 
     stbi_flip_vertically_on_write(1);
-    stbi_write_png(filename.c_str(), m_size.x, m_size.y, 3, pixels.data(), 0);
+    stbi_write_png(
+            filename.c_str(),
+            m_size.x / 2,
+            m_size.y / 2,
+            3,
+            aa.data(),
+            0);
+}
+
+void
+Window::resizeBuffer(glm::ivec2 const size)
+{
+    m_size = std::move(size);
+
+    glfwMakeContextCurrent(m_window.get());
+    glViewport(0, 0, m_size.x, m_size.y);
 }
 
 void
@@ -248,8 +270,5 @@ Window::resizeCB(GLFWwindow* glfwWindow, int width, int height)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
-    glfwMakeContextCurrent(window->m_window.get());
-
-    glViewport(0, 0, width, height);
-    window->m_size = {width, height};
+    window->resizeBuffer({width, height});
 }

@@ -26,19 +26,19 @@ public:
     auto
     operator=(Window const&) -> Window& = delete;
 
-    auto
+    [[nodiscard]] auto
     nextEvent() -> std::optional<Event>;
 
-    auto
+    [[nodiscard]] auto
     update() -> bool;
 
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void;
 
-    auto
+    [[nodiscard]] auto
     paused() -> bool;
 
-    auto
+    [[nodiscard]] auto
     size() -> glm::ivec2
     {
         return m_size;
@@ -67,6 +67,9 @@ private:
     screenshot();
 
     void
+    resizeBuffer(glm::ivec2 size);
+
+    void
     registerEvent(Event&& event);
 
     void
@@ -92,7 +95,9 @@ private:
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
 
-    bool m_paused = false;
+    int m_queueScreenshot = false;
+    bool m_fbo            = 0;
+    bool m_paused         = false;
     glm::ivec2 m_size;
 };
 
