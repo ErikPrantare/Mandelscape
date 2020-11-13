@@ -96,8 +96,9 @@ private:
     double m_lastMouseY = 0.0;
 
     int m_queueScreenshot = false;
-    bool m_fbo            = 0;
     bool m_paused         = false;
+    GLuint m_fbo          = 0;
+    GLuint texture        = 0;
     glm::ivec2 m_size;
 };
 
