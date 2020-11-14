@@ -32,7 +32,11 @@ Terrain::Terrain()
     m_mesh.setAttribute(1, m_colors);
     m_loadingMesh.setAttribute(1, m_colors);
 
-    auto texture = std::make_shared<Texture>("textures/texture.png");
+    // CPP20 {.imagePath = ...}
+    auto textureArgs           = TextureArgs();
+    textureArgs.imagePath      = "textures/texture.png";
+    textureArgs.generateMipmap = true;
+    auto texture               = std::make_shared<Texture>(textureArgs);
     m_mesh.setTexture(texture);
     m_loadingMesh.setTexture(texture);
 

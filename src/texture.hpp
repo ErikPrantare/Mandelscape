@@ -5,10 +5,19 @@
 #include <memory>
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+
+struct TextureArgs {
+    glm::ivec2 size{0, 0};
+    GLenum unit           = GL_TEXTURE0;
+    GLint format          = GL_RGBA;
+    std::string imagePath = "";
+    bool generateMipmap   = false;
+};
 
 class Texture {
 public:
-    Texture(std::string const& path, GLenum textureUnit = GL_TEXTURE0);
+    Texture(TextureArgs const& args) noexcept(false);
 
     Texture() = delete;
 

@@ -62,33 +62,6 @@ Window::Window(glm::ivec2 const size) :
 
     glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetInputMode(m_window.get(), GLFW_STICKY_KEYS, GLFW_FALSE);
-
-    glGenFramebuffers(1, &m_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGB,
-            m_size.x,
-            m_size.y,
-            0,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            nullptr);
-    glFramebufferTexture2D(
-            GL_FRAMEBUFFER,
-            GL_COLOR_ATTACHMENT0,
-            GL_TEXTURE_2D,
-            texture,
-            0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        throw;
 }
 
 void
@@ -114,9 +87,9 @@ Window::update() -> bool
     glfwMakeContextCurrent(m_window.get());
     if(m_queueScreenshot) {
         screenshot();
-        resizeBuffer(m_size / 2);
-        m_queueScreenshot = false;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        m_screenshotBuffer->unbind();
+        m_screenshotBuffer = std::nullopt;
+        m_queueScreenshot  = false;
     }
     glfwSwapBuffers(m_window.get());
 
@@ -135,8 +108,8 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
             togglePause();
             break;
         case TriggerAction::TakeScreenshot:
-            resizeBuffer(2 * m_size);
-            glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+            m_screenshotBuffer = Framebuffer(2 * m_size);
+            m_screenshotBuffer->bind();
             m_queueScreenshot = true;
             break;
         case TriggerAction::CloseWindow:
@@ -177,7 +150,7 @@ void
 Window::screenshot()
 {
     glfwMakeContextCurrent(m_window.get());
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    m_screenshotBuffer->bind();
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
@@ -235,25 +208,6 @@ Window::resizeBuffer(glm::ivec2 const size)
 
     glfwMakeContextCurrent(m_window.get());
     glViewport(0, 0, m_size.x, m_size.y);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGB,
-            m_size.x,
-            m_size.y,
-            0,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            nullptr);
-    glFramebufferTexture2D(
-            GL_FRAMEBUFFER,
-            GL_COLOR_ATTACHMENT0,
-            GL_TEXTURE_2D,
-            texture,
-            0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void

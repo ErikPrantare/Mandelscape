@@ -11,6 +11,7 @@
 
 #include "event.hpp"
 #include "momentaryAction.hpp"
+#include "framebuffer.hpp"
 
 class Window {
 public:
@@ -95,10 +96,9 @@ private:
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
 
-    int m_queueScreenshot = false;
-    bool m_paused         = false;
-    GLuint m_fbo          = 0;
-    GLuint texture        = 0;
+    int m_queueScreenshot                         = false;
+    bool m_paused                                 = false;
+    std::optional<Framebuffer> m_screenshotBuffer = std::nullopt;
     glm::ivec2 m_size;
 };
 
