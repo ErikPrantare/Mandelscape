@@ -34,6 +34,7 @@ private:
     std::unique_ptr<GLuint, FboDeleter> m_fbo;
     glm::ivec2 m_size;
     GLuint texture = 0;
+    GLuint m_depth = 0;
 };
 
 #endif

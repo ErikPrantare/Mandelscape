@@ -22,12 +22,36 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
             GL_RGB,
             GL_UNSIGNED_BYTE,
             nullptr);
+
     glFramebufferTexture2D(
             GL_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT0,
             GL_TEXTURE_2D,
             texture,
             0);
+
+    glGenTextures(1, &m_depth);
+    glBindTexture(GL_TEXTURE_2D, m_depth);
+    glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_DEPTH_COMPONENT,
+            m_size.x,
+            m_size.y,
+            0,
+            GL_DEPTH_COMPONENT,
+            GL_UNSIGNED_BYTE,
+            nullptr);
+
+    glFramebufferTexture2D(
+            GL_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT,
+            GL_TEXTURE_2D,
+            m_depth,
+            0);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
