@@ -1,13 +1,14 @@
 #ifndef MANDELSCAPE_FRAMEBUFFER_HPP
 #define MANDELSCAPE_FRAMEBUFFER_HPP
 
+#include <memory>
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
 class Framebuffer {
 public:
     Framebuffer(glm::ivec2 size) noexcept(false);
-    ~Framebuffer();
 
     [[nodiscard]] auto
     size() const noexcept -> glm::ivec2;
@@ -19,9 +20,20 @@ public:
     unbind() noexcept -> void;
 
 private:
-    GLuint m_fbo;
+    // CPP20 decltype(lambda)
+    class FboDeleter {
+    public:
+        auto
+        operator()(GLuint* location) -> void
+        {
+            glDeleteFramebuffers(1, location);
+            delete location;
+        }
+    };
+
+    std::unique_ptr<GLuint, FboDeleter> m_fbo;
     glm::ivec2 m_size;
-    GLuint texture;
+    GLuint texture = 0;
 };
 
 #endif

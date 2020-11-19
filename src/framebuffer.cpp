@@ -2,10 +2,12 @@
 
 #include <stdexcept>
 
-Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) : m_size(size)
+Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
+            m_fbo(new GLuint),
+            m_size(size)
 {
-    glGenFramebuffers(1, &m_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glGenFramebuffers(1, m_fbo.get());
+    glBindFramebuffer(GL_FRAMEBUFFER, *m_fbo);
 
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -33,11 +35,6 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) : m_size(size)
     }
 }
 
-Framebuffer::~Framebuffer()
-{
-    glDeleteFramebuffers(1, &m_fbo);
-}
-
 auto
 Framebuffer::size() const noexcept -> glm::ivec2
 {
@@ -47,7 +44,7 @@ Framebuffer::size() const noexcept -> glm::ivec2
 auto
 Framebuffer::bind() noexcept -> void
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, *m_fbo);
 }
 
 auto

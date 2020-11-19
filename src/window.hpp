@@ -37,13 +37,10 @@ public:
     handleMomentaryAction(MomentaryAction const& action) -> void;
 
     [[nodiscard]] auto
-    paused() -> bool;
+    paused() const noexcept -> bool;
 
     [[nodiscard]] auto
-    size() -> glm::ivec2
-    {
-        return m_size;
-    }
+    size() const noexcept -> glm::ivec2;
 
 private:
     struct WindowDeleter {
@@ -58,40 +55,37 @@ private:
 
     std::queue<Event> m_events;
 
-    void
-    togglePause();
+    auto
+    togglePause() noexcept -> void;
 
-    void
-    close();
+    auto
+    close() -> void;
 
-    void
-    screenshot();
+    auto
+    screenshot() noexcept(false) -> void;
 
-    void
-    resizeBuffer(glm::ivec2 size);
+    auto
+    resizeBuffer(glm::ivec2 size) -> void;
 
-    void
-    registerEvent(Event&& event);
+    auto
+    registerEvent(Event&& event) -> void;
 
-    void
-    setCallbacks();
+    auto
+    setCallbacks() -> void;
 
-    static void
-    cursorPositionCB(GLFWwindow* window, double x, double y);
+    static auto
+    cursorPositionCB(GLFWwindow* window, double x, double y) -> void;
 
-    static void
-    keyboardCB(
-            GLFWwindow* window,
-            int key,
-            int scancode,
-            int action,
-            int mods);
+    static auto
+    keyboardCB(GLFWwindow* window, int key, int scancode, int action, int mods)
+            -> void;
 
-    static void
-    mouseButtonCB(GLFWwindow* window, int button, int action, int mods);
+    static auto
+    mouseButtonCB(GLFWwindow* window, int button, int action, int mods)
+            -> void;
 
-    static void
-    resizeCB(GLFWwindow* glfwWindow, int width, int height);
+    static auto
+    resizeCB(GLFWwindow* glfwWindow, int width, int height) -> void;
 
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;

@@ -88,6 +88,7 @@ Window::update() -> bool
     if(m_queueScreenshot) {
         screenshot();
         m_screenshotBuffer->unbind();
+        resizeBuffer(m_size / 2);
         m_screenshotBuffer = std::nullopt;
         m_queueScreenshot  = false;
     }
@@ -108,7 +109,8 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
             togglePause();
             break;
         case TriggerAction::TakeScreenshot:
-            m_screenshotBuffer = Framebuffer(2 * m_size);
+            resizeBuffer(2 * m_size);
+            m_screenshotBuffer = Framebuffer(m_size);
             m_screenshotBuffer->bind();
             m_queueScreenshot = true;
             break;
@@ -122,7 +124,7 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
 }
 
 auto
-Window::togglePause() -> void
+Window::togglePause() noexcept -> void
 {
     m_paused = !m_paused;
 
@@ -135,9 +137,15 @@ Window::togglePause() -> void
 }
 
 auto
-Window::paused() -> bool
+Window::paused() const noexcept -> bool
 {
     return m_paused;
+}
+
+auto
+Window::size() const noexcept -> glm::ivec2
+{
+    return m_screenshotBuffer ? m_screenshotBuffer->size() : m_size;
 }
 
 void
@@ -146,24 +154,9 @@ Window::close()
     glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
 }
 
-void
-Window::screenshot()
+static auto
+saveScreenshot(std::vector<unsigned char>& pixels, int x, int y) -> void
 {
-    glfwMakeContextCurrent(m_window.get());
-    m_screenshotBuffer->bind();
-    glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-    std::vector<unsigned char> pixels(3 * m_size.x * m_size.y);
-    glReadPixels(
-            0,
-            0,
-            m_size.x,
-            m_size.y,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            pixels.data());
-
     std::time_t const t = std::time(nullptr);
     std::tm const tm    = *std::localtime(&t);
     std::stringstream buffer;
@@ -175,12 +168,37 @@ Window::screenshot()
         fs::create_directory(dir);
     }
 
-    auto outputSize = m_size / 2;
+    std::string filename = dir + "/" + buffer.str() + ".png";
+
+    stbi_flip_vertically_on_write(1);
+    stbi_write_png(filename.c_str(), x, y, 3, pixels.data(), 0);
+}
+
+void
+Window::screenshot()
+{
+    glfwMakeContextCurrent(m_window.get());
+    m_screenshotBuffer->bind();
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+    auto inputSize = m_screenshotBuffer->size();
+    std::vector<unsigned char> pixels(3 * inputSize.x * inputSize.y);
+    glReadPixels(
+            0,
+            0,
+            inputSize.x,
+            inputSize.y,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            pixels.data());
+
+    auto outputSize = inputSize / 2;
     std::vector<unsigned char> aa(3 * outputSize.x * outputSize.y);
     stbir_resize_uint8(
             pixels.data(),
-            m_size.x,
-            m_size.y,
+            inputSize.x,
+            inputSize.y,
             0,
             aa.data(),
             outputSize.x,
@@ -188,16 +206,8 @@ Window::screenshot()
             0,
             3);
 
-    std::string filename = dir + "/" + buffer.str() + ".png";
+    saveScreenshot(aa, outputSize.x, outputSize.y);
 
-    stbi_flip_vertically_on_write(1);
-    stbi_write_png(
-            filename.c_str(),
-            outputSize.x,
-            outputSize.y,
-            3,
-            aa.data(),
-            0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
