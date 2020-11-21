@@ -21,17 +21,6 @@ class Texture {
 public:
     Texture(TextureArgs const& args) noexcept(false);
 
-    Texture() = delete;
-
-    Texture(Texture const&) = delete;
-    auto
-    operator=(Texture const&) -> Texture& = delete;
-
-    Texture(Texture&&) = default;
-    auto operator=(Texture &&) -> Texture& = default;
-
-    ~Texture() = default;
-
     auto
     activate() -> void;
 
