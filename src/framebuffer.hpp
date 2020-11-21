@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "texture.hpp"
 #include "glDestructors.hpp"
 
 class Framebuffer {
@@ -23,8 +24,8 @@ public:
 
 private:
     std::unique_ptr<GLuint, glDestructors::Fbo> m_fbo{new GLuint};
-    std::unique_ptr<GLuint, glDestructors::Texture> m_texture{new GLuint};
-    std::unique_ptr<GLuint, glDestructors::Texture> m_depth{new GLuint};
+    Texture m_texture;
+    Texture m_depth;
     glm::ivec2 m_size;
 };
 

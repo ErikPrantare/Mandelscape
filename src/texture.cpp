@@ -46,7 +46,7 @@ Texture::Texture(TextureArgs const& args) :
             size.x,
             size.y,
             0,
-            GL_RGBA,
+            args.format,
             GL_UNSIGNED_BYTE,
             image);
 
@@ -64,4 +64,10 @@ Texture::activate() -> void
 {
     glActiveTexture(m_textureUnit);
     glBindTexture(GL_TEXTURE_2D, *m_location);
+}
+
+auto
+Texture::get() noexcept -> GLuint
+{
+    return *m_location;
 }

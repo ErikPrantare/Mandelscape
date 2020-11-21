@@ -2,50 +2,46 @@
 
 #include <stdexcept>
 
-Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) : m_size(size)
+static auto
+textureArgs(glm::ivec2 size) noexcept -> TextureArgs
+{
+    // CPP20 {.a = b}
+    TextureArgs args;
+    args.size   = size;
+    args.format = GL_RGB;
+    return args;
+}
+
+static auto
+depthArgs(glm::ivec2 size) noexcept -> TextureArgs
+{
+    // CPP20 {.a = b}
+    TextureArgs args;
+    args.size   = size;
+    args.format = GL_DEPTH_COMPONENT;
+    return args;
+}
+
+Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
+            m_texture(textureArgs(size)),
+            m_depth(depthArgs(size)),
+            m_size(size)
 {
     glGenFramebuffers(1, m_fbo.get());
     glBindFramebuffer(GL_FRAMEBUFFER, *m_fbo);
-
-    glGenTextures(1, m_texture.get());
-    glBindTexture(GL_TEXTURE_2D, *m_texture);
-
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGB,
-            m_size.x,
-            m_size.y,
-            0,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            nullptr);
 
     glFramebufferTexture2D(
             GL_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT0,
             GL_TEXTURE_2D,
-            *m_texture,
+            m_texture.get(),
             0);
-
-    glGenTextures(1, m_depth.get());
-    glBindTexture(GL_TEXTURE_2D, *m_depth);
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_DEPTH_COMPONENT,
-            m_size.x,
-            m_size.y,
-            0,
-            GL_DEPTH_COMPONENT,
-            GL_UNSIGNED_BYTE,
-            nullptr);
 
     glFramebufferTexture2D(
             GL_FRAMEBUFFER,
             GL_DEPTH_ATTACHMENT,
             GL_TEXTURE_2D,
-            *m_depth,
+            m_depth.get(),
             0);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -17,12 +17,16 @@ struct TextureArgs {
     bool generateMipmap   = false;
 };
 
+// OpenGL Texture2D
 class Texture {
 public:
     Texture(TextureArgs const& args) noexcept(false);
 
     auto
     activate() -> void;
+
+    auto
+    get() noexcept -> GLuint;
 
 private:
     std::unique_ptr<GLuint, glDestructors::Texture> m_location;
