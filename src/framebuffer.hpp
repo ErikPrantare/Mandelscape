@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "glDestructors.hpp"
+
 class Framebuffer {
 public:
     Framebuffer(glm::ivec2 size) noexcept(false);
@@ -20,21 +22,10 @@ public:
     unbind() noexcept -> void;
 
 private:
-    // CPP20 decltype(lambda)
-    class FboDeleter {
-    public:
-        auto
-        operator()(GLuint* location) -> void
-        {
-            glDeleteFramebuffers(1, location);
-            delete location;
-        }
-    };
-
-    std::unique_ptr<GLuint, FboDeleter> m_fbo;
+    std::unique_ptr<GLuint, glDestructors::Fbo> m_fbo{new GLuint};
+    std::unique_ptr<GLuint, glDestructors::Texture> m_texture{new GLuint};
+    std::unique_ptr<GLuint, glDestructors::Texture> m_depth{new GLuint};
     glm::ivec2 m_size;
-    GLuint texture = 0;
-    GLuint m_depth = 0;
 };
 
 #endif

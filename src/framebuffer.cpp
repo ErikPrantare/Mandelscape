@@ -2,15 +2,13 @@
 
 #include <stdexcept>
 
-Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
-            m_fbo(new GLuint),
-            m_size(size)
+Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) : m_size(size)
 {
     glGenFramebuffers(1, m_fbo.get());
     glBindFramebuffer(GL_FRAMEBUFFER, *m_fbo);
 
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glGenTextures(1, m_texture.get());
+    glBindTexture(GL_TEXTURE_2D, *m_texture);
 
     glTexImage2D(
             GL_TEXTURE_2D,
@@ -27,11 +25,11 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
             GL_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT0,
             GL_TEXTURE_2D,
-            texture,
+            *m_texture,
             0);
 
-    glGenTextures(1, &m_depth);
-    glBindTexture(GL_TEXTURE_2D, m_depth);
+    glGenTextures(1, m_depth.get());
+    glBindTexture(GL_TEXTURE_2D, *m_depth);
     glTexImage2D(
             GL_TEXTURE_2D,
             0,
@@ -47,7 +45,7 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
             GL_FRAMEBUFFER,
             GL_DEPTH_ATTACHMENT,
             GL_TEXTURE_2D,
-            m_depth,
+            *m_depth,
             0);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

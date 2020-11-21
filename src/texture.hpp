@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "glDestructors.hpp"
+
 struct TextureArgs {
     glm::ivec2 size{0, 0};
     GLenum unit           = GL_TEXTURE0;
@@ -34,16 +36,7 @@ public:
     activate() -> void;
 
 private:
-    struct TextureDeleter {
-        void
-        operator()(GLuint* location) noexcept
-        {
-            glDeleteTextures(1, location);
-            delete location;
-        }
-    };
-
-    std::unique_ptr<GLuint, TextureDeleter> m_location;
+    std::unique_ptr<GLuint, glDestructors::Texture> m_location;
 
     GLenum m_textureUnit;
 };
