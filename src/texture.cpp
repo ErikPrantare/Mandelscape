@@ -23,7 +23,7 @@ Texture::Texture(TextureArgs const& args) :
     unsigned char* image = nullptr;
     glm::ivec2 size      = args.size;
 
-    if(args.imagePath != "") {
+    if(!args.imagePath.empty()) {
         int nrChannels = 0;
         image          = stbi_load(
                 args.imagePath.c_str(),

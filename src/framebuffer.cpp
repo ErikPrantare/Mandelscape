@@ -28,7 +28,7 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
             m_size(size)
 {
     glGenFramebuffers(1, m_fbo.get());
-    glBindFramebuffer(GL_FRAMEBUFFER, *m_fbo);
+    bind();
 
     glFramebufferTexture2D(
             GL_FRAMEBUFFER,
@@ -51,6 +51,27 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         throw std::runtime_error("Failed to create framebuffer");
     }
+}
+
+[[nodiscard]] auto
+Framebuffer::readPixels() -> std::vector<unsigned char>
+{
+    bind();
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+    std::vector<unsigned char> pixels(3 * m_size.x * m_size.y);
+
+    glReadPixels(
+            0,
+            0,
+            m_size.x,
+            m_size.y,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            pixels.data());
+
+    return pixels;
 }
 
 auto

@@ -2,6 +2,7 @@
 #define MANDELSCAPE_FRAMEBUFFER_HPP
 
 #include <memory>
+#include <vector>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -16,10 +17,13 @@ public:
     [[nodiscard]] auto
     size() const noexcept -> glm::ivec2;
 
+    [[nodiscard]] auto
+    readPixels() -> std::vector<unsigned char>;
+
     auto
     bind() noexcept -> void;
 
-    auto
+    static auto
     unbind() noexcept -> void;
 
 private:

@@ -127,13 +127,10 @@ auto
 Window::togglePause() noexcept -> void
 {
     m_paused = !m_paused;
-
-    if(m_paused) {
-        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-    else {
-        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
+    glfwSetInputMode(
+            m_window.get(),
+            GLFW_CURSOR,
+            m_paused ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 auto
@@ -178,22 +175,11 @@ void
 Window::screenshot()
 {
     glfwMakeContextCurrent(m_window.get());
-    m_screenshotBuffer->bind();
-    glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    auto inputSize = m_screenshotBuffer->size();
-    std::vector<unsigned char> pixels(3 * inputSize.x * inputSize.y);
-    glReadPixels(
-            0,
-            0,
-            inputSize.x,
-            inputSize.y,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            pixels.data());
+    auto const inputSize  = m_screenshotBuffer->size();
+    auto const outputSize = inputSize / 2;
+    auto const pixels     = m_screenshotBuffer->readPixels();
 
-    auto outputSize = inputSize / 2;
     std::vector<unsigned char> aa(3 * outputSize.x * outputSize.y);
     stbir_resize_uint8(
             pixels.data(),
