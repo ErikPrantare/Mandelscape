@@ -150,7 +150,7 @@ Window::close()
 }
 
 static auto
-saveScreenshot(std::vector<unsigned char>& pixels, int x, int y) -> void
+saveScreenshot(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void
 {
     std::time_t const t = std::time(nullptr);
     std::tm const tm    = *std::localtime(&t);
@@ -166,7 +166,7 @@ saveScreenshot(std::vector<unsigned char>& pixels, int x, int y) -> void
     std::string filename = dir + "/" + buffer.str() + ".png";
 
     stbi_flip_vertically_on_write(1);
-    stbi_write_png(filename.c_str(), x, y, 3, pixels.data(), 0);
+    stbi_write_png(filename.c_str(), size.x, size.y, 3, pixels.data(), 0);
 }
 
 void
@@ -179,6 +179,7 @@ Window::screenshot()
     auto const pixels     = m_screenshotBuffer->readPixels();
 
     std::vector<unsigned char> aa(3 * outputSize.x * outputSize.y);
+
     stbir_resize_uint8(
             pixels.data(),
             inputSize.x,
@@ -190,7 +191,7 @@ Window::screenshot()
             0,
             3);
 
-    saveScreenshot(aa, outputSize.x, outputSize.y);
+    saveScreenshot(aa, outputSize);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
