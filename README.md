@@ -26,6 +26,8 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.2.0
 
 - x to render image. Will be put inside directory named screenshots.
 
+- f to toggle fast mode.
+
 - h to allow for deeper zooms. Will increase lag 
         (fast mode is recommended between rendering images).
 
