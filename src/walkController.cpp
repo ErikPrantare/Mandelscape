@@ -45,6 +45,10 @@ WalkController::handleMomentaryAction(MomentaryAction const& action) -> void
                         if(action == TriggerAction::ToggleAutoZoom) {
                             m_autoZoom = !m_autoZoom;
                         }
+                        else if(action == TriggerAction::ToggleAutoWalk) {
+                            // Don't autozoom if previously autowalking
+                            m_autoZoom = false;
+                        }
                     },
 
                     [this](MouseDelta mouse) {

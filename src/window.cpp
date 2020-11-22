@@ -9,6 +9,8 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb_image_resize.h>
 
 #include "event.hpp"
 #include "util.hpp"
@@ -20,13 +22,14 @@ glfwErrorCallback(int code, char const* description)
               << '\n';
 }
 
-GLFWwindow*
-createWindow(glm::ivec2 const size)
+auto
+createWindow(glm::ivec2 const size) -> GLFWwindow*
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     glfwSetErrorCallback(&glfwErrorCallback);
 
@@ -52,6 +55,7 @@ Window::Window(glm::ivec2 const size) :
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     glDepthFunc(GL_LESS);
 
     setCallbacks();
@@ -71,15 +75,22 @@ Window::setCallbacks()
     glfwSetWindowSizeCallback(m_window.get(), &resizeCB);
 }
 
-std::optional<Event>
-Window::nextEvent()
+auto
+Window::nextEvent() -> std::optional<Event>
 {
     return util::pop(m_events);
 }
 
-bool
-Window::update()
+auto
+Window::update() -> bool
 {
+    glfwMakeContextCurrent(m_window.get());
+    if(m_screenshotBuffer != std::nullopt) {
+        screenshot();
+        m_screenshotBuffer->unbind();
+        m_screenshotBuffer = std::nullopt;
+        glViewport(0, 0, m_size.x, m_size.y);
+    }
     glfwSwapBuffers(m_window.get());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -97,7 +108,9 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
             togglePause();
             break;
         case TriggerAction::TakeScreenshot:
-            screenshot();
+            m_screenshotBuffer = Framebuffer(2 * m_size);
+            m_screenshotBuffer->bind();
+            glViewport(0, 0, 2 * m_size.x, 2 * m_size.y);
             break;
         case TriggerAction::CloseWindow:
             close();
@@ -109,22 +122,25 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
 }
 
 auto
-Window::togglePause() -> void
+Window::togglePause() noexcept -> void
 {
     m_paused = !m_paused;
-
-    if(m_paused) {
-        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-    else {
-        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
+    glfwSetInputMode(
+            m_window.get(),
+            GLFW_CURSOR,
+            m_paused ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 auto
-Window::paused() -> bool
+Window::paused() const noexcept -> bool
 {
     return m_paused;
+}
+
+auto
+Window::size() const noexcept -> glm::ivec2
+{
+    return m_screenshotBuffer ? m_screenshotBuffer->size() : m_size;
 }
 
 void
@@ -133,16 +149,9 @@ Window::close()
     glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
 }
 
-void
-Window::screenshot()
+static auto
+saveScreenshot(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void
 {
-    glfwMakeContextCurrent(m_window.get());
-    glReadBuffer(GL_FRONT);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-    char* pixels = new char[3 * m_size.x * m_size.y];
-    glReadPixels(0, 0, m_size.x, m_size.y, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-
     std::time_t const t = std::time(nullptr);
     std::tm const tm    = *std::localtime(&t);
     std::stringstream buffer;
@@ -157,8 +166,43 @@ Window::screenshot()
     std::string filename = dir + "/" + buffer.str() + ".png";
 
     stbi_flip_vertically_on_write(1);
-    stbi_write_png(filename.c_str(), m_size.x, m_size.y, 3, pixels, 0);
-    delete[] pixels;
+    stbi_write_png(filename.c_str(), size.x, size.y, 3, pixels.data(), 0);
+}
+
+void
+Window::screenshot()
+{
+    glfwMakeContextCurrent(m_window.get());
+
+    auto const inputSize  = m_screenshotBuffer->size();
+    auto const outputSize = inputSize / 2;
+    auto const pixels     = m_screenshotBuffer->readPixels();
+
+    std::vector<unsigned char> aa(3 * outputSize.x * outputSize.y);
+
+    stbir_resize_uint8(
+            pixels.data(),
+            inputSize.x,
+            inputSize.y,
+            0,
+            aa.data(),
+            outputSize.x,
+            outputSize.y,
+            0,
+            3);
+
+    saveScreenshot(aa, outputSize);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void
+Window::resizeBuffer(glm::ivec2 const size)
+{
+    m_size = std::move(size);
+
+    glfwMakeContextCurrent(m_window.get());
+    glViewport(0, 0, m_size.x, m_size.y);
 }
 
 void
@@ -191,11 +235,11 @@ Window::keyboardCB(
 
     switch(action) {
     case GLFW_PRESS: {
-        window->registerEvent(KeyDown{(Input::Key)key, mods});
+        window->registerEvent(KeyDown{static_cast<Input::Key>(key), mods});
     } break;
 
     case GLFW_RELEASE: {
-        window->registerEvent(KeyUp{(Input::Key)key, mods});
+        window->registerEvent(KeyUp{static_cast<Input::Key>(key), mods});
     } break;
     }
 }
@@ -211,10 +255,12 @@ Window::mouseButtonCB(
 
     switch(action) {
     case GLFW_PRESS: {
-        window->registerEvent(MouseButtonDown{button});
+        window->registerEvent(
+                MouseButtonDown{static_cast<Input::MouseButton>(button)});
     } break;
     case GLFW_RELEASE: {
-        window->registerEvent(MouseButtonUp{button});
+        window->registerEvent(
+                MouseButtonUp{static_cast<Input::MouseButton>(button)});
     }
     }
 }
@@ -224,8 +270,5 @@ Window::resizeCB(GLFWwindow* glfwWindow, int width, int height)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
-    glfwMakeContextCurrent(window->m_window.get());
-
-    glViewport(0, 0, width, height);
-    window->m_size = {width, height};
+    window->resizeBuffer({width, height});
 }

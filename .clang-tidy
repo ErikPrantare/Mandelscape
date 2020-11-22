@@ -1,5 +1,6 @@
 Checks: '
 -*,
+
 readability-*,
 -readability-named-parameter,
 -readability-magic-numbers,
@@ -10,7 +11,11 @@ cppcoreguidelines-*,
 -cppcoreguidelines-pro-type-union-access,
 -cppcoreguidelines-avoid-magic-numbers,
 -cppcoreguidelines-pro-bounds-constant-array-index,
--cppcoreguidelines-pro-bounds-pointer-arithmetic'
+-cppcoreguidelines-pro-bounds-pointer-arithmetic,
+
+modernize-*
+
+misc-*'
 
 CheckOptions:
   - key: readability-identifier-naming.VariableCase

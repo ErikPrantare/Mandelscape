@@ -5,37 +5,31 @@
 #include <memory>
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
+#include "glDestructors.hpp"
+
+struct TextureArgs {
+    glm::ivec2 size{0, 0};
+    GLenum unit           = GL_TEXTURE0;
+    GLint format          = GL_RGBA;
+    std::string imagePath = "";
+    bool generateMipmap   = false;
+};
+
+// OpenGL Texture2D
 class Texture {
 public:
-    Texture(std::string const& path, GLenum textureUnit = GL_TEXTURE0);
-
-    Texture() = delete;
-
-    Texture(Texture const&) = delete;
-    Texture&
-    operator=(Texture const&) = delete;
-
-    Texture(Texture&&) = default;
-    Texture&
-    operator=(Texture&&) = default;
-
-    ~Texture() = default;
+    Texture(TextureArgs const& args) noexcept(false);
 
     auto
     activate() -> void;
 
-private:
-    struct TextureDeleter {
-        void
-        operator()(GLuint* location) noexcept
-        {
-            glDeleteTextures(1, location);
-            delete location;
-        }
-    };
+    auto
+    get() noexcept -> GLuint;
 
-    std::unique_ptr<GLuint, TextureDeleter> m_location;
+private:
+    std::unique_ptr<GLuint, glDestructors::Texture> m_location;
 
     GLenum m_textureUnit;
 };

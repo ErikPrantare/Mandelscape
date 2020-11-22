@@ -11,7 +11,8 @@ enum class TriggerAction {
     SwitchShader,
     TakeScreenshot,
     TogglePause,
-    CloseWindow
+    CloseWindow,
+    ToggleFastMode,
 };
 
 struct MouseDelta {

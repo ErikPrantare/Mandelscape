@@ -2,31 +2,39 @@
 
 #include <string>
 #include <iostream>
+#include <stdexcept>
 
 #include <glad/glad.h>
 
 #include <stb_image.h>
 
-GLuint*
-generateTexture()
+auto
+generateTexture() -> GLuint*
 {
-    GLuint* texture = new GLuint;
+    auto* const texture = new GLuint;
     glGenTextures(1, texture);
     return texture;
 }
 
-Texture::Texture(std::string const& path, GLenum textureUnit) :
+Texture::Texture(TextureArgs const& args) :
             m_location(generateTexture()),
-            m_textureUnit(textureUnit)
+            m_textureUnit(args.unit)
 {
-    int width      = 0;
-    int height     = 0;
-    int nrChannels = 0;
-    unsigned char* const image =
-            stbi_load(path.c_str(), &width, &height, &nrChannels, 4);
-    if(image == nullptr) {
-        std::cerr << "Failed to load texture" << std::endl;
-        throw;
+    unsigned char* image = nullptr;
+    glm::ivec2 size      = args.size;
+
+    if(!args.imagePath.empty()) {
+        int nrChannels = 0;
+        image          = stbi_load(
+                args.imagePath.c_str(),
+                &size.x,
+                &size.y,
+                &nrChannels,
+                4);
+
+        if(image == nullptr) {
+            throw std::runtime_error("Failed to load texture image");
+        }
     }
 
     glActiveTexture(m_textureUnit);
@@ -34,14 +42,17 @@ Texture::Texture(std::string const& path, GLenum textureUnit) :
     glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGBA,
-            width,
-            height,
+            args.format,
+            size.x,
+            size.y,
             0,
-            GL_RGBA,
+            args.format,
             GL_UNSIGNED_BYTE,
             image);
-    glGenerateMipmap(GL_TEXTURE_2D);
+
+    if(args.generateMipmap) {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -53,4 +64,10 @@ Texture::activate() -> void
 {
     glActiveTexture(m_textureUnit);
     glBindTexture(GL_TEXTURE_2D, *m_location);
+}
+
+auto
+Texture::get() noexcept -> GLuint
+{
+    return *m_location;
 }

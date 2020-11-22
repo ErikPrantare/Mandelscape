@@ -15,15 +15,15 @@ public:
            glm::ivec2 viewSize,
            double scale);
 
-    glm::dmat4
-    projection() const;
+    [[nodiscard]] auto
+    projection() const -> glm::dmat4;
 
-    glm::dmat4
-    cameraSpace() const;
+    [[nodiscard]] auto
+    cameraSpace() const -> glm::dmat4;
 
 private:
-    glm::dmat4
-    lookAtMatrix() const;
+    [[nodiscard]] auto
+    lookAtMatrix() const -> glm::dmat4;
 
     static double constexpr zNear  = 0.01;
     static double constexpr zFar   = 150.0;

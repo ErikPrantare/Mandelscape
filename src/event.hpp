@@ -6,12 +6,12 @@
 #include "glfwEnums.hpp"
 
 struct KeyDown {
-    Input::Key code;
+    Input::Key const code;
     int const mods;
 };
 
 struct KeyUp {
-    Input::Key code;
+    Input::Key const code;
     int const mods;
 };
 
@@ -23,21 +23,21 @@ struct MouseMove {
 };
 
 struct MouseButtonDown {
-    int const button;
+    Input::MouseButton const button;
 };
 
 struct MouseButtonUp {
-    int const button;
+    Input::MouseButton const button;
 };
 
 using Event = std::
         variant<KeyUp, KeyDown, MouseMove, MouseButtonUp, MouseButtonDown>;
 
-bool
-operator<(MouseMove a, MouseMove b);
-bool
-operator<(MouseButtonUp a, MouseButtonUp b);
-bool
-operator<(MouseButtonDown a, MouseButtonDown b);
+auto
+operator<(MouseMove a, MouseMove b) -> bool;
+auto
+operator<(MouseButtonUp a, MouseButtonUp b) -> bool;
+auto
+operator<(MouseButtonDown a, MouseButtonDown b) -> bool;
 
 #endif

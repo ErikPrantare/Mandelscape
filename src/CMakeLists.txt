@@ -27,6 +27,7 @@ target_sources(Mandelscape
 if(MINGW) 
     target_link_libraries(Mandelscape
         PRIVATE -static
+        PRIVATE -mwindows
         PRIVATE MandelInterface)
 else()
     target_link_libraries(Mandelscape
@@ -38,6 +39,12 @@ set_target_properties(Mandelscape
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED TRUE)
         
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+    set_target_properties(Mandelscape
+        PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL Release)
     set_target_properties(Mandelscape
         PROPERTIES

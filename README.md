@@ -9,29 +9,33 @@ mv build/src/Mandelscape .
 If everything built correctly, the program can now be run with `./Mandelscape`
 
 # Binary Download (Windows)
-https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.1.0
+https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.2.0
 
 # Controls
-- <kbd>w</kbd><kbd>a</kbd><kbd>s</kbd><kbd>d</kbd> + mouse to walk and look around.
+- wasd + mouse to walk and look around.
 
-- <kbd>p</kbd> to pause/unpause.
+- p to pause/unpause.
 
-- <kbd>j</kbd>/<kbd>k</kbd> to zoom in/out.
+- left/right mouse button to zoom in/out.
 
-- <kbd>u</kbd>/<kbd>i</kbd> to change iteration count.
+- j/k to change iteration count.
 
-- <kbd>1</kbd>-<kbd>5</kbd> + <kbd>up</kbd>/<kbd>down</kbd> to change colors
+- 1-4 + up/down to change colors.
 
-- <kbd>x</kbd> to take screenshot.
-    Will be put inside directory named screenshots.
+- 5 + up/down to terrain y scale.
 
-- <kbd>h</kbd> to allow for a bit deeper zooms. Will increase lag drastically.
+- x to render image. Will be put inside directory named screenshots.
 
-- <kbd>o</kbd> to toggle autozoom.
+- f to toggle fast mode.
 
-- <kbd>c</kbd> to toggle autowalk.
+- h to allow for deeper zooms. Will increase lag 
+        (fast mode is recommended between rendering images).
 
-- <kbd>q</kbd> or <kbd>escape</kbd> to quit.
+- o to toggle autozoom.
+
+- c to toggle autowalk.
+
+- q or escape to quit.
 
 # Options
 To use dvorak mode, start Mandelscape with `--dvorak` flag.

@@ -11,6 +11,7 @@
 
 #include "event.hpp"
 #include "momentaryAction.hpp"
+#include "framebuffer.hpp"
 
 class Window {
 public:
@@ -20,30 +21,26 @@ public:
     ~Window() = default;
 
     Window(Window&&) = default;
-    Window&
-    operator=(Window&&) = default;
+    auto operator=(Window &&) -> Window& = default;
 
     Window(Window const&) = delete;
-    Window&
-    operator=(Window const&) = delete;
-
     auto
+    operator=(Window const&) -> Window& = delete;
+
+    [[nodiscard]] auto
     nextEvent() -> std::optional<Event>;
 
-    auto
+    [[nodiscard]] auto
     update() -> bool;
 
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void;
 
-    auto
-    paused() -> bool;
+    [[nodiscard]] auto
+    paused() const noexcept -> bool;
 
-    auto
-    size() -> glm::ivec2
-    {
-        return m_size;
-    }
+    [[nodiscard]] auto
+    size() const noexcept -> glm::ivec2;
 
 private:
     struct WindowDeleter {
@@ -58,42 +55,43 @@ private:
 
     std::queue<Event> m_events;
 
-    void
-    togglePause();
+    auto
+    togglePause() noexcept -> void;
 
-    void
-    close();
+    auto
+    close() -> void;
 
-    void
-    screenshot();
+    auto
+    screenshot() noexcept(false) -> void;
 
-    void
-    registerEvent(Event&& event);
+    auto
+    resizeBuffer(glm::ivec2 size) -> void;
 
-    void
-    setCallbacks();
+    auto
+    registerEvent(Event&& event) -> void;
 
-    static void
-    cursorPositionCB(GLFWwindow* window, double x, double y);
+    auto
+    setCallbacks() -> void;
 
-    static void
-    keyboardCB(
-            GLFWwindow* window,
-            int key,
-            int scancode,
-            int action,
-            int mods);
+    static auto
+    cursorPositionCB(GLFWwindow* window, double x, double y) -> void;
 
-    static void
-    mouseButtonCB(GLFWwindow* window, int button, int action, int mods);
+    static auto
+    keyboardCB(GLFWwindow* window, int key, int scancode, int action, int mods)
+            -> void;
 
-    static void
-    resizeCB(GLFWwindow* glfwWindow, int width, int height);
+    static auto
+    mouseButtonCB(GLFWwindow* window, int button, int action, int mods)
+            -> void;
+
+    static auto
+    resizeCB(GLFWwindow* glfwWindow, int width, int height) -> void;
 
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
 
-    bool m_paused = false;
+    bool m_paused                                 = false;
+    std::optional<Framebuffer> m_screenshotBuffer = std::nullopt;
     glm::ivec2 m_size;
 };
 

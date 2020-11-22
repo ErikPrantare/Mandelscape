@@ -18,13 +18,13 @@
 #include "metaController.hpp"
 #include "persistentActionMap.hpp"
 #include "momentaryActionsMap.hpp"
-#include "colorController.hpp"
+#include "shaderController.hpp"
 
 void
 renderScene(
-        Terrain& terrain,
         Player const& player,
         glm::ivec2 viewSize,
+        ShaderProgram* program,
         double dt);
 
 auto
@@ -33,16 +33,16 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
-int
-main(int numArgs, char* args[])
+auto
+main(int numArgs, char* args[]) -> int
 {
     auto window = Window({1368, 768});
 
     auto terrain = Terrain();
     auto player  = Player();
 
-    MomentaryActionsMap momentaryMap;
-    PersistentActionMap persistentMap;
+    auto momentaryMap  = MomentaryActionsMap();
+    auto persistentMap = PersistentActionMap();
 
     if(numArgs == 2 && args[1] == std::string("--dvorak")) {
         std::tie(momentaryMap, persistentMap) = initControlsDvorak();
@@ -59,7 +59,10 @@ main(int numArgs, char* args[])
             std::make_unique<WalkController>(),
             std::make_unique<AutoController>(autoControllHeightFunc)};
 
-    auto colorController = ColorController();
+    auto shaderProgram    = ShaderProgram();
+    auto shaderController = ShaderController(&shaderProgram);
+    shaderProgram.bindAttributeLocation("pos", Mesh::vertexLocation);
+    shaderProgram.bindAttributeLocation("val", Terrain::colorLocation);
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
@@ -77,6 +80,7 @@ main(int numArgs, char* args[])
                 window.handleMomentaryAction(action);
                 terrain.handleMomentaryAction(action);
                 metacontroller.handleMomentaryAction(action);
+                shaderController.handleMomentaryAction(action);
             }
         }
 
@@ -84,6 +88,7 @@ main(int numArgs, char* args[])
             time += dt;
 
             metacontroller.updateState(persistentMap);
+            shaderController.updateState(persistentMap, dt);
 
             auto pos = player.position + player.positionOffset;
             auto terrainOffset =
@@ -93,13 +98,14 @@ main(int numArgs, char* args[])
             player.position -= dOffset;
             player.position.y = terrain.heightAt({pos.x, pos.z});
             metacontroller.update(&player, dt);
-
-            colorController.update(persistentMap, dt);
+            // Do this after .update, as autozoom is dependent on position.y
+            player.position.y *= shaderController.yScale();
         }
 
-        colorController.updateShaderVariables(&terrain.shaderProgram());
-        terrain.shaderProgram().setUniformFloat("time", time);
-        renderScene(terrain, player, window.size(), dt);
+        shaderController.update(&shaderProgram);
+        shaderProgram.setUniformFloat("time", time);
+        renderScene(player, window.size(), &shaderProgram, dt);
+        terrain.render(&shaderProgram);
     }
 
     return 0;
@@ -107,9 +113,9 @@ main(int numArgs, char* args[])
 
 void
 renderScene(
-        Terrain& terrain,
         Player const& player,
         glm::ivec2 const viewSize,
+        ShaderProgram* const program,
         double dt)
 {
     glm::dvec3 cameraPosition = player.position;
@@ -129,21 +135,19 @@ renderScene(
                         * glm::dvec4(0.0, 0.0, 1.0, 0.0);
 
     auto const camera = Camera(cameraPosition, lookAt, viewSize, player.scale);
-    auto& program     = terrain.shaderProgram();
-    program.setUniformMatrix4("cameraSpace", camera.cameraSpace());
-    program.setUniformMatrix4("projection", camera.projection());
-
-    terrain.render();
+    program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
+    program->setUniformMatrix4("projection", camera.projection());
 }
 
-auto
+[[nodiscard]] auto
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
     auto momentaryMap = MomentaryActionsMap();
     momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
     momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add(Input::Key::I, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::U, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::K, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::J, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
     momentaryMap.add(Input::Key::H, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
     momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
@@ -155,27 +159,28 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::S, PersistentAction::MoveBackwards);
     persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
     persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
-    persistentMap.add(Input::Key::J, PersistentAction::ZoomIn);
-    persistentMap.add(Input::Key::K, PersistentAction::ZoomOut);
+    persistentMap.add(Input::MouseButton::LEFT, PersistentAction::ZoomIn);
+    persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
-    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
-    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeTotalOffset);
+    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeGreenOffset);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeBlueOffset);
+    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }
 
-auto
+[[nodiscard]] auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
     auto momentaryMap = MomentaryActionsMap();
     momentaryMap.add(Input::Key::J, TriggerAction::ToggleAutoWalk);
     momentaryMap.add(Input::Key::R, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add(Input::Key::C, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::G, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::T, TriggerAction::IncreaseIterations);
+    momentaryMap.add(Input::Key::H, TriggerAction::DecreaseIterations);
+    momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
     momentaryMap.add(Input::Key::D, TriggerAction::SwitchShader);
     momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
     momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
@@ -187,15 +192,15 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::Key::O, PersistentAction::MoveBackwards);
     persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
     persistentMap.add(Input::Key::E, PersistentAction::MoveRight);
-    persistentMap.add(Input::Key::H, PersistentAction::ZoomIn);
-    persistentMap.add(Input::Key::T, PersistentAction::ZoomOut);
+    persistentMap.add(Input::MouseButton::LEFT, PersistentAction::ZoomIn);
+    persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeRedOffset);
-    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
-    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeTotalOffset);
+    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeGreenOffset);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeBlueOffset);
+    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }

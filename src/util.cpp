@@ -7,8 +7,8 @@
 
 namespace util {
 
-std::string
-readFile(std::string const& filePath)
+auto
+readFile(std::string const& filePath) -> std::string
 {
     std::string output;
     std::ifstream in(filePath);
@@ -21,8 +21,8 @@ readFile(std::string const& filePath)
     return output;
 }
 
-glm::dvec2
-unitVec2(double theta)
+auto
+unitVec2(double theta) -> glm::dvec2
 {
     return {std::cos(theta), std::sin(theta)};
 }

@@ -19,13 +19,13 @@ namespace util {
 
 double constexpr pi = glm::pi<double>();
 
-std::string
-readFile(std::string const& filePath);
+auto
+readFile(std::string const& filePath) -> std::string;
 
 // CPP20 https://en.cppreference.com/w/cpp/experimental/future/is_ready
 template<typename T>
-bool
-isDone(std::future<T> const& f)
+auto
+isDone(std::future<T> const& f) -> bool
 {
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
@@ -37,8 +37,8 @@ public:
                 m_filteredValue(init),
                 m_amount(amount){};
 
-    T
-    operator()(T const newValue, double const weight = 1.0f)
+    auto
+    operator()(T const newValue, double const weight = 1.0f) -> T
     {
         double const factor = std::pow(m_amount, weight);
 
@@ -53,16 +53,16 @@ private:
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
 template<typename KeyType, typename ValueType>
-bool
-contains(std::map<KeyType, ValueType> const& map, KeyType key)
+auto
+contains(std::map<KeyType, ValueType> const& map, KeyType key) -> bool
 {
     return map.find(key) != map.end();
 }
 
 // CPP20 https://en.cppreference.com/w/cpp/container/set/contains
 template<typename ValueType>
-bool
-contains(std::set<ValueType> const& set, ValueType key)
+auto
+contains(std::set<ValueType> const& set, ValueType key) -> bool
 {
     return set.find(key) != set.end();
 }
@@ -81,8 +81,8 @@ auto constexpr unaryNOP = [](auto&&) {
 };
 
 template<typename T, typename Container>
-std::optional<T>
-pop(std::queue<T, Container>& queue)
+auto
+pop(std::queue<T, Container>& queue) -> std::optional<T>
 {
     if(queue.empty()) {
         return std::nullopt;
@@ -93,22 +93,21 @@ pop(std::queue<T, Container>& queue)
     return a;
 }
 
-glm::dvec2 constexpr pixelsToAngle(
-        glm::dvec2 nrPixels,
-        double sensitivity = 0.01)
+auto constexpr pixelsToAngle(glm::dvec2 nrPixels, double sensitivity = 0.01)
+        -> glm::dvec2
 {
     //-x, refer to right hand rule with y up and positive pixels rightwards
     return sensitivity * glm::dvec2(-nrPixels.x, nrPixels.y);
 }
 
-glm::dvec2 constexpr planePos(glm::dvec3 spacePos)
+auto constexpr planePos(glm::dvec3 spacePos) -> glm::dvec2
 {
     return {spacePos.x, spacePos.z};
 }
 
 // CPP20 Make constexpr
-glm::dvec2
-unitVec2(double theta);
+auto
+unitVec2(double theta) -> glm::dvec2;
 
 }    // namespace util
 
