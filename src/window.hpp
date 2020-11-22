@@ -90,7 +90,6 @@ private:
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
 
-    bool m_queueScreenshot                        = false;
     bool m_paused                                 = false;
     std::optional<Framebuffer> m_screenshotBuffer = std::nullopt;
     glm::ivec2 m_size;

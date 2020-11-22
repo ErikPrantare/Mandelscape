@@ -85,12 +85,11 @@ auto
 Window::update() -> bool
 {
     glfwMakeContextCurrent(m_window.get());
-    if(m_queueScreenshot) {
+    if(m_screenshotBuffer != std::nullopt) {
         screenshot();
         m_screenshotBuffer->unbind();
-        resizeBuffer(m_size / 2);
         m_screenshotBuffer = std::nullopt;
-        m_queueScreenshot  = false;
+        glViewport(0, 0, m_size.x, m_size.y);
     }
     glfwSwapBuffers(m_window.get());
 
@@ -109,10 +108,9 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
             togglePause();
             break;
         case TriggerAction::TakeScreenshot:
-            resizeBuffer(2 * m_size);
-            m_screenshotBuffer = Framebuffer(m_size);
+            m_screenshotBuffer = Framebuffer(2 * m_size);
             m_screenshotBuffer->bind();
-            m_queueScreenshot = true;
+            glViewport(0, 0, 2 * m_size.x, 2 * m_size.y);
             break;
         case TriggerAction::CloseWindow:
             close();
