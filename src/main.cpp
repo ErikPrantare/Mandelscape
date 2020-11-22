@@ -163,10 +163,10 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
-    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeTotalOffset);
+    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeGreenOffset);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeBlueOffset);
     persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
@@ -196,10 +196,10 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
     persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
     persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeGreenOffset);
-    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeFrequency);
+    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeTotalOffset);
+    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeGreenOffset);
+    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeBlueOffset);
     persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
