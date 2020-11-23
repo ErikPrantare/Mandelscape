@@ -9,6 +9,7 @@
 #include <glad/glad.h>
 
 #include "shaderProgram.hpp"
+#include "glDestructors.hpp"
 
 enum class ShaderType {
     Vertex   = GL_VERTEX_SHADER,
@@ -18,13 +19,7 @@ enum class ShaderType {
 template<ShaderType type>
 class Shader {
 public:
-    Shader()              = delete;
-    Shader(Shader const&) = delete;
-    auto
-    operator=(Shader const&) -> Shader& = delete;
-    Shader(Shader&&)                    = default;
-    auto operator=(Shader &&) -> Shader& = default;
-    ~Shader()                            = default;
+    Shader() = delete;
 
     static auto
     fromFile(std::string const& filePath) -> Shader;
@@ -36,18 +31,9 @@ public:
     attachTo(ShaderProgram& program) const;
 
 private:
-    struct LocationDeleter {
-        void
-        operator()(GLuint const* location) noexcept
-        {
-            glDeleteShader(*location);
-            delete location;
-        }
-    };
-
     Shader(std::string const& sourceCode);
 
-    std::unique_ptr<GLuint const, LocationDeleter> m_location;
+    std::unique_ptr<GLuint const, glDestructors::Shader> m_location;
 
     static auto
     createShader(std::string const& sourceCode) -> GLuint const*;

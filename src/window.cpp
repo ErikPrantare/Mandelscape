@@ -199,7 +199,7 @@ Window::screenshot()
 void
 Window::resizeBuffer(glm::ivec2 const size)
 {
-    m_size = std::move(size);
+    m_size = size;
 
     glfwMakeContextCurrent(m_window.get());
     glViewport(0, 0, m_size.x, m_size.y);

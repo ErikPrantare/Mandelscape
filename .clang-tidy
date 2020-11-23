@@ -13,8 +13,8 @@ cppcoreguidelines-*,
 -cppcoreguidelines-pro-bounds-constant-array-index,
 -cppcoreguidelines-pro-bounds-pointer-arithmetic,
 
-modernize-*
-
+modernize-*,
+performance-*,
 misc-*'
 
 CheckOptions:

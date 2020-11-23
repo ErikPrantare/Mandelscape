@@ -9,7 +9,7 @@ namespace glDestructors {
 class Fbo {
 public:
     auto
-    operator()(GLuint* location) -> void
+    operator()(GLuint* location) noexcept -> void
     {
         glDeleteFramebuffers(1, location);
         delete location;
@@ -18,10 +18,19 @@ public:
 
 class Texture {
 public:
-    void
-    operator()(GLuint* location) noexcept
+    auto
+    operator()(GLuint* location) noexcept -> void
     {
         glDeleteTextures(1, location);
+        delete location;
+    }
+};
+
+struct Shader {
+    auto
+    operator()(GLuint const* location) noexcept -> void
+    {
+        glDeleteShader(*location);
         delete location;
     }
 };
