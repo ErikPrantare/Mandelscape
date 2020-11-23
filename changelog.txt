@@ -16,7 +16,7 @@ This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 . Disable autozoom when enabling autowalking
 . Simplify coloring controls
 . Fix autowalk bug when far away from non-zero height terrain
-. Change zoom iteration controls
+. Change iteration controls
 
 0.1.0 (2020-11-03):
 + Add automatic walking
