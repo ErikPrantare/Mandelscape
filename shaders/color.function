@@ -1,5 +1,5 @@
 vec4
-calculateColor(const in float val)
+color(const in float val)
 {
     if(val == -1.0) return vec4(0.0, 0.0, 0.0, 1.0);
 

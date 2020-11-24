@@ -4,14 +4,12 @@
 #include <fstream>
 
 #include <glm/glm.hpp>
-#include <iostream>
 
 namespace util {
 
 auto
 readFile(std::string const& filePath) -> std::string
 {
-    std::cout << filePath;
     std::string output;
     std::ifstream in(filePath);
 

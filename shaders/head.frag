@@ -14,3 +14,4 @@ uniform int iterations;
 uniform float colorFrequency;
 uniform vec3 colorOffset;
 uniform bool fastMode;
+uniform float time;

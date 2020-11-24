@@ -63,51 +63,27 @@ doubleCompSum(vec4 a, vec4 b)
     return vec4(doubleSum(a.xy, b.xy), doubleSum(a.zw, b.zw));
 }
 
-vec4
-addFog(const in vec4 color)
+float
+value(vec2 posHigh, vec2 posLow)
 {
-    float fogHardStart = 100.0;
-    float fogHardEnd   = 150.0;
-    float fog          = 1.0 - pow(0.98, distance);
-    
-    fog += clamp(
-            (distance - fogHardStart) / (fogHardEnd - fogHardStart),
-            0.0,
-            1.0);
-    
-    fog = pow(fog, 2.0);
-
-    return vec4(fog, fog, fog, 1.0) + (1.0 - fog) * color;
-}
-
-void
-main()
-{
-    if(fastMode) {
-        fragColor = addFog(outside * calculateColor(preCalculated));
-        return;
-    }
-
     ONE = float(iterations/iterations);
 
-    vec2 c_ = position + offset;
+    vec2 c_ = posHigh + posLow;
 
     // main cardioid check
     float q = pow(c_.x - 0.25f, 2.0f) + c_.y * c_.y;
     if(q * (q + (c_.x - 0.25f)) < 0.25f * c_.y * c_.y) {
-        fragColor = addFog(calculateColor(-1.0));
-        return;
+        return -1.0;
     }
 
     // period-2 bulb check
     if((c_.x + 1.0f) * (c_.x + 1.0f) + c_.y * c_.y < 0.25f * 0.25f) {
-        fragColor = addFog(calculateColor(-1.0));
-        return;
+        return -1.0;
     }
 
     // a.xy: real, a.zw: imag
-    vec4 c  = vec4(twoSum(offset.x, position.x),
-                    twoSum(offset.y, position.y));
+    vec4 c  = vec4(twoSum(posHigh.x, posLow.x),
+                    twoSum(posHigh.y, posLow.y));
     vec4 z   = vec4(0.0, 0.0, 0.0, 0.0);
     vec2 realSquare = vec2(0.0, 0.0);
     vec2 imagSquare = vec2(0.0, 0.0);
@@ -122,11 +98,9 @@ main()
         imagSquare = doubleProd(z.zw, z.zw);
 
         if(realSquare.x + imagSquare.x > 256.0f * 256.0f) {
-            float val = float(i) - log2(log2(dot(z, z)));
-            fragColor = addFog(calculateColor(val));
-            return;
+            return float(i) - log2(log2(dot(z, z)));
         }
     }
 
-    fragColor = addFog(calculateColor(-1.0));
+    return -1.0;
 }
