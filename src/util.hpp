@@ -1,6 +1,7 @@
 #ifndef MANDELLANDSCAPE_UTILS_HPP
 #define MANDELLANDSCAPE_UTILS_HPP
 
+#include <iostream>
 #include <string>
 #include <fstream>
 #include <future>
@@ -24,25 +25,15 @@ double constexpr pi = glm::pi<double>();
 auto
 readFile(std::string const& filePath) -> std::string;
 
-inline auto
-concatFiles(std::string const& file) -> std::string
+template<
+        class... Args,
+        class = std::enable_if_t<
+                std::conjunction_v<std::is_convertible<Args, std::string>...>>>
+auto
+concatFiles(Args const&... files) -> std::string
 {
-    return readFile(file);
-}
-
-inline auto
-concatFiles(std::string const& files, std::string const& file) -> std::string
-{
-    return concatFiles(files).append(readFile(file));
-}
-
-inline auto
-concatFiles(
-        std::string const& file0,
-        std::string const& files,
-        std::string const& file) -> std::string
-{
-    return concatFiles(file0, files).append(readFile(file));
+    std::string contents;
+    return (contents.append(readFile(files)), ...);
 }
 
 // CPP20 https://en.cppreference.com/w/cpp/experimental/future/is_ready
