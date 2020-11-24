@@ -10,6 +10,7 @@
 
 #include "shaderProgram.hpp"
 #include "glDestructors.hpp"
+#include "util.hpp"
 
 enum class ShaderType {
     Vertex   = GL_VERTEX_SHADER,
@@ -24,11 +25,18 @@ public:
     static auto
     fromFile(std::string const& filePath) -> Shader;
 
+    template<class Arg, class... Args>
+    static auto
+    fromFiles(Arg filePath, Args... filePaths) -> Shader
+    {
+        return Shader<type>(util::concatFiles(filePath, filePaths...));
+    }
+
     static auto
     fromCode(std::string const& sourceCode) -> Shader;
 
-    void
-    attachTo(ShaderProgram& program) const;
+    auto
+    attachTo(ShaderProgram& program) const -> void;
 
 private:
     Shader(std::string const& sourceCode);

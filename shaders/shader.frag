@@ -1,20 +1,3 @@
-#version 140
-
-precision highp float;
-
-in vec2 position;
-in float distance;
-in float preCalculated;
-in float outside;
-out vec4 fragColor;
-
-uniform sampler2D tex;
-uniform vec2 offset;
-uniform int iterations;
-uniform float colorFrequency;
-uniform vec3 colorOffset;
-uniform bool fastMode;
-
 vec2
 complexSquare(const in vec2 a)
 {
@@ -36,18 +19,6 @@ addFog(const in vec4 color)
     fog = pow(fog, 2.0);
 
     return vec4(fog, fog, fog, 1.0) + (1.0 - fog) * color;
-}
-
-vec4
-calculateColor(const in float val)
-{
-    if(val == -1.0) return vec4(0.0, 0.0, 0.0, 1.0);
-
-    vec3 colorVal = val * colorFrequency + colorOffset;
-    vec4 color = texture(tex, vec2(0.0, val))
-            * vec4(0.5f * sin(colorVal) + 0.5f, 1.0f);
-
-    return color;
 }
 
 void

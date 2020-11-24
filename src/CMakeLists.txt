@@ -45,12 +45,6 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
             INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL Release)
-    set_target_properties(Mandelscape
-        PROPERTIES
-            INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif()
-
 if(CLANG_TIDY)
     set_target_properties(Mandelscape PROPERTIES
         CXX_CLANG_TIDY "clang-tidy;-header-filter=./src")

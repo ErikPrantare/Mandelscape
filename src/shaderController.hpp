@@ -31,8 +31,14 @@ private:
 
     int m_currentFragmentShader                     = 0;
     std::array<FragmentShader, 2> m_fragmentShaders = {
-            FragmentShader::fromFile("shaders/shader.frag"),
-            FragmentShader::fromFile("shaders/deepShader.frag")};
+            FragmentShader::fromFiles(
+                    std::string{"shaders/head.frag"},
+                    std::string{"shaders/color.function"},
+                    std::string{"shaders/shader.frag"}),
+            FragmentShader::fromFiles(
+                    std::string{"shaders/head.frag"},
+                    std::string{"shaders/color.function"},
+                    std::string{"shaders/deepShader.frag"})};
 
     bool m_fastMode     = false;
     bool m_switchShader = false;

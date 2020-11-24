@@ -9,6 +9,7 @@
 #include <set>
 #include <queue>
 #include <optional>
+#include <type_traits>
 
 #include <glm/glm.hpp>
 #include <glm/ext/scalar_constants.hpp>
@@ -17,10 +18,32 @@
 
 namespace util {
 
+// CPP20 std::numbers::pi
 double constexpr pi = glm::pi<double>();
 
 auto
 readFile(std::string const& filePath) -> std::string;
+
+inline auto
+concatFiles(std::string const& file) -> std::string
+{
+    return readFile(file);
+}
+
+inline auto
+concatFiles(std::string const& files, std::string const& file) -> std::string
+{
+    return concatFiles(files).append(readFile(file));
+}
+
+inline auto
+concatFiles(
+        std::string const& file0,
+        std::string const& files,
+        std::string const& file) -> std::string
+{
+    return concatFiles(file0, files).append(readFile(file));
+}
 
 // CPP20 https://en.cppreference.com/w/cpp/experimental/future/is_ready
 template<typename T>
