@@ -62,6 +62,7 @@ This function is defined in `shaders/color.function`.
 An example of a different value function is given in
 `shaders/valueOrbit.function`.
 Rename this to `shaders/value.function`, and see how the coloring differs.
+The code is written in GLSL.
 
 ---
 
