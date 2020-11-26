@@ -1,20 +1,24 @@
-// HACK: Use variable to suppress floating point optimizations
-float ONE = 1.0;
+//suppress floating point optimizations for addition
+float
+plusIeeeCompliant(float a, float b)
+{
+    return mix(a, a+b, b != 0);
+}
 
 // prerequisite: a > b
 vec2
 quickTwoSum(float a, float b) 
 {
-    float sum = a + b;
-    float error = b - (sum*ONE - a);
+    float sum = plusIeeeCompliant(a, b);
+    float error = b - (sum - a);
     return vec2(sum, error);
 }
 
 vec2
 twoSum(float a, float b)
 {
-    float sum = a + b;
-    float v = sum*ONE - a;
+    float sum = plusIeeeCompliant(a, b);
+    float v = sum - a;
     float error = (a - (sum - v)) + (b - v);
     return vec2(sum, error);
 }
@@ -22,7 +26,7 @@ twoSum(float a, float b)
 vec2
 split(float a)
 {
-    float t = (pow(2.0, 12.0) + 1.0) * a * ONE;
+    float t = (pow(2.0, 12.0) + 1.0) * a;
     float hi = t - (t - a);
     float lo = a - hi;
     return vec2(hi, lo);
@@ -66,8 +70,6 @@ doubleCompSum(vec4 a, vec4 b)
 float
 value(vec2 posHigh, vec2 posLow)
 {
-    ONE = float(iterations/iterations);
-
     vec2 c_ = posHigh + posLow;
 
     // main cardioid check
