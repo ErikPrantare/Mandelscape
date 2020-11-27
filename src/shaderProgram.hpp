@@ -8,52 +8,38 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "glDestructors.hpp"
+
 class ShaderProgram {
 public:
-    ShaderProgram();
+    ShaderProgram() noexcept(false);
 
-    ShaderProgram(ShaderProgram const&) = delete;
     auto
-    operator=(ShaderProgram const&) -> ShaderProgram& = delete;
-    ShaderProgram(ShaderProgram&&)                    = default;
-    auto operator=(ShaderProgram &&) -> ShaderProgram& = default;
-    ~ShaderProgram()                                   = default;
+    attachShader(GLuint shader, GLenum shaderType) -> void;
 
-    void
-    attachShader(GLuint shader, GLenum shaderType);
-
-    void
-    compile();
+    auto
+    compile() noexcept(false) -> void;
 
     auto
     bindAttributeLocation(std::string const& name, int index) -> void;
 
-    void
-    setUniformFloat(std::string const& name, float);
+    auto
+    setUniformFloat(std::string const& name, float) -> void;
 
-    void
-    setUniformInt(std::string const& name, int);
+    auto
+    setUniformInt(std::string const& name, int) -> void;
 
-    void
-    setUniformVec2(std::string const& name, glm::vec2);
+    auto
+    setUniformVec2(std::string const& name, glm::vec2) -> void;
 
-    void
-    setUniformVec3(std::string const& name, glm::vec3);
+    auto
+    setUniformVec3(std::string const& name, glm::vec3) -> void;
 
-    void
-    setUniformMatrix4(std::string const& name, glm::mat4 const& value);
+    auto
+    setUniformMatrix4(std::string const& name, glm::mat4 const& value) -> void;
 
 private:
-    struct ShaderDeleter {
-        void
-        operator()(const GLuint* location) noexcept
-        {
-            glDeleteProgram(*location);
-            delete location;
-        }
-    };
-
-    std::unique_ptr<GLuint, ShaderDeleter> m_location;
+    std::unique_ptr<GLuint, glDestructors::ShaderProgram> m_location;
 
     [[nodiscard]] auto
     uniformLocation(const std::string& name) const -> GLuint;

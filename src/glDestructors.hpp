@@ -35,6 +35,14 @@ struct Shader {
     }
 };
 
+struct ShaderProgram {
+    auto
+    operator()(GLuint const* location) noexcept -> void
+    {
+        glDeleteProgram(*location);
+        delete location;
+    }
+};
 }    // namespace glDestructors
 
 #endif
