@@ -14,6 +14,30 @@ vec2 complexInverse(const in vec2 a)
     return vec2(a.x, -a.y)/dot(a, a);
 }
 
+void bruh(void)
+{
+  if(distance == 0.0) return;
+
+  vec3 rgb = vec3(0.0);
+  vec2 c = offset + position;
+  vec2 z = vec2(0.0);
+  vec3 s = vec3(0.0, 0.0, 0.0);
+  vec3 t = vec3(0.0);
+  const float R = 1e10;
+  for (int i = 0; i < iterations; ++i)
+  {
+    t = sin(vec3(1.0, 3.0, 5.0) * atan(z.y, z.x) + vec3(time, time*2.0, time*3.0)) * 0.5 + 0.5;
+    float m = dot(z,z);
+    if (m > R)
+    {
+      float j = 2.0 - log(m)/log(R);
+      rgb =  
+                vec3((s + t * j) / (float(i) + j));
+      break;
+    }
+    s += t;
+  }
+}
 vec2
 value(const in vec2 posHigh, const in vec2 posLow)
 {
@@ -23,21 +47,28 @@ value(const in vec2 posHigh, const in vec2 posLow)
     vec2 dc = vec2(1.0, 0.0);
     vec2 dz = dc;
 
+    float s = 0.0;
+    float tl = 0.0;
+
     float h2 = colorOffset.g;  // height factor of the incoming light
     float angle = colorOffset.b;  // incoming direction of light
     vec2 v = vec2(cos(angle), sin(angle));  // unit 2D vector in this direction
+    float R = 1e10;
 
     for(int i = 0; i < iterations; ++i) {
+        tl = sin(time + 5.0 * atan(z.y, z.x)) * 0.5 + 0.5;
         dz = 2.0 * complexMult(dz, z) + dc;
         z = complexSquare(z) + c;
-        if(dot(z, z) > 256.0f * 256.0f) {
+        if(dot(z, z) > R) {
             vec2 u = complexMult(z, complexInverse(dz));
             u = u/sqrt(dot(u, u));
             float t = dot(u, v) + h2;
             t /= 1+h2;
             if(t < 0.0) t = 0.0;
-            return vec2(float(i) - log2(log2(dot(z, z))), t);
+            float j = 2.0 - log(dot(z, z))/log(R);
+            return vec2((s+tl*j) / (float(i) + j), t);
         }
+        s += tl;
     }
 
     return vec2(-1.0, 0.0);
