@@ -18,13 +18,5 @@ addFog(const in vec4 color)
 void
 main()
 {
-    if(fastMode) {
-        fragColor =
-            addFog(
-                outside * color(preCalculated)
-                + (1.0 - outside) * color(-1.0));
-        return;
-    }
-
     fragColor = addFog(color(value(position, offset)));
 }

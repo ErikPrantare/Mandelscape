@@ -4,30 +4,41 @@ complexSquare(const in vec2 a)
     return vec2(a.x * a.x - a.y * a.y, 2.0 * a.x * a.y);
 }
 
-float
+vec2 complexMult(const in vec2 a, const in vec2 b)
+{
+    return vec2(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x);
+}
+
+vec2 complexInverse(const in vec2 a)
+{
+    return vec2(a.x, -a.y)/dot(a, a);
+}
+
+vec2
 value(const in vec2 posHigh, const in vec2 posLow)
 {
     vec2 c = posHigh + posLow;
 
-    // main cardioid check
-    float q = pow(c.x - 0.25f, 2.0f) + c.y * c.y;
-    if(q * (q + (c.x - 0.25f)) < 0.25f * c.y * c.y) {
-        return -1.0;
-    }
+    vec2 z  = vec2(0.0, 0.0);
+    vec2 dc = vec2(1.0, 0.0);
+    vec2 dz = dc;
 
-    // period-2 bulb check
-    if((c.x + 1.0f) * (c.x + 1.0f) + c.y * c.y < 0.25f * 0.25f) {
-        return -1.0;
-    }
-
-    vec2 z   = vec2(0.0, 0.0);
+    float h2 = colorOffset.g;  // height factor of the incoming light
+    float angle = colorOffset.b;  // incoming direction of light
+    vec2 v = vec2(cos(angle), sin(angle));  // unit 2D vector in this direction
 
     for(int i = 0; i < iterations; ++i) {
+        dz = 2.0 * complexMult(dz, z) + dc;
         z = complexSquare(z) + c;
         if(dot(z, z) > 256.0f * 256.0f) {
-            return float(i) - log2(log2(dot(z, z)));
+            vec2 u = complexMult(z, complexInverse(dz));
+            u = u/sqrt(dot(u, u));
+            float t = dot(u, v) + h2;
+            t /= 1+h2;
+            if(t < 0.0) t = 0.0;
+            return vec2(float(i) - log2(log2(dot(z, z))), t);
         }
     }
 
-    return -1.0;
+    return vec2(-1.0, 0.0);
 }
