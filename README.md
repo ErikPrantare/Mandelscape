@@ -52,16 +52,16 @@ by changing any of these steps.
 1. Calculate the value of the point.
 A simple example of this would be to use the number of iterations it took to
 bail out as the value.
-This value is calculated in `shaders/value.function`
-(or `shaders/valueDeep.function` for deeper zooms).
+This value is calculated in `shaders/value.frag`
+(or `shaders/valueDeep.frag` for deeper zooms).
 
 2. Calculate the color.
 This takes the value of the previous step, and maps it to a color.
-This function is defined in `shaders/color.function`.
+This function is defined in `shaders/color.frag`.
 
 An example of a different value function is given in
-`shaders/valueOrbit.function`.
-Rename this to `shaders/value.function`, and see how the coloring differs.
+`shaders/valueOrbit.frag`.
+Rename this to `shaders/value.frag`, and see how the coloring differs.
 
 ---
 

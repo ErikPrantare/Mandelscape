@@ -26,5 +26,5 @@ main()
         return;
     }
 
-    fragColor = addFog(color(value(position, offset)));
+    fragColor = addFog(color(value(makeComplex(position, offset))));
 }
