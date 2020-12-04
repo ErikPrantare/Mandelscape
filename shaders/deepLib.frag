@@ -42,8 +42,13 @@ twoProd(float a, float b)
     return vec2(prod, error);
 }
 
-vec2
-add(vec2 a, vec2 b)
+#define real vec2
+#define complex vec4
+#define re(z) (z).xy
+#define im(z) (z).zw
+
+real
+add(const in real a, const in real b)
 {
     vec2 s = twoSum(a.x, b.x);
     vec2 t = twoSum(a.y, b.y);
@@ -53,19 +58,6 @@ add(vec2 a, vec2 b)
     return quickTwoSum(s.x, s.y);
 }
 
-vec2
-mult(vec2 a, vec2 b)
-{
-    vec2 p = twoProd(a.x, b.x);
-    p.y += a.x*b.y + a.y*b.x;
-    return twoSum(p.x, p.y);
-}
-
-#define real vec2
-#define complex vec4
-#define re(z) (z).xy
-#define im(z) (z).zw
-
 complex
 add(complex a, complex b)
 {
@@ -73,9 +65,11 @@ add(complex a, complex b)
 }
 
 real
-add(const in real a, const in float b)
+mult(const in real a, const in real b)
 {
-    return add(a, real(b, 0.0));
+    vec2 p = twoProd(a.x, b.x);
+    p.y += a.x*b.y + a.y*b.x;
+    return twoSum(p.x, p.y);
 }
 
 complex
@@ -86,10 +80,18 @@ mult(const in complex a, const in complex b)
         add(mult(im(a), re(b)), mult(re(a), im(b))));
 }
 
-real
-square(const in real a)
+complex
+square(const in complex a)
 {
-    return mult(a, a);
+    return complex(
+        add(mult(re(a), re(a)), -mult(im(a), im(a))),
+        2.0 * mult(re(a), im(a)));
+}
+
+complex
+makeComplex(const in vec2 hi, const in vec2 lo)
+{
+    return vec4(twoSum(hi.x, lo.x), twoSum(hi.y, lo.y));
 }
 
 float
@@ -98,8 +100,8 @@ toFloat(const in real a)
     return a.x;
 }
 
-complex
-makeComplex(const in vec2 hi, const in vec2 lo)
+real
+toReal(const in float a)
 {
-    return vec4(twoSum(hi.x, lo.x), twoSum(hi.y, lo.y));
+    return real(a, 0.0);
 }
