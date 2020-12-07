@@ -69,20 +69,15 @@ private:
         std::vector<glm::vec3> position;
         std::vector<float> value;
 
-        // uchar instead of bool because of vector<bool> specialization
+        // int instead of bool because of vector<bool> specialization
         std::vector<int> inside;
 
         size_t size = 0;
     };
 
-    auto
-    resize(Points* const points, size_t const size) -> void
-    {
-        points->position.resize(size);
-        points->value.resize(size);
-        points->inside.resize(size);
-        points->size = size;
-    }
+    static auto
+    resize(Points* const points, size_t const size) -> void;
+
     Points m_points;
 
     auto

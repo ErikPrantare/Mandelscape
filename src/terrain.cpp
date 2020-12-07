@@ -20,6 +20,15 @@ struct PointData {
 auto
 pointData(glm::dvec2 const& pos, int iterations) -> PointData;
 
+auto
+Terrain::resize(Terrain::Points* const points, size_t const size) -> void
+{
+    points->position.resize(size);
+    points->value.resize(size);
+    points->inside.resize(size);
+    points->size = size;
+}
+
 Terrain::Terrain()
 {
     loadMesh(m_loadingOffset, m_scale, &m_points);
