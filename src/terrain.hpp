@@ -65,8 +65,25 @@ private:
 
     std::future<void> m_loadingProcess;
 
-    std::vector<glm::vec3> m_meshPoints;
-    std::vector<float> m_colors;
+    struct Points {
+        std::vector<glm::vec3> position;
+        std::vector<float> value;
+
+        // uchar instead of bool because of vector<bool> specialization
+        std::vector<int> inside;
+
+        size_t size = 0;
+    };
+
+    auto
+    resize(Points* const points, size_t const size) -> void
+    {
+        points->position.resize(size);
+        points->value.resize(size);
+        points->inside.resize(size);
+        points->size = size;
+    }
+    Points m_points;
 
     auto
     startLoading() -> void;
@@ -75,8 +92,7 @@ private:
     generateMeshIndices() -> std::vector<GLuint>;
 
     auto
-    loadMesh(glm::dvec3, double, std::vector<glm::vec3>*, std::vector<float>*)
-            -> void;
+    loadMesh(glm::dvec3 offset, double scale, Points* points) -> void;
 };
 
 #endif

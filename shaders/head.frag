@@ -5,7 +5,7 @@ precision highp float;
 in vec2 position;
 in float distance;
 in float preCalculated;
-in float outside;
+in float inside;
 out vec4 fragColor;
 
 uniform sampler2D tex;
