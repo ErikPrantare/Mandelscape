@@ -3,14 +3,14 @@
 #define re(z) (z).x
 #define im(z) (z).y
 
-complex
-add(const in complex a, const in complex b)
+real
+add(const in real a, const in real b)
 {
     return a + b;
 }
 
-real
-add(const in real a, const in real b)
+complex
+add(const in complex a, const in complex b)
 {
     return a + b;
 }
@@ -25,6 +25,12 @@ complex
 mult(const in complex a, const in complex b)
 {
     return complex(re(a)*re(b) - im(a)*im(b), re(a)*im(b) + im(a)*re(b));
+}
+
+real
+square(const in real a)
+{
+    return a * a;
 }
 
 complex

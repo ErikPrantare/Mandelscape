@@ -80,11 +80,17 @@ mult(const in complex a, const in complex b)
         add(mult(im(a), re(b)), mult(re(a), im(b))));
 }
 
+real
+square(const in real a)
+{
+    return mult(a, a);
+}
+
 complex
 square(const in complex a)
 {
     return complex(
-        add(mult(re(a), re(a)), -mult(im(a), im(a))),
+        add(square(re(a)), -square(im(a))),
         2.0 * mult(re(a), im(a)));
 }
 
