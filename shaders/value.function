@@ -50,8 +50,8 @@ value(const in vec2 posHigh, const in vec2 posLow)
     float s = 0.0;
     float tl = 0.0;
 
-    float h2 = colorOffset.g;  // height factor of the incoming light
-    float angle = colorOffset.b;  // incoming direction of light
+    float h2 = colorFrequency;  // height factor of the incoming light
+    float angle = colorOffset.g;  // incoming direction of light
     vec2 v = vec2(cos(angle), sin(angle));  // unit 2D vector in this direction
     float R = 1e10;
 
