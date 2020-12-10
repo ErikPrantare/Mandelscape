@@ -13,24 +13,40 @@
 
 struct PointData {
     double height;
-    double val;
+    double value;
+    bool inside;
 };
 
 auto
 pointData(glm::dvec2 const& pos, int iterations) -> PointData;
 
+auto
+Terrain::resize(Terrain::Points* const points, size_t const size) -> void
+{
+    points->position.resize(size);
+    points->value.resize(size);
+    points->inside.resize(size);
+    points->size = size;
+}
+
 Terrain::Terrain()
 {
-    loadMesh(m_loadingOffset, m_scale, &m_meshPoints, &m_colors);
+    loadMesh(m_loadingOffset, m_scale, &m_points);
 
-    m_mesh.setVertices(m_meshPoints);
-    m_loadingMesh.setVertices(m_meshPoints);
+    m_mesh.setVertices(m_points.position);
+    m_loadingMesh.setVertices(m_points.position);
 
+    // value
     m_mesh.newAttribute(1);
     m_loadingMesh.newAttribute(1);
+    m_mesh.setAttribute(1, m_points.value);
+    m_loadingMesh.setAttribute(1, m_points.value);
 
-    m_mesh.setAttribute(1, m_colors);
-    m_loadingMesh.setAttribute(1, m_colors);
+    // inside
+    m_mesh.newAttribute(2);
+    m_loadingMesh.newAttribute(2);
+    m_mesh.setAttribute(2, m_points.inside);
+    m_loadingMesh.setAttribute(2, m_points.inside);
 
     // CPP20 {.imagePath = ...}
     auto textureArgs           = TextureArgs();
@@ -78,22 +94,16 @@ toGpuVec(glm::dvec3 const v) -> glm::vec3
 }
 
 auto
-Terrain::loadMesh(
-        glm::dvec3 offset,
-        double const scale,
-        std::vector<glm::vec3>* const buffer,
-        std::vector<float>* const colors) -> void
+Terrain::loadMesh(glm::dvec3 offset, double const scale, Points* const points)
+        -> void
 {
     // The mesh points need to be clamped in such a way that
     // reloading yields a smooth transition without any jumps.
 
     auto constexpr nrVertices = granularity * granularity;
 
-    if(buffer->size() != nrVertices) {
-        buffer->resize(nrVertices);
-    }
-    if(colors->size() != nrVertices) {
-        colors->resize(nrVertices);
+    if(points->size != nrVertices) {
+        resize(points, nrVertices);
     }
 
     auto constexpr doublingInterval = 40;
@@ -136,12 +146,13 @@ Terrain::loadMesh(
             auto const zQuant = quantized(zPos, stepSize(z));
             auto const data   = pointData({xQuant, zQuant}, m_iterations);
 
-            (*buffer)[x * granularity + z] = glm::vec3(
+            points->position[x * granularity + z] = glm::vec3(
                     xQuant - gpuOffset.x,
                     data.height,
                     zQuant - gpuOffset.z);
 
-            (*colors)[x * granularity + z] = data.val;
+            points->value[x * granularity + z]  = data.value;
+            points->inside[x * granularity + z] = data.inside ? 1 : 0;
             zPos += stepSize(z);
         }
         xPos += stepSize(x);
@@ -152,7 +163,7 @@ auto
 Terrain::startLoading() -> void
 {
     m_loadingProcess = std::async(std::launch::async, [this]() {
-        loadMesh(m_loadingOffset, m_scale, &m_meshPoints, &m_colors);
+        loadMesh(m_loadingOffset, m_scale, &m_points);
     });
 }
 
@@ -160,13 +171,14 @@ auto
 Terrain::updateMesh(double const x, double const z, double const scale)
         -> glm::dvec3
 {
-    if(m_loadIndex < m_meshPoints.size()) {
-        auto const uploadSize = std::min(
-                uploadChunkSize,
-                (int)(m_meshPoints.size() - m_loadIndex));
+    if(m_loadIndex < m_points.size) {
+        auto const uploadSize =
+                std::min(uploadChunkSize, (int)(m_points.size - m_loadIndex));
 
-        m_loadingMesh.setVertices(m_meshPoints, m_loadIndex, uploadSize);
-        m_loadingMesh.setAttribute(1, m_colors, m_loadIndex, uploadSize);
+        m_loadingMesh.setVertices(m_points.position, m_loadIndex, uploadSize);
+        m_loadingMesh.setAttribute(1, m_points.value, m_loadIndex, uploadSize);
+        m_loadingMesh
+                .setAttribute(2, m_points.inside, m_loadIndex, uploadSize);
         m_loadIndex += uploadSize;
 
         return toGpuVec(m_offset);
@@ -229,13 +241,13 @@ pointData(glm::dvec2 const& pos, int iterations) -> PointData
     // main cardioid check
     auto const q = pow(c.real() - 0.25, 2.0) + c.imag() * c.imag();
     if(q * (q + (c.real() - 0.25)) < 0.25 * c.imag() * c.imag()) {
-        return {0.0, -1.0};
+        return {0.0, -1.0, true};
     }
 
     // period-2 bulb check
     if((c.real() + 1.0) * (c.real() + 1.0) + c.imag() * c.imag()
        < 0.25 * 0.25) {
-        return {0.0, -1.0};
+        return {0.0, -1.0, true};
     }
 
     for(int i = 0; i < iterations; ++i) {
@@ -253,12 +265,12 @@ pointData(glm::dvec2 const& pos, int iterations) -> PointData
             };
             auto const val = i - log2(log2(dist * dist));
 
-            // CPP20 {.height = distanceEstimation, .val = val}
-            return {distanceEstimation, val};
+            // CPP20 {.height = distanceEstimation...}
+            return {distanceEstimation, val, false};
         }
     }
 
-    return {0.0, -1.0};
+    return {0.0, -1.0, true};
 }
 
 auto

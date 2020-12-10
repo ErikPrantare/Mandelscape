@@ -2,14 +2,15 @@
 
 #include <iostream>
 #include <array>
+#include <stdexcept>
 
 #include <glm/glm.hpp>
 
-ShaderProgram::ShaderProgram() : m_location(new GLuint(glCreateProgram()))
+ShaderProgram::ShaderProgram() noexcept(false) :
+            m_location(new GLuint(glCreateProgram()))
 {
     if(*m_location == 0) {
-        std::cerr << "Error creating shader program" << std::endl;
-        throw;
+        throw std::runtime_error{"Error creating shader program"};
     }
 }
 
@@ -58,9 +59,9 @@ ShaderProgram::compile()
                 nullptr,
                 errorLog.data());
 
-        std::cerr << "Error linking shader program: " << errorLog.data()
-                  << '\n';
-        throw;
+        throw std::runtime_error(
+                std::string{"Error linking shader program: "}
+                + errorLog.data());
     }
 
     glValidateProgram(*m_location);
@@ -73,7 +74,8 @@ ShaderProgram::compile()
                 nullptr,
                 errorLog.data());
 
-        std::cerr << "Invalid shader program: " << errorLog.data() << '\n';
+        throw std::runtime_error(
+                std::string{"Invalid shader program: "} + errorLog.data());
     }
 
     glUseProgram(*m_location);

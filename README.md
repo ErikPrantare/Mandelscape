@@ -46,6 +46,7 @@ To use dvorak mode, start Mandelscape with `--dvorak` flag.
 Controls can be found at the bottom of src/main.cpp.
 
 # Modifying the coloring algorithm
+<<<<<<< HEAD
 Colors are calculated in two steps. Changing the coloring can be achieved
 by changing any of these steps.
 
@@ -63,6 +64,33 @@ An example of a different value function is given in
 `shaders/valueOrbit.function`.
 Rename this to `shaders/value.function`, and see how the coloring differs.
 The code is written in GLSL.
+||||||| 14015af
+Colors are calculated in two steps. Changing the coloring can be achieved
+by changing any of these steps.
+
+1. Calculate the value of the point.
+A simple example of this would be to use the number of iterations it took to
+bail out as the value.
+This value is calculated in `shaders/value.function`
+(or `shaders/valueDeep.function` for deeper zooms).
+
+2. Calculate the color.
+This takes the value of the previous step, and maps it to a color.
+This function is defined in `shaders/color.function`.
+
+An example of a different value function is given in
+`shaders/valueOrbit.function`.
+Rename this to `shaders/value.function`, and see how the coloring differs.
+=======
+Detailed documentation on writing custom coloring algorithms is given in
+documentation/writing-custom-algorithms.txt.
+
+Try renaming
+`shaders/valueOrbit.frag`.
+to
+`shaders/value.frag`
+to see what is posible to achieve with different algorithms.
+>>>>>>> Task103
 
 ---
 

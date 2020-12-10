@@ -21,10 +21,12 @@ main()
     if(fastMode) {
         fragColor =
             addFog(
-                outside * color(preCalculated)
-                + (1.0 - outside) * color(-1.0));
+                inside * color(preCalculated, true)
+                + (1.0 - inside) * color(preCalculated, false));
         return;
     }
 
-    fragColor = addFog(color(value(position, offset)));
+    bool inside;
+    float val = value(makeComplex(position, offset), inside);
+    fragColor = addFog(color(val, inside));
 }

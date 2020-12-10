@@ -20,6 +20,7 @@ public:
     Mesh(Mesh&&)                    = delete;
     auto operator=(Mesh &&) -> Mesh& = delete;
 
+    // Todo: RAII to remove destructor and = delete
     ~Mesh();
 
     auto
@@ -35,19 +36,44 @@ public:
     auto
     setIndices(std::vector<GLuint> const& indices) -> void;
 
-    // CPP20 nodiscard("Index of created attribute array")]
     auto
     newAttribute(int location) -> void;
 
+    template<class T>
     auto
-    setAttribute(int location, std::vector<float> const& values) -> void;
+    setAttribute(int location, std::vector<T> const& values) -> void
+    {
+        glBindVertexArray(m_vao);
 
+        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+        glBufferData(
+                GL_ARRAY_BUFFER,
+                values.size() * sizeof(T),
+                values.data(),
+                GL_DYNAMIC_DRAW);
+
+        glBindVertexArray(0);
+    }
+
+    template<class T>
     auto
     setAttribute(
             int location,
-            std::vector<float> const& values,
+            std::vector<T> const& values,
             int start,
-            int size) -> void;
+            int size) -> void
+    {
+        glBindVertexArray(m_vao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+        glBufferSubData(
+                GL_ARRAY_BUFFER,
+                start * sizeof(T),
+                size * sizeof(T),
+                &values[start]);
+
+        glBindVertexArray(0);
+    }
 
     auto
     setTexture(std::shared_ptr<Texture> texture) -> void;

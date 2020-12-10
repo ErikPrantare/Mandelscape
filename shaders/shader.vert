@@ -3,7 +3,8 @@
 precision highp float;
 
 in vec3 pos;
-in float colorValue;
+in float value;
+in int inside_;
 
 uniform mat4 cameraSpace;
 uniform mat4 projection;
@@ -13,7 +14,7 @@ uniform float yScale;
 out vec2 position;
 out float distance;
 out float preCalculated;
-out float outside;
+out float inside;
 
 void
 main()
@@ -23,8 +24,8 @@ main()
     position = pos.xz;
     distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
 
-    preCalculated = colorValue;
-    outside = colorValue == -1.0 ? 0.0 : 1.0;
+    preCalculated = value;
+    inside = inside_ != 0 ? 1.0 : 0.0;
 
     gl_Position = projection * gl_Position;
 }

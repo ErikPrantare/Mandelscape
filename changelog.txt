@@ -6,6 +6,11 @@ and changed/other with a '.'.
 
 This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 
+0.3.0
++ Add documentation for writing custom color algorithms
+
+. Simplify custom color algorithm writing
+
 0.2.0 (2020-11-22):
 + Add fast mode
 + Make y-axis scaleable

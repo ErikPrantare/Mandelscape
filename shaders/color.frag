@@ -1,7 +1,7 @@
 vec4
-color(const in float val)
+color(const in float val, bool inside)
 {
-    if(val == -1.0) return vec4(0.0, 0.0, 0.0, 1.0);
+    if(inside) return vec4(0.0, 0.0, 0.0, 1.0);
 
     vec3 colorVal = val * colorFrequency + colorOffset;
     vec4 color = texture(tex, vec2(0.0, val))

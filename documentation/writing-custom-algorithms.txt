@@ -1,0 +1,117 @@
+NOTE: Custom algorithms are still in an experimental stage.
+Look at the changelog before updating to see if it introduces breaking changes.
+
+---
+Coloring of the landscape is done in two steps.
+For a given complex number,
+a function is applied that calculates a floating point value.
+This value is then passed to another function, that translates the
+value to a color.
+In addition to this, the value function can also write to a variable
+to signal whether it is inside or outside the set.
+This value may then be used in the coloring function to take different actions
+depending on whether the point is inside or outside the set.
+
+The two functions are defined in
+shaders/value.frag
+shaders/color.frag
+
+---
+The functions are written in GLSL. To allow for different precisions,
+two macro types are defined to be used in the calculation of the value:
+real
+complex
+These two types must always be used in the value calculation, or there will
+be precision issues.
+
+A complex number is made up of two real numbers.
+It is possible to create a complex number with
+complex(real r, real i)
+
+It is also possible to create values with value 0:
+complex(0.0)
+real(0.0)
+
+To help in converting between real and float, use the following functions:
+real toReal(float)
+float toFloat(real)
+toFloat will cause loss of precision,
+so use it only where the precision is not vital.
+
+In addition to these, two macros are defined to get the real and imaginary
+part of a complex value:
+re(z)
+im(z)
+Both re and im returns a real. These can also be assigned to, so e.g.
+re(z) = im(z);
+is valid.
+
+Some basic arithmetic functions are defined for the types:
+real add(real, real)
+complex add(complex, complex)
+Adds two numbers.
+
+real mult(real, real)
+complex mult(complex, complex)
+Multiplies two numbers.
+
+real square(real)
+complex square(complex)
+Squares a number.
+
+Additionally, multiplication and division with a float is allowed:
+z = c / 10.0;
+re(z) = 0.5 * im(c);
+
+To subtract, negate the second argument to add:
+z = add(z, -c);
+
+---
+Two global variables can be used in the functions:
+int iterations
+float time
+iterations contains the amount of iterations the algorithm should use.
+time is the elapsed time given in seconds, and can be used to animate
+the algorithm.
+
+---
+Example functions
+
+value.frag:
+float
+value(const in complex c, out bool inside)
+{
+    complex z = complex(0.0);
+    for(int i = 0; i < iterations; ++i) {
+        z = add(mult(z, z), c);
+
+        float distSqr = toFloat(add(square(re(z)), square(im(z))));
+        if(distSqr > 4.0) {
+            inside = false;
+            return float(i);
+        }
+    }
+
+    inside = true;
+    return -1.0;
+}
+
+
+color.frag:
+vec4
+color(const in float val, const in bool inside)
+{
+    // vec4 represents rgba
+    // each component should be within [0.0, 1.0]
+    if(inside) return vec4(0.0, 0.0, 0.0, 1.0);
+
+    return vec4(
+            0.5*sin(0.2*val)+0.5,
+            0.5*cos(0.2*val)+0.5,
+            0.5*-sin(0.2*val)+0.5,
+            1.0);
+}
+
+---
+An example value function is also defined in valueOrbit.frag, that uses the
+time variable to animate an orbit trap algorithm.

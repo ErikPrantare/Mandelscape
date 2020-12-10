@@ -23,17 +23,17 @@ public:
     Shader() = delete;
 
     static auto
-    fromFile(std::string const& filePath) -> Shader;
+    fromFile(std::string const& filePath) noexcept(false) -> Shader;
 
     template<class Arg, class... Args>
     static auto
-    fromFiles(Arg filePath, Args... filePaths) -> Shader
+    fromFiles(Arg filePath, Args... filePaths) noexcept(false) -> Shader
     {
         return Shader<type>(util::concatFiles(filePath, filePaths...));
     }
 
     static auto
-    fromCode(std::string const& sourceCode) -> Shader;
+    fromCode(std::string const& sourceCode) noexcept(false) -> Shader;
 
     auto
     attachTo(ShaderProgram& program) const -> void;
@@ -44,7 +44,8 @@ private:
     std::unique_ptr<GLuint const, glDestructors::Shader> m_location;
 
     static auto
-    createShader(std::string const& sourceCode) -> GLuint const*;
+    createShader(std::string const& sourceCode) noexcept(false)
+            -> GLuint const*;
 };
 
 using VertexShader   = Shader<ShaderType::Vertex>;

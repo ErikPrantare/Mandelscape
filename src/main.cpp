@@ -1,5 +1,6 @@
 #include <string>
 #include <tuple>
+#include <stdexcept>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -35,7 +36,7 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
 auto
 main(int numArgs, char* args[]) -> int
-{
+try {
     auto window = Window({1368, 768});
 
     auto terrain = Terrain();
@@ -109,6 +110,11 @@ main(int numArgs, char* args[]) -> int
     }
 
     return 0;
+}
+catch(std::runtime_error const& e) {
+    std::cerr << e.what() << std::endl;
+
+    return 1;
 }
 
 void
