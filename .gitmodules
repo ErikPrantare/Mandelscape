@@ -1,12 +1,15 @@
 [submodule "extern/stb"]
 	path = extern/stb
-	url = ../../nothings/stb
+	url = https://github.com/nothings/stb
 [submodule "extern/glm"]
 	path = extern/glm
-	url = ../../g-truc/glm
+	url = https://github.com/g-truc/glm
 [submodule "extern/glfw"]
 	path = extern/glfw
-	url = ../../glfw/glfw
+	url = https://github.com/glfw/glfw
 [submodule "extern/Catch2"]
 	path = extern/Catch2
-	url = ../../catchorg/Catch2
+	url = https://github.com/catchorg/Catch2
+[submodule "extern/luajit-2.0"]
+	path = extern/luajit-2.0
+	url = https://luajit.org/git/luajit-2.0.git
