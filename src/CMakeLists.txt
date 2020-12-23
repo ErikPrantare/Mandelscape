@@ -9,14 +9,18 @@ target_sources(MandelInterface
     INTERFACE ${SRC})
 
 target_include_directories(MandelInterface
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    INTERFACE ${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src
+)
 
 target_link_libraries(MandelInterface
     INTERFACE Threads::Threads
     INTERFACE glad::glad
     INTERFACE glfw::glfw
     INTERFACE glm::glm
-    INTERFACE stb::stb)
+    INTERFACE stb::stb
+    INTERFACE luajit::luajit
+)
 
 add_executable(Mandelscape)
 

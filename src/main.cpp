@@ -9,6 +9,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "lua.hpp"
+
 #include "util.hpp"
 #include "camera.hpp"
 #include "terrain.hpp"
@@ -37,6 +39,12 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 auto
 main(int numArgs, char* args[]) -> int
 try {
+    std::string test = "a = 2*10";
+    lua_State* L     = luaL_newstate();
+    luaL_dostring(L, test.c_str());
+    lua_getglobal(L, "a");
+    std::cout << lua_tonumber(L, -1) << std::endl;
+
     auto window = Window({1368, 768});
 
     auto terrain = Terrain();

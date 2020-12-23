@@ -1,3 +1,5 @@
+include(ExternalProject)
+
 #---------------------------CMake Project Config-------------------------------
 if(WIN32)
     cmake_minimum_required(VERSION 3.15)
@@ -94,6 +96,22 @@ if(NOT TARGET stb::stb)
         INTERFACE extern/stb)
   endif()
 endif()
+
+#---------------------------luajit---------------------------------------------
+ExternalProject_Add(luajit
+    SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
+    BUILD_IN_SOURCE 1
+    BUILD_COMMAND make
+    DOWNLOAD_COMMAND ""
+    CONFIGURE_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+add_library(luajit::luajit INTERFACE IMPORTED)
+target_link_libraries(luajit::luajit
+    INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/\
+${CMAKE_SHARED_MODULE_PREFIX}luajit${CMAKE_STATIC_LIBRARY_SUFFIX}"
+)
 
 #---------------------------Catch2---------------------------------------------
 if(BUILD_TESTING)
