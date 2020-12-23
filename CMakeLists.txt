@@ -50,7 +50,7 @@ find_package(Threads REQUIRED)
 add_subdirectory(extern/glad)
 
 #---------------------------glm------------------------------------------------
-find_package(glm CONFIG QUIET)
+#find_package(glm CONFIG QUIET)
 
 if(NOT glm_FOUND)
   add_subdirectory(extern/glm)
@@ -64,7 +64,7 @@ if(NOT TARGET glm::glm)
 endif()
 
 #---------------------------glfw-----------------------------------------------
-find_package(GLFW QUIET)
+#find_package(GLFW QUIET)
 
 if(NOT GLFW_FOUND)
   option(BUILD_SHARED_LIBS OFF)
@@ -83,7 +83,7 @@ if(NOT TARGET glfw::glfw)
 endif()
 
 #---------------------------stb------------------------------------------------
-find_package(stb QUIET)
+#find_package(stb QUIET)
 
 if(NOT TARGET stb::stb)
   add_library(stb::stb INTERFACE IMPORTED)
@@ -98,19 +98,18 @@ if(NOT TARGET stb::stb)
 endif()
 
 #---------------------------luajit---------------------------------------------
-ExternalProject_Add(luajit
-    SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
-    BUILD_IN_SOURCE 1
-    BUILD_COMMAND make
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ""
-    INSTALL_COMMAND ""
-)
+#ExternalProject_Add(luajit
+    #SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
+    #BUILD_IN_SOURCE 1
+    #BUILD_COMMAND make clean && make HOST_CC="/usr/bin/gcc -m64" CROSS="i686-w64-mingw32-" TARGET_SYS="Windows"
+    #DOWNLOAD_COMMAND ""
+    #CONFIGURE_COMMAND ""
+    #INSTALL_COMMAND ""
+#)
 
 add_library(luajit::luajit INTERFACE IMPORTED)
 target_link_libraries(luajit::luajit
-    INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/\
-${CMAKE_SHARED_MODULE_PREFIX}luajit${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit.a"
 )
 
 #---------------------------Catch2---------------------------------------------

@@ -43,7 +43,7 @@ try {
     lua_State* L     = luaL_newstate();
     luaL_dostring(L, test.c_str());
     lua_getglobal(L, "a");
-    std::cout << lua_tonumber(L, -1) << std::endl;
+    std::cout << lua_tonumber(L, -1) << "working?" << std::endl;
 
     auto window = Window({1368, 768});
 
