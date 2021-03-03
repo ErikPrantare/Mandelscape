@@ -99,12 +99,12 @@ endif()
 
 #---------------------------luajit---------------------------------------------
 #ExternalProject_Add(luajit
-    #SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
-    #BUILD_IN_SOURCE 1
-    #BUILD_COMMAND make clean && make HOST_CC="/usr/bin/gcc -m64" CROSS="i686-w64-mingw32-" TARGET_SYS="Windows"
-    #DOWNLOAD_COMMAND ""
-    #CONFIGURE_COMMAND ""
-    #INSTALL_COMMAND ""
+#    SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
+#    BUILD_IN_SOURCE 1
+#    BUILD_COMMAND make clean && make
+#    DOWNLOAD_COMMAND ""
+#    CONFIGURE_COMMAND ""
+#    INSTALL_COMMAND ""
 #)
 
 add_library(luajit::luajit INTERFACE IMPORTED)
