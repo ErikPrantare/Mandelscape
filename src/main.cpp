@@ -38,13 +38,6 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 auto
 main(int numArgs, char* args[]) -> int
 try {
-    lua_State* L = luaL_newstate();
-
-    std::string statement = "a = 2*10";
-    luaL_dostring(L, statement.c_str());
-    lua_getglobal(L, "a");
-
-    std::cout << lua_tonumber(L, -1);
     auto window = Window({1368, 768});
 
     auto terrain = Terrain();
