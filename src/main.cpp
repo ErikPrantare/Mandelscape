@@ -34,6 +34,7 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
+#include "lua.hpp"
 auto
 main(int numArgs, char* args[]) -> int
 try {
