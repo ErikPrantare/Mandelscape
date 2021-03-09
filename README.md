@@ -26,7 +26,7 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.2.0
 
 - 1-4 + up/down to change colors.
 
-- 5 + up/down to terrain y scale.
+- 5 + up/down to change terrain y scale.
 
 - x to render image. Will be put inside directory named screenshots.
 
