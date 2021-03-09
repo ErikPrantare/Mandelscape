@@ -98,19 +98,35 @@ if(NOT TARGET stb::stb)
 endif()
 
 #---------------------------luajit---------------------------------------------
-#ExternalProject_Add(luajit
-#    SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
-#    BUILD_IN_SOURCE 1
-#    BUILD_COMMAND make clean && make
-#    DOWNLOAD_COMMAND ""
-#    CONFIGURE_COMMAND ""
-#    INSTALL_COMMAND ""
-#)
-
 add_library(luajit::luajit INTERFACE IMPORTED)
-target_link_libraries(luajit::luajit
-    INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit.a"
-)
+if(MINGW)
+    set(LUAJIT_HOST_CC "gcc -m64")
+    set(LUAJIT_CROSS "x86_64-w64-mingw32-")
+    ExternalProject_Add(luajit
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
+        BUILD_IN_SOURCE 1
+        BUILD_COMMAND make HOST_CC=${LUAJIT_HOST_CC} CROSS=${LUAJIT_CROSS} TARGET_SYS=Windows
+        DOWNLOAD_COMMAND ""
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND ""
+    )
+    target_link_libraries(luajit::luajit
+        INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit-5.1.dll.a"
+    )
+else()
+    ExternalProject_Add(luajit
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
+        BUILD_IN_SOURCE 1
+        BUILD_COMMAND make
+        DOWNLOAD_COMMAND ""
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND ""
+    )
+    target_link_libraries(luajit::luajit
+        INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit.a"
+    )
+endif()
+
 
 #---------------------------Catch2---------------------------------------------
 if(BUILD_TESTING)
