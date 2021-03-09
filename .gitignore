@@ -1,6 +1,7 @@
 #Build artefacts
 build*/
 .cache/
+Mandelscape.zip
 
 #CMake
 CMakeCache.txt
