@@ -10,6 +10,7 @@ This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 + Add documentation for writing custom color algorithms
 
 . Simplify custom color algorithm writing
+. Change license to AGPLv3
 
 0.2.0 (2020-11-22):
 + Add fast mode
