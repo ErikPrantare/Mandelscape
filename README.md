@@ -1,5 +1,5 @@
 # Mandelscape
-Mandelscape is a landscape walking simulator based on Mandelbrot.
+Mandelscape is a landscape walking simulator based on the Mandelbrot fractal.
 Walk around and explore the smallest of details by shrinking yourself.
 
 # Build Guide (Linux)
