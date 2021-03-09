@@ -26,7 +26,7 @@ compile_commands.json
 .clangd/
 
 #Custom build/run files
-*.sh
+/*.sh
 
 #Local diagnostic files
 *.cap
