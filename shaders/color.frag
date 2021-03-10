@@ -1,3 +1,5 @@
+#line 1 0
+
 vec4
 color(const in float val, bool inside)
 {

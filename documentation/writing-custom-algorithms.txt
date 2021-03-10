@@ -74,6 +74,8 @@ the algorithm.
 Example functions
 
 value.frag:
+#line 1 0
+
 float
 value(const in complex c, out bool inside)
 {
@@ -94,6 +96,8 @@ value(const in complex c, out bool inside)
 
 
 color.frag:
+#line 1 1
+
 vec4
 color(const in float val, const in bool inside)
 {
@@ -108,6 +112,8 @@ color(const in float val, const in bool inside)
             1.0);
 }
 
+The preprocessor directives makes sure error messages output correct line
+numbers.
 ---
 An example value function is defined in shaders/valueOrbit.frag
 that uses the time variable to animate an orbit trap algorithm.

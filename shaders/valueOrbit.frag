@@ -1,3 +1,5 @@
+#line 1 1
+
 float
 value(const in complex c, out bool inside)
 {
