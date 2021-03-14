@@ -28,10 +28,10 @@ TEST_CASE("deserialize . serialize == id", "[serialize, deserialize, player]")
 {
     auto player = Player();
 
-    player.position       = {0.001, 127378888.01, -3.14};
-    player.positionOffset = {0.024, 378888.01, 1e100};
-    player.lookAtOffset   = {378.99, 1e-10};
-    player.scale          = 1.0 / 32897.879423;
+    player.position     = {0.001, 127378888.01, -3.14};
+    player.offset       = {0.024, 378888.01, 1e100};
+    player.lookAtOffset = {378.99, 1e-10};
+    player.scale        = 1.0 / 32897.879423;
 
     REQUIRE(deserialize(serialize(player)) == PlayerApprox{player});
 }

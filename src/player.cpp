@@ -1,39 +1,30 @@
 #include "player.hpp"
 
+#include <sstream>
+
 #include "lua.hpp"
 
 auto
 serialize(Player const& player) -> std::string
 {
-    // C++20 use fmt library instead
-    std::string const format = R"(player = {
-    position = {x = %.16f, y = %.16f, z = %.16f},
-    positionOffset = {x = %.16f, y = %.16f, z = %.16f},
-    lookAtOffset = {x = %.16f, y = %.16f},
-    scale = %.16f
-})";
+    // C++20 use fmt library instead. formatting + locales suck
+    //    std::string const format = R"(player = {
+    //    position = {x = %.16f, y = %.16f, z = %.16f},
+    //    offset = {x = %.16f, y = %.16f, z = %.16f},
+    //    lookAtOffset = {x = %.16f, y = %.16f},
+    //    scale = %.16f
+    //})";
 
-    auto const write = [&format, &player](char* output, size_t size) {
-        return std::snprintf(    // NOLINT
-                output,
-                size,
-                format.c_str(),
-                player.position.x,
-                player.position.y,
-                player.position.z,
-                player.positionOffset.x,
-                player.positionOffset.y,
-                player.positionOffset.z,
-                player.lookAtOffset.x,
-                player.lookAtOffset.y,
-                player.scale);
-    };
+    auto ss = std::stringstream();
+    ss << "player = {\nposition = {x = " << player.position.x
+       << ", y = " << player.position.y << ", z = " << player.position.z
+       << "},\noffset = {x = " << player.offset.x
+       << ", y = " << player.offset.y << ", z = " << player.offset.z
+       << "},\nlookAtOffset = {x = " << player.lookAtOffset.x
+       << ", y = " << player.lookAtOffset.y << "},\nscale = " << player.scale
+       << "\n}";
 
-    auto output = std::string();
-    output.resize(write(nullptr, 0));
-    write(output.data(), output.size() + 1);
-
-    return output;
+    return ss.str();
 }
 
 auto
@@ -50,8 +41,8 @@ deserialize(std::string const& input) -> Player
     player.position = util::lua::toVec3(L, -1);
     lua_pop(L, 1);
 
-    lua_getfield(L, -1, "positionOffset");
-    player.positionOffset = util::lua::toVec3(L, -1);
+    lua_getfield(L, -1, "offset");
+    player.offset = util::lua::toVec3(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, -1, "lookAtOffset");
@@ -70,6 +61,6 @@ deserialize(std::string const& input) -> Player
 [[nodiscard]] auto
 operator==(Player const& a, Player const& b) -> bool
 {
-    return std::tie(a.position, a.positionOffset, a.lookAtOffset, a.scale)
-           == std::tie(b.position, b.positionOffset, b.lookAtOffset, b.scale);
+    return std::tie(a.position, a.offset, a.lookAtOffset, a.scale)
+           == std::tie(b.position, b.offset, b.lookAtOffset, b.scale);
 }

@@ -57,14 +57,6 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 auto
 main(int argc, char* argv[]) -> int
 try {
-    NFD_Init();
-
-    nfdchar_t* outPath;
-    nfdfilteritem_t filterItem[2] = {
-            {"Source code", "c,cpp,cc"},
-            {"Headers", "h,hpp"}};
-    nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
-    (void)result;
     auto const args = std::vector(argv, argv + argc);
 
     auto window = Window({1368, 768});
@@ -113,12 +105,26 @@ try {
                 shaderController.handleMomentaryAction(action);
 
                 if(action == MomentaryAction{TriggerAction::Save}) {
-                    std::ofstream out("save.lua");
+                    NFD_Init();
+                    nfdchar_t* outPath;
+                    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
+                    NFD_SaveDialog(&outPath, filterItem, 1, NULL, "save.lua");
+                    std::ofstream out(outPath);
                     out << serialize(player);
                 }
                 else if(action == MomentaryAction{TriggerAction::Load}) {
-                    std::ifstream in("save.lua");
-                    player = deserialize(util::getContents(in));
+                    NFD_Init();
+                    nfdchar_t* outPath;
+                    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
+                    NFD_OpenDialog(&outPath, filterItem, 1, NULL);
+                    std::ifstream in(outPath);
+                    auto newPlayer = deserialize(util::getContents(in));
+                    auto dPos      = PlayerHelper(newPlayer).truePosition()
+                                - PlayerHelper(player).truePosition();
+                    player.position += dPos;
+                    player.lookAtOffset = newPlayer.lookAtOffset;
+                    player.scale        = newPlayer.scale;
+                    std::cout << player.scale << std::endl;
                 }
             }
         }

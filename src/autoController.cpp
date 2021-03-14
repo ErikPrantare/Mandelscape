@@ -24,6 +24,7 @@
 #include <GLFW/glfw3.h>
 
 #include "util.hpp"
+#include "playerHelper.hpp"
 
 AutoController::AutoController(std::function<double(glm::dvec2)> heightFunc) :
             m_heightFunc(std::move(heightFunc))
@@ -42,9 +43,8 @@ AutoController::handleMomentaryAction(MomentaryAction const& action) -> void
 auto
 AutoController::update(Player* const player, double const dt) -> void
 {
-    auto const relativePos = util::planePos(player->position);
-    auto const offset      = util::planePos(player->positionOffset);
-    auto const absolutePos = relativePos + offset;
+    auto const absolutePos =
+            util::planePos(PlayerHelper(*player).truePosition());
 
     auto const speed          = player->scale * travelSpeed;
     auto const targetDistance = glm::length(m_target - absolutePos);
@@ -72,9 +72,8 @@ AutoController::locateTarget(Player const& player) -> void
 {
     using distribution = std::uniform_real_distribution<double>;
 
-    auto const relativePos = util::planePos(player.position);
-    auto const offset      = util::planePos(player.positionOffset);
-    auto const absolutePos = relativePos + offset;
+    auto const absolutePos =
+            util::planePos(PlayerHelper(player).truePosition());
 
     auto rd               = std::random_device();
     auto const travelTime = distribution(minTravelTime, maxTravelTime)(rd);

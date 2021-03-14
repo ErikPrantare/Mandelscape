@@ -20,18 +20,33 @@
 
 #include "player.hpp"
 
+#include <type_traits>
+
+// C++20 remove_cvref_t
+template<
+        class P,
+        class = std::enable_if_t<std::is_same_v<Player&, std::decay_t<P>&>>>
 class PlayerHelper {
 public:
-    PlayerHelper(Player& player) noexcept;
+    PlayerHelper(P& player) noexcept : m_player(player)
+    {}
 
     [[nodiscard]] auto
-    truePosition() const noexcept -> glm::dvec3;
+    truePosition() const noexcept -> glm::dvec3
+    {
+        return m_player.position + m_player.offset;
+    }
 
     auto
-    updateOffset(glm::dvec3 offset) noexcept -> void;
+    updateOffset(glm::dvec3 offset) noexcept -> void
+    {
+        auto dOffset = offset - m_player.offset;
+        m_player.position -= dOffset;
+        m_player.offset = offset;
+    }
 
 private:
-    Player* const m_player;
+    P& m_player;
 };
 
 #endif
