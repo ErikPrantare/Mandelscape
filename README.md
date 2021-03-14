@@ -3,6 +3,12 @@ Mandelscape is a landscape walking simulator based on the Mandelbrot fractal.
 Walk around and explore the smallest of details by shrinking yourself.
 
 # Build Guide (Linux)
+Mandelscape depends on GTK3. To install it on Debian:
+```
+sudo apt install libgtk-3-dev
+```
+
+To compile Mandelscape:
 ```
 git clone https://github.com/ErikPrantare/Mandelscape.git
 cd Mandelscape
