@@ -185,8 +185,7 @@ Terrain::startLoading() -> void
 }
 
 auto
-Terrain::updateMesh(double const x, double const z, double const scale)
-        -> glm::dvec3
+Terrain::updateMesh(double const x, double const z, double const scale) -> void
 {
     if(m_loadIndex < m_points.size) {
         auto const uploadSize =
@@ -198,7 +197,7 @@ Terrain::updateMesh(double const x, double const z, double const scale)
                 .setAttribute(2, m_points.inside, m_loadIndex, uploadSize);
         m_loadIndex += uploadSize;
 
-        return toGpuVec(m_offset);
+        return;
     }
 
     switch(m_state) {
@@ -222,9 +221,6 @@ Terrain::updateMesh(double const x, double const z, double const scale)
         m_state = State::Loading;
     } break;
     }
-
-    // offset must be consistent with shader offset (32 bit float)
-    return toGpuVec(m_offset);
 }
 
 auto
@@ -294,6 +290,13 @@ auto
 Terrain::heightAt(glm::dvec2 const& pos) -> double
 {
     return pointData(pos, m_iterations).height;
+}
+
+auto
+Terrain::offset() const noexcept -> glm::dvec3
+{
+    // offset must be consistent with shader offset (32 bit float)
+    return toGpuVec(m_offset);
 }
 
 auto

@@ -74,7 +74,7 @@ auto
 Shader<type>::fromFile(std::string const& filePath) noexcept(false)
         -> Shader<type>
 {
-    return Shader<type>(util::readFile(filePath));
+    return Shader<type>(util::getContents(std::ifstream(filePath)));
 }
 
 template<ShaderType type>

@@ -15,31 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_PLAYER_HPP
-#define MANDELLANDSCAPE_PLAYER_HPP
+#ifndef MANDELLANDSCAPE_SERIALIZE_TESTS_HPP
+#define MANDELLANDSCAPE_SERIALIZE_TESTS_HPP
 
-#include <iostream>
+#include "player.hpp"
 
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
+#include "testUtils.hpp"
 
-#include "event.hpp"
-#include "util.hpp"
+namespace SerializeTests {
 
-struct Player {
-    glm::dvec3 position       = glm::dvec3{0.0, 0.0, 0.0};
-    glm::dvec3 positionOffset = glm::dvec3{0.0, 0.0, 0.0};
-    glm::dvec2 lookAtOffset   = glm::dvec2{0.0, 0.0};
-    double scale              = 1.0;
-};
+TEST_CASE("deserialize . serialize == id", "[serialize, deserialize, player]")
+{
+    auto player = Player();
 
-[[nodiscard]] auto
-serialize(Player const&) -> std::string;
+    player.position       = {0.001, 127378888.01, -3.14};
+    player.positionOffset = {0.024, 378888.01, 1e100};
+    player.lookAtOffset   = {378.99, 1e-10};
+    player.scale          = 1.0 / 32897.879423;
 
-[[nodiscard]] auto
-deserialize(std::string const&) -> Player;
+    REQUIRE(deserialize(serialize(player)) == PlayerApprox{player});
+}
 
-[[nodiscard]] auto
-operator==(Player const& a, Player const& b) -> bool;
+}    // namespace SerializeTests
 
 #endif

@@ -122,14 +122,17 @@ if(MINGW)
     ExternalProject_Add(luajit
         SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
         BUILD_IN_SOURCE 1
-        BUILD_COMMAND make HOST_CC=${LUAJIT_HOST_CC} CROSS=${LUAJIT_CROSS} TARGET_SYS=Windows
+        BUILD_COMMAND make
+            HOST_CC=${LUAJIT_HOST_CC}
+            CROSS=${LUAJIT_CROSS}
+            TARGET_SYS=Windows
         DOWNLOAD_COMMAND ""
         CONFIGURE_COMMAND ""
-        INSTALL_COMMAND ""
-    )
+        INSTALL_COMMAND "")
+
     target_link_libraries(luajit::luajit
-        INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit-5.1.dll.a"
-    )
+        INTERFACE
+            "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit-5.1.dll.a")
 else()
     ExternalProject_Add(luajit
         SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/luajit-2.0
@@ -137,13 +140,16 @@ else()
         BUILD_COMMAND make
         DOWNLOAD_COMMAND ""
         CONFIGURE_COMMAND ""
-        INSTALL_COMMAND ""
-    )
+        INSTALL_COMMAND "")
+
     target_link_libraries(luajit::luajit
-        INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit.a"
-    )
+        INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit.a")
 endif()
 
+#---------------------------nativefiledialog-extended--------------------------
+add_library(nfde::nfde INTERFACE IMPORTED)
+add_subdirectory(extern/nfde)
+target_link_libraries(nfde::nfde INTERFACE nfd)
 
 #---------------------------Catch2---------------------------------------------
 if(BUILD_TESTING)

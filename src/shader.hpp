@@ -39,17 +39,18 @@ class Shader {
 public:
     Shader() = delete;
 
-    static auto
+    [[nodiscard]] static auto
     fromFile(std::string const& filePath) noexcept(false) -> Shader;
 
-    template<class Arg, class... Args>
-    static auto
-    fromFiles(Arg filePath, Args... filePaths) noexcept(false) -> Shader
+    template<class... Args>
+    [[nodiscard]] static auto
+    fromFiles(Args... filePaths) noexcept(false) -> Shader
     {
-        return Shader<type>(util::concatFiles(filePath, filePaths...));
+        return Shader<type>(
+                (util::getContents(std::ifstream(filePaths)) + ...));
     }
 
-    static auto
+    [[nodiscard]] static auto
     fromCode(std::string const& sourceCode) noexcept(false) -> Shader;
 
     auto
@@ -60,7 +61,7 @@ private:
 
     std::unique_ptr<GLuint const, glDestructors::Shader> m_location;
 
-    static auto
+    [[nodiscard]] static auto
     createShader(std::string const& sourceCode) noexcept(false)
             -> GLuint const*;
 };

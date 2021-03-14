@@ -15,31 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_PLAYER_HPP
-#define MANDELLANDSCAPE_PLAYER_HPP
+#ifndef MANDELLANDSCAPE_PLAYER_HELPER_HPP
+#define MANDELLANDSCAPE_PLAYER_HELPER_HPP
 
-#include <iostream>
+#include "player.hpp"
 
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
+class PlayerHelper {
+public:
+    PlayerHelper(Player& player) noexcept;
 
-#include "event.hpp"
-#include "util.hpp"
+    [[nodiscard]] auto
+    truePosition() const noexcept -> glm::dvec3;
 
-struct Player {
-    glm::dvec3 position       = glm::dvec3{0.0, 0.0, 0.0};
-    glm::dvec3 positionOffset = glm::dvec3{0.0, 0.0, 0.0};
-    glm::dvec2 lookAtOffset   = glm::dvec2{0.0, 0.0};
-    double scale              = 1.0;
+    auto
+    updateOffset(glm::dvec3 offset) noexcept -> void;
+
+private:
+    Player* const m_player;
 };
-
-[[nodiscard]] auto
-serialize(Player const&) -> std::string;
-
-[[nodiscard]] auto
-deserialize(std::string const&) -> Player;
-
-[[nodiscard]] auto
-operator==(Player const& a, Player const& b) -> bool;
 
 #endif

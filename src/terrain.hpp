@@ -52,10 +52,13 @@ public:
     handleMomentaryAction(MomentaryAction const& action) -> void;
 
     auto
-    updateMesh(double, double, double) -> glm::dvec3;
+    updateMesh(double x, double z, double scale) -> void;
 
-    auto
+    [[nodiscard]] auto
     heightAt(glm::dvec2 const&) -> double;
+
+    [[nodiscard]] auto
+    offset() const noexcept -> glm::dvec3;
 
     auto
     render(ShaderProgram* shaderProgram) -> void;
@@ -93,7 +96,7 @@ private:
     };
 
     static auto
-    resize(Points* const points, size_t const size) -> void;
+    resize(Points* points, size_t size) -> void;
 
     Points m_points;
 

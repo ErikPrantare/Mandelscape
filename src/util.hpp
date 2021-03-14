@@ -32,6 +32,8 @@
 #include <glm/glm.hpp>
 #include <glm/ext/scalar_constants.hpp>
 
+#include "lua.hpp"
+
 #include "mandelTypeTraits.hpp"
 
 namespace util {
@@ -39,23 +41,17 @@ namespace util {
 // CPP20 std::numbers::pi
 double constexpr pi = glm::pi<double>();
 
-auto
-readFile(std::string const& filePath) -> std::string;
-
-template<
-        class... Args,
-        class = std::enable_if_t<
-                std::conjunction_v<std::is_convertible<Args, std::string>...>>>
-auto
-concatFiles(Args const&... files) -> std::string
+// Template so forwarding reference can accept rvalues
+template<class In = std::istream>
+[[nodiscard]] auto
+getContents(In&& in) -> std::string
 {
-    std::string contents;
-    return (contents.append(readFile(files)), ...);
+    return std::string(std::istreambuf_iterator(in), {});
 }
 
 // CPP20 https://en.cppreference.com/w/cpp/experimental/future/is_ready
 template<typename T>
-auto
+[[nodiscard]] auto
 isDone(std::future<T> const& f) -> bool
 {
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
@@ -84,7 +80,7 @@ private:
 
 // CPP20 https://en.cppreference.com/w/cpp/container/map/contains
 template<typename KeyType, typename ValueType>
-auto
+[[nodiscard]] auto
 contains(std::map<KeyType, ValueType> const& map, KeyType key) -> bool
 {
     return map.find(key) != map.end();
@@ -92,7 +88,7 @@ contains(std::map<KeyType, ValueType> const& map, KeyType key) -> bool
 
 // CPP20 https://en.cppreference.com/w/cpp/container/set/contains
 template<typename ValueType>
-auto
+[[nodiscard]] auto
 contains(std::set<ValueType> const& set, ValueType key) -> bool
 {
     return set.find(key) != set.end();
@@ -112,7 +108,7 @@ auto constexpr unaryNOP = [](auto&&) {
 };
 
 template<typename T, typename Container>
-auto
+[[nodiscard]] auto
 pop(std::queue<T, Container>& queue) -> std::optional<T>
 {
     if(queue.empty()) {
@@ -124,22 +120,33 @@ pop(std::queue<T, Container>& queue) -> std::optional<T>
     return a;
 }
 
-auto constexpr pixelsToAngle(glm::dvec2 nrPixels, double sensitivity = 0.01)
-        -> glm::dvec2
+[[nodiscard]] auto constexpr pixelsToAngle(
+        glm::dvec2 nrPixels,
+        double sensitivity = 0.01) -> glm::dvec2
 {
     //-x, refer to right hand rule with y up and positive pixels rightwards
     return sensitivity * glm::dvec2(-nrPixels.x, nrPixels.y);
 }
 
-auto constexpr planePos(glm::dvec3 spacePos) -> glm::dvec2
+[[nodiscard]] auto constexpr planePos(glm::dvec3 spacePos) -> glm::dvec2
 {
     return {spacePos.x, spacePos.z};
 }
 
 // CPP20 Make constexpr
-auto
+[[nodiscard]] auto
 unitVec2(double theta) -> glm::dvec2;
 
 }    // namespace util
+
+namespace util::lua {
+
+[[nodiscard]] auto
+toVec3(lua_State* L, int offset) -> glm::dvec3;
+
+[[nodiscard]] auto
+toVec2(lua_State* L, int offset) -> glm::dvec2;
+
+}    // namespace util::lua
 
 #endif    // MANDELLANDSCAPE_UTILS_HPP

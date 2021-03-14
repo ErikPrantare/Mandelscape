@@ -26,11 +26,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <nfd.hpp>
+
 #include "util.hpp"
 #include "camera.hpp"
 #include "terrain.hpp"
 #include "window.hpp"
 #include "player.hpp"
+#include "playerHelper.hpp"
 #include "walkController.hpp"
 #include "autoController.hpp"
 #include "metaController.hpp"
@@ -51,43 +54,51 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
-#include "lua.hpp"
 auto
-main(int numArgs, char* args[]) -> int
+main(int argc, char* argv[]) -> int
 try {
+    NFD_Init();
+
+    nfdchar_t* outPath;
+    nfdfilteritem_t filterItem[2] = {
+            {"Source code", "c,cpp,cc"},
+            {"Headers", "h,hpp"}};
+    nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
+    (void)result;
+    auto const args = std::vector(argv, argv + argc);
+
     auto window = Window({1368, 768});
 
     auto terrain = Terrain();
     auto player  = Player();
 
-    auto momentaryMap  = MomentaryActionsMap();
-    auto persistentMap = PersistentActionMap();
+    auto [momentaryMap, persistentMap] = [&args] {
+        if(args.size() == 2 && args[1] == std::string("--dvorak")) {
+            return initControlsDvorak();
+        }
 
-    if(numArgs == 2 && args[1] == std::string("--dvorak")) {
-        std::tie(momentaryMap, persistentMap) = initControlsDvorak();
-    }
-    else {
-        std::tie(momentaryMap, persistentMap) = initControls();
-    }
+        return initControls();
+    }();
 
     auto autoControllHeightFunc = [&terrain](glm::dvec2 x) {
         return terrain.heightAt(x);
     };
 
-    auto metacontroller = MetaController{
+    auto metaController = MetaController{
             std::make_unique<WalkController>(),
             std::make_unique<AutoController>(autoControllHeightFunc)};
 
-    auto shaderProgram    = ShaderProgram();
-    auto shaderController = ShaderController(&shaderProgram);
+    auto shaderProgram = ShaderProgram();
     shaderProgram.bindAttributeLocation("pos", Mesh::vertexLocation);
     shaderProgram.bindAttributeLocation("val", Terrain::colorLocation);
+
+    auto shaderController = ShaderController(&shaderProgram);
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
     while(window.update()) {
-        const double currentTimepoint = glfwGetTime();
-        const double dt               = currentTimepoint - lastTimepoint;
+        double const currentTimepoint = glfwGetTime();
+        double const dt               = currentTimepoint - lastTimepoint;
         lastTimepoint                 = currentTimepoint;
 
         while(auto const eventOpt = window.nextEvent()) {
@@ -98,25 +109,32 @@ try {
             for(auto const& action : momentaryMap(event)) {
                 window.handleMomentaryAction(action);
                 terrain.handleMomentaryAction(action);
-                metacontroller.handleMomentaryAction(action);
+                metaController.handleMomentaryAction(action);
                 shaderController.handleMomentaryAction(action);
+
+                if(action == MomentaryAction{TriggerAction::Save}) {
+                    std::ofstream out("save.lua");
+                    out << serialize(player);
+                }
+                else if(action == MomentaryAction{TriggerAction::Load}) {
+                    std::ifstream in("save.lua");
+                    player = deserialize(util::getContents(in));
+                }
             }
         }
 
         if(!window.paused()) {
             time += dt;
 
-            metacontroller.updateState(persistentMap);
+            metaController.updateState(persistentMap);
             shaderController.updateState(persistentMap, dt);
 
-            auto pos = player.position + player.positionOffset;
-            auto terrainOffset =
-                    terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
-            auto dOffset          = terrainOffset - player.positionOffset;
-            player.positionOffset = terrainOffset;
-            player.position -= dOffset;
+            auto const pos = PlayerHelper(player).truePosition();
+            terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
+            PlayerHelper(player).updateOffset(terrain.offset());
             player.position.y = terrain.heightAt({pos.x, pos.z});
-            metacontroller.update(&player, dt);
+            metaController.update(&player, dt);
+
             // Do this after .update, as autozoom is dependent on position.y
             player.position.y *= shaderController.yScale();
         }
@@ -210,6 +228,8 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
     momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
     momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
+    momentaryMap.add(Input::Key::KEY_6, TriggerAction::Save);
+    momentaryMap.add(Input::Key::KEY_7, TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add(Input::Key::COMMA, PersistentAction::MoveForwards);

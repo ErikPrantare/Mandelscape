@@ -23,6 +23,8 @@
 #include <catch2/catch.hpp>
 #include <glm/glm.hpp>
 
+#include "player.hpp"
+
 struct Dvec2Approx {
     glm::dvec2 val;
 };
@@ -59,4 +61,24 @@ operator<<(std::ostream& os, glm::dvec3 const& v)
 }
 }    // namespace glm
 
+std::ostream&
+operator<<(std::ostream& os, Player const& player)
+{
+    os << "Player(" << player.position << ", " << player.positionOffset << ", "
+       << player.lookAtOffset << ", " << player.scale << ")";
+    return os;
+}
+
+struct PlayerApprox {
+    Player player;
+};
+
+bool
+operator==(Player a, PlayerApprox b)
+{
+    return a.position == Dvec3Approx{b.player.position}
+           && a.positionOffset == Dvec3Approx{b.player.positionOffset}
+           && a.lookAtOffset == Dvec2Approx{b.player.lookAtOffset}
+           && a.scale == Approx{b.player.scale};
+}
 #endif

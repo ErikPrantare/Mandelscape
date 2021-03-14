@@ -30,6 +30,9 @@ enum class TriggerAction {
     TogglePause,
     CloseWindow,
     ToggleFastMode,
+
+    Save,
+    Load,
 };
 
 struct MouseDelta {
@@ -38,6 +41,10 @@ struct MouseDelta {
 };
 
 using MomentaryAction = std::variant<TriggerAction, MouseDelta>;
+
+// CPP20: <=> operator
+auto
+operator==(MouseDelta a, MouseDelta b) -> bool;
 
 auto
 operator<(MouseDelta a, MouseDelta b) -> bool;

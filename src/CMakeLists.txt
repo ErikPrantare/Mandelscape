@@ -37,6 +37,7 @@ target_link_libraries(MandelInterface
     INTERFACE glm::glm
     INTERFACE stb::stb
     INTERFACE luajit::luajit
+    INTERFACE nfde::nfde
 )
 
 add_executable(Mandelscape)

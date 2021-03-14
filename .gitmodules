@@ -13,3 +13,6 @@
 [submodule "extern/luajit-2.0"]
 	path = extern/luajit-2.0
 	url = https://luajit.org/git/luajit-2.0.git
+[submodule "extern/nfde"]
+	path = extern/nfde
+	url = https://github.com/btzy/nativefiledialog-extended/

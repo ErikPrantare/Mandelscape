@@ -20,6 +20,12 @@
 #include <tuple>
 
 auto
+operator==(MouseDelta a, MouseDelta b) -> bool
+{
+    return std::tie(a.dx, a.dy) == std::tie(b.dx, b.dy);
+}
+
+auto
 operator<(MouseDelta a, MouseDelta b) -> bool
 {
     return std::tie(a.dx, a.dy) < std::tie(b.dx, b.dy);

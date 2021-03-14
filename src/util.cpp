@@ -17,26 +17,9 @@
 
 #include "util.hpp"
 
-#include <string>
-#include <fstream>
-
 #include <glm/glm.hpp>
 
 namespace util {
-
-auto
-readFile(std::string const& filePath) -> std::string
-{
-    std::string output;
-    std::ifstream in(filePath);
-
-    for(std::string line; std::getline(in, line);) {
-        output += line + "\n";
-    }
-
-    in.close();
-    return output;
-}
 
 auto
 unitVec2(double theta) -> glm::dvec2
@@ -45,3 +28,40 @@ unitVec2(double theta) -> glm::dvec2
 }
 
 }    // namespace util
+
+namespace util::lua {
+
+auto
+toVec3(lua_State* L, int offset) -> glm::dvec3
+{
+    auto vec = glm::dvec3();
+
+    lua_getfield(L, offset, "x");
+    vec.x = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    lua_getfield(L, offset, "y");
+    vec.y = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    lua_getfield(L, offset, "z");
+    vec.z = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    return vec;
+}
+
+auto
+toVec2(lua_State* L, int offset) -> glm::dvec2
+{
+    auto vec = glm::dvec2();
+
+    lua_getfield(L, offset, "x");
+    vec.x = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    lua_getfield(L, offset, "y");
+    vec.y = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    return vec;
+}
+
+}    // namespace util::lua
