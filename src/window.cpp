@@ -139,9 +139,15 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
 }
 
 auto
-Window::togglePause() noexcept -> void
+Window::paused() const noexcept -> bool
 {
-    m_paused = !m_paused;
+    return m_paused;
+}
+
+auto
+Window::pause(bool p) noexcept -> void
+{
+    m_paused = p;
     glfwSetInputMode(
             m_window.get(),
             GLFW_CURSOR,
@@ -149,9 +155,9 @@ Window::togglePause() noexcept -> void
 }
 
 auto
-Window::paused() const noexcept -> bool
+Window::togglePause() noexcept -> void
 {
-    return m_paused;
+    pause(!m_paused);
 }
 
 auto

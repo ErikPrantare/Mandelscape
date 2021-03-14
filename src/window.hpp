@@ -56,6 +56,9 @@ public:
     [[nodiscard]] auto
     paused() const noexcept -> bool;
 
+    auto
+    pause(bool) noexcept -> void;
+
     [[nodiscard]] auto
     size() const noexcept -> glm::ivec2;
 

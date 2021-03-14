@@ -60,6 +60,7 @@ try {
     auto const args = std::vector(argv, argv + argc);
 
     auto window = Window({1368, 768});
+    NFD_Init();
 
     auto terrain = Terrain();
     auto player  = Player();
@@ -105,26 +106,24 @@ try {
                 shaderController.handleMomentaryAction(action);
 
                 if(action == MomentaryAction{TriggerAction::Save}) {
-                    NFD_Init();
-                    nfdchar_t* outPath;
+                    nfdchar_t* path;
                     nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
-                    NFD_SaveDialog(&outPath, filterItem, 1, NULL, "save.lua");
-                    std::ofstream out(outPath);
+                    auto const paused             = window.paused();
+                    window.pause(true);
+                    NFD_SaveDialog(&path, filterItem, 1, NULL, "save.lua");
+                    window.pause(paused);
+                    std::ofstream out(path);
                     out << serialize(player);
                 }
                 else if(action == MomentaryAction{TriggerAction::Load}) {
-                    NFD_Init();
-                    nfdchar_t* outPath;
+                    nfdchar_t* path;
                     nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
-                    NFD_OpenDialog(&outPath, filterItem, 1, NULL);
-                    std::ifstream in(outPath);
-                    auto newPlayer = deserialize(util::getContents(in));
-                    auto dPos      = PlayerHelper(newPlayer).truePosition()
-                                - PlayerHelper(player).truePosition();
-                    player.position += dPos;
-                    player.lookAtOffset = newPlayer.lookAtOffset;
-                    player.scale        = newPlayer.scale;
-                    std::cout << player.scale << std::endl;
+                    auto const paused             = window.paused();
+                    window.pause(true);
+                    NFD_OpenDialog(&path, filterItem, 1, NULL);
+                    window.pause(paused);
+                    std::ifstream in(path);
+                    player = deserialize(util::getContents(in));
                 }
             }
         }
