@@ -40,13 +40,18 @@
 #include "persistentActionMap.hpp"
 #include "momentaryActionsMap.hpp"
 #include "shaderController.hpp"
+#include "genericController.hpp"
 
-void
+auto
 renderScene(
         Player const& player,
         glm::ivec2 viewSize,
         ShaderProgram* program,
-        double dt);
+        double dt) -> void;
+
+[[nodiscard]] auto
+createSerializationController(Player& player, Window& window)
+        -> GenericController;
 
 auto
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
@@ -59,8 +64,8 @@ main(int argc, char* argv[]) -> int
 try {
     auto const args = std::vector(argv, argv + argc);
 
-    auto window = Window({1368, 768});
-    NFD_Init();
+    auto window   = Window({1368, 768});
+    auto nfdGuard = NFD::Guard();
 
     auto terrain = Terrain();
     auto player  = Player();
@@ -86,6 +91,8 @@ try {
     shaderProgram.bindAttributeLocation("val", Terrain::colorLocation);
 
     auto shaderController = ShaderController(&shaderProgram);
+    auto serializationController =
+            createSerializationController(player, window);
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
@@ -104,27 +111,7 @@ try {
                 terrain.handleMomentaryAction(action);
                 metaController.handleMomentaryAction(action);
                 shaderController.handleMomentaryAction(action);
-
-                if(action == MomentaryAction{TriggerAction::Save}) {
-                    nfdchar_t* path;
-                    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
-                    auto const paused             = window.paused();
-                    window.pause(true);
-                    NFD_SaveDialog(&path, filterItem, 1, NULL, "save.lua");
-                    window.pause(paused);
-                    std::ofstream out(path);
-                    out << serialize(player);
-                }
-                else if(action == MomentaryAction{TriggerAction::Load}) {
-                    nfdchar_t* path;
-                    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
-                    auto const paused             = window.paused();
-                    window.pause(true);
-                    NFD_OpenDialog(&path, filterItem, 1, NULL);
-                    window.pause(paused);
-                    std::ifstream in(path);
-                    player = deserialize(util::getContents(in));
-                }
+                serializationController.handleMomentaryAction(action);
             }
         }
 
@@ -184,6 +171,53 @@ renderScene(
     auto const camera = Camera(cameraPosition, lookAt, viewSize, player.scale);
     program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program->setUniformMatrix4("projection", camera.projection());
+}
+
+auto
+save(Player const& player) -> void
+{
+    auto path                     = NFD::UniquePath();
+    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
+    auto const result = NFD::SaveDialog(path, filterItem, 1, NULL, "save.lua");
+    if(result != NFD_OKAY) {
+        return;
+    }
+    std::ofstream out(path.get());
+    out << serialize(player);
+}
+
+auto
+load(Player& player) -> void
+{
+    auto path                     = NFD::UniquePath();
+    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
+    auto const result             = NFD::OpenDialog(path, filterItem, 1, NULL);
+    if(result != NFD_OKAY) {
+        return;
+    }
+    std::ifstream in(path.get());
+    player = deserialize(util::getContents(in));
+}
+
+auto
+createSerializationController(Player& player, Window& window)
+        -> GenericController
+{
+    return GenericController().withMomentary(
+            [&player, &window](MomentaryAction action) {
+                auto const paused = window.paused();
+
+                if(action == MomentaryAction{TriggerAction::Save}) {
+                    window.pause(true);
+                    save(player);
+                }
+                else if(action == MomentaryAction{TriggerAction::Load}) {
+                    window.pause(true);
+                    load(player);
+                }
+
+                window.pause(paused);
+            });
 }
 
 [[nodiscard]] auto

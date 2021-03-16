@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_WALK_CONTROLLER_TESTS_HPP
-#define MANDELLANDSCAPE_WALK_CONTROLLER_TESTS_HPP
+#ifndef MANDELSCAPE_WALK_CONTROLLER_TESTS_HPP
+#define MANDELSCAPE_WALK_CONTROLLER_TESTS_HPP
 
 #include <memory>
 

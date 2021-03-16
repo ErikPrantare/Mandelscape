@@ -1,5 +1,5 @@
 /* Mandelscape
- * Copyright (C) 2020-2021 Erik Präntare
+ * Copyright (C) 2021 Erik Präntare
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,19 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#ifndef MANDELSCAPE_GENERIC_CONTROLLER_HPP
+#define MANDELSCAPE_GENERIC_CONTROLLER_HPP
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include <functional>
 
-#include "utils-tests.hpp"
-#include "walkController-tests.hpp"
-#include "autoController-tests.hpp"
-#include "metaController-tests.hpp"
-#include "genericController-tests.hpp"
-#include "momentaryActionsMap-tests.hpp"
-#include "persistentActionMap-tests.hpp"
-#include "lua-tests.hpp"
-#include "serialize-tests.hpp"
-#include "playerHelper-tests.hpp"
+#include "util.hpp"
+#include "momentaryAction.hpp"
+
+class GenericController {
+private:
+    typedef void
+    MomentarySignature(MomentaryAction const&);
+
+public:
+    [[nodiscard]] auto
+    withMomentary(std::function<MomentarySignature> f) const
+            -> GenericController;
+
+    auto
+    handleMomentaryAction(MomentaryAction const& action) const -> void;
+
+private:
+    std::function<void(MomentaryAction const&)> m_handleMomentaryAction =
+            util::unaryNOP;
+};
+
+#endif
