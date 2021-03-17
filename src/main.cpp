@@ -242,42 +242,36 @@ createSerializationController(
 [[nodiscard]] auto
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
+    using namespace Input;
+
     auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add({Input::Key::C}, TriggerAction::ToggleAutoWalk);
-    momentaryMap.add({Input::Key::O}, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add({Input::Key::K}, TriggerAction::IncreaseIterations);
-    momentaryMap.add({Input::Key::J}, TriggerAction::DecreaseIterations);
-    momentaryMap.add({Input::Key::F}, TriggerAction::ToggleFastMode);
-    momentaryMap.add({Input::Key::H}, TriggerAction::SwitchShader);
-    momentaryMap.add({Input::Key::P}, TriggerAction::TogglePause);
-    momentaryMap.add({Input::Key::X}, TriggerAction::TakeScreenshot);
-    momentaryMap.add({Input::Key::Q}, TriggerAction::CloseWindow);
-    momentaryMap.add({Input::Key::ESCAPE}, TriggerAction::CloseWindow);
-    momentaryMap.add(
-            {Input::Key::S, (int)Input::Mod::CONTROL},
-            TriggerAction::Save);
-    momentaryMap.add(
-            {Input::Key::O, (int)Input::Mod::CONTROL},
-            TriggerAction::Load);
+    momentaryMap.add({Key::C}, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add({Key::O}, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add({Key::K}, TriggerAction::IncreaseIterations);
+    momentaryMap.add({Key::J}, TriggerAction::DecreaseIterations);
+    momentaryMap.add({Key::F}, TriggerAction::ToggleFastMode);
+    momentaryMap.add({Key::H}, TriggerAction::SwitchShader);
+    momentaryMap.add({Key::P}, TriggerAction::TogglePause);
+    momentaryMap.add({Key::X}, TriggerAction::TakeScreenshot);
+    momentaryMap.add({Key::Q}, TriggerAction::CloseWindow);
+    momentaryMap.add({Key::ESCAPE}, TriggerAction::CloseWindow);
+    momentaryMap.add({Key::S, (int)Input::Mod::CONTROL}, TriggerAction::Save);
+    momentaryMap.add({Key::O, (int)Input::Mod::CONTROL}, TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
-    persistentMap.add({Input::Key::W}, PersistentAction::MoveForwards);
-    persistentMap.add({Input::Key::S}, PersistentAction::MoveBackwards);
-    persistentMap.add({Input::Key::A}, PersistentAction::MoveLeft);
-    persistentMap.add({Input::Key::D}, PersistentAction::MoveRight);
-    persistentMap.add({Input::MouseButton::LEFT}, PersistentAction::ZoomIn);
-    persistentMap.add({Input::MouseButton::RIGHT}, PersistentAction::ZoomOut);
-    persistentMap.add({Input::Key::UP}, PersistentAction::IncreaseParam);
-    persistentMap.add({Input::Key::DOWN}, PersistentAction::DecreaseParam);
-    persistentMap.add({Input::Key::KEY_1}, PersistentAction::ChangeFrequency);
-    persistentMap.add(
-            {Input::Key::KEY_2},
-            PersistentAction::ChangeTotalOffset);
-    persistentMap.add(
-            {Input::Key::KEY_3},
-            PersistentAction::ChangeGreenOffset);
-    persistentMap.add({Input::Key::KEY_4}, PersistentAction::ChangeBlueOffset);
-    persistentMap.add({Input::Key::KEY_5}, PersistentAction::ChangeYScale);
+    persistentMap.add({Key::W}, PersistentAction::MoveForwards);
+    persistentMap.add({Key::S}, PersistentAction::MoveBackwards);
+    persistentMap.add({Key::A}, PersistentAction::MoveLeft);
+    persistentMap.add({Key::D}, PersistentAction::MoveRight);
+    persistentMap.add({MouseButton::LEFT}, PersistentAction::ZoomIn);
+    persistentMap.add({MouseButton::RIGHT}, PersistentAction::ZoomOut);
+    persistentMap.add({Key::UP}, PersistentAction::IncreaseParam);
+    persistentMap.add({Key::DOWN}, PersistentAction::DecreaseParam);
+    persistentMap.add({Key::KEY_1}, PersistentAction::ChangeFrequency);
+    persistentMap.add({Key::KEY_2}, PersistentAction::ChangeTotalOffset);
+    persistentMap.add({Key::KEY_3}, PersistentAction::ChangeGreenOffset);
+    persistentMap.add({Key::KEY_4}, PersistentAction::ChangeBlueOffset);
+    persistentMap.add({Key::KEY_5}, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }
@@ -285,43 +279,36 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 [[nodiscard]] auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
+    using namespace Input;
+
     auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add({Input::Key::J}, TriggerAction::ToggleAutoWalk);
-    momentaryMap.add({Input::Key::R}, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add({Input::Key::T}, TriggerAction::IncreaseIterations);
-    momentaryMap.add({Input::Key::H}, TriggerAction::DecreaseIterations);
-    momentaryMap.add({Input::Key::F}, TriggerAction::ToggleFastMode);
-    momentaryMap.add({Input::Key::D}, TriggerAction::SwitchShader);
-    momentaryMap.add({Input::Key::P}, TriggerAction::TogglePause);
-    momentaryMap.add({Input::Key::X}, TriggerAction::TakeScreenshot);
-    momentaryMap.add({Input::Key::Q}, TriggerAction::CloseWindow);
-    momentaryMap.add({Input::Key::ESCAPE}, TriggerAction::CloseWindow);
-    momentaryMap.add(
-            {Input::Key::S, (int)Input::Mod::CONTROL},
-            TriggerAction::Save);
-    momentaryMap.add(
-            {Input::Key::O, (int)Input::Mod::CONTROL},
-            TriggerAction::Load);
+    momentaryMap.add({Key::J}, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add({Key::R}, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add({Key::T}, TriggerAction::IncreaseIterations);
+    momentaryMap.add({Key::H}, TriggerAction::DecreaseIterations);
+    momentaryMap.add({Key::F}, TriggerAction::ToggleFastMode);
+    momentaryMap.add({Key::D}, TriggerAction::SwitchShader);
+    momentaryMap.add({Key::P}, TriggerAction::TogglePause);
+    momentaryMap.add({Key::X}, TriggerAction::TakeScreenshot);
+    momentaryMap.add({Key::Q}, TriggerAction::CloseWindow);
+    momentaryMap.add({Key::ESCAPE}, TriggerAction::CloseWindow);
+    momentaryMap.add({Key::S, (int)Input::Mod::CONTROL}, TriggerAction::Save);
+    momentaryMap.add({Key::O, (int)Input::Mod::CONTROL}, TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
-    persistentMap.add({Input::Key::COMMA}, PersistentAction::MoveForwards);
-    persistentMap.add({Input::Key::COMMA}, PersistentAction::RunForwards);
-    persistentMap.add({Input::Key::O}, PersistentAction::MoveBackwards);
-    persistentMap.add({Input::Key::A}, PersistentAction::MoveLeft);
-    persistentMap.add({Input::Key::E}, PersistentAction::MoveRight);
-    persistentMap.add({Input::MouseButton::LEFT}, PersistentAction::ZoomIn);
-    persistentMap.add({Input::MouseButton::RIGHT}, PersistentAction::ZoomOut);
-    persistentMap.add({Input::Key::UP}, PersistentAction::IncreaseParam);
-    persistentMap.add({Input::Key::DOWN}, PersistentAction::DecreaseParam);
-    persistentMap.add({Input::Key::KEY_1}, PersistentAction::ChangeFrequency);
-    persistentMap.add(
-            {Input::Key::KEY_2},
-            PersistentAction::ChangeTotalOffset);
-    persistentMap.add(
-            {Input::Key::KEY_3},
-            PersistentAction::ChangeGreenOffset);
-    persistentMap.add({Input::Key::KEY_4}, PersistentAction::ChangeBlueOffset);
-    persistentMap.add({Input::Key::KEY_5}, PersistentAction::ChangeYScale);
+    persistentMap.add({Key::COMMA}, PersistentAction::MoveForwards);
+    persistentMap.add({Key::O}, PersistentAction::MoveBackwards);
+    persistentMap.add({Key::A}, PersistentAction::MoveLeft);
+    persistentMap.add({Key::E}, PersistentAction::MoveRight);
+    persistentMap.add({MouseButton::LEFT}, PersistentAction::ZoomIn);
+    persistentMap.add({MouseButton::RIGHT}, PersistentAction::ZoomOut);
+    persistentMap.add({Key::UP}, PersistentAction::IncreaseParam);
+    persistentMap.add({Key::DOWN}, PersistentAction::DecreaseParam);
+    persistentMap.add({Key::KEY_1}, PersistentAction::ChangeFrequency);
+    persistentMap.add({Key::KEY_2}, PersistentAction::ChangeTotalOffset);
+    persistentMap.add({Key::KEY_3}, PersistentAction::ChangeGreenOffset);
+    persistentMap.add({Key::KEY_4}, PersistentAction::ChangeBlueOffset);
+    persistentMap.add({Key::KEY_5}, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }
