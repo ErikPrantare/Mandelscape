@@ -25,7 +25,7 @@
 #include "shader.hpp"
 #include "shaderProgram.hpp"
 
-/* Control shader parameters, e.g. coloring */
+/* Manage which shaders to use */
 class ShaderController {
 public:
     ShaderController(ShaderProgram* shaderProgram);
@@ -34,19 +34,14 @@ public:
     handleMomentaryAction(MomentaryAction const&) -> void;
 
     auto
-    updateState(PersistentActionMap const& active, double dt) -> void;
-
-    auto
     update(ShaderProgram* shaderProgram) -> void;
-
-    [[nodiscard]] auto
-    yScale() const -> double;
 
 private:
     VertexShader m_vertexShader =
             VertexShader::fromFile("shaders/shader.vert");
 
-    int m_currentFragmentShader                     = 0;
+    bool m_switchShader                             = false;
+    size_t m_currentFragmentShader                  = 0;
     std::array<FragmentShader, 2> m_fragmentShaders = {
             FragmentShader::fromFiles(
                     "shaders/head.frag",
@@ -60,13 +55,6 @@ private:
                     "shaders/value.frag",
                     "shaders/color.frag",
                     "shaders/shader.frag")};
-
-    bool m_fastMode     = false;
-    bool m_switchShader = false;
-
-    double m_colorFrequency  = 0.1;
-    glm::dvec3 m_colorOffset = {0.0, 1.0, 2.0};
-    double m_yScale          = 1.0;
 };
 
 #endif

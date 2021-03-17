@@ -23,21 +23,12 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-#include "event.hpp"
-#include "util.hpp"
-
 struct Player {
     glm::dvec3 position     = glm::dvec3{0.0, 0.0, 0.0};
     glm::dvec3 offset       = glm::dvec3{0.0, 0.0, 0.0};
     glm::dvec2 lookAtOffset = glm::dvec2{0.0, 0.0};
     double scale            = 1.0;
 };
-
-[[nodiscard]] auto
-serialize(Player const&) -> std::string;
-
-[[nodiscard]] auto
-deserialize(std::string const&) -> Player;
 
 [[nodiscard]] auto
 operator==(Player const& a, Player const& b) -> bool;

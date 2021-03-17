@@ -74,11 +74,28 @@ struct PlayerApprox {
 };
 
 bool
-operator==(Player a, PlayerApprox b)
+operator==(Player const& a, PlayerApprox const& b)
 {
     return a.position == Dvec3Approx{b.player.position}
            && a.offset == Dvec3Approx{b.player.offset}
            && a.lookAtOffset == Dvec2Approx{b.player.lookAtOffset}
            && a.scale == Approx{b.player.scale};
+}
+
+struct UniformControllerApprox {
+    UniformController uc;
+};
+
+bool
+operator==(UniformController const& a, UniformControllerApprox const& b)
+{
+    glm::dvec3 m_colorOffset = {0.0, 1.0, 2.0};
+    double m_colorFrequency  = 0.1;
+    double m_yScale          = 1.0;
+    bool m_fastMode          = false;
+    return a.m_colorOffset == Dvec3Approx{b.uc.m_colorOffset}
+           && a.m_colorFrequency == Approx{b.uc.m_colorFrequency}
+           && a.m_yScale == Approx{b.uc.m_yScale}
+           && a.m_fastMode == b.uc.m_fastMode;
 }
 #endif

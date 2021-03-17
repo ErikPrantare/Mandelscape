@@ -64,4 +64,52 @@ toVec2(lua_State* L, int offset) -> glm::dvec2
     return vec;
 }
 
+auto
+toPlayer(lua_State* L, int offset) -> Player
+{
+    auto player = Player();
+
+    lua_getfield(L, offset, "position");
+    player.position = util::lua::toVec3(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, offset, "offset");
+    player.offset = util::lua::toVec3(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, offset, "lookAtOffset");
+    player.lookAtOffset = util::lua::toVec2(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, offset, "scale");
+    player.scale = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    return player;
+}
+
+auto
+toUniformController(lua_State* L, int offset) -> UniformController
+{
+    auto uniformController = UniformController();
+
+    lua_getfield(L, offset, "colorOffset");
+    uniformController.m_colorOffset = util::lua::toVec3(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, offset, "colorFrequency");
+    uniformController.m_colorFrequency = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, offset, "yScale");
+    uniformController.m_yScale = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, offset, "fastMode");
+    uniformController.m_fastMode = lua_toboolean(L, -1);
+    lua_pop(L, 1);
+
+    return uniformController;
+}
+
 }    // namespace util::lua

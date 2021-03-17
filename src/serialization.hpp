@@ -1,5 +1,5 @@
 /* Mandelscape
- * Copyright (C) 2020-2021 Erik Präntare
+ * Copyright (C) 2021 Erik Präntare
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,27 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_SERIALIZE_TESTS_HPP
-#define MANDELLANDSCAPE_SERIALIZE_TESTS_HPP
+#ifndef MANDELSCAPE_SERIALIZATION_HPP
+#define MANDELSCAPE_SERIALIZATION_HPP
+
+#include <ostream>
+
+#include "lua.hpp"
 
 #include "player.hpp"
+#include "uniformController.hpp"
 
-#include "testUtils.hpp"
+auto
+serialize(std::ostream&, Player const&, std::string const& name) -> void;
 
-namespace SerializeTests {
-
-TEST_CASE("deserialize . serialize == id", "[serialize, deserialize, player]")
-{
-    auto player = Player();
-
-    player.position     = {0.001, 127378888.01, -3.14};
-    player.offset       = {0.024, 378888.01, 1e100};
-    player.lookAtOffset = {378.99, 1e-10};
-    player.scale        = 1.0 / 32897.879423;
-
-    REQUIRE(deserialize(serialize(player)) == PlayerApprox{player});
-}
-
-}    // namespace SerializeTests
+auto
+serialize(std::ostream&, UniformController const&, std::string const& name)
+        -> void;
 
 #endif

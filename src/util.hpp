@@ -35,6 +35,8 @@
 #include "lua.hpp"
 
 #include "mandelTypeTraits.hpp"
+#include "player.hpp"
+#include "uniformController.hpp"
 
 namespace util {
 
@@ -146,6 +148,12 @@ toVec3(lua_State* L, int offset) -> glm::dvec3;
 
 [[nodiscard]] auto
 toVec2(lua_State* L, int offset) -> glm::dvec2;
+
+[[nodiscard]] auto
+toPlayer(lua_State* L, int offset) -> Player;
+
+[[nodiscard]] auto
+toUniformController(lua_State* L, int offset) -> UniformController;
 
 }    // namespace util::lua
 

@@ -41,6 +41,7 @@
 #include "momentaryActionsMap.hpp"
 #include "shaderController.hpp"
 #include "genericController.hpp"
+#include "serialization.hpp"
 
 auto
 renderScene(
@@ -50,7 +51,7 @@ renderScene(
         double dt) -> void;
 
 [[nodiscard]] auto
-createSerializationController(Player& player, Window& window)
+createSerializationController(Player&, Window&, UniformController&)
         -> GenericController;
 
 auto
@@ -64,7 +65,9 @@ main(int argc, char* argv[]) -> int
 try {
     auto const args = std::vector(argv, argv + argc);
 
-    auto window   = Window({1368, 768});
+    auto window = Window({1368, 768});
+
+    // nativefiledialog init
     auto nfdGuard = NFD::Guard();
 
     auto terrain = Terrain();
@@ -90,9 +93,11 @@ try {
     shaderProgram.bindAttributeLocation("pos", Mesh::vertexLocation);
     shaderProgram.bindAttributeLocation("val", Terrain::colorLocation);
 
-    auto shaderController = ShaderController(&shaderProgram);
+    auto shaderController  = ShaderController(&shaderProgram);
+    auto uniformController = UniformController();
+
     auto serializationController =
-            createSerializationController(player, window);
+            createSerializationController(player, window, uniformController);
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
@@ -110,6 +115,7 @@ try {
                 window.handleMomentaryAction(action);
                 terrain.handleMomentaryAction(action);
                 metaController.handleMomentaryAction(action);
+                uniformController.handleMomentaryAction(action);
                 shaderController.handleMomentaryAction(action);
                 serializationController.handleMomentaryAction(action);
             }
@@ -119,7 +125,7 @@ try {
             time += dt;
 
             metaController.updateState(persistentMap);
-            shaderController.updateState(persistentMap, dt);
+            uniformController.updateState(persistentMap, dt);
 
             auto const pos = PlayerHelper(player).truePosition();
             terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
@@ -128,10 +134,11 @@ try {
             metaController.update(&player, dt);
 
             // Do this after .update, as autozoom is dependent on position.y
-            player.position.y *= shaderController.yScale();
+            player.position.y *= uniformController.yScale();
         }
 
         shaderController.update(&shaderProgram);
+        uniformController.update(&shaderProgram);
         shaderProgram.setUniformFloat("time", time);
         renderScene(player, window.size(), &shaderProgram, dt);
         terrain.render(&shaderProgram);
@@ -174,7 +181,7 @@ renderScene(
 }
 
 auto
-save(Player const& player) -> void
+save(Player const& player, UniformController const& uniformController) -> void
 {
     auto path                     = NFD::UniquePath();
     nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
@@ -183,11 +190,12 @@ save(Player const& player) -> void
         return;
     }
     std::ofstream out(path.get());
-    out << serialize(player);
+    serialize(out, player, "player");
+    serialize(out, uniformController, "uniformController");
 }
 
 auto
-load(Player& player) -> void
+load(Player& player, UniformController& uniformController) -> void
 {
     auto path                     = NFD::UniquePath();
     nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
@@ -196,24 +204,35 @@ load(Player& player) -> void
         return;
     }
     std::ifstream in(path.get());
-    player = deserialize(util::getContents(in));
+    lua_State* L = luaL_newstate();
+    luaL_dostring(L, util::getContents(in).c_str());
+
+    lua_getglobal(L, "player");
+    player = util::lua::toPlayer(L, -1);
+    lua_pop(L, 1);
+
+    lua_getglobal(L, "uniformController");
+    uniformController = util::lua::toUniformController(L, -1);
+    lua_close(L);
 }
 
 auto
-createSerializationController(Player& player, Window& window)
-        -> GenericController
+createSerializationController(
+        Player& player,
+        Window& window,
+        UniformController& uniformController) -> GenericController
 {
     return GenericController().withMomentary(
-            [&player, &window](MomentaryAction action) {
+            [&player, &window, &uniformController](MomentaryAction action) {
                 auto const paused = window.paused();
 
                 if(action == MomentaryAction{TriggerAction::Save}) {
                     window.pause(true);
-                    save(player);
+                    save(player, uniformController);
                 }
                 else if(action == MomentaryAction{TriggerAction::Load}) {
                     window.pause(true);
-                    load(player);
+                    load(player, uniformController);
                 }
 
                 window.pause(paused);

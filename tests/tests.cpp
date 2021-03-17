@@ -29,5 +29,5 @@
 #include "momentaryActionsMap-tests.hpp"
 #include "persistentActionMap-tests.hpp"
 #include "lua-tests.hpp"
-#include "serialize-tests.hpp"
+#include "serialization-tests.hpp"
 #include "playerHelper-tests.hpp"
