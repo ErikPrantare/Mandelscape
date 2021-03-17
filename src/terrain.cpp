@@ -28,14 +28,9 @@
 #include "util.hpp"
 #include "shader.hpp"
 
-struct PointData {
-    double height;
-    double value;
-    bool inside;
-};
-
-auto
-pointData(glm::dvec2 const& pos, int iterations) -> PointData;
+static auto
+pointDataDefault(glm::dvec2 const& pos, int iterations) noexcept
+        -> Terrain::PointData;
 
 auto
 Terrain::resize(Terrain::Points* const points, size_t const size) -> void
@@ -46,7 +41,7 @@ Terrain::resize(Terrain::Points* const points, size_t const size) -> void
     points->size = size;
 }
 
-Terrain::Terrain()
+Terrain::Terrain() : m_pointData(pointDataDefault)
 {
     loadMesh(m_loadingOffset, m_scale, &m_points);
 
@@ -161,7 +156,7 @@ Terrain::loadMesh(glm::dvec3 offset, double const scale, Points* const points)
         auto zPos = -meshSize / 2 + offset.z;
         for(int z = 0; z < granularity; ++z) {
             auto const zQuant = quantized(zPos, stepSize(z));
-            auto const data   = pointData({xQuant, zQuant}, m_iterations);
+            auto const data   = m_pointData({xQuant, zQuant}, m_iterations);
 
             points->position[x * granularity + z] = glm::vec3(
                     xQuant - gpuOffset.x,
@@ -245,8 +240,9 @@ Terrain::generateMeshIndices() -> std::vector<GLuint>
     return meshIndices;
 }
 
-auto
-pointData(glm::dvec2 const& pos, int iterations) -> PointData
+static auto
+pointDataDefault(glm::dvec2 const& pos, int iterations) noexcept
+        -> Terrain::PointData
 {
     auto c  = std::complex<double>(pos.x, pos.y);
     auto z  = std::complex<double>(0.0, 0.0);
@@ -290,7 +286,7 @@ pointData(glm::dvec2 const& pos, int iterations) -> PointData
 auto
 Terrain::heightAt(glm::dvec2 const& pos) -> double
 {
-    return pointData(pos, m_iterations).height;
+    return m_pointData(pos, m_iterations).height;
 }
 
 auto

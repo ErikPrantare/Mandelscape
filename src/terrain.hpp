@@ -65,6 +65,12 @@ public:
 
     static int constexpr colorLocation = 1;
 
+    struct PointData {
+        double height;
+        double value;
+        bool inside;
+    };
+
 private:
     static int constexpr granularity     = 400;
     int m_iterations                     = 100;
@@ -108,6 +114,11 @@ private:
 
     auto
     loadMesh(glm::dvec3 offset, double scale, Points* points) -> void;
+
+    std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData;
+
+    auto
+    defaultPointData(glm::dvec2 const& pos, int iterations) -> PointData;
 };
 
 #endif
