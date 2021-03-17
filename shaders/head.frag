@@ -32,3 +32,8 @@ uniform float colorFrequency;
 uniform vec3 colorOffset;
 uniform bool fastMode;
 uniform float time;
+
+struct PointInfo {
+    float value;
+    bool inside;
+};

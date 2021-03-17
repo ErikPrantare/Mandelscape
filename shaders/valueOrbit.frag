@@ -17,23 +17,26 @@
 
 #line 18 1
 
-float
-value(const in complex c, out bool inside)
+PointInfo
+value(const in complex c)
 {
+    PointInfo p;
+    p.value = -1.0;
+
     float ci = toFloat(im(c));
     float cr = toFloat(re(c));
 
     // main cardioid check
     float q = pow(cr - 0.25f, 2.0) + ci*ci;
     if(q * (q + (cr - 0.25f)) < 0.25f * ci * ci) {
-        inside = true;
-        return -1.0;
+        p.inside = true;
+        return p;
     }
 
     // period-2 bulb check
     if((ci + 1.0f) * (ci + 1.0f) + ci * ci < 0.25f * 0.25f) {
-        inside = true;
-        return -1.0;
+        p.inside = true;
+        return p;
     }
 
     complex z   = complex(0.0);
@@ -56,11 +59,12 @@ value(const in complex c, out bool inside)
             toFloat(add(mult(re(cdist), re(cdist)),
                         mult(im(cdist), im(cdist))));
         if(dist > 256.0f * 256.0f) {
-            inside = false;
-            return minDist + float(i) - log2(log2(dist));
+            p.inside = false;
+            p.value = minDist + float(i) - log2(log2(dist));
+            return p;
         }
     }
 
-    inside = true;
-    return -1.0;
+    p.inside = true;
+    return p;
 }

@@ -36,14 +36,13 @@ void
 main()
 {
     if(fastMode) {
+        PointInfo i = PointInfo(preCalculated, true);
+        PointInfo o = PointInfo(preCalculated, false);
         fragColor =
-            addFog(
-                inside * color(preCalculated, true)
-                + (1.0 - inside) * color(preCalculated, false));
+            addFog(mix(color(i), color(o), 1.0-inside));
         return;
     }
 
-    bool inside;
-    float val = value(makeComplex(position, offset), inside);
-    fragColor = addFog(color(val, inside));
+    PointInfo p = value(makeComplex(position, offset));
+    fragColor = addFog(color(p));
 }
