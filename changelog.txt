@@ -6,7 +6,8 @@ and changed/other with a '.'.
 
 This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 
-0.3.0
+1.0.0
++ Save and load state with CTRL+S and CTRL+O
 + Add documentation for writing custom color algorithms
 
 . Simplify custom color algorithm writing
