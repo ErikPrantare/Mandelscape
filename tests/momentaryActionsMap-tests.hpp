@@ -33,8 +33,16 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
     using namespace Input;
 
     MomentaryActionsMap map;
-    map.add(Key::U, TriggerAction::IncreaseIterations);
-    map.add(Key::U, TriggerAction::DecreaseIterations);
+    map.add({Key::U}, TriggerAction::IncreaseIterations);
+    map.add({Key::U}, TriggerAction::DecreaseIterations);
+    map.add({Key::U, (int)Mod::SHIFT}, TriggerAction::Save);
+
+    SECTION("No given mapping -> empty container")
+    {
+        auto event   = KeyDown{Key::K};
+        auto actions = map(event);
+        REQUIRE(actions.size() == 0);
+    }
 
     SECTION("Mapping gives correct result")
     {
@@ -46,11 +54,13 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
         REQUIRE(util::contains(actions, {TriggerAction::DecreaseIterations}));
     }
 
-    SECTION("No given mapping -> empty container")
+    SECTION("Mapping handles mods")
     {
-        auto event   = KeyDown{Key::K};
+        Event event  = KeyDown{Key::U, (int)Mod::SHIFT};
         auto actions = map(event);
-        REQUIRE(actions.size() == 0);
+
+        REQUIRE(actions.size() == 1);
+        REQUIRE(util::contains(actions, {TriggerAction::Save}));
     }
 }
 

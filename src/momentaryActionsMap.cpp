@@ -20,7 +20,7 @@
 #include "util.hpp"
 
 auto
-MomentaryActionsMap::add(Input::Key key, TriggerAction action) -> void
+MomentaryActionsMap::add(KeyDown key, TriggerAction action) -> void
 {
     m_keyMap[key].insert({action});
 }
@@ -35,8 +35,8 @@ MomentaryActionsMap::operator()(Event const& event) const
 auto
 MomentaryActionsMap::getActions(KeyDown key) const -> std::set<MomentaryAction>
 {
-    if(util::contains(m_keyMap, (Input::Key)key.code)) {
-        return m_keyMap.at((Input::Key)key.code);
+    if(util::contains(m_keyMap, key)) {
+        return m_keyMap.at(key);
     }
     return {};
 }
