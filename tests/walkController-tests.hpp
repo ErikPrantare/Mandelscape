@@ -53,10 +53,10 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
 
     auto controller = WalkController{};
     PersistentActionMap persistentMap;
-    persistentMap.add(frontKey, PersistentAction::MoveForwards);
-    persistentMap.add(backKey, PersistentAction::MoveBackwards);
-    persistentMap.add(leftKey, PersistentAction::MoveLeft);
-    persistentMap.add(rightKey, PersistentAction::MoveRight);
+    persistentMap.add({frontKey}, PersistentAction::MoveForwards);
+    persistentMap.add({backKey}, PersistentAction::MoveBackwards);
+    persistentMap.add({leftKey}, PersistentAction::MoveLeft);
+    persistentMap.add({rightKey}, PersistentAction::MoveRight);
 
     auto player = Player();
 
@@ -250,11 +250,11 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
     auto constexpr autoKey = Key::O;
 
     PersistentActionMap persistentMap;
-    persistentMap.add(inKey, PersistentAction::ZoomIn);
-    persistentMap.add(outKey, PersistentAction::ZoomOut);
+    persistentMap.add({inKey}, PersistentAction::ZoomIn);
+    persistentMap.add({outKey}, PersistentAction::ZoomOut);
 
     auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add(autoKey, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add({autoKey}, TriggerAction::ToggleAutoZoom);
 
     REQUIRE(player.scale == 1.0);
 

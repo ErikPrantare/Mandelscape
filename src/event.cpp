@@ -20,6 +20,16 @@
 #include <tuple>
 
 auto
+operator<(KeyDown a, KeyDown b) -> bool
+{
+    return std::tie(a.code, a.mods) < std::tie(b.code, b.mods);
+}
+auto
+operator<(KeyUp a, KeyUp b) -> bool
+{
+    return std::tie(a.code, a.mods) < std::tie(b.code, b.mods);
+}
+auto
 operator<(MouseMove a, MouseMove b) -> bool
 {
     return std::tie(a.x, a.y, a.dx, a.dy) < std::tie(b.x, b.y, b.dx, b.dy);
@@ -27,10 +37,10 @@ operator<(MouseMove a, MouseMove b) -> bool
 auto
 operator<(MouseButtonUp a, MouseButtonUp b) -> bool
 {
-    return a.button < b.button;
+    return a.code < b.code;
 }
 auto
 operator<(MouseButtonDown a, MouseButtonDown b) -> bool
 {
-    return a.button < b.button;
+    return a.code < b.code;
 }

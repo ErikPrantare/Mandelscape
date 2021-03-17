@@ -255,19 +255,23 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
 
     auto persistentMap = PersistentActionMap();
-    persistentMap.add(Input::Key::W, PersistentAction::MoveForwards);
-    persistentMap.add(Input::Key::S, PersistentAction::MoveBackwards);
-    persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
-    persistentMap.add(Input::Key::D, PersistentAction::MoveRight);
-    persistentMap.add(Input::MouseButton::LEFT, PersistentAction::ZoomIn);
-    persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
-    persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
-    persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeFrequency);
-    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeGreenOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
+    persistentMap.add({Input::Key::W}, PersistentAction::MoveForwards);
+    persistentMap.add({Input::Key::S}, PersistentAction::MoveBackwards);
+    persistentMap.add({Input::Key::A}, PersistentAction::MoveLeft);
+    persistentMap.add({Input::Key::D}, PersistentAction::MoveRight);
+    persistentMap.add({Input::MouseButton::LEFT}, PersistentAction::ZoomIn);
+    persistentMap.add({Input::MouseButton::RIGHT}, PersistentAction::ZoomOut);
+    persistentMap.add({Input::Key::UP}, PersistentAction::IncreaseParam);
+    persistentMap.add({Input::Key::DOWN}, PersistentAction::DecreaseParam);
+    persistentMap.add({Input::Key::KEY_1}, PersistentAction::ChangeFrequency);
+    persistentMap.add(
+            {Input::Key::KEY_2},
+            PersistentAction::ChangeTotalOffset);
+    persistentMap.add(
+            {Input::Key::KEY_3},
+            PersistentAction::ChangeGreenOffset);
+    persistentMap.add({Input::Key::KEY_4}, PersistentAction::ChangeBlueOffset);
+    persistentMap.add({Input::Key::KEY_5}, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }
@@ -290,19 +294,24 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(Input::Key::KEY_7, TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
-    persistentMap.add(Input::Key::COMMA, PersistentAction::MoveForwards);
-    persistentMap.add(Input::Key::O, PersistentAction::MoveBackwards);
-    persistentMap.add(Input::Key::A, PersistentAction::MoveLeft);
-    persistentMap.add(Input::Key::E, PersistentAction::MoveRight);
-    persistentMap.add(Input::MouseButton::LEFT, PersistentAction::ZoomIn);
-    persistentMap.add(Input::MouseButton::RIGHT, PersistentAction::ZoomOut);
-    persistentMap.add(Input::Key::UP, PersistentAction::IncreaseParam);
-    persistentMap.add(Input::Key::DOWN, PersistentAction::DecreaseParam);
-    persistentMap.add(Input::Key::KEY_1, PersistentAction::ChangeFrequency);
-    persistentMap.add(Input::Key::KEY_2, PersistentAction::ChangeTotalOffset);
-    persistentMap.add(Input::Key::KEY_3, PersistentAction::ChangeGreenOffset);
-    persistentMap.add(Input::Key::KEY_4, PersistentAction::ChangeBlueOffset);
-    persistentMap.add(Input::Key::KEY_5, PersistentAction::ChangeYScale);
+    persistentMap.add({Input::Key::COMMA}, PersistentAction::MoveForwards);
+    persistentMap.add({Input::Key::COMMA}, PersistentAction::RunForwards);
+    persistentMap.add({Input::Key::O}, PersistentAction::MoveBackwards);
+    persistentMap.add({Input::Key::A}, PersistentAction::MoveLeft);
+    persistentMap.add({Input::Key::E}, PersistentAction::MoveRight);
+    persistentMap.add({Input::MouseButton::LEFT}, PersistentAction::ZoomIn);
+    persistentMap.add({Input::MouseButton::RIGHT}, PersistentAction::ZoomOut);
+    persistentMap.add({Input::Key::UP}, PersistentAction::IncreaseParam);
+    persistentMap.add({Input::Key::DOWN}, PersistentAction::DecreaseParam);
+    persistentMap.add({Input::Key::KEY_1}, PersistentAction::ChangeFrequency);
+    persistentMap.add(
+            {Input::Key::KEY_2},
+            PersistentAction::ChangeTotalOffset);
+    persistentMap.add(
+            {Input::Key::KEY_3},
+            PersistentAction::ChangeGreenOffset);
+    persistentMap.add({Input::Key::KEY_4}, PersistentAction::ChangeBlueOffset);
+    persistentMap.add({Input::Key::KEY_5}, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }

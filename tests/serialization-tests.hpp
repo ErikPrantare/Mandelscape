@@ -59,12 +59,12 @@ TEST_CASE(
         auto persistentMap = PersistentActionMap();
 
         persistentMap.add(
-                Input::Key::KEY_1,
+                {Input::Key::KEY_1},
                 PersistentAction::ChangeFrequency);
         persistentMap.add(
-                Input::Key::KEY_2,
+                {Input::Key::KEY_2},
                 PersistentAction::ChangeTotalOffset);
-        persistentMap.add(Input::Key::I, PersistentAction::IncreaseParam);
+        persistentMap.add({{Input::Key::I}}, PersistentAction::IncreaseParam);
 
         persistentMap.updateState({KeyDown{Input::Key::KEY_1}});
         persistentMap.updateState({KeyDown{Input::Key::KEY_2}});
@@ -79,7 +79,6 @@ TEST_CASE(
         lua_State* L = luaL_newstate();
         luaL_dostring(L, ss.str().c_str());
         lua_getglobal(L, "uniformController");
-        std::cout << ss.str();
         REQUIRE(util::lua::toUniformController(L, -1)
                 == UniformControllerApprox{uniformController});
         lua_close(L);

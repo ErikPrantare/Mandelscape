@@ -28,21 +28,33 @@
 class PersistentActionMap {
 public:
     auto
-    add(Input::Key key, PersistentAction action) -> void;
+    add(KeyDown key, PersistentAction action) -> void;
 
     auto
-    add(Input::MouseButton button, PersistentAction action) -> void;
+    add(MouseButtonDown button, PersistentAction action) -> void;
 
     auto
     updateState(Event const& event) -> void;
 
-    auto
+    [[nodiscard]] auto
     operator()(PersistentAction action) const -> bool;
 
 private:
     std::map<PersistentAction, bool> m_actionMap;
-    std::map<Input::Key, std::set<PersistentAction>> m_keyMap;
+    std::map<KeyDown, std::set<PersistentAction>> m_keyMap;
     std::map<Input::MouseButton, std::set<PersistentAction>> m_mouseButtonMap;
+
+    std::map<PersistentAction, std::set<Event>> m_triggers;
+
+    std::set<Event> m_eventsDown;
+
+    std::set<Input::Key> m_keysDown;
+    std::set<Input::MouseButton> m_buttonsDown;
+
+    using Inputs = std::variant<KeyDown, MouseButtonDown>;
+    // FIX BETTER NAME
+    std::map<PersistentAction, std::set<Inputs>> m_inputTriggers;
+    int m_currentMods = 0;
 };
 
 #endif

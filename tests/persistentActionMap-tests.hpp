@@ -34,20 +34,42 @@ TEST_CASE(
 {
     using namespace Input;
 
-    PersistentActionMap map;
-    map.add(Key::U, PersistentAction::MoveForwards);
-    SECTION("State is updated")
-    {
-        map.updateState(KeyDown{Key::U});
-        REQUIRE(map(PersistentAction::MoveForwards));
+    auto const action    = PersistentAction::MoveForwards;
+    auto const modAction = PersistentAction::MoveBackwards;
 
-        map.updateState(KeyUp{Key::U});
-        REQUIRE(!map(PersistentAction::MoveForwards));
-    }
+    auto const key    = KeyDown{Key::U};
+    auto const modKey = KeyDown{Key::U, (int)Mod::SHIFT};
 
+    auto map = PersistentActionMap();
+    map.add(key, action);
+    map.add(modKey, modAction);
     SECTION("Action defaults to off")
     {
-        REQUIRE(!map(PersistentAction::MoveBackwards));
+        REQUIRE(!map(action));
+    }
+
+    SECTION("State is updated")
+    {
+        map.updateState(key);
+        REQUIRE(map(action));
+        REQUIRE(!map(modAction));
+
+        map.updateState(KeyUp{key.code});
+        REQUIRE(!map(action));
+    }
+
+    SECTION("Modifiers override earlier keypresses")
+    {
+        map.updateState(key);
+        REQUIRE(map(action));
+
+        map.updateState(KeyDown{Key::LEFT_SHIFT});
+        REQUIRE(!map(action));
+        REQUIRE(map(modAction));
+
+        map.updateState(KeyUp{Key::LEFT_SHIFT});
+        REQUIRE(map(action));
+        REQUIRE(!map(modAction));
     }
 }
 

@@ -17,45 +17,46 @@
 
 #include "persistentActionMap.hpp"
 
+#include <algorithm>
+
 #include "util.hpp"
 
 auto
-PersistentActionMap::add(Input::Key key, PersistentAction action) -> void
+PersistentActionMap::add(KeyDown key, PersistentAction action) -> void
 {
-    m_keyMap[key].insert(action);
+    m_inputTriggers[action].insert(Inputs{std::move(key)});
 }
 
 auto
-PersistentActionMap::add(Input::MouseButton button, PersistentAction action)
+PersistentActionMap::add(MouseButtonDown button, PersistentAction action)
         -> void
 {
-    m_mouseButtonMap[button].insert(action);
+    m_inputTriggers[action].insert(Inputs{std::move(button)});
 }
 
 auto
 PersistentActionMap::updateState(Event const& event) -> void
 {
-    auto const setActions = [this](std::set<PersistentAction>& actions,
-                                   bool value) {
-        for(auto const& action : actions) {
-            m_actionMap[action] = value;
-        }
-    };
-
     std::visit(
             util::Overload{
-                    [this, &setActions](KeyDown key) {
-                        setActions(m_keyMap[key.code], true);
+                    [this](KeyDown key) {
+                        m_keysDown.insert(key.code);
+                        if(util::isModifier(key.code)) {
+                            (int&)m_currentMods |= (int)util::toMod(key.code);
+                        }
                     },
-                    [this, &setActions](KeyUp key) {
-                        setActions(m_keyMap[key.code], false);
+                    [this](KeyUp key) {
+                        m_keysDown.erase(key.code);
+                        if(util::isModifier(key.code)) {
+                            (int&)m_currentMods &= ~(int)util::toMod(key.code);
+                        }
                     },
 
-                    [this, &setActions](MouseButtonDown button) {
-                        setActions(m_mouseButtonMap[button.button], true);
+                    [this](MouseButtonDown button) {
+                        m_buttonsDown.insert(button.code);
                     },
-                    [this, &setActions](MouseButtonUp button) {
-                        setActions(m_mouseButtonMap[button.button], false);
+                    [this](MouseButtonUp button) {
+                        m_buttonsDown.erase(button.code);
                     },
                     // default
                     util::unaryNOP},
@@ -65,5 +66,25 @@ PersistentActionMap::updateState(Event const& event) -> void
 auto
 PersistentActionMap::operator()(PersistentAction action) const -> bool
 {
-    return util::contains(m_actionMap, action) && m_actionMap.at(action);
+    if(!util::contains(m_inputTriggers, action)) {
+        return false;
+    }
+    for(auto const& trigger : m_inputTriggers.at(action)) {
+        if(std::visit(
+                   util::Overload{
+                           [this](KeyDown key) {
+                               return util::contains(m_keysDown, key.code)
+                                      && m_currentMods == key.mods;
+                           },
+                           [this](MouseButtonDown button) {
+                               return util::contains(
+                                       m_buttonsDown,
+                                       button.code);
+                           }},
+                   trigger)) {
+            return true;
+        }
+    }
+
+    return false;
 }

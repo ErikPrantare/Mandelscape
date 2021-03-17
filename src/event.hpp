@@ -24,7 +24,7 @@
 
 struct KeyDown {
     Input::Key const code;
-    int const mods;
+    int const mods = 0;
 };
 
 struct KeyUp {
@@ -40,16 +40,21 @@ struct MouseMove {
 };
 
 struct MouseButtonDown {
-    Input::MouseButton const button;
+    Input::MouseButton const code;
 };
 
 struct MouseButtonUp {
-    Input::MouseButton const button;
+    Input::MouseButton const code;
 };
 
 using Event = std::
         variant<KeyUp, KeyDown, MouseMove, MouseButtonUp, MouseButtonDown>;
 
+// C++20: operator<=>
+auto
+operator<(KeyDown a, KeyDown b) -> bool;
+auto
+operator<(KeyUp a, KeyUp b) -> bool;
 auto
 operator<(MouseMove a, MouseMove b) -> bool;
 auto

@@ -84,6 +84,9 @@ WalkController::updateState(PersistentActionMap const& active) -> void
     if(active(PersistentAction::MoveForwards)) {
         m_direction.z -= 1.0;
     }
+    else if(active(PersistentAction::RunForwards)) {
+        m_direction.z -= 2.0;
+    }
     if(active(PersistentAction::MoveBackwards)) {
         m_direction.z += 1.0;
     }

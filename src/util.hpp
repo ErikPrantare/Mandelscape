@@ -137,7 +137,15 @@ pop(std::queue<T, Container>& queue) -> std::optional<T>
 
 // CPP20 Make constexpr
 [[nodiscard]] auto
-unitVec2(double theta) -> glm::dvec2;
+unitVec2(double theta) noexcept -> glm::dvec2;
+
+// CPP20 Make constexpr
+[[nodiscard]] auto
+isModifier(Input::Key key) noexcept -> bool;
+
+// CPP20 Make constexpr
+[[nodiscard]] auto
+toMod(Input::Key key) noexcept(false) -> Input::Mod;
 
 }    // namespace util
 
