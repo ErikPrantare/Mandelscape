@@ -243,16 +243,16 @@ createSerializationController(
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
     auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add(Input::Key::C, TriggerAction::ToggleAutoWalk);
-    momentaryMap.add(Input::Key::O, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add(Input::Key::K, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::J, TriggerAction::DecreaseIterations);
-    momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
-    momentaryMap.add(Input::Key::H, TriggerAction::SwitchShader);
-    momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
-    momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
-    momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
-    momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
+    momentaryMap.add({Input::Key::C}, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add({Input::Key::O}, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add({Input::Key::K}, TriggerAction::IncreaseIterations);
+    momentaryMap.add({Input::Key::J}, TriggerAction::DecreaseIterations);
+    momentaryMap.add({Input::Key::F}, TriggerAction::ToggleFastMode);
+    momentaryMap.add({Input::Key::H}, TriggerAction::SwitchShader);
+    momentaryMap.add({Input::Key::P}, TriggerAction::TogglePause);
+    momentaryMap.add({Input::Key::X}, TriggerAction::TakeScreenshot);
+    momentaryMap.add({Input::Key::Q}, TriggerAction::CloseWindow);
+    momentaryMap.add({Input::Key::ESCAPE}, TriggerAction::CloseWindow);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Input::Key::W}, PersistentAction::MoveForwards);
@@ -280,18 +280,18 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
 {
     auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add(Input::Key::J, TriggerAction::ToggleAutoWalk);
-    momentaryMap.add(Input::Key::R, TriggerAction::ToggleAutoZoom);
-    momentaryMap.add(Input::Key::T, TriggerAction::IncreaseIterations);
-    momentaryMap.add(Input::Key::H, TriggerAction::DecreaseIterations);
-    momentaryMap.add(Input::Key::F, TriggerAction::ToggleFastMode);
-    momentaryMap.add(Input::Key::D, TriggerAction::SwitchShader);
-    momentaryMap.add(Input::Key::P, TriggerAction::TogglePause);
-    momentaryMap.add(Input::Key::X, TriggerAction::TakeScreenshot);
-    momentaryMap.add(Input::Key::Q, TriggerAction::CloseWindow);
-    momentaryMap.add(Input::Key::ESCAPE, TriggerAction::CloseWindow);
-    momentaryMap.add(Input::Key::KEY_6, TriggerAction::Save);
-    momentaryMap.add(Input::Key::KEY_7, TriggerAction::Load);
+    momentaryMap.add({Input::Key::J}, TriggerAction::ToggleAutoWalk);
+    momentaryMap.add({Input::Key::R}, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add({Input::Key::T}, TriggerAction::IncreaseIterations);
+    momentaryMap.add({Input::Key::H}, TriggerAction::DecreaseIterations);
+    momentaryMap.add({Input::Key::F}, TriggerAction::ToggleFastMode);
+    momentaryMap.add({Input::Key::D}, TriggerAction::SwitchShader);
+    momentaryMap.add({Input::Key::P}, TriggerAction::TogglePause);
+    momentaryMap.add({Input::Key::X}, TriggerAction::TakeScreenshot);
+    momentaryMap.add({Input::Key::Q}, TriggerAction::CloseWindow);
+    momentaryMap.add({Input::Key::ESCAPE}, TriggerAction::CloseWindow);
+    momentaryMap.add({Input::Key::KEY_6}, TriggerAction::Save);
+    momentaryMap.add({Input::Key::KEY_7}, TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Input::Key::COMMA}, PersistentAction::MoveForwards);
