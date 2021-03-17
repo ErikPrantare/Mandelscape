@@ -24,7 +24,7 @@
 
 struct KeyDown {
     Input::Key const code = {};
-    int const mods = 0;
+    int const mods        = 0;
 };
 
 struct KeyUp {

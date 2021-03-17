@@ -38,7 +38,7 @@ TEST_CASE(
     auto const modAction = PersistentAction::MoveBackwards;
 
     auto const key    = KeyDown{Key::U};
-    auto const modKey = KeyDown{Key::U, (int)Mod::SHIFT};
+    auto const modKey = KeyDown{Key::U, (int)Mod::Shift};
 
     auto map = PersistentActionMap();
     map.add(key, action);

@@ -47,8 +47,10 @@ public:
     setVertices(std::vector<glm::vec3> const& vertices) -> void;
 
     auto
-    setVertices(std::vector<glm::vec3> const& vertices, size_t start, size_t size)
-            -> void;
+    setVertices(
+            std::vector<glm::vec3> const& vertices,
+            size_t start,
+            size_t size) -> void;
 
     auto
     setIndices(std::vector<GLuint> const& indices) -> void;
@@ -101,9 +103,9 @@ public:
     static int constexpr vertexLocation = 0;
 
 private:
-    GLuint m_vao     = 0;
-    GLuint m_vbo     = 0;
-    GLuint m_ebo     = 0;
+    GLuint m_vao        = 0;
+    GLuint m_vbo        = 0;
+    GLuint m_ebo        = 0;
     size_t m_nrVertices = 0;
 
     // location -> VBO

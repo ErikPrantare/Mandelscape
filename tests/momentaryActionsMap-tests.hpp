@@ -35,7 +35,7 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
     MomentaryActionsMap map;
     map.add({Key::U}, TriggerAction::IncreaseIterations);
     map.add({Key::U}, TriggerAction::DecreaseIterations);
-    map.add({Key::U, (int)Mod::SHIFT}, TriggerAction::Save);
+    map.add({Key::U, (int)Mod::Shift}, TriggerAction::Save);
 
     SECTION("No given mapping -> empty container")
     {
@@ -56,7 +56,7 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
 
     SECTION("Mapping handles mods")
     {
-        Event event  = KeyDown{Key::U, (int)Mod::SHIFT};
+        Event event  = KeyDown{Key::U, (int)Mod::Shift};
         auto actions = map(event);
 
         REQUIRE(actions.size() == 1);
