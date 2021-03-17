@@ -137,7 +137,7 @@ ShaderProgram::setUniformVec3(const std::string& name, glm::vec3 v)
 }
 
 auto
-ShaderProgram::uniformLocation(std::string const& name) const -> GLuint
+ShaderProgram::uniformLocation(std::string const& name) const -> GLint
 {
     // It's ok if name doesn't exist.
     // This will then return 0xFFFFFF,

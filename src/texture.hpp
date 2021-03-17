@@ -30,7 +30,7 @@ struct TextureArgs {
     glm::ivec2 size{0, 0};
     GLenum unit           = GL_TEXTURE0;
     GLint format          = GL_RGBA;
-    std::string imagePath = "";
+    std::string imagePath;
     bool generateMipmap   = false;
 };
 

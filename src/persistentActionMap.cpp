@@ -24,14 +24,14 @@
 auto
 PersistentActionMap::add(KeyDown key, PersistentAction action) -> void
 {
-    m_inputTriggers[action].insert(Inputs{std::move(key)});
+    m_inputTriggers[action].insert(Inputs{key});
 }
 
 auto
 PersistentActionMap::add(MouseButtonDown button, PersistentAction action)
         -> void
 {
-    m_inputTriggers[action].insert(Inputs{std::move(button)});
+    m_inputTriggers[action].insert(Inputs{button});
 }
 
 auto

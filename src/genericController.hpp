@@ -25,8 +25,7 @@
 
 class GenericController {
 private:
-    typedef void
-    MomentarySignature(MomentaryAction const&);
+    using MomentarySignature = void(MomentaryAction const&);
 
 public:
     [[nodiscard]] auto

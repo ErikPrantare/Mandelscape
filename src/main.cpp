@@ -139,7 +139,7 @@ try {
 
         shaderController.update(&shaderProgram);
         uniformController.update(&shaderProgram);
-        shaderProgram.setUniformFloat("time", time);
+        shaderProgram.setUniformFloat("time", static_cast<float>(time));
         renderScene(player, window.size(), &shaderProgram, dt);
         terrain.render(&shaderProgram);
     }
@@ -183,9 +183,10 @@ renderScene(
 auto
 save(Player const& player, UniformController const& uniformController) -> void
 {
-    auto path                     = NFD::UniquePath();
-    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
-    auto const result = NFD::SaveDialog(path, filterItem, 1, NULL, "save.lua");
+    auto path = NFD::UniquePath();
+    std::array<nfdfilteritem_t, 1> filterItem{{{"Lua files", "lua"}}};
+    auto const result =
+            NFD::SaveDialog(path, filterItem.data(), 1, nullptr, "save.lua");
     if(result != NFD_OKAY) {
         return;
     }
@@ -197,9 +198,9 @@ save(Player const& player, UniformController const& uniformController) -> void
 auto
 load(Player& player, UniformController& uniformController) -> void
 {
-    auto path                     = NFD::UniquePath();
-    nfdfilteritem_t filterItem[1] = {{"Lua files", "lua"}};
-    auto const result             = NFD::OpenDialog(path, filterItem, 1, NULL);
+    auto path = NFD::UniquePath();
+    std::array<nfdfilteritem_t, 1> filterItem{{{"Lua files", "lua"}}};
+    auto const result = NFD::OpenDialog(path, filterItem.data(), 1, nullptr);
     if(result != NFD_OKAY) {
         return;
     }
@@ -254,24 +255,24 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Key::P}, TriggerAction::TogglePause);
     momentaryMap.add({Key::X}, TriggerAction::TakeScreenshot);
     momentaryMap.add({Key::Q}, TriggerAction::CloseWindow);
-    momentaryMap.add({Key::ESCAPE}, TriggerAction::CloseWindow);
-    momentaryMap.add({Key::S, (int)Input::Mod::CONTROL}, TriggerAction::Save);
-    momentaryMap.add({Key::O, (int)Input::Mod::CONTROL}, TriggerAction::Load);
+    momentaryMap.add({Key::Escape}, TriggerAction::CloseWindow);
+    momentaryMap.add({Key::S, (int)Input::Mod::Control}, TriggerAction::Save);
+    momentaryMap.add({Key::O, (int)Input::Mod::Control}, TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Key::W}, PersistentAction::MoveForwards);
     persistentMap.add({Key::S}, PersistentAction::MoveBackwards);
     persistentMap.add({Key::A}, PersistentAction::MoveLeft);
     persistentMap.add({Key::D}, PersistentAction::MoveRight);
-    persistentMap.add({MouseButton::LEFT}, PersistentAction::ZoomIn);
-    persistentMap.add({MouseButton::RIGHT}, PersistentAction::ZoomOut);
-    persistentMap.add({Key::UP}, PersistentAction::IncreaseParam);
-    persistentMap.add({Key::DOWN}, PersistentAction::DecreaseParam);
-    persistentMap.add({Key::KEY_1}, PersistentAction::ChangeFrequency);
-    persistentMap.add({Key::KEY_2}, PersistentAction::ChangeTotalOffset);
-    persistentMap.add({Key::KEY_3}, PersistentAction::ChangeGreenOffset);
-    persistentMap.add({Key::KEY_4}, PersistentAction::ChangeBlueOffset);
-    persistentMap.add({Key::KEY_5}, PersistentAction::ChangeYScale);
+    persistentMap.add({MouseButton::Left}, PersistentAction::ZoomIn);
+    persistentMap.add({MouseButton::Right}, PersistentAction::ZoomOut);
+    persistentMap.add({Key::Up}, PersistentAction::IncreaseParam);
+    persistentMap.add({Key::Down}, PersistentAction::DecreaseParam);
+    persistentMap.add({Key::Key1}, PersistentAction::ChangeFrequency);
+    persistentMap.add({Key::Key2}, PersistentAction::ChangeTotalOffset);
+    persistentMap.add({Key::Key3}, PersistentAction::ChangeGreenOffset);
+    persistentMap.add({Key::Key4}, PersistentAction::ChangeBlueOffset);
+    persistentMap.add({Key::Key5}, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }
@@ -291,24 +292,24 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Key::P}, TriggerAction::TogglePause);
     momentaryMap.add({Key::X}, TriggerAction::TakeScreenshot);
     momentaryMap.add({Key::Q}, TriggerAction::CloseWindow);
-    momentaryMap.add({Key::ESCAPE}, TriggerAction::CloseWindow);
-    momentaryMap.add({Key::S, (int)Input::Mod::CONTROL}, TriggerAction::Save);
-    momentaryMap.add({Key::O, (int)Input::Mod::CONTROL}, TriggerAction::Load);
+    momentaryMap.add({Key::Escape}, TriggerAction::CloseWindow);
+    momentaryMap.add({Key::S, (int)Input::Mod::Control}, TriggerAction::Save);
+    momentaryMap.add({Key::O, (int)Input::Mod::Control}, TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
-    persistentMap.add({Key::COMMA}, PersistentAction::MoveForwards);
+    persistentMap.add({Key::Comma}, PersistentAction::MoveForwards);
     persistentMap.add({Key::O}, PersistentAction::MoveBackwards);
     persistentMap.add({Key::A}, PersistentAction::MoveLeft);
     persistentMap.add({Key::E}, PersistentAction::MoveRight);
-    persistentMap.add({MouseButton::LEFT}, PersistentAction::ZoomIn);
-    persistentMap.add({MouseButton::RIGHT}, PersistentAction::ZoomOut);
-    persistentMap.add({Key::UP}, PersistentAction::IncreaseParam);
-    persistentMap.add({Key::DOWN}, PersistentAction::DecreaseParam);
-    persistentMap.add({Key::KEY_1}, PersistentAction::ChangeFrequency);
-    persistentMap.add({Key::KEY_2}, PersistentAction::ChangeTotalOffset);
-    persistentMap.add({Key::KEY_3}, PersistentAction::ChangeGreenOffset);
-    persistentMap.add({Key::KEY_4}, PersistentAction::ChangeBlueOffset);
-    persistentMap.add({Key::KEY_5}, PersistentAction::ChangeYScale);
+    persistentMap.add({MouseButton::Left}, PersistentAction::ZoomIn);
+    persistentMap.add({MouseButton::Right}, PersistentAction::ZoomOut);
+    persistentMap.add({Key::Up}, PersistentAction::IncreaseParam);
+    persistentMap.add({Key::Down}, PersistentAction::DecreaseParam);
+    persistentMap.add({Key::Key1}, PersistentAction::ChangeFrequency);
+    persistentMap.add({Key::Key2}, PersistentAction::ChangeTotalOffset);
+    persistentMap.add({Key::Key3}, PersistentAction::ChangeGreenOffset);
+    persistentMap.add({Key::Key4}, PersistentAction::ChangeBlueOffset);
+    persistentMap.add({Key::Key5}, PersistentAction::ChangeYScale);
 
     return {momentaryMap, persistentMap};
 }

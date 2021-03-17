@@ -59,7 +59,7 @@ private:
     std::unique_ptr<GLuint, glDestructors::ShaderProgram> m_location;
 
     [[nodiscard]] auto
-    uniformLocation(const std::string& name) const -> GLuint;
+    uniformLocation(const std::string& name) const -> GLint;
 
     [[nodiscard]] auto
     getLocation(std::string const& path, GLenum shaderType) const -> GLuint;

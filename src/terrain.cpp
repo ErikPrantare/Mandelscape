@@ -168,7 +168,7 @@ Terrain::loadMesh(glm::dvec3 offset, double const scale, Points* const points)
                     data.height,
                     zQuant - gpuOffset.z);
 
-            points->value[x * granularity + z]  = data.value;
+            points->value[x * granularity + z]  = static_cast<float>(data.value);
             points->inside[x * granularity + z] = data.inside ? 1 : 0;
             zPos += stepSize(z);
         }

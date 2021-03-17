@@ -63,11 +63,11 @@ TEST_CASE(
         map.updateState(key);
         REQUIRE(map(action));
 
-        map.updateState(KeyDown{Key::LEFT_SHIFT});
+        map.updateState(KeyDown{Key::LeftShift});
         REQUIRE(!map(action));
         REQUIRE(map(modAction));
 
-        map.updateState(KeyUp{Key::LEFT_SHIFT});
+        map.updateState(KeyUp{Key::LeftShift});
         REQUIRE(map(action));
         REQUIRE(!map(modAction));
     }

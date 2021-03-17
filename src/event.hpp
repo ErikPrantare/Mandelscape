@@ -23,7 +23,7 @@
 #include "glfwEnums.hpp"
 
 struct KeyDown {
-    Input::Key const code;
+    Input::Key const code = {};
     int const mods = 0;
 };
 

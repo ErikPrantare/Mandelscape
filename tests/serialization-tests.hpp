@@ -59,15 +59,15 @@ TEST_CASE(
         auto persistentMap = PersistentActionMap();
 
         persistentMap.add(
-                {Input::Key::KEY_1},
+                {Input::Key::Key1},
                 PersistentAction::ChangeFrequency);
         persistentMap.add(
-                {Input::Key::KEY_2},
+                {Input::Key::Key2},
                 PersistentAction::ChangeTotalOffset);
         persistentMap.add({{Input::Key::I}}, PersistentAction::IncreaseParam);
 
-        persistentMap.updateState({KeyDown{Input::Key::KEY_1}});
-        persistentMap.updateState({KeyDown{Input::Key::KEY_2}});
+        persistentMap.updateState({KeyDown{Input::Key::Key1}});
+        persistentMap.updateState({KeyDown{Input::Key::Key2}});
         persistentMap.updateState({KeyDown{Input::Key::I}});
 
         auto uniformController = UniformController();

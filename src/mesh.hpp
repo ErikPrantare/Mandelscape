@@ -47,7 +47,7 @@ public:
     setVertices(std::vector<glm::vec3> const& vertices) -> void;
 
     auto
-    setVertices(std::vector<glm::vec3> const& vertices, int start, int size)
+    setVertices(std::vector<glm::vec3> const& vertices, size_t start, size_t size)
             -> void;
 
     auto
@@ -77,8 +77,8 @@ public:
     setAttribute(
             int location,
             std::vector<T> const& values,
-            int start,
-            int size) -> void
+            size_t start,
+            size_t size) -> void
     {
         glBindVertexArray(m_vao);
 
@@ -104,7 +104,7 @@ private:
     GLuint m_vao     = 0;
     GLuint m_vbo     = 0;
     GLuint m_ebo     = 0;
-    int m_nrVertices = 0;
+    size_t m_nrVertices = 0;
 
     // location -> VBO
     std::map<int, GLuint> m_attributes = {};

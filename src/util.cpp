@@ -33,14 +33,14 @@ isModifier(Input::Key key) noexcept -> bool
     using namespace Input;
 
     static auto const modKeys = std::set<Input::Key>{
-            Key::LEFT_SHIFT,
-            Key::LEFT_CONTROL,
-            Key::LEFT_ALT,
-            Key::LEFT_SUPER,
-            Key::RIGHT_SHIFT,
-            Key::RIGHT_CONTROL,
-            Key::RIGHT_ALT,
-            Key::RIGHT_SUPER,
+            Key::LeftShift,
+            Key::LeftControl,
+            Key::LeftAlt,
+            Key::LeftSuper,
+            Key::RightShift,
+            Key::RightControl,
+            Key::RightAlt,
+            Key::RightSuper,
     };
 
     return util::contains(modKeys, key);
@@ -52,14 +52,14 @@ toMod(Input::Key key) noexcept(false) -> Input::Mod
     using namespace Input;
 
     static auto const modKeyMap = std::map<Input::Key, Input::Mod>{
-            {Key::LEFT_SHIFT, Mod::SHIFT},
-            {Key::LEFT_CONTROL, Mod::CONTROL},
-            {Key::LEFT_ALT, Mod::ALT},
-            {Key::LEFT_SUPER, Mod::SUPER},
-            {Key::RIGHT_SHIFT, Mod::SHIFT},
-            {Key::RIGHT_CONTROL, Mod::CONTROL},
-            {Key::RIGHT_ALT, Mod::ALT},
-            {Key::RIGHT_SUPER, Mod::SUPER},
+            {Key::LeftShift, Mod::Shift},
+            {Key::LeftControl, Mod::Control},
+            {Key::LeftAlt, Mod::Alt},
+            {Key::LeftSuper, Mod::Super},
+            {Key::RightShift, Mod::Shift},
+            {Key::RightControl, Mod::Control},
+            {Key::RightAlt, Mod::Alt},
+            {Key::RightSuper, Mod::Super},
     };
 
     return modKeyMap.at(key);
@@ -144,7 +144,7 @@ toUniformController(lua_State* L, int offset) -> UniformController
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "fastMode");
-    uniformController.m_fastMode = lua_toboolean(L, -1);
+    uniformController.m_fastMode = static_cast<bool>(lua_toboolean(L, -1));
     lua_pop(L, 1);
 
     return uniformController;

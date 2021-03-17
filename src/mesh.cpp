@@ -60,7 +60,11 @@ Mesh::render() -> void
         glVertexAttribPointer(location, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
 
-    glDrawElements(GL_TRIANGLES, m_nrVertices, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(
+            GL_TRIANGLES,
+            static_cast<GLsizei>(m_nrVertices),
+            GL_UNSIGNED_INT,
+            nullptr);
 
     glBindVertexArray(0);
 }
@@ -73,7 +77,7 @@ Mesh::setVertices(std::vector<glm::vec3> const& vertices) -> void
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(
             GL_ARRAY_BUFFER,
-            vertices.size() * sizeof(vertices[0]),
+            static_cast<GLintptr>(vertices.size() * sizeof(vertices[0])),
             vertices.data(),
             GL_DYNAMIC_DRAW);
 
@@ -83,16 +87,16 @@ Mesh::setVertices(std::vector<glm::vec3> const& vertices) -> void
 auto
 Mesh::setVertices(
         std::vector<glm::vec3> const& vertices,
-        int const start,
-        int const size) -> void
+        size_t const start,
+        size_t const size) -> void
 {
     glBindVertexArray(m_vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferSubData(
             GL_ARRAY_BUFFER,
-            start * sizeof(vertices[0]),
-            size * sizeof(vertices[0]),
+            static_cast<GLintptr>(start * sizeof(vertices[0])),
+            static_cast<GLsizeiptr>(size * sizeof(vertices[0])),
             &vertices[start]);
 
     glBindVertexArray(0);
@@ -106,7 +110,7 @@ Mesh::setIndices(std::vector<GLuint> const& indices) -> void
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
     glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            indices.size() * sizeof(indices[0]),
+            static_cast<GLintptr>(indices.size() * sizeof(indices[0])),
             indices.data(),
             GL_DYNAMIC_DRAW);
 
