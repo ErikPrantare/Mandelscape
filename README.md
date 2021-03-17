@@ -22,30 +22,32 @@ If everything built correctly, the program can now be run with `./Mandelscape`
 https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.2.0
 
 # Controls
-- wasd + mouse to walk and look around.
+- wasd + mouse: Walk and look around.
 
-- p to pause/unpause.
+- p: toggle Pause(releases mouse).
 
-- left/right mouse button to shrink/grow.
+- left/right mouse button: Shrink/grow.
 
-- j/k to change iteration count.
+- q/escape: Quit.
 
-- 1-4 + up/down to change colors.
+- ctrl+s/ctrl+o: Save/load state.
 
-- 5 + up/down to change terrain y scale.
+- j/k: Change iteration count.
 
-- x to render image. Will be put inside directory named screenshots.
+- 1-4 + up/down: Change colors.
 
-- f to toggle fast mode.
+- 5 + up/down: Change terrain y scale.
 
-- h to allow for deeper zooms. Will increase lag 
+- x: Render image. Will be put inside directory named screenshots.
+
+- f: Toggle fast mode.
+
+- h: Allow for deeper zooms. Will increase lag 
         (fast mode is recommended between rendering images).
 
-- o to toggle autozoom.
+- o: Toggle autozoom.
 
-- c to toggle autowalk.
-
-- q or escape to quit.
+- c: Toggle autowalk.
 
 # Options
 To use dvorak mode, start Mandelscape with `--dvorak` flag.
