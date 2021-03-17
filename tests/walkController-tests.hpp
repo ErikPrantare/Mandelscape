@@ -254,7 +254,7 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
     persistentMap.add({outKey}, PersistentAction::ZoomOut);
 
     auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add({autoKey}, TriggerAction::ToggleAutoZoom);
+    momentaryMap.add({autoKey}, Trigger::ToggleAutoZoom);
 
     REQUIRE(player.scale == 1.0);
 

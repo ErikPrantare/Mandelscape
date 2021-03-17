@@ -119,17 +119,17 @@ Window::update() -> bool
 auto
 Window::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    if(std::holds_alternative<TriggerAction>(action)) {
-        switch(std::get<TriggerAction>(action)) {
-        case TriggerAction::TogglePause:
+    if(std::holds_alternative<Trigger>(action)) {
+        switch(std::get<Trigger>(action)) {
+        case Trigger::TogglePause:
             togglePause();
             break;
-        case TriggerAction::TakeScreenshot:
+        case Trigger::TakeScreenshot:
             m_screenshotBuffer = Framebuffer(2 * m_size);
             m_screenshotBuffer->bind();
             glViewport(0, 0, 2 * m_size.x, 2 * m_size.y);
             break;
-        case TriggerAction::CloseWindow:
+        case Trigger::CloseWindow:
             close();
             break;
         default:

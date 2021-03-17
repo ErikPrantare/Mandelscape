@@ -42,9 +42,9 @@ public:
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void
     {
-        bool switchController = std::holds_alternative<TriggerAction>(action)
-                                && std::get<TriggerAction>(action)
-                                           == TriggerAction::ToggleAutoWalk;
+        bool switchController =
+                std::holds_alternative<Trigger>(action)
+                && std::get<Trigger>(action) == Trigger::ToggleAutoWalk;
 
         if(switchController) {
             m_activeController = (m_activeController + 1) % numControllers;

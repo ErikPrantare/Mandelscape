@@ -31,7 +31,7 @@ ShaderController::ShaderController(ShaderProgram* shaderProgram)
 auto
 ShaderController::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    if(action == MomentaryAction{TriggerAction::SwitchShader}) {
+    if(action == MomentaryAction{Trigger::SwitchShader}) {
         ++m_currentFragmentShader;
         m_currentFragmentShader %= m_fragmentShaders.size();
         m_switchShader = true;

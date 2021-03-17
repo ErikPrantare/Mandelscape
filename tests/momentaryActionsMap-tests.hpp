@@ -33,9 +33,9 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
     using namespace Input;
 
     MomentaryActionsMap map;
-    map.add({Key::U}, TriggerAction::IncreaseIterations);
-    map.add({Key::U}, TriggerAction::DecreaseIterations);
-    map.add({Key::U, (int)Mod::Shift}, TriggerAction::Save);
+    map.add({Key::U}, Trigger::IncreaseIterations);
+    map.add({Key::U}, Trigger::DecreaseIterations);
+    map.add({Key::U, (int)Mod::Shift}, Trigger::Save);
 
     SECTION("No given mapping -> empty container")
     {
@@ -50,8 +50,8 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
         auto actions = map(event);
 
         REQUIRE(actions.size() == 2);
-        REQUIRE(util::contains(actions, {TriggerAction::IncreaseIterations}));
-        REQUIRE(util::contains(actions, {TriggerAction::DecreaseIterations}));
+        REQUIRE(util::contains(actions, {Trigger::IncreaseIterations}));
+        REQUIRE(util::contains(actions, {Trigger::DecreaseIterations}));
     }
 
     SECTION("Mapping handles mods")
@@ -60,7 +60,7 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
         auto actions = map(event);
 
         REQUIRE(actions.size() == 1);
-        REQUIRE(util::contains(actions, {TriggerAction::Save}));
+        REQUIRE(util::contains(actions, {Trigger::Save}));
     }
 }
 

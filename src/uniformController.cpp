@@ -56,7 +56,7 @@ UniformController::updateState(
 auto
 UniformController::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    if(action == MomentaryAction{TriggerAction::ToggleFastMode}) {
+    if(action == MomentaryAction{Trigger::ToggleFastMode}) {
         m_fastMode = !m_fastMode;
     }
 }

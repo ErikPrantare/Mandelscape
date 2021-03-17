@@ -41,9 +41,8 @@ public:
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void final
     {
-        if(std::holds_alternative<TriggerAction>(action)
-           && std::get<TriggerAction>(action)
-                      == TriggerAction::ToggleAutoWalk) {
+        if(std::holds_alternative<Trigger>(action)
+           && std::get<Trigger>(action) == Trigger::ToggleAutoWalk) {
             ++switchCalls[n];
         }
     }
@@ -71,21 +70,21 @@ TEST_CASE("MetaController switches controllers", "[MetaController]")
     auto player              = Player();
     auto const persistentMap = PersistentActionMap{};
 
-    meta.handleMomentaryAction(TriggerAction::ToggleAutoWalk);
+    meta.handleMomentaryAction(Trigger::ToggleAutoWalk);
     meta.updateState(persistentMap);
     REQUIRE(switchCalls == std::array{0, 1, 0});
     meta.update(&player, 0.0);
     REQUIRE(updateCalled == std::array{false, true, false});
     REQUIRE(stateUpdateCalled == std::array{false, true, false});
 
-    meta.handleMomentaryAction(TriggerAction::ToggleAutoWalk);
+    meta.handleMomentaryAction(Trigger::ToggleAutoWalk);
     meta.updateState(persistentMap);
     REQUIRE(switchCalls == std::array{0, 1, 1});
     meta.update(&player, 0.0);
     REQUIRE(updateCalled == std::array{false, true, true});
     REQUIRE(stateUpdateCalled == std::array{false, true, true});
 
-    meta.handleMomentaryAction(TriggerAction::ToggleAutoWalk);
+    meta.handleMomentaryAction(Trigger::ToggleAutoWalk);
     meta.updateState(persistentMap);
     REQUIRE(switchCalls == std::array{1, 1, 1});
     meta.update(&player, 0.0);

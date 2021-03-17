@@ -25,7 +25,7 @@ namespace GenericControllerTests {
 TEST_CASE("No bound functions, no problem", "[GenericController]")
 {
     auto gc = GenericController();
-    REQUIRE_NOTHROW(gc.handleMomentaryAction({TriggerAction::Save}));
+    REQUIRE_NOTHROW(gc.handleMomentaryAction({Trigger::Save}));
 }
 
 TEST_CASE(
@@ -34,21 +34,21 @@ TEST_CASE(
 {
     bool called = false;
     auto gc = GenericController().withMomentary([&called](auto const& action) {
-        if(action == MomentaryAction{TriggerAction::Save}) {
+        if(action == MomentaryAction{Trigger::Save}) {
             called = true;
         }
     });
 
     SECTION("handleMomentaryAction calls provided function")
     {
-        gc.handleMomentaryAction(MomentaryAction{TriggerAction::Save});
+        gc.handleMomentaryAction(MomentaryAction{Trigger::Save});
         REQUIRE(called);
     }
 
     SECTION("Overwriting works")
     {
         gc = gc.withMomentary([](auto const&) {});
-        gc.handleMomentaryAction(MomentaryAction{TriggerAction::Save});
+        gc.handleMomentaryAction(MomentaryAction{Trigger::Save});
         REQUIRE(!called);
     }
 }

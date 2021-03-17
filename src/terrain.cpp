@@ -25,6 +25,8 @@
 
 #include <glad/glad.h>
 
+#include "nfd.hpp"
+
 #include "util.hpp"
 #include "shader.hpp"
 
@@ -83,13 +85,72 @@ Terrain::~Terrain()
 auto
 Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    auto onTrigger = [this](TriggerAction action) {
+    auto onTrigger = [this](Trigger action) {
         switch(action) {
-        case TriggerAction::IncreaseIterations: {
+        case Trigger::IncreaseIterations: {
             m_iterations += 20;
         } break;
-        case TriggerAction::DecreaseIterations: {
+        case Trigger::DecreaseIterations: {
             m_iterations -= 20;
+        } break;
+        case Trigger::LoadTerrainFunction: {
+            auto path = NFD::UniquePath();
+            std::array<nfdfilteritem_t, 1> filterItem{{{"Lua files", "lua"}}};
+            auto const result =
+                    NFD::OpenDialog(path, filterItem.data(), 1, nullptr);
+            if(result != NFD_OKAY) {
+                return;
+            }
+            if(m_luaPointData != nullptr) {
+                lua_close(m_luaPointData);
+            }
+            m_luaPointData = luaL_newstate();
+            luaopen_math(m_luaPointData);
+            std::ifstream in(path.get());
+            if(luaL_dostring(m_luaPointData, util::getContents(in).c_str())
+               != 0) {
+                throw std::runtime_error(lua_tostring(m_luaPointData, -1));
+            }
+            m_pointData = [this](glm::dvec2 const& pos, int iterations) {
+                m_mutex.lock();
+                lua_getglobal(m_luaPointData, "pointData");
+                lua_pushnumber(m_luaPointData, pos.x);
+                lua_pushnumber(m_luaPointData, pos.y);
+                lua_pushnumber(m_luaPointData, iterations);
+                if(lua_pcall(m_luaPointData, 3, 1, 0) != 0) {
+                    throw std::runtime_error(lua_tostring(m_luaPointData, -1));
+                }
+                auto p = PointData();
+                lua_getfield(m_luaPointData, -1, "value");
+                if(lua_isnumber(m_luaPointData, -1) == 0) {
+                    throw std::runtime_error(
+                            "lua function pointData didn't return a table"
+                            " containing a number named \"value\"!");
+                }
+                p.value = lua_tonumber(m_luaPointData, -1);
+                lua_pop(m_luaPointData, 1);
+
+                lua_getfield(m_luaPointData, -1, "height");
+                if(lua_isnumber(m_luaPointData, -1) == 0) {
+                    throw std::runtime_error(
+                            "lua function pointData didn't return a table"
+                            " containing a number named \"height\"!");
+                }
+                p.height = lua_tonumber(m_luaPointData, -1);
+                lua_pop(m_luaPointData, 1);
+
+                lua_getfield(m_luaPointData, -1, "inside");
+                if(lua_isboolean(m_luaPointData, -1) == 0) {
+                    throw std::runtime_error(
+                            "lua function pointData didn't return a table"
+                            " containing a boolean named \"inside\"!");
+                }
+                p.inside =
+                        static_cast<bool>(lua_toboolean(m_luaPointData, -1));
+                lua_pop(m_luaPointData, 2);
+                m_mutex.unlock();
+                return p;
+            };
         } break;
         default:
             break;

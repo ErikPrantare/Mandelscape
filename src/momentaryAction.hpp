@@ -20,7 +20,7 @@
 
 #include <variant>
 
-enum class TriggerAction {
+enum class Trigger {
     IncreaseIterations,
     DecreaseIterations,
     ToggleAutoWalk,
@@ -33,6 +33,8 @@ enum class TriggerAction {
 
     Save,
     Load,
+
+    LoadTerrainFunction,
 };
 
 struct MouseDelta {
@@ -40,7 +42,7 @@ struct MouseDelta {
     double dy;
 };
 
-using MomentaryAction = std::variant<TriggerAction, MouseDelta>;
+using MomentaryAction = std::variant<Trigger, MouseDelta>;
 
 // CPP20: <=> operator
 auto
@@ -50,6 +52,6 @@ auto
 operator<(MouseDelta a, MouseDelta b) -> bool;
 
 auto
-sameAction(MomentaryAction const& action, TriggerAction triggerAction) -> bool;
+sameAction(MomentaryAction const& action, Trigger triggerAction) -> bool;
 
 #endif    // MANDELLANDSCAPE_MOMENTARYACTION_HPP

@@ -29,7 +29,7 @@
 class MomentaryActionsMap {
 public:
     auto
-    add(KeyDown key, TriggerAction action) -> void;
+    add(KeyDown key, Trigger action) -> void;
 
     [[nodiscard]] auto
     operator()(Event const& event) const -> std::set<MomentaryAction>;

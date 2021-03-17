@@ -20,7 +20,7 @@
 #include "util.hpp"
 
 auto
-MomentaryActionsMap::add(KeyDown key, TriggerAction action) -> void
+MomentaryActionsMap::add(KeyDown key, Trigger action) -> void
 {
     m_keyMap[key].insert({action});
 }

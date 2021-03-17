@@ -32,8 +32,8 @@ operator<(MouseDelta a, MouseDelta b) -> bool
 }
 
 auto
-sameAction(MomentaryAction const& action, TriggerAction triggerAction) -> bool
+sameAction(MomentaryAction const& action, Trigger triggerAction) -> bool
 {
-    return std::holds_alternative<TriggerAction>(action)
-           && std::get<TriggerAction>(action) == triggerAction;
+    return std::holds_alternative<Trigger>(action)
+           && std::get<Trigger>(action) == triggerAction;
 }

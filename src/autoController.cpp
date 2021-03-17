@@ -34,8 +34,8 @@ auto
 AutoController::handleMomentaryAction(MomentaryAction const& action) -> void
 {
     // Controller was switched to
-    if(std::holds_alternative<TriggerAction>(action)
-       && std::get<TriggerAction>(action) == TriggerAction::ToggleAutoWalk) {
+    if(std::holds_alternative<Trigger>(action)
+       && std::get<Trigger>(action) == Trigger::ToggleAutoWalk) {
         m_needsRetarget = true;
     }
 }

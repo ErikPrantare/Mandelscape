@@ -58,11 +58,11 @@ WalkController::handleMomentaryAction(MomentaryAction const& action) -> void
 {
     std::visit(
             util::Overload{
-                    [this](TriggerAction action) {
-                        if(action == TriggerAction::ToggleAutoZoom) {
+                    [this](Trigger action) {
+                        if(action == Trigger::ToggleAutoZoom) {
                             m_autoZoom = !m_autoZoom;
                         }
-                        else if(action == TriggerAction::ToggleAutoWalk) {
+                        else if(action == Trigger::ToggleAutoWalk) {
                             // Don't autozoom if previously autowalking
                             m_autoZoom = false;
                         }
