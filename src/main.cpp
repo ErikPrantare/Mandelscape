@@ -253,6 +253,12 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Input::Key::X}, TriggerAction::TakeScreenshot);
     momentaryMap.add({Input::Key::Q}, TriggerAction::CloseWindow);
     momentaryMap.add({Input::Key::ESCAPE}, TriggerAction::CloseWindow);
+    momentaryMap.add(
+            {Input::Key::S, (int)Input::Mod::CONTROL},
+            TriggerAction::Save);
+    momentaryMap.add(
+            {Input::Key::O, (int)Input::Mod::CONTROL},
+            TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Input::Key::W}, PersistentAction::MoveForwards);
@@ -290,8 +296,12 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Input::Key::X}, TriggerAction::TakeScreenshot);
     momentaryMap.add({Input::Key::Q}, TriggerAction::CloseWindow);
     momentaryMap.add({Input::Key::ESCAPE}, TriggerAction::CloseWindow);
-    momentaryMap.add({Input::Key::KEY_6}, TriggerAction::Save);
-    momentaryMap.add({Input::Key::KEY_7}, TriggerAction::Load);
+    momentaryMap.add(
+            {Input::Key::S, (int)Input::Mod::CONTROL},
+            TriggerAction::Save);
+    momentaryMap.add(
+            {Input::Key::O, (int)Input::Mod::CONTROL},
+            TriggerAction::Load);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Input::Key::COMMA}, PersistentAction::MoveForwards);
