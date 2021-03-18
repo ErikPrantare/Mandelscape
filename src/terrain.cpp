@@ -43,7 +43,9 @@ Terrain::resize(Terrain::Points* const points, size_t const size) -> void
     points->size = size;
 }
 
-Terrain::Terrain() : m_pointData(pointDataDefault)
+Terrain::Terrain() :
+            m_pointData(pointDataDefault),
+            m_pointData2(pointDataDefault)
 {
     loadMesh(m_loadingOffset, m_scale, &m_points);
 
@@ -83,6 +85,49 @@ Terrain::~Terrain()
 }
 
 auto
+luaPointData(lua_State* l)
+        -> std::function<Terrain::PointData(glm::dvec2 const&, int iterations)>
+{
+    return [l](glm::dvec2 const& pos, int iterations) {
+        lua_getglobal(l, "pointData");
+        lua_pushnumber(l, pos.x);
+        lua_pushnumber(l, pos.y);
+        lua_pushnumber(l, iterations);
+        if(lua_pcall(l, 3, 1, 0) != 0) {
+            throw std::runtime_error(lua_tostring(l, -1));
+        }
+        auto p = Terrain::PointData();
+        lua_getfield(l, -1, "value");
+        if(lua_isnumber(l, -1) == 0) {
+            throw std::runtime_error(
+                    "lua function pointData didn't return a table"
+                    " containing a number named \"value\"!");
+        }
+        p.value = lua_tonumber(l, -1);
+        lua_pop(l, 1);
+
+        lua_getfield(l, -1, "height");
+        if(lua_isnumber(l, -1) == 0) {
+            throw std::runtime_error(
+                    "lua function pointData didn't return a table"
+                    " containing a number named \"height\"!");
+        }
+        p.height = lua_tonumber(l, -1);
+        lua_pop(l, 1);
+
+        lua_getfield(l, -1, "inside");
+        if(lua_isboolean(l, -1) == 0) {
+            throw std::runtime_error(
+                    "lua function pointData didn't return a table"
+                    " containing a boolean named \"inside\"!");
+        }
+        p.inside = static_cast<bool>(lua_toboolean(l, -1));
+        lua_pop(l, 2);
+        return p;
+    };
+}
+
+auto
 Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
 {
     auto onTrigger = [this](Trigger action) {
@@ -103,54 +148,25 @@ Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
             }
             if(m_luaPointData != nullptr) {
                 lua_close(m_luaPointData);
+                lua_close(m_luaPointData2);
             }
-            m_luaPointData = luaL_newstate();
+            m_luaPointData  = luaL_newstate();
+            m_luaPointData2 = luaL_newstate();
             luaopen_math(m_luaPointData);
+            luaopen_math(m_luaPointData2);
             std::ifstream in(path.get());
+            std::ifstream in2(path.get());
             if(luaL_dostring(m_luaPointData, util::getContents(in).c_str())
                != 0) {
                 throw std::runtime_error(lua_tostring(m_luaPointData, -1));
             }
-            m_pointData = [this](glm::dvec2 const& pos, int iterations) {
-                m_mutex.lock();
-                lua_getglobal(m_luaPointData, "pointData");
-                lua_pushnumber(m_luaPointData, pos.x);
-                lua_pushnumber(m_luaPointData, pos.y);
-                lua_pushnumber(m_luaPointData, iterations);
-                if(lua_pcall(m_luaPointData, 3, 1, 0) != 0) {
-                    throw std::runtime_error(lua_tostring(m_luaPointData, -1));
-                }
-                auto p = PointData();
-                lua_getfield(m_luaPointData, -1, "value");
-                if(lua_isnumber(m_luaPointData, -1) == 0) {
-                    throw std::runtime_error(
-                            "lua function pointData didn't return a table"
-                            " containing a number named \"value\"!");
-                }
-                p.value = lua_tonumber(m_luaPointData, -1);
-                lua_pop(m_luaPointData, 1);
+            if(luaL_dostring(m_luaPointData2, util::getContents(in2).c_str())
+               != 0) {
+                throw std::runtime_error(lua_tostring(m_luaPointData, -1));
+            }
 
-                lua_getfield(m_luaPointData, -1, "height");
-                if(lua_isnumber(m_luaPointData, -1) == 0) {
-                    throw std::runtime_error(
-                            "lua function pointData didn't return a table"
-                            " containing a number named \"height\"!");
-                }
-                p.height = lua_tonumber(m_luaPointData, -1);
-                lua_pop(m_luaPointData, 1);
-
-                lua_getfield(m_luaPointData, -1, "inside");
-                if(lua_isboolean(m_luaPointData, -1) == 0) {
-                    throw std::runtime_error(
-                            "lua function pointData didn't return a table"
-                            " containing a boolean named \"inside\"!");
-                }
-                p.inside =
-                        static_cast<bool>(lua_toboolean(m_luaPointData, -1));
-                lua_pop(m_luaPointData, 2);
-                m_mutex.unlock();
-                return p;
-            };
+            m_pointData  = luaPointData(m_luaPointData);
+            m_pointData2 = luaPointData(m_luaPointData2);
         } break;
         default:
             break;
@@ -347,7 +363,7 @@ pointDataDefault(glm::dvec2 const& pos, int iterations) noexcept
 auto
 Terrain::heightAt(glm::dvec2 const& pos) -> double
 {
-    return m_pointData(pos, m_iterations).height;
+    return m_pointData2(pos, m_iterations).height;
 }
 
 auto

@@ -82,7 +82,11 @@ private:
     double m_scale = 1.0;
 
     std::mutex m_mutex;
-    lua_State* m_luaPointData = nullptr;
+    lua_State* m_luaPointData  = nullptr;
+    lua_State* m_luaPointData2 = nullptr;
+
+    std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData;
+    std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData2;
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;
@@ -117,8 +121,6 @@ private:
 
     auto
     loadMesh(glm::dvec3 offset, double scale, Points* points) -> void;
-
-    std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData;
 };
 
 #endif
