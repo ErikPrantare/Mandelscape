@@ -55,6 +55,10 @@ createSerializationController(Player&, Window&, UniformController&)
         -> GenericController;
 
 auto
+loadTerrain(Terrain& /*terrain*/, ShaderController & /*shaderController*/)
+        -> void;
+
+auto
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
 auto
@@ -101,6 +105,8 @@ try {
 
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
+
+    loadTerrain(terrain, shaderController);
     while(window.update()) {
         double const currentTimepoint = glfwGetTime();
         double const dt               = currentTimepoint - lastTimepoint;
@@ -215,6 +221,46 @@ load(Player& player, UniformController& uniformController) -> void
     lua_getglobal(L, "uniformController");
     uniformController = util::lua::toUniformController(L, -1);
     lua_close(L);
+}
+
+auto
+loadTerrain(Terrain& terrain, ShaderController & /*shaderController*/) -> void
+{
+    auto outPaths = NFD::UniquePathSet();
+
+    // prepare filters for the dialog
+    std::array<nfdfilteritem_t, 2> filterItem{
+            {{"Lua files", "lua"}, {"GLSL files", "frag"}}};
+
+    // show the dialog
+    nfdresult_t result = NFD::OpenDialogMultiple(
+            outPaths,
+            filterItem.data(),
+            filterItem.size(),
+            nullptr);
+
+    if(result != NFD_OKAY) {
+        return;
+    }
+
+    std::vector<std::string> paths;
+    nfdpathsetsize_t numPaths{};
+    NFD::PathSet::Count(outPaths, numPaths);
+
+    for(nfdpathsetsize_t i = 0; i < numPaths; ++i) {
+        auto path = NFD::UniquePathSetPath();
+        NFD::PathSet::GetPath(outPaths, i, path);
+        paths.emplace_back(path.get());
+    }
+
+    for(auto const& path : paths) {
+        if(util::endsWith(path, "terrain.lua")) {
+            std::ifstream in(path);
+            terrain.loadLua(util::getContents(in));
+        }
+        // shaderController.setValueFunction(glsl);
+        // shaderController.setColorFunction(glsl);
+    }
 }
 
 auto

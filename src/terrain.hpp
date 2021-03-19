@@ -63,6 +63,9 @@ public:
     auto
     render(ShaderProgram* shaderProgram) -> void;
 
+    auto
+    loadLua(std::string const& code) -> void;
+
     static int constexpr colorLocation = 1;
 
     struct PointData {

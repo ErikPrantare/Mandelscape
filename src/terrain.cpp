@@ -138,36 +138,6 @@ Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
         case Trigger::DecreaseIterations: {
             m_iterations -= 20;
         } break;
-        case Trigger::LoadTerrainFunction: {
-            auto path = NFD::UniquePath();
-            std::array<nfdfilteritem_t, 1> filterItem{{{"Lua files", "lua"}}};
-            auto const result =
-                    NFD::OpenDialog(path, filterItem.data(), 1, nullptr);
-            if(result != NFD_OKAY) {
-                return;
-            }
-            if(m_luaPointData != nullptr) {
-                lua_close(m_luaPointData);
-                lua_close(m_luaPointData2);
-            }
-            m_luaPointData  = luaL_newstate();
-            m_luaPointData2 = luaL_newstate();
-            luaopen_math(m_luaPointData);
-            luaopen_math(m_luaPointData2);
-            std::ifstream in(path.get());
-            std::ifstream in2(path.get());
-            if(luaL_dostring(m_luaPointData, util::getContents(in).c_str())
-               != 0) {
-                throw std::runtime_error(lua_tostring(m_luaPointData, -1));
-            }
-            if(luaL_dostring(m_luaPointData2, util::getContents(in2).c_str())
-               != 0) {
-                throw std::runtime_error(lua_tostring(m_luaPointData, -1));
-            }
-
-            m_pointData  = luaPointData(m_luaPointData);
-            m_pointData2 = luaPointData(m_luaPointData2);
-        } break;
         default:
             break;
         }
@@ -358,6 +328,28 @@ pointDataDefault(glm::dvec2 const& pos, int iterations) noexcept
     }
 
     return {0.0, -1.0, true};
+}
+
+auto
+Terrain::loadLua(std::string const& code) -> void
+{
+    if(m_luaPointData != nullptr) {
+        lua_close(m_luaPointData);
+        lua_close(m_luaPointData2);
+    }
+    m_luaPointData  = luaL_newstate();
+    m_luaPointData2 = luaL_newstate();
+    luaopen_math(m_luaPointData);
+    luaopen_math(m_luaPointData2);
+    if(luaL_dostring(m_luaPointData, code.c_str()) != 0) {
+        throw std::runtime_error(lua_tostring(m_luaPointData, -1));
+    }
+    if(luaL_dostring(m_luaPointData2, code.c_str()) != 0) {
+        throw std::runtime_error(lua_tostring(m_luaPointData, -1));
+    }
+
+    m_pointData  = luaPointData(m_luaPointData);
+    m_pointData2 = luaPointData(m_luaPointData2);
 }
 
 auto

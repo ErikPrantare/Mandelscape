@@ -65,6 +65,14 @@ toMod(Input::Key key) noexcept(false) -> Input::Mod
     return modKeyMap.at(key);
 }
 
+auto
+endsWith(std::string const& value, std::string const& ending) noexcept -> bool
+{
+    if(ending.size() > value.size()) {
+        return false;
+    }
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
 }    // namespace util
 
 namespace util::lua {

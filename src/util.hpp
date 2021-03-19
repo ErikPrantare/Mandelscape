@@ -147,6 +147,10 @@ isModifier(Input::Key key) noexcept -> bool;
 [[nodiscard]] auto
 toMod(Input::Key key) noexcept(false) -> Input::Mod;
 
+// CPP20 std::string::ends_with
+[[nodiscard]] auto
+endsWith(std::string const& value, std::string const& ending) noexcept -> bool;
+
 }    // namespace util
 
 namespace util::lua {
