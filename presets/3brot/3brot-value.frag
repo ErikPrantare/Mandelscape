@@ -30,7 +30,7 @@ value(const in complex c)
         if(distSquare > 256.0*256.0) {
             PointInfo p;
             p.inside = false;
-            p.value = float(i) - log2(log2(distSquare));
+            p.value = float(i) - log(log2(distSquare))/log(3.0);
             return p;
         }
     }
