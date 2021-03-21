@@ -34,7 +34,7 @@ enum class Trigger {
     Save,
     Load,
 
-    LoadTerrainFunction,
+    LoadTerrainFunctions,
 };
 
 struct MouseDelta {

@@ -84,7 +84,6 @@ private:
 
     double m_scale = 1.0;
 
-    std::mutex m_mutex;
     lua_State* m_luaPointData  = nullptr;
     lua_State* m_luaPointData2 = nullptr;
 

@@ -105,9 +105,6 @@ try {
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
 
-    window.pause(true);
-    loadTerrain(terrain, shaderController, shaderProgram);
-    window.pause(false);
     while(window.update()) {
         double const currentTimepoint = glfwGetTime();
         double const dt               = currentTimepoint - lastTimepoint;
@@ -125,6 +122,12 @@ try {
                 uniformController.handleMomentaryAction(action);
                 shaderController.handleMomentaryAction(action);
                 serializationController.handleMomentaryAction(action);
+
+                if(action == MomentaryAction{Trigger::LoadTerrainFunctions}) {
+                    window.pause(true);
+                    loadTerrain(terrain, shaderController, shaderProgram);
+                    window.pause(false);
+                }
             }
         }
 
@@ -316,7 +319,7 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Key::O, (int)Input::Mod::Control}, Trigger::Load);
     momentaryMap.add(
             {Key::L, (int)Input::Mod::Control},
-            Trigger::LoadTerrainFunction);
+            Trigger::LoadTerrainFunctions);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Key::W}, PersistentAction::MoveForwards);
@@ -332,9 +335,6 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     persistentMap.add({Key::Key3}, PersistentAction::ChangeGreenOffset);
     persistentMap.add({Key::Key4}, PersistentAction::ChangeBlueOffset);
     persistentMap.add({Key::Key5}, PersistentAction::ChangeYScale);
-    momentaryMap.add(
-            {Key::L, (int)Input::Mod::Control},
-            Trigger::LoadTerrainFunction);
 
     return {momentaryMap, persistentMap};
 }
@@ -359,7 +359,7 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Key::O, (int)Input::Mod::Control}, Trigger::Load);
     momentaryMap.add(
             {Key::L, (int)Input::Mod::Control},
-            Trigger::LoadTerrainFunction);
+            Trigger::LoadTerrainFunctions);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Key::Comma}, PersistentAction::MoveForwards);

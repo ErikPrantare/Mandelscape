@@ -328,6 +328,7 @@ pointDataDefault(glm::dvec2 const& pos, int iterations) noexcept
 auto
 Terrain::loadLua(std::string const& code) -> void
 {
+    m_loadingProcess.wait();
     if(m_luaPointData != nullptr) {
         lua_close(m_luaPointData);
         lua_close(m_luaPointData2);
