@@ -210,21 +210,21 @@ load(Player& player, UniformController& uniformController) -> void
 {
     auto path = NFD::UniquePath();
     std::array<nfdfilteritem_t, 1> filterItem{{{"Lua files", "lua"}}};
-    auto const result = NFD::OpenDialog(path, filterItem.data(), 1, nullptr);
+    auto const result = NFD::OpenDialog(path, filterItem.data(), 1, ".");
     if(result != NFD_OKAY) {
         return;
     }
     std::ifstream in(path.get());
-    lua_State* L = luaL_newstate();
-    luaL_dostring(L, util::getContents(in).c_str());
+    lua_State* l = luaL_newstate();
+    luaL_dostring(l, util::getContents(in).c_str());
 
-    lua_getglobal(L, "player");
-    player = util::lua::toPlayer(L, -1);
-    lua_pop(L, 1);
+    lua_getglobal(l, "player");
+    player = util::lua::toPlayer(l, -1);
+    lua_pop(l, 1);
 
-    lua_getglobal(L, "uniformController");
-    uniformController = util::lua::toUniformController(L, -1);
-    lua_close(L);
+    lua_getglobal(l, "uniformController");
+    uniformController = util::lua::toUniformController(l, -1);
+    lua_close(l);
 }
 
 auto
@@ -240,7 +240,7 @@ loadTerrain(
             outPaths,
             filterItem.data(),
             filterItem.size(),
-            ".");
+            "presets");
 
     if(result != NFD_OKAY) {
         return;
