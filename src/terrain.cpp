@@ -97,14 +97,6 @@ luaPointData(lua_State* l)
             throw std::runtime_error(lua_tostring(l, -1));
         }
         auto p = Terrain::PointData();
-        lua_getfield(l, -1, "value");
-        if(lua_isnumber(l, -1) == 0) {
-            throw std::runtime_error(
-                    "lua function pointData didn't return a table"
-                    " containing a number named \"value\"!");
-        }
-        p.value = lua_tonumber(l, -1);
-        lua_pop(l, 1);
 
         lua_getfield(l, -1, "height");
         if(lua_isnumber(l, -1) == 0) {
@@ -116,12 +108,15 @@ luaPointData(lua_State* l)
         lua_pop(l, 1);
 
         lua_getfield(l, -1, "inside");
-        if(lua_isboolean(l, -1) == 0) {
-            throw std::runtime_error(
-                    "lua function pointData didn't return a table"
-                    " containing a boolean named \"inside\"!");
+        if(lua_isboolean(l, -1) != 0) {
+            p.inside = static_cast<bool>(lua_toboolean(l, -1));
         }
-        p.inside = static_cast<bool>(lua_toboolean(l, -1));
+        lua_pop(l, 1);
+
+        lua_getfield(l, -1, "value");
+        if(lua_isnumber(l, -1) != 0) {
+            p.value = lua_tonumber(l, -1);
+        }
         lua_pop(l, 2);
         return p;
     };

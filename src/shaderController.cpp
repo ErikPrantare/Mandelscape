@@ -74,6 +74,30 @@ ShaderController::setValueFunction(
 }
 
 auto
+ShaderController::setColorFunction(
+        ShaderProgram& shaderProgram,
+        std::string const& code) -> void
+{
+    m_fragmentShaders = {
+            FragmentShader::fromCode(
+                    util::getContents(std::ifstream("shaders/head.frag"))
+                    + util::getContents(
+                            std::ifstream("shaders/shallowLib.frag"))
+                    + util::getContents(std::ifstream("shaders/value.frag"))
+                    + code
+                    + util::getContents(std::ifstream("shaders/shader.frag"))),
+            FragmentShader::fromCode(
+                    util::getContents(std::ifstream("shaders/head.frag"))
+                    + util::getContents(std::ifstream("shaders/deepLib.frag"))
+                    + util::getContents(std::ifstream("shaders/value.frag"))
+                    + code
+                    + util::getContents(
+                            std::ifstream("shaders/shader.frag")))};
+
+    recompile(shaderProgram);
+}
+
+auto
 ShaderController::recompile(ShaderProgram& shaderProgram) const -> void
 {
     m_vertexShader.attachTo(shaderProgram);

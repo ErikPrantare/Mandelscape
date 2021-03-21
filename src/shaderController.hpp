@@ -39,6 +39,9 @@ public:
     auto
     setValueFunction(ShaderProgram&, std::string const& code) -> void;
 
+    auto
+    setColorFunction(ShaderProgram&, std::string const& code) -> void;
+
 private:
     VertexShader m_vertexShader =
             VertexShader::fromFile("shaders/shader.vert");

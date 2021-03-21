@@ -232,13 +232,12 @@ loadTerrain(
 {
     auto outPaths = NFD::UniquePathSet();
 
-    std::array<nfdfilteritem_t, 1> filterItem{
-            {{"Terrain files", "terrain,value,color"}}};
+    std::array<nfdfilteritem_t, 1> filterItem{{{"Terrain files", "lua,frag"}}};
     nfdresult_t result = NFD::OpenDialogMultiple(
             outPaths,
             filterItem.data(),
             filterItem.size(),
-            nullptr);
+            ".");
 
     if(result != NFD_OKAY) {
         return;
@@ -255,20 +254,22 @@ loadTerrain(
     }
 
     for(auto const& path : paths) {
-        if(util::endsWith(path, ".terrain")) {
+        if(util::endsWith(path, "shape.lua")) {
             std::ifstream in(path);
             terrain.loadLua(util::getContents(in));
         }
-        else if(util::endsWith(path, ".value")) {
+        else if(util::endsWith(path, "value.frag")) {
             std::ifstream in(path);
             shaderController.setValueFunction(
                     shaderProgram,
                     util::getContents(in));
         }
-        // else if(util::endsWith(path, "color.frag")) {
-        //  std::ifstream in(path);
-        // shaderController.setColorFunction(glsl);
-        //}
+        else if(util::endsWith(path, "color.frag")) {
+            std::ifstream in(path);
+            shaderController.setColorFunction(
+                    shaderProgram,
+                    util::getContents(in));
+        }
     }
 }
 
