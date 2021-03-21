@@ -1,0 +1,64 @@
+An example is given at the end of the document.
+
+---
+The terrain generation function is written in lua.
+
+Files containing a shape function should end in shape.lua.
+These contain a function pointData(x, y, i), with the three parameters:
+
+x and y: the coordinates of the point
+(in mandelbrot, these would be the real and imaginary part)
+i: the number of iterations to calculate
+
+
+The function is expected to return a table with entries:
+
+height: the height of the point. A distance estimation fits well for this.
+value (optional): An approximation of the value of the point.
+This should be the same value as calculated the the coloring function.
+inside (optional): whether the point is inside or outside the fractal.
+
+The two optional entries are needed if the function should work in "fast mode".
+
+Tip:
+Avoid using dictionaries in your loops for better performance.
+E.g., z = {x, y} is much more performant than z = {re = x, im = y}.
+
+---
+Example
+
+mandelbrot-shape.lua:
+function cmult(a, b)
+    return {a[1]*b[1] - a[2]*b[2], a[1]*b[2] + a[2]*b[1]}
+end
+
+function csquare(a)
+    return {a[1]*a[1] - a[2]*a[2], 2*a[1]*a[2]}
+end
+
+function cadd(a, b)
+    return {a[1] + b[1], a[2] + b[2]}
+end
+
+function pointData (re, im, iters)
+    dz = {0, 0}
+    z = {0, 0}
+    c = {re, im}
+    for i = 1,iters,1 do
+        dz = cmult(z, dz)
+        dz[2] = 2*dz[2];
+        dz[1] = 2*dz[1] + 1;
+
+        z = cadd(csquare(z), c);
+        
+        if z[1]*z[1] + z[2]*z[2] > 256*256 then
+            r = math.sqrt(z[1]*z[1] + z[2]*z[2])
+            dr = math.sqrt(dz[1]*dz[1] + dz[2]*dz[2])
+            de = 2.0 * r * math.log(r) / dr
+
+            return {height = de, value = i, inside = false}
+        end
+    end
+        
+    return {height = 0, value = 0, inside = true}
+end
