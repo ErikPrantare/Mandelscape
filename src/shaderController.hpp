@@ -31,10 +31,13 @@ public:
     ShaderController(ShaderProgram* shaderProgram);
 
     auto
-    handleMomentaryAction(MomentaryAction const&) -> void;
+    handleMomentaryAction(MomentaryAction const&) noexcept -> void;
 
     auto
-    update(ShaderProgram* shaderProgram) -> void;
+    update(ShaderProgram& shaderProgram) -> void;
+
+    auto
+    setValueFunction(ShaderProgram&, std::string const& code) -> void;
 
 private:
     VertexShader m_vertexShader =
@@ -55,6 +58,9 @@ private:
                     "shaders/value.frag",
                     "shaders/color.frag",
                     "shaders/shader.frag")};
+
+    auto
+    recompile(ShaderProgram& shaderProgram) const -> void;
 };
 
 #endif

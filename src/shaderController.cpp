@@ -29,7 +29,8 @@ ShaderController::ShaderController(ShaderProgram* shaderProgram)
 }
 
 auto
-ShaderController::handleMomentaryAction(MomentaryAction const& action) -> void
+ShaderController::handleMomentaryAction(MomentaryAction const& action) noexcept
+        -> void
 {
     if(action == MomentaryAction{Trigger::SwitchShader}) {
         ++m_currentFragmentShader;
@@ -39,12 +40,43 @@ ShaderController::handleMomentaryAction(MomentaryAction const& action) -> void
 }
 
 auto
-ShaderController::update(ShaderProgram* const shaderProgram) -> void
+ShaderController::update(ShaderProgram& shaderProgram) -> void
 {
     if(m_switchShader) {
         m_switchShader = false;
 
-        m_fragmentShaders[m_currentFragmentShader].attachTo(*shaderProgram);
-        shaderProgram->compile();
+        recompile(shaderProgram);
     }
+}
+
+auto
+ShaderController::setValueFunction(
+        ShaderProgram& shaderProgram,
+        std::string const& code) -> void
+{
+    m_fragmentShaders = {
+            FragmentShader::fromCode(
+                    util::getContents(std::ifstream("shaders/head.frag"))
+                    + util::getContents(
+                            std::ifstream("shaders/shallowLib.frag"))
+                    + code
+                    + util::getContents(std::ifstream("shaders/color.frag"))
+                    + util::getContents(std::ifstream("shaders/shader.frag"))),
+            FragmentShader::fromCode(
+                    util::getContents(std::ifstream("shaders/head.frag"))
+                    + util::getContents(std::ifstream("shaders/deepLib.frag"))
+                    + code
+                    + util::getContents(std::ifstream("shaders/color.frag"))
+                    + util::getContents(
+                            std::ifstream("shaders/shader.frag")))};
+
+    recompile(shaderProgram);
+}
+
+auto
+ShaderController::recompile(ShaderProgram& shaderProgram) const -> void
+{
+    m_vertexShader.attachTo(shaderProgram);
+    m_fragmentShaders[m_currentFragmentShader].attachTo(shaderProgram);
+    shaderProgram.compile();
 }

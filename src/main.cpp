@@ -55,8 +55,7 @@ createSerializationController(Player&, Window&, UniformController&)
         -> GenericController;
 
 auto
-loadTerrain(Terrain& /*terrain*/, ShaderController & /*shaderController*/)
-        -> void;
+loadTerrain(Terrain&, ShaderController&, ShaderProgram&) -> void;
 
 auto
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
@@ -106,7 +105,9 @@ try {
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
 
-    loadTerrain(terrain, shaderController);
+    window.pause(true);
+    loadTerrain(terrain, shaderController, shaderProgram);
+    window.pause(false);
     while(window.update()) {
         double const currentTimepoint = glfwGetTime();
         double const dt               = currentTimepoint - lastTimepoint;
@@ -143,7 +144,7 @@ try {
             player.position.y *= uniformController.yScale();
         }
 
-        shaderController.update(&shaderProgram);
+        shaderController.update(shaderProgram);
         uniformController.update(&shaderProgram);
         shaderProgram.setUniformFloat("time", static_cast<float>(time));
         renderScene(player, window.size(), &shaderProgram, dt);
@@ -224,15 +225,15 @@ load(Player& player, UniformController& uniformController) -> void
 }
 
 auto
-loadTerrain(Terrain& terrain, ShaderController & /*shaderController*/) -> void
+loadTerrain(
+        Terrain& terrain,
+        ShaderController& shaderController,
+        ShaderProgram& shaderProgram) -> void
 {
     auto outPaths = NFD::UniquePathSet();
 
-    // prepare filters for the dialog
-    std::array<nfdfilteritem_t, 2> filterItem{
-            {{"Lua files", "lua"}, {"GLSL files", "frag"}}};
-
-    // show the dialog
+    std::array<nfdfilteritem_t, 1> filterItem{
+            {{"Terrain files", "terrain,value,color"}}};
     nfdresult_t result = NFD::OpenDialogMultiple(
             outPaths,
             filterItem.data(),
@@ -254,12 +255,20 @@ loadTerrain(Terrain& terrain, ShaderController & /*shaderController*/) -> void
     }
 
     for(auto const& path : paths) {
-        if(util::endsWith(path, "terrain.lua")) {
+        if(util::endsWith(path, ".terrain")) {
             std::ifstream in(path);
             terrain.loadLua(util::getContents(in));
         }
-        // shaderController.setValueFunction(glsl);
+        else if(util::endsWith(path, ".value")) {
+            std::ifstream in(path);
+            shaderController.setValueFunction(
+                    shaderProgram,
+                    util::getContents(in));
+        }
+        // else if(util::endsWith(path, "color.frag")) {
+        //  std::ifstream in(path);
         // shaderController.setColorFunction(glsl);
+        //}
     }
 }
 
