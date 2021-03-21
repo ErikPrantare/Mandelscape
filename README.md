@@ -32,6 +32,8 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.2.0
 
 - ctrl+s/ctrl+o: Save/load state.
 
+- ctrl+l: Load different algorithms.
+
 - j/k: Change iteration count.
 
 - 1-4 + up/down: Change colors.
@@ -53,15 +55,23 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.2.0
 To use dvorak mode, start Mandelscape with `--dvorak` flag.
 Controls can be found at the bottom of src/main.cpp.
 
-# Modifying the coloring algorithm
-Detailed documentation on writing custom coloring algorithms is given in
-documentation/writing-custom-algorithms.txt.
+# Using different algorithms
+Loading different algorithms is done with ctrl+l.
+This opens up a file dialog, where you can select the algorithms you want
+to use.
+Algorithms can be identified by their file suffix `myAlgorithm<suffix>`,
+with `<suffix>` being:
 
-Try renaming
-`shaders/valueOrbit.frag`.
-to
-`shaders/value.frag`
-to see what is posible to achieve with different algorithms.
+- `shape.lua`: Algorithm changing the terrain shape.
+
+- `value.frag`: Algorithm changing the way the terrain is colored.
+
+- `color.frag`: Algorithm changing what colors are used.
+
+Some algorithms can be found under `presets`.
+
+Detailed documentation on writing custom algorithms is given in
+`documentation/writing-custom-algorithms.txt`.
 
 ---
 
