@@ -85,11 +85,13 @@ private:
 
     double m_scale = 1.0;
 
-    lua_State* m_luaPointData  = nullptr;
-    lua_State* m_luaPointData2 = nullptr;
+    // duplication bc two different threads. Gotta clean up this mess...
+    lua_State* m_luaPointData           = nullptr;
+    lua_State* m_luaPointDataHeightFunc = nullptr;
 
     std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData;
-    std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData2;
+    std::function<PointData(glm::dvec2 const&, int iterations)>
+            m_pointDataHeightFunc;
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;

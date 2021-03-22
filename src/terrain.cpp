@@ -45,7 +45,7 @@ Terrain::resize(Terrain::Points* const points, size_t const size) -> void
 
 Terrain::Terrain() :
             m_pointData(pointDataDefault),
-            m_pointData2(pointDataDefault)
+            m_pointDataHeightFunc(pointDataDefault)
 {
     loadMesh(m_loadingOffset, m_scale, &m_points);
 
@@ -331,27 +331,27 @@ Terrain::loadLua(std::string const& code) -> void
     m_loadingProcess.wait();
     if(m_luaPointData != nullptr) {
         lua_close(m_luaPointData);
-        lua_close(m_luaPointData2);
+        lua_close(m_luaPointDataHeightFunc);
     }
-    m_luaPointData  = luaL_newstate();
-    m_luaPointData2 = luaL_newstate();
+    m_luaPointData           = luaL_newstate();
+    m_luaPointDataHeightFunc = luaL_newstate();
     luaopen_math(m_luaPointData);
-    luaopen_math(m_luaPointData2);
+    luaopen_math(m_luaPointDataHeightFunc);
     if(luaL_dostring(m_luaPointData, code.c_str()) != 0) {
         throw std::runtime_error(lua_tostring(m_luaPointData, -1));
     }
-    if(luaL_dostring(m_luaPointData2, code.c_str()) != 0) {
+    if(luaL_dostring(m_luaPointDataHeightFunc, code.c_str()) != 0) {
         throw std::runtime_error(lua_tostring(m_luaPointData, -1));
     }
 
-    m_pointData  = luaPointData(m_luaPointData);
-    m_pointData2 = luaPointData(m_luaPointData2);
+    m_pointData           = luaPointData(m_luaPointData);
+    m_pointDataHeightFunc = luaPointData(m_luaPointDataHeightFunc);
 }
 
 auto
 Terrain::heightAt(glm::dvec2 const& pos) -> double
 {
-    return m_pointData2(pos, m_iterations).height;
+    return m_pointDataHeightFunc(pos, m_iterations).height;
 }
 
 auto
