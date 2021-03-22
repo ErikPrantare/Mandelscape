@@ -117,7 +117,6 @@ try {
 
             for(auto const& action : momentaryMap(event)) {
                 window.handleMomentaryAction(action);
-                terrain.handleMomentaryAction(action);
                 metaController.handleMomentaryAction(action);
                 uniformController.handleMomentaryAction(action);
                 shaderController.handleMomentaryAction(action);
@@ -145,6 +144,8 @@ try {
 
             // Do this after .update, as autozoom is dependent on position.y
             player.position.y *= uniformController.yScale();
+
+            terrain.setIterations(uniformController.iterations());
         }
 
         shaderController.update(shaderProgram);

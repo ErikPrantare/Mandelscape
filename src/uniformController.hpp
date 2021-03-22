@@ -54,6 +54,9 @@ public:
     yScale() const noexcept -> double;
 
     [[nodiscard]] auto
+    iterations() const noexcept -> int;
+
+    [[nodiscard]] auto
     operator==(UniformController const& other) const noexcept -> bool;
 
     friend auto
@@ -69,10 +72,12 @@ public:
             -> bool;
 
 private:
+    int m_iterations = 100;
+    double m_yScale  = 1.0;
+    bool m_fastMode  = false;
+
     glm::dvec3 m_colorOffset = {0.0, 1.0, 2.0};
     double m_colorFrequency  = 0.1;
-    double m_yScale          = 1.0;
-    bool m_fastMode          = false;
 };
 
 #endif

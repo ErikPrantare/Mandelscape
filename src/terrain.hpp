@@ -50,9 +50,6 @@ public:
     ~Terrain();
 
     auto
-    handleMomentaryAction(MomentaryAction const& action) -> void;
-
-    auto
     updateMesh(double x, double z, double scale) -> void;
 
     [[nodiscard]] auto
@@ -66,6 +63,9 @@ public:
 
     auto
     loadLua(std::string const& code) -> void;
+
+    auto
+    setIterations(int iterations) noexcept -> void;
 
     static int constexpr colorLocation = 1;
 

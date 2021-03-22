@@ -28,6 +28,7 @@
 #include "persistentActionMap.hpp"
 #include "uniformController.hpp"
 #include "glfwEnums.hpp"
+#include "momentaryActionsMap.hpp"
 
 namespace SerializationTests {
 
@@ -56,22 +57,31 @@ TEST_CASE(
 
     SECTION("X = UniformController")
     {
-        auto persistentMap = PersistentActionMap();
+        auto persistentMap       = PersistentActionMap();
+        auto momentaryActionsMap = MomentaryActionsMap();
 
         persistentMap.add(
                 {Input::Key::Key1},
                 PersistentAction::ChangeFrequency);
         persistentMap.add(
-                {Input::Key::Key2},
+                {Input::Key::Key1},
                 PersistentAction::ChangeTotalOffset);
-        persistentMap.add({{Input::Key::I}}, PersistentAction::IncreaseParam);
+        persistentMap.add({Input::Key::Key1}, PersistentAction::IncreaseParam);
+
+        momentaryActionsMap.add(
+                {Input::Key::Key1},
+                Trigger::IncreaseIterations);
+        momentaryActionsMap.add({Input::Key::Key1}, Trigger::ToggleFastMode);
 
         persistentMap.updateState({KeyDown{Input::Key::Key1}});
-        persistentMap.updateState({KeyDown{Input::Key::Key2}});
-        persistentMap.updateState({KeyDown{Input::Key::I}});
 
         auto uniformController = UniformController();
         uniformController.updateState(persistentMap, 0.317727);
+
+        for(auto const& action :
+            momentaryActionsMap({KeyDown{Input::Key::Key1}})) {
+            uniformController.handleMomentaryAction(action);
+        }
 
         auto ss = std::stringstream();
         serialize(ss, uniformController, "uniformController");

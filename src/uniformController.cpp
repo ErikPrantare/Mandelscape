@@ -16,6 +16,7 @@
  */
 
 #include "uniformController.hpp"
+#include "util.hpp"
 
 auto
 UniformController::updateState(
@@ -56,15 +57,35 @@ UniformController::updateState(
 auto
 UniformController::handleMomentaryAction(MomentaryAction const& action) -> void
 {
-    if(action == MomentaryAction{Trigger::ToggleFastMode}) {
-        m_fastMode = !m_fastMode;
-    }
+    auto onTrigger = [this](Trigger action) {
+        switch(action) {
+        case Trigger::IncreaseIterations: {
+            m_iterations += 20;
+        } break;
+        case Trigger::DecreaseIterations: {
+            m_iterations -= 20;
+        } break;
+        case Trigger::ToggleFastMode: {
+            m_fastMode = !m_fastMode;
+        }
+        default:
+            break;
+        }
+    };
+
+    std::visit(util::Overload{onTrigger, util::unaryNOP}, action);
 }
 
 auto
 UniformController::yScale() const noexcept -> double
 {
     return m_yScale;
+}
+
+auto
+UniformController::iterations() const noexcept -> int
+{
+    return m_iterations;
 }
 
 auto

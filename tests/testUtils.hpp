@@ -24,13 +24,14 @@
 #include <glm/glm.hpp>
 
 #include "player.hpp"
+#include "uniformController.hpp"
 
 struct Dvec2Approx {
     glm::dvec2 val;
 };
 
-bool
-operator==(glm::dvec2 a, Dvec2Approx b)
+auto
+operator==(glm::dvec2 a, Dvec2Approx b) -> bool
 {
     return a.x == Approx(b.val.x) && a.y == Approx(b.val.y);
 }
@@ -39,30 +40,30 @@ struct Dvec3Approx {
     glm::dvec3 val;
 };
 
-bool
-operator==(glm::dvec3 a, Dvec3Approx b)
+auto
+operator==(glm::dvec3 a, Dvec3Approx b) -> bool
 {
     return a.x == Approx(b.val.x) && a.y == Approx(b.val.y)
            && a.z == Approx(b.val.z);
 }
 // namespace glm needed for ADL
 namespace glm {
-std::ostream&
-operator<<(std::ostream& os, glm::dvec2 const& v)
+auto
+operator<<(std::ostream& os, glm::dvec2 const& v) -> std::ostream&
 {
     os << '(' << v.x << ", " << v.y << ')';
     return os;
 }
-std::ostream&
-operator<<(std::ostream& os, glm::dvec3 const& v)
+auto
+operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&
 {
     os << '(' << v.x << ", " << v.y << ", " << v.z << ')';
     return os;
 }
 }    // namespace glm
 
-std::ostream&
-operator<<(std::ostream& os, Player const& player)
+auto
+operator<<(std::ostream& os, Player const& player) -> std::ostream&
 {
     os << "Player(" << player.position << ", " << player.offset << ", "
        << player.lookAtOffset << ", " << player.scale << ")";
@@ -73,8 +74,8 @@ struct PlayerApprox {
     Player player;
 };
 
-bool
-operator==(Player const& a, PlayerApprox const& b)
+auto
+operator==(Player const& a, PlayerApprox const& b) -> bool
 {
     return a.position == Dvec3Approx{b.player.position}
            && a.offset == Dvec3Approx{b.player.offset}
@@ -86,16 +87,14 @@ struct UniformControllerApprox {
     UniformController uc;
 };
 
-bool
+auto
 operator==(UniformController const& a, UniformControllerApprox const& b)
+        -> bool
 {
-    glm::dvec3 m_colorOffset = {0.0, 1.0, 2.0};
-    double m_colorFrequency  = 0.1;
-    double m_yScale          = 1.0;
-    bool m_fastMode          = false;
     return a.m_colorOffset == Dvec3Approx{b.uc.m_colorOffset}
            && a.m_colorFrequency == Approx{b.uc.m_colorFrequency}
            && a.m_yScale == Approx{b.uc.m_yScale}
-           && a.m_fastMode == b.uc.m_fastMode;
+           && a.m_fastMode == b.uc.m_fastMode
+           && a.m_iterations == b.uc.m_iterations;
 }
 #endif

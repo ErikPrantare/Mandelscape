@@ -56,5 +56,6 @@ serialize(
     serialize(out, uniformController.m_colorOffset, "colorOffset");
     out << ",\n  colorFrequency = " << uniformController.m_colorFrequency
         << ",\n  yScale = " << uniformController.m_yScale << ",\n  fastMode = "
-        << (uniformController.m_fastMode ? "true" : "false") << "\n}\n\n";
+        << (uniformController.m_fastMode ? "true" : "false")
+        << ",\n  iterations = " << uniformController.m_iterations << "\n}\n\n";
 }

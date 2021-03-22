@@ -123,22 +123,9 @@ luaPointData(lua_State* l)
 }
 
 auto
-Terrain::handleMomentaryAction(MomentaryAction const& action) -> void
+Terrain::setIterations(int iterations) noexcept -> void
 {
-    auto onTrigger = [this](Trigger action) {
-        switch(action) {
-        case Trigger::IncreaseIterations: {
-            m_iterations += 20;
-        } break;
-        case Trigger::DecreaseIterations: {
-            m_iterations -= 20;
-        } break;
-        default:
-            break;
-        }
-    };
-
-    std::visit(util::Overload{onTrigger, util::unaryNOP}, action);
+    m_iterations = iterations;
 }
 
 auto

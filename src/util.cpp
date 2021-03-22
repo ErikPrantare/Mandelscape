@@ -155,6 +155,10 @@ toUniformController(lua_State* L, int offset) -> UniformController
     uniformController.m_fastMode = static_cast<bool>(lua_toboolean(L, -1));
     lua_pop(L, 1);
 
+    lua_getfield(L, offset, "iterations");
+    uniformController.m_iterations = static_cast<int>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
     return uniformController;
 }
 
