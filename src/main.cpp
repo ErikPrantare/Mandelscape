@@ -315,10 +315,10 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Key::X}, Trigger::TakeScreenshot);
     momentaryMap.add({Key::Q}, Trigger::CloseWindow);
     momentaryMap.add({Key::Escape}, Trigger::CloseWindow);
-    momentaryMap.add({Key::S, (int)Input::Mod::Control}, Trigger::Save);
-    momentaryMap.add({Key::O, (int)Input::Mod::Control}, Trigger::Load);
+    momentaryMap.add({Key::S, (int)Mod::Control}, Trigger::Save);
+    momentaryMap.add({Key::O, (int)Mod::Control}, Trigger::Load);
     momentaryMap.add(
-            {Key::L, (int)Input::Mod::Control},
+            {Key::L, (int)Mod::Control},
             Trigger::LoadTerrainFunctions);
 
     auto persistentMap = PersistentActionMap();
@@ -355,10 +355,10 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add({Key::X}, Trigger::TakeScreenshot);
     momentaryMap.add({Key::Q}, Trigger::CloseWindow);
     momentaryMap.add({Key::Escape}, Trigger::CloseWindow);
-    momentaryMap.add({Key::S, (int)Input::Mod::Control}, Trigger::Save);
-    momentaryMap.add({Key::O, (int)Input::Mod::Control}, Trigger::Load);
+    momentaryMap.add({Key::S, (int)Mod::Control}, Trigger::Save);
+    momentaryMap.add({Key::O, (int)Mod::Control}, Trigger::Load);
     momentaryMap.add(
-            {Key::L, (int)Input::Mod::Control},
+            {Key::L, (int)Mod::Control},
             Trigger::LoadTerrainFunctions);
 
     auto persistentMap = PersistentActionMap();
