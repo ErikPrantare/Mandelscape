@@ -46,10 +46,25 @@ private:
     VertexShader m_vertexShader =
             VertexShader::fromFile("shaders/shader.vert");
 
-    bool m_switchShader                             = false;
-    size_t m_currentFragmentShader                  = 0;
-    std::vector<FragmentShader> m_fragmentShaders;
+    bool m_switchShader            = false;
+    size_t m_currentFragmentShader = 0;
 
+    // Beware, here be ugly duplicate code (1)
+    std::array<FragmentShader, 2> m_fragmentShaders = {
+            FragmentShader::fromFiles(
+                    "shaders/head.frag",
+                    "shaders/shallowLib.frag",
+                    "presets/mandelbrot/mandelbrot-value.frag",
+                    "presets/default-color.frag",
+                    "shaders/shader.frag"),
+            FragmentShader::fromFiles(
+                    "shaders/head.frag",
+                    "shaders/deepLib.frag",
+                    "presets/mandelbrot/mandelbrot-value.frag",
+                    "presets/default-color.frag",
+                    "shaders/shader.frag")};
+
+    // (2)
     std::string m_valueCode = util::getContents(
             std::ifstream("presets/mandelbrot/mandelbrot-value.frag"));
     std::string m_colorCode =
