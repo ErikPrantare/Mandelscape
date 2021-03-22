@@ -15,9 +15,6 @@ Makefile
 .ninja*
 *.ninja
 
-#freeglut
-freeglut.pc
- 
 #glew-cmake
 lib/
 config.h
