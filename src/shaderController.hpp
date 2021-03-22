@@ -48,19 +48,7 @@ private:
 
     bool m_switchShader                             = false;
     size_t m_currentFragmentShader                  = 0;
-    std::array<FragmentShader, 2> m_fragmentShaders = {
-            FragmentShader::fromFiles(
-                    "shaders/head.frag",
-                    "shaders/shallowLib.frag",
-                    "shaders/value.frag",
-                    "shaders/color.frag",
-                    "shaders/shader.frag"),
-            FragmentShader::fromFiles(
-                    "shaders/head.frag",
-                    "shaders/deepLib.frag",
-                    "shaders/value.frag",
-                    "shaders/color.frag",
-                    "shaders/shader.frag")};
+    std::vector<FragmentShader> m_fragmentShaders;
 
     std::string m_valueCode = util::getContents(
             std::ifstream("presets/mandelbrot/mandelbrot-value.frag"));

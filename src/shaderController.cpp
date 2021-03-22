@@ -78,6 +78,7 @@ ShaderController::reloadShaders() -> void
                             std::ifstream("shaders/shallowLib.frag"))
                     + m_valueCode + m_colorCode
                     + util::getContents(std::ifstream("shaders/shader.frag"))),
+
             FragmentShader::fromCode(
                     util::getContents(std::ifstream("shaders/head.frag"))
                     + util::getContents(std::ifstream("shaders/deepLib.frag"))

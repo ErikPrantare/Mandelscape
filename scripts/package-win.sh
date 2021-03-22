@@ -17,8 +17,8 @@ cmake --build ./build/ &&
 mv build/src/Mandelscape.exe . &&
 mv extern/luajit-2.0/src/lua51.dll . &&
 zip Mandelscape.zip \
-    Mandelscape.exe LICENSE shaders/* textures/* lua51.dll \
-    README.md documentation/* &&
+    Mandelscape.exe COPYING shaders/* textures/* lua51.dll \
+    README.md documentation/* presets/* presets/*/* &&
 
 # clean
 rm -r build/ &&
