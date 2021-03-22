@@ -96,6 +96,11 @@ time is the elapsed time given in seconds, and can be used to animate
 the algorithm.
 
 ---
+Tip:
+The utility ggr2glsl (https://github.com/ErikPrantare/ggr2glsl)
+can be used to convert GIMP gradients to GLSL functions.
+
+---
 Example functions
 
 mandelbrot-value.frag:
