@@ -35,7 +35,8 @@ public:
     auto
     operator=(Mesh const&) -> Mesh& = delete;
     Mesh(Mesh&&)                    = delete;
-    auto operator=(Mesh &&) -> Mesh& = delete;
+    auto
+    operator=(Mesh&&) -> Mesh& = delete;
 
     // Todo: RAII to remove destructor and = delete
     ~Mesh();

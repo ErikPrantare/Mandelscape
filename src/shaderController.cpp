@@ -21,11 +21,10 @@
 
 #include "util.hpp"
 
-ShaderController::ShaderController(ShaderProgram* shaderProgram)
+ShaderController::ShaderController(ShaderProgram& shaderProgram)
 {
-    m_vertexShader.attachTo(*shaderProgram);
-    m_fragmentShaders[m_currentFragmentShader].attachTo(*shaderProgram);
-    shaderProgram->compile();
+    reloadShaders();
+    recompile(shaderProgram);
 }
 
 auto
@@ -54,22 +53,8 @@ ShaderController::setValueFunction(
         ShaderProgram& shaderProgram,
         std::string const& code) -> void
 {
-    m_fragmentShaders = {
-            FragmentShader::fromCode(
-                    util::getContents(std::ifstream("shaders/head.frag"))
-                    + util::getContents(
-                            std::ifstream("shaders/shallowLib.frag"))
-                    + code
-                    + util::getContents(std::ifstream("shaders/color.frag"))
-                    + util::getContents(std::ifstream("shaders/shader.frag"))),
-            FragmentShader::fromCode(
-                    util::getContents(std::ifstream("shaders/head.frag"))
-                    + util::getContents(std::ifstream("shaders/deepLib.frag"))
-                    + code
-                    + util::getContents(std::ifstream("shaders/color.frag"))
-                    + util::getContents(
-                            std::ifstream("shaders/shader.frag")))};
-
+    m_valueCode = code;
+    reloadShaders();
     recompile(shaderProgram);
 }
 
@@ -78,23 +63,27 @@ ShaderController::setColorFunction(
         ShaderProgram& shaderProgram,
         std::string const& code) -> void
 {
+    m_colorCode = code;
+    reloadShaders();
+    recompile(shaderProgram);
+}
+
+auto
+ShaderController::reloadShaders() -> void
+{
     m_fragmentShaders = {
             FragmentShader::fromCode(
                     util::getContents(std::ifstream("shaders/head.frag"))
                     + util::getContents(
                             std::ifstream("shaders/shallowLib.frag"))
-                    + util::getContents(std::ifstream("shaders/value.frag"))
-                    + code
+                    + m_valueCode + m_colorCode
                     + util::getContents(std::ifstream("shaders/shader.frag"))),
             FragmentShader::fromCode(
                     util::getContents(std::ifstream("shaders/head.frag"))
                     + util::getContents(std::ifstream("shaders/deepLib.frag"))
-                    + util::getContents(std::ifstream("shaders/value.frag"))
-                    + code
+                    + m_valueCode + m_colorCode
                     + util::getContents(
                             std::ifstream("shaders/shader.frag")))};
-
-    recompile(shaderProgram);
 }
 
 auto

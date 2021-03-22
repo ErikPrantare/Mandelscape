@@ -96,7 +96,7 @@ try {
     shaderProgram.bindAttributeLocation("pos", Mesh::vertexLocation);
     shaderProgram.bindAttributeLocation("val", Terrain::colorLocation);
 
-    auto shaderController  = ShaderController(&shaderProgram);
+    auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();
 
     auto serializationController =

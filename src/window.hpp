@@ -38,7 +38,8 @@ public:
     ~Window() = default;
 
     Window(Window&&) = default;
-    auto operator=(Window &&) -> Window& = default;
+    auto
+    operator=(Window&&) -> Window& = default;
 
     Window(Window const&) = delete;
     auto

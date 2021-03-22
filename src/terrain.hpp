@@ -44,7 +44,8 @@ public:
     auto
     operator=(const Terrain&) -> Terrain& = delete;
     Terrain(Terrain&&)                    = delete;
-    auto operator=(Terrain &&) -> Terrain& = delete;
+    auto
+    operator=(Terrain&&) -> Terrain& = delete;
 
     ~Terrain();
 

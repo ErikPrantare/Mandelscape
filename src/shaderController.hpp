@@ -28,7 +28,7 @@
 /* Manage which shaders to use */
 class ShaderController {
 public:
-    ShaderController(ShaderProgram* shaderProgram);
+    ShaderController(ShaderProgram& shaderProgram);
 
     auto
     handleMomentaryAction(MomentaryAction const&) noexcept -> void;
@@ -62,8 +62,16 @@ private:
                     "shaders/color.frag",
                     "shaders/shader.frag")};
 
+    std::string m_valueCode = util::getContents(
+            std::ifstream("presets/mandelbrot/mandelbrot-value.frag"));
+    std::string m_colorCode =
+            util::getContents(std::ifstream("presets/default-color.frag"));
+
     auto
     recompile(ShaderProgram& shaderProgram) const -> void;
+
+    auto
+    reloadShaders() -> void;
 };
 
 #endif

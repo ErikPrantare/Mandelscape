@@ -42,7 +42,8 @@ public:
     PlayerController(PlayerController&&)      = default;
     PlayerController(PlayerController const&) = default;
 
-    auto operator=(PlayerController &&) -> PlayerController& = default;
+    auto
+    operator=(PlayerController&&) -> PlayerController& = default;
     auto
     operator=(PlayerController const&) -> PlayerController& = default;
 };
