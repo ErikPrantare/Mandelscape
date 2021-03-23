@@ -28,9 +28,12 @@
 #include <queue>
 #include <optional>
 #include <type_traits>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 #include <glm/ext/scalar_constants.hpp>
+
+#include <nfd.hpp>
 
 #include "lua.hpp"
 
@@ -148,8 +151,17 @@ isModifier(Input::Key key) noexcept -> bool;
 toMod(Input::Key key) noexcept(false) -> Input::Mod;
 
 // CPP20 std::string::ends_with
+template<class T>
 [[nodiscard]] auto
-endsWith(std::string const& value, std::string const& ending) noexcept -> bool;
+endsWith(
+        std::basic_string<T> const& value,
+        std::basic_string<T> const& ending) noexcept -> bool
+{
+    if(ending.size() > value.size()) {
+        return false;
+    }
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
 
 }    // namespace util
 
@@ -168,5 +180,32 @@ toPlayer(lua_State* L, int offset) -> Player;
 toUniformController(lua_State* L, int offset) -> UniformController;
 
 }    // namespace util::lua
+
+namespace util::nfd {
+namespace fs = std::filesystem;
+using string = fs::path::string_type;
+
+struct FilterItem {
+    string niceName;
+    string suffixes;
+};
+
+[[nodiscard]] auto
+saveDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath,
+        string const& defaultName) -> std::pair<fs::path, nfdresult_t>;
+
+[[nodiscard]] auto
+openDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath) -> std::pair<fs::path, nfdresult_t>;
+
+[[nodiscard]] auto
+openDialogMultiple(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath)
+        -> std::pair<std::vector<fs::path>, nfdresult_t>;
+}    // namespace util::nfd
 
 #endif    // MANDELLANDSCAPE_UTILS_HPP

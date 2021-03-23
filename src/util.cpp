@@ -65,14 +65,6 @@ toMod(Input::Key key) noexcept(false) -> Input::Mod
     return modKeyMap.at(key);
 }
 
-auto
-endsWith(std::string const& value, std::string const& ending) noexcept -> bool
-{
-    if(ending.size() > value.size()) {
-        return false;
-    }
-    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-}
 }    // namespace util
 
 namespace util::lua {
@@ -163,3 +155,90 @@ toUniformController(lua_State* L, int offset) -> UniformController
 }
 
 }    // namespace util::lua
+
+namespace util::nfd {
+auto
+toNfdFilterItems(std::vector<FilterItem> const& items)
+        -> std::vector<nfdnfilteritem_t>
+{
+    std::vector<nfdnfilteritem_t> nfdFilterItems;
+    nfdFilterItems.reserve(items.size());
+
+    for(auto const& item : items) {
+        nfdFilterItems.push_back(
+                {item.niceName.c_str(), item.suffixes.c_str()});
+    }
+
+    return nfdFilterItems;
+}
+
+auto
+saveDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath,
+        string const& defaultName) -> std::pair<fs::path, nfdresult_t>
+{
+    auto nfdOutput            = NFD::UniquePathN();
+    auto const nfdFilterItems = toNfdFilterItems(filterItems);
+
+    auto const result = NFD::SaveDialog(
+            nfdOutput,
+            nfdFilterItems.data(),
+            nfdFilterItems.size(),
+            startPath.c_str(),
+            defaultName.c_str());
+
+    return {fs::path(nfdOutput.get()), result};
+}
+
+auto
+openDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath) -> std::pair<fs::path, nfdresult_t>
+{
+    auto nfdOutput            = NFD::UniquePathN();
+    auto const nfdFilterItems = toNfdFilterItems(filterItems);
+
+    auto const result = NFD::OpenDialog(
+            nfdOutput,
+            nfdFilterItems.data(),
+            nfdFilterItems.size(),
+            startPath.c_str());
+
+    return {fs::path(nfdOutput.get()), result};
+}
+
+auto
+openDialogMultiple(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath)
+        -> std::pair<std::vector<fs::path>, nfdresult_t>
+{
+    auto nfdOutput            = NFD::UniquePathSet();
+    auto const nfdFilterItems = toNfdFilterItems(filterItems);
+
+    auto const result = NFD::OpenDialogMultiple(
+            nfdOutput,
+            nfdFilterItems.data(),
+            nfdFilterItems.size(),
+            startPath.c_str());
+
+    if(result != NFD_OKAY) {
+        return {{}, result};
+    }
+
+    nfdpathsetsize_t numPaths{};
+    NFD::PathSet::Count(nfdOutput, numPaths);
+
+    std::vector<fs::path> paths;
+    paths.reserve(numPaths);
+
+    for(nfdpathsetsize_t i = 0; i < numPaths; ++i) {
+        auto path = NFD::UniquePathSetPath();
+        NFD::PathSet::GetPath(nfdOutput, i, path);
+        paths.emplace_back(path.get());
+    }
+
+    return {paths, result};
+}
+}    // namespace util::nfd

@@ -18,6 +18,7 @@
 #include <string>
 #include <tuple>
 #include <stdexcept>
+#include <filesystem>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -26,6 +27,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define NFD_NATIVE
 #include <nfd.hpp>
 
 #include "util.hpp"
@@ -191,17 +193,30 @@ renderScene(
     program->setUniformMatrix4("projection", camera.projection());
 }
 
+auto operator""_nfd(char const* str, size_t size)
+        -> std::filesystem::path::string_type
+{
+    return {str, str + size};
+}
+
 auto
 save(Player const& player, UniformController const& uniformController) -> void
 {
-    auto path = NFD::UniquePath();
-    std::array<nfdfilteritem_t, 1> filterItem{{{"Lua files", "lua"}}};
-    auto const result =
-            NFD::SaveDialog(path, filterItem.data(), 1, nullptr, "save.lua");
+    namespace fs = std::filesystem;
+
+    std::vector<util::nfd::FilterItem> filterItems{
+            {"Lua files"_nfd, "lua"_nfd}};
+
+    auto const [path, result] = util::nfd::saveDialog(
+            filterItems,
+            fs::current_path(),
+            "save.lua"_nfd);
+
     if(result != NFD_OKAY) {
         return;
     }
-    std::ofstream out(path.get());
+
+    std::ofstream out(path);
     serialize(out, player, "player");
     serialize(out, uniformController, "uniformController");
 }
@@ -209,13 +224,19 @@ save(Player const& player, UniformController const& uniformController) -> void
 auto
 load(Player& player, UniformController& uniformController) -> void
 {
-    auto path = NFD::UniquePath();
-    std::array<nfdfilteritem_t, 1> filterItem{{{"Lua files", "lua"}}};
-    auto const result = NFD::OpenDialog(path, filterItem.data(), 1, ".");
+    namespace fs = std::filesystem;
+
+    std::vector<util::nfd::FilterItem> filterItems{
+            {"Lua files"_nfd, "lua"_nfd}};
+
+    auto const [path, result] =
+            util::nfd::openDialog(filterItems, fs::current_path());
+
     if(result != NFD_OKAY) {
         return;
     }
-    std::ifstream in(path.get());
+
+    std::ifstream in(path);
     lua_State* l = luaL_newstate();
     luaL_dostring(l, util::getContents(in).c_str());
 
@@ -234,41 +255,31 @@ loadTerrain(
         ShaderController& shaderController,
         ShaderProgram& shaderProgram) -> void
 {
-    auto outPaths = NFD::UniquePathSet();
+    namespace fs = std::filesystem;
 
-    std::array<nfdfilteritem_t, 1> filterItem{{{"Terrain files", "lua,frag"}}};
-    nfdresult_t result = NFD::OpenDialogMultiple(
-            outPaths,
-            filterItem.data(),
-            filterItem.size(),
-            "presets");
+    std::vector<util::nfd::FilterItem> filterItems{
+            {"Terrain files"_nfd, "lua,frag"_nfd}};
+
+    auto const [paths, result] = util::nfd::openDialogMultiple(
+            filterItems,
+            fs::current_path() / "presets");
 
     if(result != NFD_OKAY) {
         return;
     }
 
-    std::vector<std::string> paths;
-    nfdpathsetsize_t numPaths{};
-    NFD::PathSet::Count(outPaths, numPaths);
-
-    for(nfdpathsetsize_t i = 0; i < numPaths; ++i) {
-        auto path = NFD::UniquePathSetPath();
-        NFD::PathSet::GetPath(outPaths, i, path);
-        paths.emplace_back(path.get());
-    }
-
     for(auto const& path : paths) {
-        if(util::endsWith(path, "shape.lua")) {
+        if(util::endsWith(path.native(), "shape.lua"_nfd)) {
             std::ifstream in(path);
             terrain.loadLua(util::getContents(in));
         }
-        else if(util::endsWith(path, "value.frag")) {
+        else if(util::endsWith(path.native(), "value.frag"_nfd)) {
             std::ifstream in(path);
             shaderController.setValueFunction(
                     shaderProgram,
                     util::getContents(in));
         }
-        else if(util::endsWith(path, "color.frag")) {
+        else if(util::endsWith(path.native(), "color.frag"_nfd)) {
             std::ifstream in(path);
             shaderController.setColorFunction(
                     shaderProgram,
