@@ -19,12 +19,12 @@ mv build/src/Mandelscape .
 If everything built correctly, the program can now be run with `./Mandelscape`
 
 # Binary Download (Windows)
-https://github.com/ErikPrantare/Mandelscape/releases/tag/v0.2.0
+https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 # Controls
 - wasd + mouse: Walk and look around.
 
-- p: toggle Pause(releases mouse).
+- p: Toggle pause(releases mouse).
 
 - left/right mouse button: Shrink/grow.
 
