@@ -84,10 +84,9 @@ private:
     lua_State* m_luaPointData           = nullptr;
     lua_State* m_luaPointDataHeightFunc = nullptr;
 
-    std::function<algorithm::PointData(glm::dvec2 const&, int iterations)>
-            m_pointData = algorithm::mandelbrot;
-    std::function<algorithm::PointData(glm::dvec2 const&, int iterations)>
-            m_pointDataHeightFunc = algorithm::mandelbrot;
+    std::function<algorithm::Signature> m_pointData = algorithm::mandelbrot;
+    std::function<algorithm::Signature> m_pointDataHeightFunc =
+            algorithm::mandelbrot;
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;

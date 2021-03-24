@@ -79,8 +79,7 @@ Terrain::~Terrain()
 }
 
 auto
-luaPointData(lua_State* l) -> std::function<
-        algorithm::PointData(glm::dvec2 const&, int iterations)>
+luaPointData(lua_State* l) -> std::function<algorithm::Signature>
 {
     return [l](glm::dvec2 const& pos, int iterations) {
         lua_getglobal(l, "pointData");

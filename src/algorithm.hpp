@@ -30,6 +30,8 @@ struct PointData {
     bool inside;
 };
 
+using Signature = PointData(glm::dvec2 const&, int iterations);
+
 [[nodiscard]] auto
 mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData;
 
