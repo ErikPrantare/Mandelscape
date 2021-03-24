@@ -6,7 +6,7 @@ and changed/other with a '.'.
 
 This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 
-1.0.0 (2021-03-24)
+1.0.0 (2021-03-24):
 + Add custom terrain scripting
 + Add documentation for writing custom algorithms
 + Save and load state with CTRL+S and CTRL+O
