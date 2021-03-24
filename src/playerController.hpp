@@ -18,9 +18,6 @@
 #ifndef MANDELLANDSCAPE_PLAYER_CONTROLLER_HPP
 #define MANDELLANDSCAPE_PLAYER_CONTROLLER_HPP
 
-#include <glm/vec2.hpp>
-
-#include "event.hpp"
 #include "player.hpp"
 #include "momentaryAction.hpp"
 #include "persistentActionMap.hpp"
