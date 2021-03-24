@@ -36,6 +36,7 @@
 #include "mesh.hpp"
 #include "momentaryAction.hpp"
 #include "persistentActionMap.hpp"
+#include "algorithm.hpp"
 
 class Terrain {
 public:
@@ -69,12 +70,6 @@ public:
 
     static int constexpr colorLocation = 1;
 
-    struct PointData {
-        double height;
-        double value;
-        bool inside;
-    };
-
 private:
     static int constexpr granularity     = 400;
     int m_iterations                     = 100;
@@ -89,9 +84,10 @@ private:
     lua_State* m_luaPointData           = nullptr;
     lua_State* m_luaPointDataHeightFunc = nullptr;
 
-    std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData;
-    std::function<PointData(glm::dvec2 const&, int iterations)>
-            m_pointDataHeightFunc;
+    std::function<algorithm::PointData(glm::dvec2 const&, int iterations)>
+            m_pointData = algorithm::mandelbrot;
+    std::function<algorithm::PointData(glm::dvec2 const&, int iterations)>
+            m_pointDataHeightFunc = algorithm::mandelbrot;
 
     enum class State { Loading, Uploading };
     State m_state = State::Loading;

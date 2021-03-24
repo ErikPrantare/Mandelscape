@@ -32,13 +32,6 @@ class Mesh {
 public:
     Mesh();
 
-    Mesh(Mesh const&) = delete;
-    auto
-    operator=(Mesh const&) -> Mesh& = delete;
-    Mesh(Mesh&&)                    = delete;
-    auto
-    operator=(Mesh&&) -> Mesh& = delete;
-
     auto
     render() -> void;
 
