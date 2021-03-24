@@ -20,6 +20,7 @@
 
 #include <complex>
 #include <functional>
+#include <memory>
 
 #include <glm/vec2.hpp>
 
@@ -33,13 +34,44 @@ struct PointData {
     bool inside;
 };
 
+auto constexpr
+operator==(PointData const& a, PointData const& b)
+{
+    return std::tie(a.height, a.value, a.inside)
+           == std::tie(b.height, b.value, b.inside);
+}
+
 using Signature = PointData(glm::dvec2 const&, int iterations);
 
 [[nodiscard]] auto
 mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData;
 
+class LuaFunction {
+public:
+    auto
+    operator()(glm::dvec2 const& pos, int iterations) noexcept(false)
+            -> PointData;
+
+    friend auto
+    fromLua(std::string const& code) noexcept(false)
+            -> std::function<Signature>;
+
+private:
+    LuaFunction(std::string const& code) noexcept(false);
+
+    struct StateDestructor {
+        auto
+        operator()(lua_State* state) -> void
+        {
+            lua_close(state);
+        }
+    };
+
+    std::unique_ptr<lua_State, StateDestructor> m_state;
+};
+
 [[nodiscard]] auto
-makeAlgorithm(lua_State* L) -> std::function<Signature>;
+fromLua(std::string const& code) noexcept(false) -> std::function<Signature>;
 
 }    // namespace algorithm
 

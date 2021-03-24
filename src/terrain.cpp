@@ -229,23 +229,8 @@ auto
 Terrain::loadLua(std::string const& code) -> void
 {
     m_loadingProcess.wait();
-    if(m_luaPointData != nullptr) {
-        lua_close(m_luaPointData);
-        lua_close(m_luaPointDataHeightFunc);
-    }
-    m_luaPointData           = luaL_newstate();
-    m_luaPointDataHeightFunc = luaL_newstate();
-    luaopen_math(m_luaPointData);
-    luaopen_math(m_luaPointDataHeightFunc);
-    if(luaL_dostring(m_luaPointData, code.c_str()) != 0) {
-        throw std::runtime_error(lua_tostring(m_luaPointData, -1));
-    }
-    if(luaL_dostring(m_luaPointDataHeightFunc, code.c_str()) != 0) {
-        throw std::runtime_error(lua_tostring(m_luaPointData, -1));
-    }
-
-    m_pointData           = algorithm::makeAlgorithm(m_luaPointData);
-    m_pointDataHeightFunc = algorithm::makeAlgorithm(m_luaPointDataHeightFunc);
+    m_pointData           = {algorithm::fromLua(code)};
+    m_pointDataHeightFunc = algorithm::fromLua(code);
 }
 
 auto

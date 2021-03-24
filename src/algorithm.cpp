@@ -61,40 +61,61 @@ mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData
     return {0.0, -1.0, true};
 }
 
-auto
-makeAlgorithm(lua_State* L) -> std::function<Signature>
+LuaFunction::LuaFunction(std::string const& code) noexcept(false) :
+            m_state(luaL_newstate())
 {
-    return [L](glm::dvec2 const& pos, int iterations) {
-        lua_getglobal(L, "pointData");
-        lua_pushnumber(L, pos.x);
-        lua_pushnumber(L, pos.y);
-        lua_pushnumber(L, iterations);
-        if(lua_pcall(L, 3, 1, 0) != 0) {
-            throw std::runtime_error(lua_tostring(L, -1));
-        }
-        auto p = algorithm::PointData();
+    auto* const l = m_state.get();
+    luaopen_math(l);
+    if(luaL_dostring(l, code.c_str()) != 0) {
+        throw std::runtime_error(lua_tostring(l, -1));
+    }
+}
 
-        lua_getfield(L, -1, "height");
-        if(lua_isnumber(L, -1) == 0) {
-            throw std::runtime_error(
-                    "lua function pointData didn't return a table"
-                    " containing a number named \"height\"!");
-        }
-        p.height = lua_tonumber(L, -1);
-        lua_pop(L, 1);
+auto
+LuaFunction::operator()(glm::dvec2 const& pos, int iterations) noexcept(false)
+        -> PointData
+{
+    auto* const l = m_state.get();
 
-        lua_getfield(L, -1, "inside");
-        if(lua_isboolean(L, -1) != 0) {
-            p.inside = static_cast<bool>(lua_toboolean(L, -1));
-        }
-        lua_pop(L, 1);
+    lua_getglobal(l, "pointData");
+    lua_pushnumber(l, pos.x);
+    lua_pushnumber(l, pos.y);
+    lua_pushnumber(l, iterations);
+    if(lua_pcall(l, 3, 1, 0) != 0) {
+        throw std::runtime_error(lua_tostring(l, -1));
+    }
+    auto p = algorithm::PointData();
 
-        lua_getfield(L, -1, "value");
-        if(lua_isnumber(L, -1) != 0) {
-            p.value = lua_tonumber(L, -1);
-        }
-        lua_pop(L, 2);
-        return p;
+    lua_getfield(l, -1, "height");
+    if(lua_isnumber(l, -1) == 0) {
+        throw std::runtime_error(
+                "lua function pointData didn't return a table"
+                " containing a number named \"height\"!");
+    }
+    p.height = lua_tonumber(l, -1);
+    lua_pop(l, 1);
+
+    lua_getfield(l, -1, "inside");
+    if(lua_isboolean(l, -1) != 0) {
+        p.inside = static_cast<bool>(lua_toboolean(l, -1));
+    }
+    lua_pop(l, 1);
+
+    lua_getfield(l, -1, "value");
+    if(lua_isnumber(l, -1) != 0) {
+        p.value = lua_tonumber(l, -1);
+    }
+    lua_pop(l, 2);
+    return p;
+}
+
+auto
+fromLua(std::string const& code) noexcept(false) -> std::function<Signature>
+{
+    // ugly hack, but std::function must be copyable which LuaFunction isn't
+    auto f = std::make_shared<LuaFunction>(LuaFunction(code));
+    return [f = std::move(f)](glm::dvec2 const& pos, int iterations) {
+        return (*f)(pos, iterations);
     };
 }
 

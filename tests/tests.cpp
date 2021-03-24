@@ -31,3 +31,4 @@
 #include "lua-tests.hpp"
 #include "serialization-tests.hpp"
 #include "playerHelper-tests.hpp"
+#include "algorithm-tests.hpp"

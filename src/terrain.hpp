@@ -81,9 +81,6 @@ private:
     double m_scale = 1.0;
 
     // duplication bc two different threads. Gotta clean up this mess...
-    lua_State* m_luaPointData           = nullptr;
-    lua_State* m_luaPointDataHeightFunc = nullptr;
-
     std::function<algorithm::Signature> m_pointData = algorithm::mandelbrot;
     std::function<algorithm::Signature> m_pointDataHeightFunc =
             algorithm::mandelbrot;
