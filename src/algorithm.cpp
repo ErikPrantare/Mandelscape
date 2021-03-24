@@ -61,4 +61,41 @@ mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData
     return {0.0, -1.0, true};
 }
 
+auto
+makeAlgorithm(lua_State* L) -> std::function<Signature>
+{
+    return [L](glm::dvec2 const& pos, int iterations) {
+        lua_getglobal(L, "pointData");
+        lua_pushnumber(L, pos.x);
+        lua_pushnumber(L, pos.y);
+        lua_pushnumber(L, iterations);
+        if(lua_pcall(L, 3, 1, 0) != 0) {
+            throw std::runtime_error(lua_tostring(L, -1));
+        }
+        auto p = algorithm::PointData();
+
+        lua_getfield(L, -1, "height");
+        if(lua_isnumber(L, -1) == 0) {
+            throw std::runtime_error(
+                    "lua function pointData didn't return a table"
+                    " containing a number named \"height\"!");
+        }
+        p.height = lua_tonumber(L, -1);
+        lua_pop(L, 1);
+
+        lua_getfield(L, -1, "inside");
+        if(lua_isboolean(L, -1) != 0) {
+            p.inside = static_cast<bool>(lua_toboolean(L, -1));
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, -1, "value");
+        if(lua_isnumber(L, -1) != 0) {
+            p.value = lua_tonumber(L, -1);
+        }
+        lua_pop(L, 2);
+        return p;
+    };
+}
+
 }    // namespace algorithm

@@ -19,8 +19,11 @@
 #define MANDELSCAPE_ALGORITHM_HPP
 
 #include <complex>
+#include <functional>
 
 #include <glm/vec2.hpp>
+
+#include "lua.hpp"
 
 namespace algorithm {
 
@@ -34,6 +37,9 @@ using Signature = PointData(glm::dvec2 const&, int iterations);
 
 [[nodiscard]] auto
 mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData;
+
+[[nodiscard]] auto
+makeAlgorithm(lua_State* L) -> std::function<Signature>;
 
 }    // namespace algorithm
 

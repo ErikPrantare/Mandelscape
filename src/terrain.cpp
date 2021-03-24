@@ -79,43 +79,6 @@ Terrain::~Terrain()
 }
 
 auto
-luaPointData(lua_State* l) -> std::function<algorithm::Signature>
-{
-    return [l](glm::dvec2 const& pos, int iterations) {
-        lua_getglobal(l, "pointData");
-        lua_pushnumber(l, pos.x);
-        lua_pushnumber(l, pos.y);
-        lua_pushnumber(l, iterations);
-        if(lua_pcall(l, 3, 1, 0) != 0) {
-            throw std::runtime_error(lua_tostring(l, -1));
-        }
-        auto p = algorithm::PointData();
-
-        lua_getfield(l, -1, "height");
-        if(lua_isnumber(l, -1) == 0) {
-            throw std::runtime_error(
-                    "lua function pointData didn't return a table"
-                    " containing a number named \"height\"!");
-        }
-        p.height = lua_tonumber(l, -1);
-        lua_pop(l, 1);
-
-        lua_getfield(l, -1, "inside");
-        if(lua_isboolean(l, -1) != 0) {
-            p.inside = static_cast<bool>(lua_toboolean(l, -1));
-        }
-        lua_pop(l, 1);
-
-        lua_getfield(l, -1, "value");
-        if(lua_isnumber(l, -1) != 0) {
-            p.value = lua_tonumber(l, -1);
-        }
-        lua_pop(l, 2);
-        return p;
-    };
-}
-
-auto
 Terrain::setIterations(int iterations) noexcept -> void
 {
     m_iterations = iterations;
@@ -281,8 +244,8 @@ Terrain::loadLua(std::string const& code) -> void
         throw std::runtime_error(lua_tostring(m_luaPointData, -1));
     }
 
-    m_pointData           = luaPointData(m_luaPointData);
-    m_pointDataHeightFunc = luaPointData(m_luaPointDataHeightFunc);
+    m_pointData           = algorithm::makeAlgorithm(m_luaPointData);
+    m_pointDataHeightFunc = algorithm::makeAlgorithm(m_luaPointDataHeightFunc);
 }
 
 auto
