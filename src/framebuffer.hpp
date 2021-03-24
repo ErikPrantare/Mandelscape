@@ -25,7 +25,7 @@
 #include <glm/glm.hpp>
 
 #include "texture.hpp"
-#include "util/gl.hpp"
+#include "gl.hpp"
 
 class Framebuffer {
 public:

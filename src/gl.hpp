@@ -61,6 +61,6 @@ struct ShaderProgram {
     }
 };
 
-}    // namespace glDestructors
+}    // namespace gl::destructor
 
 #endif

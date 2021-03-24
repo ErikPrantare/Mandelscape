@@ -26,7 +26,7 @@
 #include <glad/glad.h>
 
 #include "shaderProgram.hpp"
-#include "util/gl.hpp"
+#include "gl.hpp"
 #include "util.hpp"
 
 enum class ShaderType {

@@ -25,7 +25,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "util/gl.hpp"
+#include "gl.hpp"
 
 class ShaderProgram {
 public:
