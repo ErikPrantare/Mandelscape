@@ -25,6 +25,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "gl.hpp"
 #include "texture.hpp"
 
 class Mesh {
@@ -37,9 +38,6 @@ public:
     Mesh(Mesh&&)                    = delete;
     auto
     operator=(Mesh&&) -> Mesh& = delete;
-
-    // Todo: RAII to remove destructor and = delete
-    ~Mesh();
 
     auto
     render() -> void;
@@ -104,13 +102,12 @@ public:
     static int constexpr vertexLocation = 0;
 
 private:
-    GLuint m_vao        = 0;
-    GLuint m_vbo        = 0;
-    GLuint m_ebo        = 0;
+    gl::Vao m_vao       = 0;
+    gl::Vbo m_vbo       = 0;
+    gl::Ebo m_ebo       = 0;
     size_t m_nrVertices = 0;
 
-    // location -> VBO
-    std::map<int, GLuint> m_attributes = {};
+    std::map<int, gl::Vbo> m_attributes = {};
 
     std::shared_ptr<Texture> m_texture = nullptr;
 };

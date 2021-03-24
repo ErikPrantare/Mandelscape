@@ -33,16 +33,6 @@ Mesh::Mesh()
     glBindVertexArray(0);
 }
 
-Mesh::~Mesh()
-{
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_vbo);
-    for(auto const& [location, vbo] : m_attributes) {
-        glDeleteBuffers(1, &vbo);
-    }
-    glDeleteBuffers(1, &m_ebo);
-}
-
 auto
 Mesh::render() -> void
 {

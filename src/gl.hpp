@@ -59,6 +59,27 @@ struct ShaderProgram {
     }
 };
 
+struct Vao {
+    static auto
+    destroy(GLuint address) noexcept -> void
+    {
+        glDeleteVertexArrays(1, &address);
+    }
+};
+
+// Vbo and Ebo needs to be different types -> arbitrary differing template
+// param
+template<int>
+struct Buffer {
+    static auto
+    destroy(GLuint address) noexcept -> void
+    {
+        glDeleteBuffers(1, &address);
+    }
+};
+using Vbo = Buffer<__LINE__>;
+using Ebo = Buffer<__LINE__>;
+
 }    // namespace gl::destructor
 
 namespace gl {
@@ -67,6 +88,7 @@ namespace gl {
 template<class Destructor>
 class Resource {
 public:
+    Resource() noexcept = default;
     Resource(GLuint address) noexcept : m_address(address){};
     Resource(Resource<Destructor>&& other) noexcept
     {
@@ -119,6 +141,9 @@ private:
 };
 
 using Fbo           = Resource<destructor::Fbo>;
+using Vao           = Resource<destructor::Vao>;
+using Vbo           = Resource<destructor::Vbo>;
+using Ebo           = Resource<destructor::Ebo>;
 using Texture       = Resource<destructor::Texture>;
 using Shader        = Resource<destructor::Shader>;
 using ShaderProgram = Resource<destructor::ShaderProgram>;
