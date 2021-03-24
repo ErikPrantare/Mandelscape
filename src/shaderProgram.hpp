@@ -56,7 +56,7 @@ public:
     setUniformMatrix4(std::string const& name, glm::mat4 const& value) -> void;
 
 private:
-    std::unique_ptr<GLuint, gl::destructor::ShaderProgram> m_location;
+    gl::ShaderProgram m_location;
 
     [[nodiscard]] auto
     uniformLocation(const std::string& name) const -> GLint;

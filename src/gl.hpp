@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_UTIL_GL_HPP
-#define MANDELLANDSCAPE_UTIL_GL_HPP
+#ifndef MANDELLANDSCAPE_GL_HPP
+#define MANDELLANDSCAPE_GL_HPP
 
 #include <glad/glad.h>
 
@@ -45,7 +45,7 @@ public:
 
 struct Shader {
     auto
-    operator()(GLuint const* location) noexcept -> void
+    operator()(GLuint* location) noexcept -> void
     {
         glDeleteShader(*location);
         delete location;
@@ -54,7 +54,7 @@ struct Shader {
 
 struct ShaderProgram {
     auto
-    operator()(GLuint const* location) noexcept -> void
+    operator()(GLuint* location) noexcept -> void
     {
         glDeleteProgram(*location);
         delete location;
@@ -62,5 +62,12 @@ struct ShaderProgram {
 };
 
 }    // namespace gl::destructor
+
+namespace gl {
+using Fbo           = std::unique_ptr<GLuint, gl::destructor::Fbo>;
+using Texture       = std::unique_ptr<GLuint, gl::destructor::Texture>;
+using Shader        = std::unique_ptr<GLuint, gl::destructor::Shader>;
+using ShaderProgram = std::unique_ptr<GLuint, gl::destructor::ShaderProgram>;
+}    // namespace gl
 
 #endif

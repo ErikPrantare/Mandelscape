@@ -46,7 +46,7 @@ public:
     get() noexcept -> GLuint;
 
 private:
-    std::unique_ptr<GLuint, gl::destructor::Texture> m_location;
+    gl::Texture m_location;
 
     GLenum m_textureUnit;
 };

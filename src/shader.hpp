@@ -59,11 +59,11 @@ public:
 private:
     Shader(std::string const& sourceCode);
 
-    std::unique_ptr<GLuint const, gl::destructor::Shader> m_location;
+    gl::Shader m_location;
 
     [[nodiscard]] static auto
     createShader(std::string const& sourceCode) noexcept(false)
-            -> GLuint const*;
+            -> GLuint*;
 };
 
 using VertexShader   = Shader<ShaderType::Vertex>;

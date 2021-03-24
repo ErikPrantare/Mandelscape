@@ -27,7 +27,7 @@
 template<ShaderType type>
 auto
 Shader<type>::createShader(std::string const& sourceCode) noexcept(false)
-        -> GLuint const*
+        -> GLuint*
 {
     auto const shaderType = static_cast<GLenum>(type);
     auto* const location  = new GLuint(glCreateShader(shaderType));
