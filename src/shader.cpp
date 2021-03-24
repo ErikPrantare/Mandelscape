@@ -27,12 +27,12 @@
 template<ShaderType type>
 auto
 Shader<type>::createShader(std::string const& sourceCode) noexcept(false)
-        -> GLuint*
+        -> GLuint
 {
     auto const shaderType = static_cast<GLenum>(type);
-    auto* const location  = new GLuint(glCreateShader(shaderType));
+    auto const location   = glCreateShader(shaderType);
 
-    if(*location == 0) {
+    if(location == 0) {
         auto typeStr = shaderType == GL_FRAGMENT_SHADER ? std::string("FRAG")
                                                         : std::string("VERT");
 
@@ -42,24 +42,20 @@ Shader<type>::createShader(std::string const& sourceCode) noexcept(false)
     GLchar const* charSource = sourceCode.c_str();
     auto const shaderLength  = static_cast<GLint>(sourceCode.length());
 
-    glShaderSource(*location, 1, &charSource, &shaderLength);
-    glCompileShader(*location);
+    glShaderSource(location, 1, &charSource, &shaderLength);
+    glCompileShader(location);
 
     GLint success = 0;
-    glGetShaderiv(*location, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(location, GL_COMPILE_STATUS, &success);
     if(success == 0) {
         auto infoLog = std::array<GLchar, 1024>();
-        glGetShaderInfoLog(
-                *location,
-                sizeof(infoLog),
-                nullptr,
-                infoLog.data());
+        glGetShaderInfoLog(location, sizeof(infoLog), nullptr, infoLog.data());
         auto typeStr = shaderType == GL_FRAGMENT_SHADER ? std::string("FRAG")
                                                         : std::string("VERT");
 
-        throw std::runtime_error(
+        throw std::runtime_error{
                 std::string{"Error compiling shader of type "} + typeStr + ": "
-                + "'" + infoLog.data() + "'");
+                + "'" + infoLog.data() + "'"};
     }
 
     return location;
@@ -67,7 +63,7 @@ Shader<type>::createShader(std::string const& sourceCode) noexcept(false)
 
 template<ShaderType type>
 Shader<type>::Shader(std::string const& sourceCode) noexcept(false) :
-            m_location(createShader(sourceCode))
+            m_address(createShader(sourceCode))
 {}
 
 template<ShaderType type>
@@ -90,7 +86,7 @@ template<ShaderType type>
 void
 Shader<type>::attachTo(ShaderProgram& program) const
 {
-    program.attachShader(*m_location, static_cast<GLenum>(type));
+    program.attachShader(m_address, static_cast<GLenum>(type));
 }
 
 template class Shader<ShaderType::Vertex>;

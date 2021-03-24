@@ -18,6 +18,8 @@
 #ifndef MANDELLANDSCAPE_GL_HPP
 #define MANDELLANDSCAPE_GL_HPP
 
+#include <utility>
+
 #include <glad/glad.h>
 
 namespace gl::destructor {
@@ -25,49 +27,101 @@ namespace gl::destructor {
 // CPP20 decltype(lambda)
 class Fbo {
 public:
-    auto
-    operator()(GLuint* location) noexcept -> void
+    static auto
+    destroy(GLuint address) noexcept -> void
     {
-        glDeleteFramebuffers(1, location);
-        delete location;
+        glDeleteFramebuffers(1, &address);
     }
 };
 
 class Texture {
 public:
-    auto
-    operator()(GLuint* location) noexcept -> void
+    static auto
+    destroy(GLuint address) noexcept -> void
     {
-        glDeleteTextures(1, location);
-        delete location;
+        glDeleteTextures(1, &address);
     }
 };
 
 struct Shader {
-    auto
-    operator()(GLuint* location) noexcept -> void
+    static auto
+    destroy(GLuint address) noexcept -> void
     {
-        glDeleteShader(*location);
-        delete location;
+        glDeleteShader(address);
     }
 };
 
 struct ShaderProgram {
-    auto
-    operator()(GLuint* location) noexcept -> void
+    static auto
+    destroy(GLuint address) noexcept -> void
     {
-        glDeleteProgram(*location);
-        delete location;
+        glDeleteProgram(address);
     }
 };
 
 }    // namespace gl::destructor
 
 namespace gl {
-using Fbo           = std::unique_ptr<GLuint, gl::destructor::Fbo>;
-using Texture       = std::unique_ptr<GLuint, gl::destructor::Texture>;
-using Shader        = std::unique_ptr<GLuint, gl::destructor::Shader>;
-using ShaderProgram = std::unique_ptr<GLuint, gl::destructor::ShaderProgram>;
+
+// RAII wrapper for OpenGL resources.
+template<class Destructor>
+class Resource {
+public:
+    Resource(GLuint address) noexcept : m_address(address){};
+    Resource(Resource<Destructor>&& other) noexcept
+    {
+        std::swap(m_address, other.m_address);
+    }
+    auto
+    operator=(Resource<Destructor>&& other) noexcept -> Resource<Destructor>&
+    {
+        std::swap(m_address, other.m_address);
+        return *this;
+    }
+    Resource(Resource<Destructor> const& other) = delete;
+
+    // clang-format tries to align the two "="s
+    // clang-format off
+    auto
+    operator=(Resource<Destructor> const& other)
+        -> Resource<Destructor>& = delete;
+    // clang-format on
+
+    ~Resource() noexcept
+    {
+        Destructor::destroy(m_address);
+    }
+
+    operator GLuint&() noexcept
+    {
+        return m_address;
+    }
+
+    operator GLuint() const noexcept
+    {
+        return m_address;
+    }
+
+    auto
+    operator&() noexcept -> GLuint*
+    {
+        return &m_address;
+    }
+
+    auto
+    operator&() const noexcept -> GLuint const*
+    {
+        return &m_address;
+    }
+
+private:
+    GLuint m_address = 0;
+};
+
+using Fbo           = Resource<destructor::Fbo>;
+using Texture       = Resource<destructor::Texture>;
+using Shader        = Resource<destructor::Shader>;
+using ShaderProgram = Resource<destructor::ShaderProgram>;
 }    // namespace gl
 
 #endif

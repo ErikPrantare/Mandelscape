@@ -46,7 +46,7 @@ public:
     get() noexcept -> GLuint;
 
 private:
-    gl::Texture m_location;
+    gl::Texture m_address;
 
     GLenum m_textureUnit;
 };

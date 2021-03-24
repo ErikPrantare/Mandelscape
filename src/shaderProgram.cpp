@@ -23,10 +23,9 @@
 
 #include <glm/glm.hpp>
 
-ShaderProgram::ShaderProgram() noexcept(false) :
-            m_location(new GLuint(glCreateProgram()))
+ShaderProgram::ShaderProgram() noexcept(false) : m_address(glCreateProgram())
 {
-    if(*m_location == 0) {
+    if(m_address == 0) {
         throw std::runtime_error{"Error creating shader program"};
     }
 }
@@ -53,25 +52,25 @@ void
 ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType)
 {
     if(shaderType == GL_VERTEX_SHADER) {
-        attachVertexShader(*m_location, shader);
+        attachVertexShader(m_address, shader);
     }
     else {
-        attachFragmentShader(*m_location, shader);
+        attachFragmentShader(m_address, shader);
     }
 }
 
 void
 ShaderProgram::compile()
 {
-    glLinkProgram(*m_location);
+    glLinkProgram(m_address);
 
     GLint success = 0;
 
-    glGetProgramiv(*m_location, GL_LINK_STATUS, &success);
+    glGetProgramiv(m_address, GL_LINK_STATUS, &success);
     if(success == 0) {
         auto errorLog = std::array<GLchar, 1024>();
         glGetProgramInfoLog(
-                *m_location,
+                m_address,
                 errorLog.size(),
                 nullptr,
                 errorLog.data());
@@ -81,12 +80,12 @@ ShaderProgram::compile()
                 + errorLog.data());
     }
 
-    glValidateProgram(*m_location);
-    glGetProgramiv(*m_location, GL_VALIDATE_STATUS, &success);
+    glValidateProgram(m_address);
+    glGetProgramiv(m_address, GL_VALIDATE_STATUS, &success);
     if(success == 0) {
         auto errorLog = std::array<GLchar, 1024>();
         glGetProgramInfoLog(
-                *m_location,
+                m_address,
                 errorLog.size(),
                 nullptr,
                 errorLog.data());
@@ -95,13 +94,13 @@ ShaderProgram::compile()
                 std::string{"Invalid shader program: "} + errorLog.data());
     }
 
-    glUseProgram(*m_location);
+    glUseProgram(m_address);
 }
 
 void
 ShaderProgram::bindAttributeLocation(std::string const& name, int const index)
 {
-    glBindAttribLocation(*m_location, index, name.c_str());
+    glBindAttribLocation(m_address, index, name.c_str());
 }
 
 void
@@ -142,5 +141,5 @@ ShaderProgram::uniformLocation(std::string const& name) const -> GLint
     // It's ok if name doesn't exist.
     // This will then return 0xFFFFFF,
     // and setting that adress will have no effect
-    return glGetUniformLocation(*m_location, name.c_str());
+    return glGetUniformLocation(m_address, name.c_str());
 }

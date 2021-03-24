@@ -44,7 +44,7 @@ public:
     unbind() noexcept -> void;
 
 private:
-    gl::Fbo m_fbo{new GLuint};
+    gl::Fbo m_fbo = 0;
     Texture m_texture;
     Texture m_depth;
     glm::ivec2 m_size;

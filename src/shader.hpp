@@ -57,13 +57,12 @@ public:
     attachTo(ShaderProgram& program) const -> void;
 
 private:
+    gl::Shader m_address;
+
     Shader(std::string const& sourceCode);
 
-    gl::Shader m_location;
-
     [[nodiscard]] static auto
-    createShader(std::string const& sourceCode) noexcept(false)
-            -> GLuint*;
+    createShader(std::string const& sourceCode) noexcept(false) -> GLuint;
 };
 
 using VertexShader   = Shader<ShaderType::Vertex>;

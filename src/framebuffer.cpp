@@ -44,7 +44,7 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
             m_depth(depthArgs(size)),
             m_size(size)
 {
-    glGenFramebuffers(1, m_fbo.get());
+    glGenFramebuffers(1, &m_fbo);
     bind();
 
     glFramebufferTexture2D(
@@ -100,7 +100,7 @@ Framebuffer::size() const noexcept -> glm::ivec2
 auto
 Framebuffer::bind() noexcept -> void
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, *m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 }
 
 auto

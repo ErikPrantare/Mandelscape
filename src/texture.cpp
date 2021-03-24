@@ -26,15 +26,15 @@
 #include <stb_image.h>
 
 auto
-generateTexture() -> GLuint*
+generateTexture() -> GLuint
 {
-    auto* const texture = new GLuint;
-    glGenTextures(1, texture);
+    auto texture = GLuint();
+    glGenTextures(1, &texture);
     return texture;
 }
 
 Texture::Texture(TextureArgs const& args) :
-            m_location(generateTexture()),
+            m_address(generateTexture()),
             m_textureUnit(args.unit)
 {
     unsigned char* image = nullptr;
@@ -55,7 +55,7 @@ Texture::Texture(TextureArgs const& args) :
     }
 
     glActiveTexture(m_textureUnit);
-    glBindTexture(GL_TEXTURE_2D, *m_location);
+    glBindTexture(GL_TEXTURE_2D, m_address);
     glTexImage2D(
             GL_TEXTURE_2D,
             0,
@@ -80,11 +80,11 @@ auto
 Texture::activate() -> void
 {
     glActiveTexture(m_textureUnit);
-    glBindTexture(GL_TEXTURE_2D, *m_location);
+    glBindTexture(GL_TEXTURE_2D, m_address);
 }
 
 auto
 Texture::get() noexcept -> GLuint
 {
-    return *m_location;
+    return m_address;
 }
