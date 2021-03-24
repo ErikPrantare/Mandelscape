@@ -156,6 +156,7 @@ try {
         renderScene(player, window.size(), &shaderProgram, dt);
         terrain.render(&shaderProgram);
     }
+    throw 2;
 
     return 0;
 }
@@ -163,6 +164,11 @@ catch(std::runtime_error const& e) {
     std::cerr << e.what() << std::endl;
 
     return 1;
+}
+catch(...) {
+    std::cerr << "Unexpected error, please create an issue at "
+              << "https://github.com/ErikPrantare/Mandelscape"
+              << " detailing the cause\n";
 }
 
 void
