@@ -25,7 +25,7 @@
 #include <glm/glm.hpp>
 
 #include "texture.hpp"
-#include "glDestructors.hpp"
+#include "util/gl.hpp"
 
 class Framebuffer {
 public:
@@ -44,7 +44,7 @@ public:
     unbind() noexcept -> void;
 
 private:
-    std::unique_ptr<GLuint, glDestructors::Fbo> m_fbo{new GLuint};
+    std::unique_ptr<GLuint, gl::destructor::Fbo> m_fbo{new GLuint};
     Texture m_texture;
     Texture m_depth;
     glm::ivec2 m_size;

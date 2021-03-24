@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELSCAPE_GL_DESTRUCTORS_HPP
-#define MANDELSCAPE_GL_DESTRUCTORS_HPP
+#ifndef MANDELLANDSCAPE_UTIL_GL_HPP
+#define MANDELLANDSCAPE_UTIL_GL_HPP
 
 #include <glad/glad.h>
 
-namespace glDestructors {
+namespace gl::destructor {
 
 // CPP20 decltype(lambda)
 class Fbo {
@@ -60,6 +60,7 @@ struct ShaderProgram {
         delete location;
     }
 };
+
 }    // namespace glDestructors
 
 #endif

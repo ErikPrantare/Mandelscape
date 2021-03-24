@@ -26,7 +26,7 @@
 #include <glad/glad.h>
 
 #include "shaderProgram.hpp"
-#include "glDestructors.hpp"
+#include "util/gl.hpp"
 #include "util.hpp"
 
 enum class ShaderType {
@@ -59,7 +59,7 @@ public:
 private:
     Shader(std::string const& sourceCode);
 
-    std::unique_ptr<GLuint const, glDestructors::Shader> m_location;
+    std::unique_ptr<GLuint const, gl::destructor::Shader> m_location;
 
     [[nodiscard]] static auto
     createShader(std::string const& sourceCode) noexcept(false)

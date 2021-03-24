@@ -25,7 +25,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "glDestructors.hpp"
+#include "util/gl.hpp"
 
 class ShaderProgram {
 public:
@@ -56,7 +56,7 @@ public:
     setUniformMatrix4(std::string const& name, glm::mat4 const& value) -> void;
 
 private:
-    std::unique_ptr<GLuint, glDestructors::ShaderProgram> m_location;
+    std::unique_ptr<GLuint, gl::destructor::ShaderProgram> m_location;
 
     [[nodiscard]] auto
     uniformLocation(const std::string& name) const -> GLint;

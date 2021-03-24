@@ -24,7 +24,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "glDestructors.hpp"
+#include "util/gl.hpp"
 
 struct TextureArgs {
     glm::ivec2 size{0, 0};
@@ -46,7 +46,7 @@ public:
     get() noexcept -> GLuint;
 
 private:
-    std::unique_ptr<GLuint, glDestructors::Texture> m_location;
+    std::unique_ptr<GLuint, gl::destructor::Texture> m_location;
 
     GLenum m_textureUnit;
 };

@@ -40,7 +40,7 @@ Shader<type>::createShader(std::string const& sourceCode) noexcept(false)
     }
 
     GLchar const* charSource = sourceCode.c_str();
-    auto const shaderLength = static_cast<GLsizei>(sourceCode.length());
+    auto const shaderLength  = static_cast<GLint>(sourceCode.length());
 
     glShaderSource(*location, 1, &charSource, &shaderLength);
     glCompileShader(*location);

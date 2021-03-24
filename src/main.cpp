@@ -156,7 +156,6 @@ try {
         renderScene(player, window.size(), &shaderProgram, dt);
         terrain.render(&shaderProgram);
     }
-    throw 2;
 
     return 0;
 }
