@@ -47,28 +47,23 @@ toGpuVec(glm::dvec3 const v) -> glm::vec3
 
 class PointLoader {
 public:
-    PointLoader(
-            int const granularity,
-            glm::dvec3 const offset,
-            double const scale,
-            int iterations,
-            std::function<algorithm::Signature> function) noexcept :
-                m_granularity(granularity),
-                m_offset(offset),
-                m_scale(scale),
-                m_iterations(iterations),
-                m_function(std::move(function)){};
+    struct Args {
+        int granularity;
+        glm::dvec3 offset;
+        double scale;
+        int iterations;
+        std::function<algorithm::Signature> function;
+    };
 
-    auto
-    loadPoints(Points* const points) -> void
+    PointLoader(Args const& args) noexcept :
+                m_granularity(args.granularity),
+                m_offset(args.offset),
+                m_scale(args.scale),
+                m_iterations(args.iterations),
+                m_function(args.function)
     {
         // The mesh points need to be clamped in such a way that
         // reloading yields a smooth transition without any jumps.
-
-        auto nrVertices = size_t(m_granularity * m_granularity);
-        if(points->size != nrVertices) {
-            resize(points, nrVertices);
-        }
 
         auto constexpr doublingInterval = 40;
 
@@ -101,28 +96,42 @@ public:
             return std::floor(x / stepSize) * stepSize;
         };
 
-        glm::vec3 const gpuOffset = toGpuVec(m_offset);
-
         auto xPos = -meshSize / 2 + m_offset.x;
         for(int x = 0; x < m_granularity; ++x) {
-            auto const xQuant = quantized(xPos, stepSize(x));
-
-            auto zPos = -meshSize / 2 + m_offset.z;
-            for(int z = 0; z < m_granularity; ++z) {
-                auto const zQuant = quantized(zPos, stepSize(z));
-                auto const data   = m_function({xQuant, zQuant}, m_iterations);
-
-                points->position[x * m_granularity + z] = glm::vec3(
-                        xQuant - gpuOffset.x,
-                        data.height,
-                        zQuant - gpuOffset.z);
-
-                points->value[x * m_granularity + z] =
-                        static_cast<float>(data.value);
-                points->inside[x * m_granularity + z] = data.inside ? 1 : 0;
-                zPos += stepSize(z);
-            }
+            m_xPos.push_back(quantized(xPos, stepSize(x)));
             xPos += stepSize(x);
+        }
+
+        auto zPos = -meshSize / 2 + m_offset.z;
+        for(int z = 0; z < m_granularity; ++z) {
+            m_zPos.push_back(quantized(zPos, stepSize(z)));
+            zPos += stepSize(z);
+        }
+    }
+
+    auto
+    loadPoints(Points* const points) -> void
+    {
+        size_t nrVertices = m_granularity * m_granularity;
+        if(points->size != nrVertices) {
+            resize(points, nrVertices);
+        }
+
+        glm::vec3 const gpuOffset = toGpuVec(m_offset);
+
+        size_t index = 0;
+        for(auto const& x : m_xPos) {
+            for(auto const& z : m_zPos) {
+                auto const data = m_function({x, z}, m_iterations);
+
+                points->position[index] = glm::vec3(
+                        x - gpuOffset.x,
+                        data.height,
+                        z - gpuOffset.z);
+                points->value[index]  = static_cast<float>(data.value);
+                points->inside[index] = data.inside ? 1 : 0;
+                ++index;
+            }
         }
     }
 
@@ -132,30 +141,35 @@ private:
     double m_scale;
     int m_iterations;
     std::function<algorithm::Signature> m_function;
+
+    std::vector<double> m_xPos;
+    std::vector<double> m_zPos;
 };
 
 auto
 Terrain::startLoading() -> void
 {
     m_loadingProcess = std::async(std::launch::async, [this]() {
-        auto pointLoader = PointLoader(
-                granularity,
-                m_loadingOffset,
-                m_scale,
-                m_iterations,
-                m_pointData);
+        auto pointLoaderArgs        = PointLoader::Args{};
+        pointLoaderArgs.granularity = granularity;
+        pointLoaderArgs.offset      = m_loadingOffset;
+        pointLoaderArgs.scale       = m_scale;
+        pointLoaderArgs.iterations  = m_iterations;
+        pointLoaderArgs.function    = m_pointData;
+        auto pointLoader            = PointLoader(pointLoaderArgs);
         pointLoader.loadPoints(&m_points);
     });
 }
 
 Terrain::Terrain()
 {
-    auto pointLoader = PointLoader(
-            granularity,
-            m_loadingOffset,
-            m_scale,
-            m_iterations,
-            m_pointData);
+    auto pointLoaderArgs        = PointLoader::Args{};
+    pointLoaderArgs.granularity = granularity;
+    pointLoaderArgs.offset      = m_loadingOffset;
+    pointLoaderArgs.scale       = m_scale;
+    pointLoaderArgs.iterations  = m_iterations;
+    pointLoaderArgs.function    = m_pointData;
+    auto pointLoader            = PointLoader(pointLoaderArgs);
     pointLoader.loadPoints(&m_points);
 
     m_mesh.setVertices(m_points.position);
