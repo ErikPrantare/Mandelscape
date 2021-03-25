@@ -138,6 +138,12 @@ pop(std::queue<T, Container>& queue) -> std::optional<T>
     return {spacePos.x, spacePos.z};
 }
 
+[[nodiscard]] auto constexpr truncateExponent(double value, double base)
+        -> double
+{
+    return std::pow(base, (long int)(std::log(value) / std::log(base)));
+}
+
 // CPP20 Make constexpr
 [[nodiscard]] auto
 unitVec2(double theta) noexcept -> glm::dvec2;

@@ -38,6 +38,16 @@
 #include "persistentActionMap.hpp"
 #include "algorithm.hpp"
 
+struct Points {
+    std::vector<glm::vec3> position;
+    std::vector<float> value;
+
+    // int instead of bool because of vector<bool> specialization
+    std::vector<int> inside;
+
+    size_t size = 0;
+};
+
 class Terrain {
 public:
     Terrain();
@@ -95,19 +105,6 @@ private:
 
     std::future<void> m_loadingProcess;
 
-    struct Points {
-        std::vector<glm::vec3> position;
-        std::vector<float> value;
-
-        // int instead of bool because of vector<bool> specialization
-        std::vector<int> inside;
-
-        size_t size = 0;
-    };
-
-    static auto
-    resize(Points* points, size_t size) -> void;
-
     Points m_points;
 
     auto
@@ -115,9 +112,6 @@ private:
 
     static auto
     generateMeshIndices() -> std::vector<GLuint>;
-
-    auto
-    loadMesh(glm::dvec3 offset, double scale, Points* points) -> void;
 };
 
 #endif

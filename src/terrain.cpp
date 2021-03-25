@@ -31,7 +31,7 @@
 #include "shader.hpp"
 
 auto
-Terrain::resize(Terrain::Points* const points, size_t const size) -> void
+resize(Points* const points, size_t const size) -> void
 {
     points->position.resize(size);
     points->value.resize(size);
@@ -39,9 +39,124 @@ Terrain::resize(Terrain::Points* const points, size_t const size) -> void
     points->size = size;
 }
 
+auto
+toGpuVec(glm::dvec3 const v) -> glm::vec3
+{
+    return static_cast<glm::vec3>(v);
+}
+
+class PointLoader {
+public:
+    PointLoader(
+            int const granularity,
+            glm::dvec3 const offset,
+            double const scale,
+            int iterations,
+            std::function<algorithm::Signature> function) noexcept :
+                m_granularity(granularity),
+                m_offset(offset),
+                m_scale(scale),
+                m_iterations(iterations),
+                m_function(std::move(function)){};
+
+    auto
+    loadPoints(Points* const points) -> void
+    {
+        // The mesh points need to be clamped in such a way that
+        // reloading yields a smooth transition without any jumps.
+
+        auto nrVertices = size_t(m_granularity * m_granularity);
+        if(points->size != nrVertices) {
+            resize(points, nrVertices);
+        }
+
+        auto constexpr doublingInterval = 40;
+
+        // Take longer steps for indices far away from middle
+        auto const unscaledStepSize = [this](int i) {
+            return std::pow(
+                    2.0,
+                    std::abs(i - m_granularity / 2) / doublingInterval);
+        };
+
+        // CPP20 use ranges
+        double const unscaledMeshSize = [this, &unscaledStepSize] {
+            auto sum = 0.0;
+            for(int i = 0; i < m_granularity; ++i) {
+                sum += unscaledStepSize(i);
+            }
+            return sum;
+        }();
+
+        auto const quantizedScale = util::truncateExponent(m_scale, 2.0);
+        auto const meshSize       = 300.0 / quantizedScale;
+
+        auto const scaleFactor = meshSize / unscaledMeshSize;
+        auto const stepSize    = [scaleFactor, &unscaledStepSize](int i) {
+            return scaleFactor * unscaledStepSize(i);
+        };
+
+        // Quantize x to grid, with distance stepSize between gridlines.
+        auto const quantized = [](double x, double stepSize) {
+            return std::floor(x / stepSize) * stepSize;
+        };
+
+        glm::vec3 const gpuOffset = toGpuVec(m_offset);
+
+        auto xPos = -meshSize / 2 + m_offset.x;
+        for(int x = 0; x < m_granularity; ++x) {
+            auto const xQuant = quantized(xPos, stepSize(x));
+
+            auto zPos = -meshSize / 2 + m_offset.z;
+            for(int z = 0; z < m_granularity; ++z) {
+                auto const zQuant = quantized(zPos, stepSize(z));
+                auto const data   = m_function({xQuant, zQuant}, m_iterations);
+
+                points->position[x * m_granularity + z] = glm::vec3(
+                        xQuant - gpuOffset.x,
+                        data.height,
+                        zQuant - gpuOffset.z);
+
+                points->value[x * m_granularity + z] =
+                        static_cast<float>(data.value);
+                points->inside[x * m_granularity + z] = data.inside ? 1 : 0;
+                zPos += stepSize(z);
+            }
+            xPos += stepSize(x);
+        }
+    }
+
+private:
+    int m_granularity;
+    glm::dvec3 m_offset;
+    double m_scale;
+    int m_iterations;
+    std::function<algorithm::Signature> m_function;
+};
+
+auto
+Terrain::startLoading() -> void
+{
+    m_loadingProcess = std::async(std::launch::async, [this]() {
+        auto pointLoader = PointLoader(
+                granularity,
+                m_loadingOffset,
+                m_scale,
+                m_iterations,
+                m_pointData);
+        pointLoader.loadPoints(&m_points);
+    });
+}
+
 Terrain::Terrain()
 {
-    loadMesh(m_loadingOffset, m_scale, &m_points);
+    auto pointLoader = PointLoader(
+            granularity,
+            m_loadingOffset,
+            m_scale,
+            m_iterations,
+            m_pointData);
+    pointLoader.loadPoints(&m_points);
 
     m_mesh.setVertices(m_points.position);
     m_loadingMesh.setVertices(m_points.position);
@@ -82,87 +197,6 @@ auto
 Terrain::setIterations(int iterations) noexcept -> void
 {
     m_iterations = iterations;
-}
-
-auto
-toGpuVec(glm::dvec3 const v) -> glm::vec3
-{
-    return static_cast<glm::vec3>(v);
-}
-
-auto
-Terrain::loadMesh(glm::dvec3 offset, double const scale, Points* const points)
-        -> void
-{
-    // The mesh points need to be clamped in such a way that
-    // reloading yields a smooth transition without any jumps.
-
-    auto constexpr nrVertices = granularity * granularity;
-
-    if(points->size != nrVertices) {
-        resize(points, nrVertices);
-    }
-
-    auto constexpr doublingInterval = 40;
-
-    // Take longer steps for indices far away from middle
-    auto const unscaledStepSize = [](int i) {
-        return std::pow(2.0, std::abs(i - granularity / 2) / doublingInterval);
-    };
-
-    // CPP20 use ranges
-    double const unscaledMeshSize = [&unscaledStepSize] {
-        auto sum = 0.0;
-        for(int i = 0; i < granularity; ++i) {
-            sum += unscaledStepSize(i);
-        }
-        return sum;
-    }();
-
-    auto const quantizedScale = std::pow(2.0, int(log2(scale)));
-    auto const meshSize       = 300.0 / quantizedScale;
-
-    auto const scaleFactor = meshSize / unscaledMeshSize;
-    auto const stepSize    = [scaleFactor, &unscaledStepSize](int i) {
-        return scaleFactor * unscaledStepSize(i);
-    };
-
-    // Quantize x to grid, with distance stepSize between gridlines.
-    auto const quantized = [](double x, double stepSize) {
-        return std::floor(x / stepSize) * stepSize;
-    };
-
-    glm::vec3 const gpuOffset = toGpuVec(offset);
-
-    auto xPos = -meshSize / 2 + offset.x;
-    for(int x = 0; x < granularity; ++x) {
-        auto const xQuant = quantized(xPos, stepSize(x));
-
-        auto zPos = -meshSize / 2 + offset.z;
-        for(int z = 0; z < granularity; ++z) {
-            auto const zQuant = quantized(zPos, stepSize(z));
-            auto const data   = m_pointData({xQuant, zQuant}, m_iterations);
-
-            points->position[x * granularity + z] = glm::vec3(
-                    xQuant - gpuOffset.x,
-                    data.height,
-                    zQuant - gpuOffset.z);
-
-            points->value[x * granularity + z] =
-                    static_cast<float>(data.value);
-            points->inside[x * granularity + z] = data.inside ? 1 : 0;
-            zPos += stepSize(z);
-        }
-        xPos += stepSize(x);
-    }
-}
-
-auto
-Terrain::startLoading() -> void
-{
-    m_loadingProcess = std::async(std::launch::async, [this]() {
-        loadMesh(m_loadingOffset, m_scale, &m_points);
-    });
 }
 
 auto
@@ -229,7 +263,7 @@ auto
 Terrain::loadLua(std::string const& code) -> void
 {
     m_loadingProcess.wait();
-    m_pointData           = {algorithm::fromLua(code)};
+    m_pointData           = algorithm::fromLua(code);
     m_pointDataHeightFunc = algorithm::fromLua(code);
 }
 
