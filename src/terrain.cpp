@@ -110,7 +110,7 @@ public:
     }
 
     auto
-    loadPoints(Points* const points) -> void
+    operator()(Points* const points) -> void
     {
         size_t nrVertices = m_granularity * m_granularity;
         if(points->size != nrVertices) {
@@ -147,30 +147,32 @@ private:
 };
 
 auto
-Terrain::startLoading() -> void
+Terrain::createLoader() const -> std::function<void(Points*)>
 {
-    m_loadingProcess = std::async(std::launch::async, [this]() {
-        auto pointLoaderArgs        = PointLoader::Args{};
-        pointLoaderArgs.granularity = granularity;
-        pointLoaderArgs.offset      = m_loadingOffset;
-        pointLoaderArgs.scale       = m_scale;
-        pointLoaderArgs.iterations  = m_iterations;
-        pointLoaderArgs.function    = m_pointData;
-        auto pointLoader            = PointLoader(pointLoaderArgs);
-        pointLoader.loadPoints(&m_points);
-    });
-}
-
-Terrain::Terrain()
-{
+    // CPP20 {.x = ...}
     auto pointLoaderArgs        = PointLoader::Args{};
     pointLoaderArgs.granularity = granularity;
     pointLoaderArgs.offset      = m_loadingOffset;
     pointLoaderArgs.scale       = m_scale;
     pointLoaderArgs.iterations  = m_iterations;
     pointLoaderArgs.function    = m_pointData;
-    auto pointLoader            = PointLoader(pointLoaderArgs);
-    pointLoader.loadPoints(&m_points);
+
+    return {PointLoader(pointLoaderArgs)};
+}
+
+auto
+Terrain::startLoading() -> void
+{
+    m_loadingProcess = std::async(
+            std::launch::async,
+            [points = &(this->m_points), loader = createLoader()]() {
+                loader(points);
+            });
+}
+
+Terrain::Terrain()
+{
+    createLoader()(&m_points);
 
     m_mesh.setVertices(m_points.position);
     m_loadingMesh.setVertices(m_points.position);

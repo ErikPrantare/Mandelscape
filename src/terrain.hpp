@@ -112,6 +112,9 @@ private:
 
     static auto
     generateMeshIndices() -> std::vector<GLuint>;
+
+    [[nodiscard]] auto
+    createLoader() const -> std::function<void(Points*)>;
 };
 
 #endif
