@@ -216,18 +216,22 @@ Terrain::setIterations(int iterations) noexcept -> void
 }
 
 auto
+Terrain::uploadChunk() -> void
+{
+    auto const uploadSize =
+            std::min(uploadChunkSize, (int)(m_points.size - m_loadIndex));
+
+    m_loadingMesh.setVertices(m_points.position, m_loadIndex, uploadSize);
+    m_loadingMesh.setAttribute(1, m_points.value, m_loadIndex, uploadSize);
+    m_loadingMesh.setAttribute(2, m_points.inside, m_loadIndex, uploadSize);
+    m_loadIndex += uploadSize;
+}
+
+auto
 Terrain::updateMesh(double const x, double const z, double const scale) -> void
 {
     if(m_loadIndex < m_points.size) {
-        auto const uploadSize =
-                std::min(uploadChunkSize, (int)(m_points.size - m_loadIndex));
-
-        m_loadingMesh.setVertices(m_points.position, m_loadIndex, uploadSize);
-        m_loadingMesh.setAttribute(1, m_points.value, m_loadIndex, uploadSize);
-        m_loadingMesh
-                .setAttribute(2, m_points.inside, m_loadIndex, uploadSize);
-        m_loadIndex += uploadSize;
-
+        uploadChunk();
         return;
     }
 

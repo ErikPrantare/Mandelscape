@@ -115,6 +115,9 @@ private:
 
     [[nodiscard]] auto
     createLoader() const -> std::function<void(Points*)>;
+
+    auto
+    uploadChunk() -> void;
 };
 
 #endif
