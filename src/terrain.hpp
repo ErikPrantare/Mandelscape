@@ -51,13 +51,6 @@ struct Points {
 class Terrain {
 public:
     Terrain();
-    Terrain(const Terrain&) = delete;
-    auto
-    operator=(const Terrain&) -> Terrain& = delete;
-    Terrain(Terrain&&)                    = delete;
-    auto
-    operator=(Terrain&&) -> Terrain& = delete;
-
     ~Terrain();
 
     auto
@@ -78,7 +71,7 @@ public:
     auto
     setIterations(int iterations) noexcept -> void;
 
-    static int constexpr colorLocation = 1;
+    static int constexpr valueAttributeLocation = 1;
 
 private:
     static int constexpr granularity     = 400;
@@ -95,13 +88,12 @@ private:
     std::function<algorithm::Signature> m_pointDataHeightFunc =
             algorithm::mandelbrot;
 
-    enum class State { Loading, Uploading };
-    State m_state = State::Loading;
+    bool m_uploading = false;
 
     Mesh m_mesh        = Mesh();
     Mesh m_loadingMesh = Mesh();
 
-    size_t m_loadIndex = 0;
+    size_t m_uploadIndex = 0;
 
     std::future<void> m_loadingProcess;
 

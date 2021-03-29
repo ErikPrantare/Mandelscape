@@ -95,8 +95,12 @@ try {
             std::make_unique<AutoController>(autoControllHeightFunc)};
 
     auto shaderProgram = ShaderProgram();
-    shaderProgram.bindAttributeLocation("pos", Mesh::vertexLocation);
-    shaderProgram.bindAttributeLocation("val", Terrain::colorLocation);
+    shaderProgram.bindAttributeLocation(
+            "pos",
+            Mesh::positionAttributeLocation);
+    shaderProgram.bindAttributeLocation(
+            "val",
+            Terrain::valueAttributeLocation);
 
     auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();

@@ -18,6 +18,7 @@
 #ifndef MANDELLANDSCAPE_MESH_HPP
 #define MANDELLANDSCAPE_MESH_HPP
 
+#include <stdexcept>
 #include <vector>
 #include <memory>
 #include <map>
@@ -47,16 +48,42 @@ public:
     auto
     setIndices(std::vector<GLuint> const& indices) -> void;
 
+    template<class T>
     auto
-    newAttribute(int location) -> void;
+    assertCorrectType(GLenum const type) noexcept(false)
+    {
+        if(gl::toAttributeType<T>() == type) {
+            return true;
+        }
+
+        throw std::runtime_error("Error: Type mismatch in shader attribute");
+    }
 
     template<class T>
     auto
-    setAttribute(int location, std::vector<T> const& values) -> void
+    newAttribute(int location) -> void
     {
         glBindVertexArray(m_vao);
+        GLuint vbo = 0;
+        glEnableVertexAttribArray(location);
+        glGenBuffers(1, &vbo);
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+        glBindVertexArray(0);
+
+        // CPP20 {.x = ...}
+        m_attributes[location].vbo  = vbo;
+        m_attributes[location].type = gl::toAttributeType<T>();
+    }
+
+    template<class T>
+    auto
+    setAttribute(int location, std::vector<T> const& values) noexcept(false)
+            -> void
+    {
+        assertCorrectType<T>(m_attributes[location].type);
+
+        glBindVertexArray(m_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location].vbo);
         glBufferData(
                 GL_ARRAY_BUFFER,
                 values.size() * sizeof(T),
@@ -74,9 +101,10 @@ public:
             size_t start,
             size_t size) -> void
     {
-        glBindVertexArray(m_vao);
+        assertCorrectType<T>(m_attributes[location].type);
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+        glBindVertexArray(m_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location].vbo);
         glBufferSubData(
                 GL_ARRAY_BUFFER,
                 start * sizeof(T),
@@ -92,15 +120,20 @@ public:
     friend auto
     swap(Mesh&, Mesh&) -> void;
 
-    static int constexpr vertexLocation = 0;
+    static int constexpr positionAttributeLocation = 0;
 
 private:
+    struct Attribute {
+        gl::Vbo vbo;
+        GLenum type;
+    };
+
     gl::Vao m_vao       = 0;
     gl::Vbo m_vbo       = 0;
     gl::Ebo m_ebo       = 0;
     size_t m_nrVertices = 0;
 
-    std::map<int, gl::Vbo> m_attributes = {};
+    std::map<int, Attribute> m_attributes = {};
 
     std::shared_ptr<Texture> m_texture = nullptr;
 };

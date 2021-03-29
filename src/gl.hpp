@@ -147,6 +147,28 @@ using Ebo           = Resource<destructor::Ebo>;
 using Texture       = Resource<destructor::Texture>;
 using Shader        = Resource<destructor::Shader>;
 using ShaderProgram = Resource<destructor::ShaderProgram>;
+
+template<class T, bool fail = false>
+auto
+toAttributeType() -> GLenum
+{
+    static_assert(fail, "No such OpenGL type");
+    return 0;    // dummy return value
+}
+
+template<>
+inline auto
+toAttributeType<GLfloat>() -> GLenum
+{
+    return GL_FLOAT;
+}
+
+template<>
+inline auto
+toAttributeType<GLint>() -> GLenum
+{
+    return GL_INT;
+}
 }    // namespace gl
 
 #endif

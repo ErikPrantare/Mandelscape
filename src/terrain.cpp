@@ -55,7 +55,7 @@ public:
         std::function<algorithm::Signature> function;
     };
 
-    PointLoader(Args const& args) noexcept :
+    PointLoader(Args const& args) :
                 m_granularity(args.granularity),
                 m_offset(args.offset),
                 m_scale(args.scale),
@@ -178,14 +178,14 @@ Terrain::Terrain()
     m_loadingMesh.setVertices(m_points.position);
 
     // value
-    m_mesh.newAttribute(1);
-    m_loadingMesh.newAttribute(1);
+    m_mesh.newAttribute<GLfloat>(1);
+    m_loadingMesh.newAttribute<GLfloat>(1);
     m_mesh.setAttribute(1, m_points.value);
     m_loadingMesh.setAttribute(1, m_points.value);
 
     // inside
-    m_mesh.newAttribute(2);
-    m_loadingMesh.newAttribute(2);
+    m_mesh.newAttribute<GLint>(2);
+    m_loadingMesh.newAttribute<GLint>(2);
     m_mesh.setAttribute(2, m_points.inside);
     m_loadingMesh.setAttribute(2, m_points.inside);
 
@@ -204,47 +204,42 @@ Terrain::Terrain()
     startLoading();
 }
 
-Terrain::~Terrain()
-{
-    m_loadingProcess.wait();
-}
-
 auto
 Terrain::setIterations(int iterations) noexcept -> void
 {
     m_iterations = iterations;
 }
 
+Terrain::~Terrain()
+{
+    m_loadingProcess.wait();
+}
+
 auto
 Terrain::uploadChunk() -> void
 {
     auto const uploadSize =
-            std::min(uploadChunkSize, (int)(m_points.size - m_loadIndex));
+            std::min(uploadChunkSize, (int)(m_points.size - m_uploadIndex));
 
-    m_loadingMesh.setVertices(m_points.position, m_loadIndex, uploadSize);
-    m_loadingMesh.setAttribute(1, m_points.value, m_loadIndex, uploadSize);
-    m_loadingMesh.setAttribute(2, m_points.inside, m_loadIndex, uploadSize);
-    m_loadIndex += uploadSize;
+    m_loadingMesh.setVertices(m_points.position, m_uploadIndex, uploadSize);
+    m_loadingMesh.setAttribute(1, m_points.value, m_uploadIndex, uploadSize);
+    m_loadingMesh.setAttribute(2, m_points.inside, m_uploadIndex, uploadSize);
+    m_uploadIndex += uploadSize;
 }
 
 auto
 Terrain::updateMesh(double const x, double const z, double const scale) -> void
 {
-    if(m_loadIndex < m_points.size) {
-        uploadChunk();
-        return;
-    }
-
-    switch(m_state) {
-    case State::Loading: {
-        if(util::isDone(m_loadingProcess)) {
-            m_loadIndex = 0;
-
-            m_state = State::Uploading;
+    if(m_uploading) {
+        auto doneUploading = m_uploadIndex >= m_points.size;
+        if(!doneUploading) {
+            uploadChunk();
+            return;
         }
-    } break;
+        m_uploading = false;
 
-    case State::Uploading: {
+        m_uploadIndex = 0;
+
         swap(m_mesh, m_loadingMesh);
 
         m_offset        = m_loadingOffset;
@@ -252,9 +247,10 @@ Terrain::updateMesh(double const x, double const z, double const scale) -> void
         m_scale         = scale;
 
         startLoading();
-
-        m_state = State::Loading;
-    } break;
+    }
+    else if(util::isDone(m_loadingProcess)) {
+        m_uploadIndex = 0;
+        m_uploading   = true;
     }
 }
 

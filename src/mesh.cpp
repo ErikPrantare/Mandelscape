@@ -45,9 +45,15 @@ Mesh::render() -> void
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    for(auto const& [location, vbo] : m_attributes) {
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glVertexAttribPointer(location, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
+    for(auto const& [location, attribute] : m_attributes) {
+        glBindBuffer(GL_ARRAY_BUFFER, attribute.vbo);
+        glVertexAttribPointer(
+                location,
+                1,
+                attribute.type,
+                GL_FALSE,
+                0,
+                nullptr);
     }
 
     glDrawElements(
@@ -107,19 +113,6 @@ Mesh::setIndices(std::vector<GLuint> const& indices) -> void
     m_nrVertices = indices.size();
 
     glBindVertexArray(0);
-}
-
-auto
-Mesh::newAttribute(int location) -> void
-{
-    glBindVertexArray(m_vao);
-    GLuint vbo = 0;
-    glEnableVertexAttribArray(location);
-    glGenBuffers(1, &vbo);
-
-    glBindVertexArray(0);
-
-    m_attributes[location] = vbo;
 }
 
 auto
