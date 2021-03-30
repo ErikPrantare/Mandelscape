@@ -168,10 +168,20 @@ catch(std::runtime_error const& e) {
 
     return 1;
 }
+catch(std::exception const& e) {
+    std::cerr << e.what() << std::endl;
+    std::cerr << "Unexpected error, please create an issue at "
+              << "https://github.com/ErikPrantare/Mandelscape"
+              << " detailing the cause\n";
+
+    return 1;
+}
 catch(...) {
     std::cerr << "Unexpected error, please create an issue at "
               << "https://github.com/ErikPrantare/Mandelscape"
               << " detailing the cause\n";
+
+    return 1;
 }
 
 void

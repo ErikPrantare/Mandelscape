@@ -37,22 +37,13 @@ public:
     render() -> void;
 
     auto
-    setVertices(std::vector<glm::vec3> const& vertices) -> void;
-
-    auto
-    setVertices(
-            std::vector<glm::vec3> const& vertices,
-            size_t start,
-            size_t size) -> void;
-
-    auto
     setIndices(std::vector<GLuint> const& indices) -> void;
 
     template<class T>
     auto
-    assertCorrectType(GLenum const type) noexcept(false)
+    assertIsType(gl::AttributeInfo const info) noexcept(false)
     {
-        if(gl::toAttributeType<T>() == type) {
+        if(gl::attributeInfo<T>() == info) {
             return true;
         }
 
@@ -72,7 +63,7 @@ public:
 
         // CPP20 {.x = ...}
         m_attributes[location].vbo  = vbo;
-        m_attributes[location].type = gl::toAttributeType<T>();
+        m_attributes[location].info = gl::attributeInfo<T>();
     }
 
     template<class T>
@@ -80,7 +71,7 @@ public:
     setAttribute(int location, std::vector<T> const& values) noexcept(false)
             -> void
     {
-        assertCorrectType<T>(m_attributes[location].type);
+        assertIsType<T>(m_attributes.at(location).info);
 
         glBindVertexArray(m_vao);
         glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location].vbo);
@@ -99,9 +90,9 @@ public:
             int location,
             std::vector<T> const& values,
             size_t start,
-            size_t size) -> void
+            size_t size) noexcept(false) -> void
     {
-        assertCorrectType<T>(m_attributes[location].type);
+        assertIsType<T>(m_attributes.at(location).info);
 
         glBindVertexArray(m_vao);
         glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location].vbo);
@@ -125,11 +116,10 @@ public:
 private:
     struct Attribute {
         gl::Vbo vbo;
-        GLenum type;
+        gl::AttributeInfo info;
     };
 
     gl::Vao m_vao       = 0;
-    gl::Vbo m_vbo       = 0;
     gl::Ebo m_ebo       = 0;
     size_t m_nrVertices = 0;
 

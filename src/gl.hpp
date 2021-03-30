@@ -22,6 +22,8 @@
 
 #include <glad/glad.h>
 
+#include "glm/vec3.hpp"
+
 namespace gl::destructor {
 
 // CPP20 decltype(lambda)
@@ -148,26 +150,42 @@ using Texture       = Resource<destructor::Texture>;
 using Shader        = Resource<destructor::Shader>;
 using ShaderProgram = Resource<destructor::ShaderProgram>;
 
+struct AttributeInfo {
+    GLenum type;
+    GLint nrComponents;
+};
+
+auto
+operator==(AttributeInfo const&, AttributeInfo const&) -> bool;
+
 template<class T, bool fail = false>
 auto
-toAttributeType() -> GLenum
+attributeInfo() -> AttributeInfo
 {
     static_assert(fail, "No such OpenGL type");
-    return 0;    // dummy return value
+    return {};    // dummy return value
 }
 
 template<>
 inline auto
-toAttributeType<GLfloat>() -> GLenum
+attributeInfo<GLfloat>() -> AttributeInfo
 {
-    return GL_FLOAT;
+    // CPP20 {.x=...}
+    return {GL_FLOAT, 1};
 }
 
 template<>
 inline auto
-toAttributeType<GLint>() -> GLenum
+attributeInfo<glm::vec3>() -> AttributeInfo
 {
-    return GL_INT;
+    return {GL_FLOAT, 3};
+}
+
+template<>
+inline auto
+attributeInfo<GLint>() -> AttributeInfo
+{
+    return {GL_INT, 1};
 }
 }    // namespace gl
 

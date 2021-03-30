@@ -26,8 +26,6 @@ Mesh::Mesh()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    glEnableVertexAttribArray(0);
-    glGenBuffers(1, &m_vbo);
     glGenBuffers(1, &m_ebo);
 
     glBindVertexArray(0);
@@ -42,15 +40,12 @@ Mesh::render() -> void
 
     glBindVertexArray(m_vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
     for(auto const& [location, attribute] : m_attributes) {
         glBindBuffer(GL_ARRAY_BUFFER, attribute.vbo);
         glVertexAttribPointer(
                 location,
-                1,
-                attribute.type,
+                attribute.info.nrComponents,
+                attribute.info.type,
                 GL_FALSE,
                 0,
                 nullptr);
@@ -61,39 +56,6 @@ Mesh::render() -> void
             static_cast<GLsizei>(m_nrVertices),
             GL_UNSIGNED_INT,
             nullptr);
-
-    glBindVertexArray(0);
-}
-
-auto
-Mesh::setVertices(std::vector<glm::vec3> const& vertices) -> void
-{
-    glBindVertexArray(m_vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            static_cast<GLintptr>(vertices.size() * sizeof(vertices[0])),
-            vertices.data(),
-            GL_DYNAMIC_DRAW);
-
-    glBindVertexArray(0);
-}
-
-auto
-Mesh::setVertices(
-        std::vector<glm::vec3> const& vertices,
-        size_t const start,
-        size_t const size) -> void
-{
-    glBindVertexArray(m_vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferSubData(
-            GL_ARRAY_BUFFER,
-            static_cast<GLintptr>(start * sizeof(vertices[0])),
-            static_cast<GLsizeiptr>(size * sizeof(vertices[0])),
-            &vertices[start]);
 
     glBindVertexArray(0);
 }
@@ -126,7 +88,6 @@ swap(Mesh& a, Mesh& b) -> void
 {
     std::swap(a.m_vao, b.m_vao);
     std::swap(a.m_attributes, b.m_attributes);
-    std::swap(a.m_vbo, b.m_vbo);
     std::swap(a.m_ebo, b.m_ebo);
     std::swap(a.m_nrVertices, b.m_nrVertices);
 }

@@ -48,10 +48,56 @@ struct Points {
     size_t size = 0;
 };
 
+class PointLoader {
+public:
+    struct Args {
+        int granularity;
+        glm::dvec3 offset;
+        double scale;
+        int iterations;
+        std::function<algorithm::Signature> function;
+        std::unique_ptr<Points> buffer;
+    };
+
+    PointLoader(Args&& args);
+    ~PointLoader();
+
+    PointLoader(PointLoader const&) = delete;
+    PointLoader(PointLoader&&)      = default;
+    auto
+    operator=(PointLoader const&) -> PointLoader& = delete;
+    auto
+    operator=(PointLoader&&) -> PointLoader& = default;
+
+    auto
+    start() -> void;
+
+    [[nodiscard]] auto
+    done() const -> bool;
+
+    [[nodiscard]] auto
+    get() -> std::unique_ptr<Points>;
+
+private:
+    auto
+    operator()() -> void;
+
+    int m_granularity;
+    glm::dvec3 m_offset;
+    double m_scale;
+    int m_iterations;
+    std::function<algorithm::Signature> m_function;
+    std::unique_ptr<Points> m_buffer;
+
+    std::vector<double> m_xPos;
+    std::vector<double> m_zPos;
+
+    std::future<void> m_process;
+};
+
 class Terrain {
 public:
     Terrain();
-    ~Terrain();
 
     auto
     updateMesh(double x, double z, double scale) -> void;
@@ -95,18 +141,15 @@ private:
 
     size_t m_uploadIndex = 0;
 
-    std::future<void> m_loadingProcess;
+    PointLoader m_loader = {{}};
 
-    Points m_points;
-
-    auto
-    startLoading() -> void;
+    std::unique_ptr<Points> m_buffer{new Points{}};
 
     static auto
     generateMeshIndices() -> std::vector<GLuint>;
 
     [[nodiscard]] auto
-    createLoader() const -> std::function<void(Points*)>;
+    createLoader() -> PointLoader;
 
     auto
     uploadChunk() -> void;
