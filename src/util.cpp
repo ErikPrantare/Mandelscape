@@ -65,6 +65,12 @@ toMod(Input::Key key) noexcept(false) -> Input::Mod
     return modKeyMap.at(key);
 }
 
+auto
+toGpuVec(glm::dvec3 const v) -> glm::vec3
+{
+    return static_cast<glm::vec3>(v);
+}
+
 }    // namespace util
 
 namespace util::lua {

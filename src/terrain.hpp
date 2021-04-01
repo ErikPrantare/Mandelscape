@@ -37,63 +37,7 @@
 #include "momentaryAction.hpp"
 #include "persistentActionMap.hpp"
 #include "algorithm.hpp"
-
-struct Points {
-    std::vector<glm::vec3> position;
-    std::vector<float> value;
-
-    // int instead of bool because of vector<bool> specialization
-    std::vector<int> inside;
-
-    size_t size = 0;
-};
-
-class PointLoader {
-public:
-    struct Args {
-        int granularity;
-        glm::dvec3 offset;
-        double scale;
-        int iterations;
-        std::function<algorithm::Signature> function;
-        std::unique_ptr<Points> buffer;
-    };
-
-    PointLoader(Args&& args);
-    ~PointLoader();
-
-    PointLoader(PointLoader const&) = delete;
-    PointLoader(PointLoader&&)      = default;
-    auto
-    operator=(PointLoader const&) -> PointLoader& = delete;
-    auto
-    operator=(PointLoader&&) -> PointLoader& = default;
-
-    auto
-    start() -> void;
-
-    [[nodiscard]] auto
-    done() const -> bool;
-
-    [[nodiscard]] auto
-    get() -> std::unique_ptr<Points>;
-
-private:
-    auto
-    operator()() -> void;
-
-    int m_granularity;
-    glm::dvec3 m_offset;
-    double m_scale;
-    int m_iterations;
-    std::function<algorithm::Signature> m_function;
-    std::unique_ptr<Points> m_buffer;
-
-    std::vector<double> m_xPos;
-    std::vector<double> m_zPos;
-
-    std::future<void> m_process;
-};
+#include "sheetLoader.hpp"
 
 class Terrain {
 public:
@@ -141,7 +85,7 @@ private:
 
     size_t m_uploadIndex = 0;
 
-    PointLoader m_loader = {{}};
+    SheetLoader m_loader = {{}};
 
     std::unique_ptr<Points> m_buffer{new Points{}};
 
@@ -149,7 +93,7 @@ private:
     generateMeshIndices() -> std::vector<GLuint>;
 
     [[nodiscard]] auto
-    createLoader() -> PointLoader;
+    createLoader() -> SheetLoader;
 
     auto
     uploadChunk() -> void;

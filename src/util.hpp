@@ -144,6 +144,9 @@ pop(std::queue<T, Container>& queue) -> std::optional<T>
     return std::pow(base, (long int)(std::log(value) / std::log(base)));
 }
 
+[[nodiscard]] auto
+toGpuVec(glm::dvec3 const v) -> glm::vec3;
+
 // CPP20 Make constexpr
 [[nodiscard]] auto
 unitVec2(double theta) noexcept -> glm::dvec2;
