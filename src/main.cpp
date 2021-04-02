@@ -97,9 +97,12 @@ try {
     auto shaderProgram = ShaderProgram();
     shaderProgram.bindAttributeLocation(
             "pos",
-            Mesh::positionAttributeLocation);
+            Terrain::positionAttributeLocation);
     shaderProgram.bindAttributeLocation(
             "val",
+            Terrain::valueAttributeLocation);
+    shaderProgram.bindAttributeLocation(
+            "inside_",
             Terrain::valueAttributeLocation);
 
     auto shaderController  = ShaderController(shaderProgram);

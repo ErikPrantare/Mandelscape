@@ -51,22 +51,22 @@ Terrain::Terrain()
     m_buffer = m_loader.get();
 
     // position
-    m_mesh.newAttribute<glm::vec3>(0);
-    m_loadingMesh.newAttribute<glm::vec3>(0);
-    m_mesh.setAttribute(0, m_buffer->position);
-    m_loadingMesh.setAttribute(0, m_buffer->position);
+    m_mesh.newAttribute<glm::vec3>(positionAttributeLocation);
+    m_loadingMesh.newAttribute<glm::vec3>(positionAttributeLocation);
+    m_mesh.setAttribute(positionAttributeLocation, m_buffer->position);
+    m_loadingMesh.setAttribute(positionAttributeLocation, m_buffer->position);
 
     // value
-    m_mesh.newAttribute<GLfloat>(1);
-    m_loadingMesh.newAttribute<GLfloat>(1);
-    m_mesh.setAttribute(1, m_buffer->value);
-    m_loadingMesh.setAttribute(1, m_buffer->value);
+    m_mesh.newAttribute<GLfloat>(valueAttributeLocation);
+    m_loadingMesh.newAttribute<GLfloat>(valueAttributeLocation);
+    m_mesh.setAttribute(valueAttributeLocation, m_buffer->value);
+    m_loadingMesh.setAttribute(valueAttributeLocation, m_buffer->value);
 
     // inside
-    m_mesh.newAttribute<GLint>(2);
-    m_loadingMesh.newAttribute<GLint>(2);
-    m_mesh.setAttribute(2, m_buffer->inside);
-    m_loadingMesh.setAttribute(2, m_buffer->inside);
+    m_mesh.newAttribute<GLint>(insideAttributeLocation);
+    m_loadingMesh.newAttribute<GLint>(insideAttributeLocation);
+    m_mesh.setAttribute(insideAttributeLocation, m_buffer->inside);
+    m_loadingMesh.setAttribute(insideAttributeLocation, m_buffer->inside);
 
     // CPP20 {.imagePath = ...}
     auto textureArgs           = TextureArgs();
@@ -156,8 +156,6 @@ Terrain::loadLua(std::string const& code) -> void
 {
     m_pointData           = algorithm::fromLua(code);
     m_pointDataHeightFunc = algorithm::fromLua(code);
-
-    m_loader = SheetLoader::createProcess(createLoaderArgs());
 }
 
 auto

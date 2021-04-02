@@ -61,7 +61,9 @@ public:
     auto
     setIterations(int iterations) noexcept -> void;
 
-    static int constexpr valueAttributeLocation = 1;
+    static GLuint constexpr positionAttributeLocation = 0;
+    static GLuint constexpr valueAttributeLocation    = 1;
+    static GLuint constexpr insideAttributeLocation   = 2;
 
 private:
     static int constexpr granularity     = 400;

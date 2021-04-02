@@ -111,8 +111,6 @@ public:
     friend auto
     swap(Mesh&, Mesh&) -> void;
 
-    static int constexpr positionAttributeLocation = 0;
-
 private:
     struct Attribute {
         gl::Vbo vbo;
