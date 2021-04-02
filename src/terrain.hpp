@@ -85,15 +85,14 @@ private:
 
     size_t m_uploadIndex = 0;
 
-    SheetLoader m_loader = {{}};
-
     std::unique_ptr<Points> m_buffer{new Points{}};
+    std::future<std::unique_ptr<Points>> m_loader;
 
     static auto
     generateMeshIndices() -> std::vector<GLuint>;
 
     [[nodiscard]] auto
-    createLoader() -> SheetLoader;
+    createLoaderArgs() -> SheetLoader::Args;
 
     auto
     uploadChunk() -> void;

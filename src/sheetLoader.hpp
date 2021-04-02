@@ -44,43 +44,22 @@ public:
         double scale;
         int iterations;
         std::function<algorithm::Signature> function;
-        std::unique_ptr<Points> buffer;
+        std::unique_ptr<Points> buffer = nullptr;
     };
 
+    [[nodiscard]] static auto
+    createProcess(Args&& args) -> std::future<std::unique_ptr<Points>>;
+
     SheetLoader(Args&& args);
-    ~SheetLoader();
-
-    SheetLoader(SheetLoader const&) = delete;
-    SheetLoader(SheetLoader&&)      = default;
-    auto
-    operator=(SheetLoader const&) -> SheetLoader& = delete;
-    auto
-    operator=(SheetLoader&&) -> SheetLoader& = default;
-
-    auto
-    start() -> void;
-
-    [[nodiscard]] auto
-    done() const -> bool;
-
-    [[nodiscard]] auto
-    get() -> std::unique_ptr<Points>;
 
 private:
     auto
     operator()() -> void;
 
-    int m_granularity;
-    glm::dvec3 m_offset;
-    double m_scale;
-    int m_iterations;
-    std::function<algorithm::Signature> m_function;
-    std::unique_ptr<Points> m_buffer;
+    Args m_args;
 
     std::vector<double> m_xPos;
     std::vector<double> m_zPos;
-
-    std::future<void> m_process;
 };
 
 auto

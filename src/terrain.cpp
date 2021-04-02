@@ -31,24 +31,23 @@
 #include "shader.hpp"
 
 auto
-Terrain::createLoader() -> SheetLoader
+Terrain::createLoaderArgs() -> SheetLoader::Args
 {
     // CPP20 {.x = ...}
-    auto pointLoaderArgs        = SheetLoader::Args{};
-    pointLoaderArgs.granularity = granularity;
-    pointLoaderArgs.offset      = m_loadingOffset;
-    pointLoaderArgs.scale       = m_scale;
-    pointLoaderArgs.iterations  = m_iterations;
-    pointLoaderArgs.function    = m_pointData;
-    pointLoaderArgs.buffer      = std::move(m_buffer);
+    auto loaderArgs        = SheetLoader::Args{};
+    loaderArgs.granularity = granularity;
+    loaderArgs.offset      = m_loadingOffset;
+    loaderArgs.scale       = m_scale;
+    loaderArgs.iterations  = m_iterations;
+    loaderArgs.function    = m_pointData;
+    loaderArgs.buffer      = std::move(m_buffer);
 
-    return {std::move(pointLoaderArgs)};
+    return {std::move(loaderArgs)};
 }
 
 Terrain::Terrain()
 {
-    m_loader = createLoader();
-    m_loader.start();
+    m_loader = SheetLoader::createProcess(createLoaderArgs());
     m_buffer = m_loader.get();
 
     m_mesh.newAttribute<glm::vec3>(0);
@@ -80,8 +79,7 @@ Terrain::Terrain()
     m_mesh.setIndices(meshIndices);
     m_loadingMesh.setIndices(meshIndices);
 
-    m_loader = createLoader();
-    m_loader.start();
+    m_loader = SheetLoader::createProcess(createLoaderArgs());
 }
 
 auto
@@ -122,10 +120,9 @@ Terrain::updateMesh(double const x, double const z, double const scale) -> void
         m_loadingOffset = {x, 0.0, z};
         m_scale         = scale;
 
-        m_loader = createLoader();
-        m_loader.start();
+        m_loader = SheetLoader::createProcess(createLoaderArgs());
     }
-    else if(m_loader.done()) {
+    else if(util::isDone(m_loader)) {
         m_uploadIndex = 0;
         m_buffer      = m_loader.get();
         m_uploading   = true;
@@ -159,8 +156,7 @@ Terrain::loadLua(std::string const& code) -> void
     m_pointData           = algorithm::fromLua(code);
     m_pointDataHeightFunc = algorithm::fromLua(code);
 
-    m_loader = createLoader();
-    m_loader.start();
+    m_loader = SheetLoader::createProcess(createLoaderArgs());
 }
 
 auto
