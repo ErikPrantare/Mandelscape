@@ -50,6 +50,7 @@ Terrain::Terrain()
     m_loader = SheetLoader::createProcess(createLoaderArgs());
     m_buffer = m_loader.get();
 
+    // position
     m_mesh.newAttribute<glm::vec3>(0);
     m_loadingMesh.newAttribute<glm::vec3>(0);
     m_mesh.setAttribute(0, m_buffer->position);
