@@ -109,7 +109,7 @@ struct Overload : Callables... {
 template<typename... Callables>
 Overload(Callables...) -> Overload<Callables...>;
 
-auto constexpr unaryNOP = [](auto&&) {
+auto constexpr unaryNop = [](auto&&) {
 };
 
 template<typename T, typename Container>
@@ -145,7 +145,7 @@ pop(std::queue<T, Container>& queue) -> std::optional<T>
 }
 
 [[nodiscard]] auto
-toGpuVec(glm::dvec3 const v) -> glm::vec3;
+toGpuVec(glm::dvec3 v) -> glm::vec3;
 
 // CPP20 Make constexpr
 [[nodiscard]] auto

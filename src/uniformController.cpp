@@ -73,7 +73,7 @@ UniformController::handleMomentaryAction(MomentaryAction const& action) -> void
         }
     };
 
-    std::visit(util::Overload{onTrigger, util::unaryNOP}, action);
+    std::visit(util::Overload{onTrigger, util::unaryNop}, action);
 }
 
 auto

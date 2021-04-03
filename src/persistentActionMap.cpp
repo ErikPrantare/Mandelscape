@@ -59,7 +59,7 @@ PersistentActionMap::updateState(Event const& event) -> void
                         m_buttonsDown.erase(button.code);
                     },
                     // default
-                    util::unaryNOP},
+                    util::unaryNop},
             event);
 }
 
