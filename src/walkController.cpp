@@ -74,7 +74,7 @@ WalkController::handleMomentaryAction(MomentaryAction const& action) -> void
                     },
 
                     // default
-                    util::unaryNop},
+                    util::nop},
             action);
 }
 auto

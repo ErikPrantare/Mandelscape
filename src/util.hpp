@@ -109,7 +109,7 @@ struct Overload : Callables... {
 template<typename... Callables>
 Overload(Callables...) -> Overload<Callables...>;
 
-auto constexpr unaryNop = [](auto&&) {
+auto constexpr nop = [](auto&&...) {
 };
 
 template<typename T, typename Container>

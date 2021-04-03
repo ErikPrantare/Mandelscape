@@ -37,7 +37,7 @@ public:
 
 private:
     std::function<void(MomentaryAction const&)> m_handleMomentaryAction =
-            util::unaryNop;
+            util::nop;
 };
 
 #endif
