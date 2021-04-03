@@ -15,12 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELSCAPE_GENERIC_CONTROLLER_TESTS_HPP
-#define MANDELSCAPE_GENERIC_CONTROLLER_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include "genericController.hpp"
-
-namespace GenericControllerTests {
 
 TEST_CASE("No bound functions, no problem", "[GenericController]")
 {
@@ -52,7 +49,3 @@ TEST_CASE(
         REQUIRE(!called);
     }
 }
-
-}    // namespace GenericControllerTests
-
-#endif

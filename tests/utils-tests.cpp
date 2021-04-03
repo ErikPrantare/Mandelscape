@@ -15,30 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_AUTO_CONTROLLER_TESTS_HPP
-#define MANDELLANDSCAPE_AUTO_CONTROLLER_TESTS_HPP
-
-#include "autoController.hpp"
-
 #include <catch2/catch.hpp>
 
-namespace AutoControllerTests {
+#include <queue>
+#include <optional>
 
-TEST_CASE("AutoController moves player", "[AutoController]")
+#include "util.hpp"
+
+TEST_CASE(
+        "util::pop pops and returns the top element of a std::queue",
+        "[utils]")
 {
-    auto heightFunc = [](auto x) {
-        return x.x;
-    };
-    auto player     = Player();
-    auto controller = AutoController(heightFunc);
+    auto queue = std::queue<int>();
 
-    for(auto i = 0; i < 10; ++i) {
-        auto prevPos = player.position;
-        controller.update(&player, 1.0);
-        REQUIRE(player.position != prevPos);
+    SECTION("Empty queue should return a std::nullopt")
+    {
+        auto nullopt = util::pop(queue);
+        REQUIRE(!nullopt.has_value());
     }
 }
-
-}    // namespace AutoControllerTests
-
-#endif

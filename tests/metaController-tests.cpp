@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_META_CONTROLLER_TESTS_HPP
-#define MANDELLANDSCAPE_META_CONTROLLER_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include <array>
 #include <variant>
@@ -27,8 +26,6 @@
 #include "playerController.hpp"
 #include "event.hpp"
 #include "player.hpp"
-
-namespace MetaControllerTests {
 
 auto switchCalls         = std::array{0, 0, 0};
 auto updateCalled        = std::array{false, false, false};
@@ -48,7 +45,7 @@ public:
     }
 
     auto
-    updateState(PersistentActionMap const& map) -> void final
+    updateState(PersistentActionMap const& /*map*/) -> void final
     {
         stateUpdateCalled[n] = true;
     }
@@ -57,7 +54,7 @@ public:
     update(Player*, double) -> void final
     {
         updateCalled[n] = true;
-    };
+    }
 };
 
 TEST_CASE("MetaController switches controllers", "[MetaController]")
@@ -91,7 +88,3 @@ TEST_CASE("MetaController switches controllers", "[MetaController]")
     REQUIRE(updateCalled == std::array{true, true, true});
     REQUIRE(stateUpdateCalled == std::array{true, true, true});
 }
-
-}    // namespace MetaControllerTests
-
-#endif    // MANDELLANDSCAPE_META_CONTROLLER_TESTS_HPP

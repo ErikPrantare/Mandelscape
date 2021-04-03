@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_PERSISTENTACTIONMAP_TESTS_HPP
-#define MANDELLANDSCAPE_PERSISTENTACTIONMAP_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include <map>
 #include <set>
@@ -25,8 +24,6 @@
 #include "persistentActionMap.hpp"
 #include "event.hpp"
 #include "util.hpp"
-
-namespace PersistentActionMapTests {
 
 TEST_CASE(
         "PersistentActionMap keeps track of keyboard state",
@@ -72,7 +69,3 @@ TEST_CASE(
         REQUIRE(!map(modAction));
     }
 }
-
-}    // namespace PersistentActionMapTests
-
-#endif

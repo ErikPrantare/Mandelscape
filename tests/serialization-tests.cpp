@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_SERIALIZATION_TESTS_HPP
-#define MANDELLANDSCAPE_SERIALIZATION_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include "serialization.hpp"
 
@@ -29,8 +28,6 @@
 #include "uniformController.hpp"
 #include "glfwEnums.hpp"
 #include "momentaryActionsMap.hpp"
-
-namespace SerializationTests {
 
 TEST_CASE(
         "util::lua::toX . serialize == id",
@@ -94,7 +91,3 @@ TEST_CASE(
         lua_close(L);
     }
 }
-
-}    // namespace SerializationTests
-
-#endif

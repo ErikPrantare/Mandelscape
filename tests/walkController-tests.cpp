@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELSCAPE_WALK_CONTROLLER_TESTS_HPP
-#define MANDELSCAPE_WALK_CONTROLLER_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include <memory>
 
@@ -33,8 +32,6 @@
 #include "walkController.hpp"
 #include "testUtils.hpp"
 #include "momentaryActionsMap.hpp"
-
-namespace WalkControllerTests {
 
 glm::dvec3 constexpr left{-1.0, 0.0, 0.0};
 glm::dvec3 constexpr right{1.0, 0.0, 0.0};
@@ -333,7 +330,3 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
         }
     }
 }
-
-}    // namespace WalkControllerTests
-
-#endif

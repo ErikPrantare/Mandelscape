@@ -15,24 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELSCAPE_LUA_TESTS_HPP
-#define MANDELSCAPE_LUA_TESTS_HPP
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch.hpp>
 
-#include "lua.hpp"
-
-namespace LuaTests {
-
-TEST_CASE("Lua works", "[lua]")
-{
-    lua_State* L = luaL_newstate();
-
-    std::string statement = "a = 2*10";
-    luaL_dostring(L, statement.c_str());
-    lua_getglobal(L, "a");
-
-    REQUIRE(lua_tonumber(L, -1) == 20);
-}
-
-}    // namespace LuaTests
-
-#endif
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>

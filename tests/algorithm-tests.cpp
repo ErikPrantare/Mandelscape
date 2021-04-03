@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELSCAPE_ALGORITHM_TESTS_HPP
-#define MANDELSCAPE_ALGORITHM_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include "algorithm.hpp"
 
@@ -55,5 +54,3 @@ TEST_CASE("algorithm::fromLua", "[fromLua]")
         REQUIRE_THROWS(f({12, 13}, 420));
     }
 }
-
-#endif

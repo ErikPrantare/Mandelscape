@@ -31,57 +31,33 @@ struct Dvec2Approx {
 };
 
 auto
-operator==(glm::dvec2 a, Dvec2Approx b) -> bool
-{
-    return a.x == Approx(b.val.x) && a.y == Approx(b.val.y);
-}
+operator==(glm::dvec2 a, Dvec2Approx b) -> bool;
 
 struct Dvec3Approx {
     glm::dvec3 val;
 };
 
 auto
-operator==(glm::dvec3 a, Dvec3Approx b) -> bool
-{
-    return a.x == Approx(b.val.x) && a.y == Approx(b.val.y)
-           && a.z == Approx(b.val.z);
-}
+operator==(glm::dvec3 a, Dvec3Approx b) -> bool;
+
 // namespace glm needed for ADL
 namespace glm {
 auto
-operator<<(std::ostream& os, glm::dvec2 const& v) -> std::ostream&
-{
-    os << '(' << v.x << ", " << v.y << ')';
-    return os;
-}
+operator<<(std::ostream& os, glm::dvec2 const& v) -> std::ostream&;
 auto
-operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&
-{
-    os << '(' << v.x << ", " << v.y << ", " << v.z << ')';
-    return os;
-}
+operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&;
+
 }    // namespace glm
 
 auto
-operator<<(std::ostream& os, Player const& player) -> std::ostream&
-{
-    os << "Player(" << player.position << ", " << player.offset << ", "
-       << player.lookAtOffset << ", " << player.scale << ")";
-    return os;
-}
+operator<<(std::ostream& os, Player const& player) -> std::ostream&;
 
 struct PlayerApprox {
     Player player;
 };
 
 auto
-operator==(Player const& a, PlayerApprox const& b) -> bool
-{
-    return a.position == Dvec3Approx{b.player.position}
-           && a.offset == Dvec3Approx{b.player.offset}
-           && a.lookAtOffset == Dvec2Approx{b.player.lookAtOffset}
-           && a.scale == Approx{b.player.scale};
-}
+operator==(Player const& a, PlayerApprox const& b) -> bool;
 
 struct UniformControllerApprox {
     UniformController uc;
@@ -89,12 +65,6 @@ struct UniformControllerApprox {
 
 auto
 operator==(UniformController const& a, UniformControllerApprox const& b)
-        -> bool
-{
-    return a.m_colorOffset == Dvec3Approx{b.uc.m_colorOffset}
-           && a.m_colorFrequency == Approx{b.uc.m_colorFrequency}
-           && a.m_yScale == Approx{b.uc.m_yScale}
-           && a.m_fastMode == b.uc.m_fastMode
-           && a.m_iterations == b.uc.m_iterations;
-}
+        -> bool;
+
 #endif
