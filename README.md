@@ -2,7 +2,7 @@
 Mandelscape is a landscape walking simulator based on the Mandelbrot fractal.
 Walk around and explore the smallest of details by shrinking yourself.
 
-# Build Guide (Linux)
+## Build Guide (Linux)
 Mandelscape depends on GTK3. To install it on Debian:
 ```
 sudo apt install libgtk-3-dev
@@ -18,10 +18,10 @@ mv build/src/Mandelscape .
 ```
 If everything built correctly, the program can now be run with `./Mandelscape`
 
-# Binary Download (Windows)
+## Binary Download (Windows)
 https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
-# Controls
+## Controls
 - WASD + mouse: Walk and look around.
 
 - P: Toggle pause(releases mouse).
@@ -51,11 +51,11 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 - C: Toggle autowalk.
 
-# Options
+## Options
 To use dvorak mode, start Mandelscape with `--dvorak` flag.
 Controls can be found at the bottom of src/main.cpp.
 
-# Using different algorithms
+## Using different algorithms
 Loading different algorithms is done with ctrl+l.
 This opens up a file dialog, where you can select the algorithms you want
 to use.
