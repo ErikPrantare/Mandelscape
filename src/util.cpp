@@ -75,8 +75,25 @@ toGpuVec(glm::dvec3 const v) -> glm::vec3
 
 namespace util::lua {
 
-auto
-toVec3(lua_State* L, int offset) -> glm::dvec3
+template<>
+[[nodiscard]] auto
+to<glm::dvec2>(lua_State* L, int offset) -> glm::dvec2
+{
+    auto vec = glm::dvec2();
+
+    lua_getfield(L, offset, "x");
+    vec.x = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    lua_getfield(L, offset, "y");
+    vec.y = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    return vec;
+}
+
+template<>
+[[nodiscard]] auto
+to<glm::dvec3>(lua_State* L, int offset) -> glm::dvec3
 {
     auto vec = glm::dvec3();
 
@@ -93,36 +110,22 @@ toVec3(lua_State* L, int offset) -> glm::dvec3
     return vec;
 }
 
-auto
-toVec2(lua_State* L, int offset) -> glm::dvec2
-{
-    auto vec = glm::dvec2();
-
-    lua_getfield(L, offset, "x");
-    vec.x = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    lua_getfield(L, offset, "y");
-    vec.y = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-
-    return vec;
-}
-
-auto
-toPlayer(lua_State* L, int offset) -> Player
+template<>
+[[nodiscard]] auto
+to<Player>(lua_State* L, int offset) -> Player
 {
     auto player = Player();
 
     lua_getfield(L, offset, "position");
-    player.position = util::lua::toVec3(L, -1);
+    player.position = util::lua::to<glm::dvec3>(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "offset");
-    player.offset = util::lua::toVec3(L, -1);
+    player.offset = util::lua::to<glm::dvec3>(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "lookAtOffset");
-    player.lookAtOffset = util::lua::toVec2(L, -1);
+    player.lookAtOffset = util::lua::to<glm::dvec2>(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "scale");
@@ -132,13 +135,14 @@ toPlayer(lua_State* L, int offset) -> Player
     return player;
 }
 
-auto
-toUniformController(lua_State* L, int offset) -> UniformController
+template<>
+[[nodiscard]] auto
+to<UniformController>(lua_State* L, int offset) -> UniformController
 {
     auto uniformController = UniformController();
 
     lua_getfield(L, offset, "colorOffset");
-    uniformController.m_colorOffset = util::lua::toVec3(L, -1);
+    uniformController.m_colorOffset = util::lua::to<glm::dvec3>(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "colorFrequency");

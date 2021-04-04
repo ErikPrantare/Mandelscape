@@ -176,17 +176,25 @@ endsWith(
 
 namespace util::lua {
 
+template<class T>
 [[nodiscard]] auto
-toVec3(lua_State* L, int offset) -> glm::dvec3;
+to(lua_State* L, int offset) -> T;
 
+template<>
 [[nodiscard]] auto
-toVec2(lua_State* L, int offset) -> glm::dvec2;
+to<glm::dvec2>(lua_State* L, int offset) -> glm::dvec2;
 
+template<>
 [[nodiscard]] auto
-toPlayer(lua_State* L, int offset) -> Player;
+to<glm::dvec3>(lua_State* L, int offset) -> glm::dvec3;
 
+template<>
 [[nodiscard]] auto
-toUniformController(lua_State* L, int offset) -> UniformController;
+to<Player>(lua_State* L, int offset) -> Player;
+
+template<>
+[[nodiscard]] auto
+to<UniformController>(lua_State* L, int offset) -> UniformController;
 
 }    // namespace util::lua
 

@@ -263,11 +263,11 @@ load(Player& player, UniformController& uniformController) -> void
     luaL_dostring(l, util::getContents(in).c_str());
 
     lua_getglobal(l, "player");
-    player = util::lua::toPlayer(l, -1);
+    player = util::lua::to<Player>(l, -1);
     lua_pop(l, 1);
 
     lua_getglobal(l, "uniformController");
-    uniformController = util::lua::toUniformController(l, -1);
+    uniformController = util::lua::to<UniformController>(l, -1);
     lua_close(l);
 }
 
