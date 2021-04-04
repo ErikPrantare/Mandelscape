@@ -198,7 +198,9 @@ saveDialog(
             startPath.c_str(),
             defaultName.c_str());
 
-    return {fs::path(nfdOutput.get()), result};
+    auto path = result == NFD_OKAY ? fs::path{nfdOutput.get()} : fs::path{};
+
+    return {path, result};
 }
 
 auto
@@ -215,7 +217,9 @@ openDialog(
             nfdFilterItems.size(),
             startPath.c_str());
 
-    return {fs::path(nfdOutput.get()), result};
+    auto path = result == NFD_OKAY ? fs::path{nfdOutput.get()} : fs::path{};
+
+    return {path, result};
 }
 
 auto
