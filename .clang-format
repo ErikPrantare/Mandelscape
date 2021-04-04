@@ -75,7 +75,7 @@ NamespaceIndentation:                           Inner
 KeepEmptyLinesAtTheStartOfBlocks:               false
 MaxEmptyLinesToKeep:                            1
 
-Standard:                                       Cpp11
+Standard:                                       Latest
 
 PenaltyBreakAssignment:                         0
 PenaltyBreakBeforeFirstCallParameter:           0
