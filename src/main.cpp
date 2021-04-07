@@ -103,7 +103,7 @@ try {
             Terrain::valueAttributeLocation);
     shaderProgram.bindAttributeLocation(
             "inside_",
-            Terrain::valueAttributeLocation);
+            Terrain::insideAttributeLocation);
 
     auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();
