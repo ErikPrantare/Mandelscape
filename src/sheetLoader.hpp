@@ -32,6 +32,7 @@ struct Points {
 
     // int instead of bool because of vector<bool> specialization
     std::vector<int> inside;
+    std::vector<glm::vec3> normal;
 
     size_t size = 0;
 };

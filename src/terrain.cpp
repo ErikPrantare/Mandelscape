@@ -68,6 +68,12 @@ Terrain::Terrain()
     m_mesh.setAttribute(insideAttributeLocation, m_buffer->inside);
     m_loadingMesh.setAttribute(insideAttributeLocation, m_buffer->inside);
 
+    // normal
+    m_mesh.newAttribute<glm::vec3>(3);
+    m_loadingMesh.newAttribute<glm::vec3>(3);
+    m_mesh.setAttribute(3, m_buffer->normal);
+    m_loadingMesh.setAttribute(3, m_buffer->normal);
+
     // CPP20 {.imagePath = ...}
     auto textureArgs           = TextureArgs();
     textureArgs.imagePath      = "textures/texture.png";
@@ -99,6 +105,8 @@ Terrain::uploadChunk() -> void
             .setAttribute(0, m_buffer->position, m_uploadIndex, uploadSize);
     m_loadingMesh.setAttribute(1, m_buffer->value, m_uploadIndex, uploadSize);
     m_loadingMesh.setAttribute(2, m_buffer->inside, m_uploadIndex, uploadSize);
+    m_loadingMesh.setAttribute(3, m_buffer->normal, m_uploadIndex, uploadSize);
+    std::cout << m_buffer->normal[0].x << std::endl;
     m_uploadIndex += uploadSize;
 }
 

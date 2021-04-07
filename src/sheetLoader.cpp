@@ -3,11 +3,42 @@
 #include "util.hpp"
 
 auto
+calculateNormal(Points& points) -> void
+{
+    for(auto& n : points.normal) {
+        n = {0.0, 0.0, 0.0};
+    }
+    for(int x = 0; x < 400 - 1; x++) {
+        for(int z = 0; z < 400 - 1; z++) {
+            auto const p1     = points.position[z + 400 * x];
+            auto const p2     = points.position[z + 1 + 400 * x];
+            auto const p3     = points.position[z + 400 * (x + 1)];
+            auto const normal = glm::normalize(glm::cross(p1 - p2, p1 - p3));
+            points.normal[z + x * 400] += 0.125f * normal;
+            points.normal[z + 1 + x * 400] += 0.125f * normal;
+            points.normal[z + (x + 1) * 400] += 0.125f * normal;
+        }
+    }
+    for(int x = 0; x < 400 - 1; x++) {
+        for(int z = 0; z < 400 - 1; z++) {
+            auto const p1     = points.position[(z + 1) + 400 * x];
+            auto const p2     = points.position[(z + 1) + 400 * (x + 1)];
+            auto const p3     = points.position[z + 400 * (x + 1)];
+            auto const normal = glm::normalize(glm::cross(p1 - p2, p1 - p3));
+            points.normal[(z + 1) + 400 * x] += 0.125f * normal;
+            points.normal[(z + 1) + 400 * (x + 1)] += 0.125f * normal;
+            points.normal[z + 400 * (x + 1)] += 0.125f * normal;
+        }
+    }
+}
+
+auto
 resize(Points& points, size_t const size) -> void
 {
     points.position.resize(size);
     points.value.resize(size);
     points.inside.resize(size);
+    points.normal.resize(size);
     points.size = size;
 }
 
@@ -19,6 +50,7 @@ SheetLoader::createProcess(Args&& args) -> std::future<std::unique_ptr<Points>>
             [](Args&& args) {
                 auto loader = SheetLoader{std::move(args)};
                 loader();
+                calculateNormal(*loader.m_args.buffer);
                 return std::move(loader.m_args.buffer);
             },
             std::move(args));

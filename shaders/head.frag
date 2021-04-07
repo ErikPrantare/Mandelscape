@@ -23,6 +23,7 @@ in vec2 position;
 in float distance;
 in float preCalculated;
 in float inside;
+in vec3 normal;
 out vec4 fragColor;
 
 uniform sampler2D tex;
@@ -32,6 +33,8 @@ uniform float colorFrequency;
 uniform vec3 colorOffset;
 uniform bool fastMode;
 uniform float time;
+uniform vec3 lookAt;
+uniform vec3 playerPos;
 
 struct PointInfo {
     float value;

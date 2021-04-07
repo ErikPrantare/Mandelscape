@@ -43,11 +43,11 @@ Texture::Texture(TextureArgs const& args) :
     if(!args.imagePath.empty()) {
         int nrChannels = 0;
         image          = stbi_load(
-                args.imagePath.c_str(),
-                &size.x,
-                &size.y,
-                &nrChannels,
-                4);
+                         args.imagePath.c_str(),
+                         &size.x,
+                         &size.y,
+                         &nrChannels,
+                         4);
 
         if(image == nullptr) {
             throw std::runtime_error("Failed to load texture image");

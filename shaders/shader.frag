@@ -45,4 +45,13 @@ main()
 
     PointInfo p = value(makeComplex(position, offset));
     fragColor = addFog(color(p));
+
+    vec3 lightDir = vec3(0.0, 0.0, 1.0);
+    lightDir = normalize(lightDir);
+    float illumination = 0.3;
+    illumination += max(0.0, pow(
+            dot(reflect(lightDir, normal), lookAt), 64.f));
+    illumination += 0.5 * max(dot(lightDir, normal), 0);
+
+    fragColor *= illumination;
 }

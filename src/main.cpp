@@ -104,6 +104,7 @@ try {
     shaderProgram.bindAttributeLocation(
             "inside_",
             Terrain::insideAttributeLocation);
+    shaderProgram.bindAttributeLocation("normal_", 3);
 
     auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();
@@ -208,6 +209,8 @@ renderScene(
     auto const camera = Camera(cameraPosition, lookAt, viewSize, player.scale);
     program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program->setUniformMatrix4("projection", camera.projection());
+    program->setUniformVec3("lookAt", lookAt);
+    program->setUniformVec3("playerPos", PlayerHelper(player).truePosition());
 }
 
 auto operator""_nfd(char const* str, size_t size)
