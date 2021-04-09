@@ -67,7 +67,10 @@ UniformController::handleMomentaryAction(MomentaryAction const& action) -> void
         } break;
         case Trigger::ToggleFastMode: {
             m_fastMode = !m_fastMode;
-        }
+        } break;
+        case Trigger::ToggleLighting: {
+            m_lighting = !m_lighting;
+        } break;
         default:
             break;
         }
@@ -92,6 +95,7 @@ auto
 UniformController::update(ShaderProgram* const shaderProgram) -> void
 {
     shaderProgram->setUniformInt("fastMode", static_cast<int>(m_fastMode));
+    shaderProgram->setUniformInt("lighting", static_cast<int>(m_lighting));
     shaderProgram->setUniformFloat(
             "colorFrequency",
             static_cast<float>(m_colorFrequency));

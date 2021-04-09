@@ -23,13 +23,15 @@
 enum class Trigger {
     IncreaseIterations,
     DecreaseIterations,
-    ToggleAutoWalk,
-    ToggleAutoZoom,
     SwitchShader,
     TakeScreenshot,
-    TogglePause,
     CloseWindow,
+
+    ToggleAutoWalk,
+    ToggleAutoZoom,
     ToggleFastMode,
+    TogglePause,
+    ToggleLighting,
 
     Save,
     Load,

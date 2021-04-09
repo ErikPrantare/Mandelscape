@@ -32,7 +32,10 @@ uniform vec2 offset;
 uniform int iterations;
 uniform float colorFrequency;
 uniform vec3 colorOffset;
+
 uniform bool fastMode;
+uniform bool lighting;
+
 uniform float time;
 uniform vec3 lookAt;
 uniform vec3 playerPos;

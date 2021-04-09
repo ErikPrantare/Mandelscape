@@ -35,6 +35,9 @@ addFog(const in vec4 color)
 vec4
 addLighting(const in vec4 color)
 {
+    if(!lighting) {
+        return color;
+    }
     vec3 lightDir = vec3(0.0, 2.0, 0.0);
     lightDir = normalize(lightDir);
     float illumination = 0.2 + max(0.0, dot(lightDir, normal));

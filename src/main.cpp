@@ -392,6 +392,7 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
     momentaryMap.add(
             {Key::L, (int)Mod::Control},
             Trigger::LoadTerrainFunctions);
+    momentaryMap.add({Key::L}, Trigger::ToggleLighting);
 
     auto persistentMap = PersistentActionMap();
     persistentMap.add({Key::Comma}, PersistentAction::MoveForwards);
