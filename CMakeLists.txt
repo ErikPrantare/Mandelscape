@@ -115,6 +115,10 @@ if(NOT TARGET stb::stb)
 endif()
 
 #---------------------------luajit---------------------------------------------
+find_package(Boost REQUIRED
+  COMPONENTS filesystem system)
+
+#---------------------------luajit---------------------------------------------
 add_library(luajit::luajit INTERFACE IMPORTED)
 if(MINGW)
     set(LUAJIT_HOST_CC "gcc -m64")

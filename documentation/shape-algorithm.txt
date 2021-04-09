@@ -1,7 +1,37 @@
 An example is given at the end of the document.
 
 ---
-The terrain generation function is written in lua.
+The terrain generation function can be written in either lua or C.
+
+---
+C:
+
+To use a shape algorithm written in C, you need to provide a compiled shared
+library (.so in Unix, .dll in Windows) ending in shape.so or shape.dll.
+The library needs to contain the struct:
+
+struct PointData {
+    double height;
+    double value;
+    char inside;
+};
+
+(Inside can be any single byte type, it is a stand in for a c++ bool.)
+
+and an implemented function with the signature:
+
+struct PointData
+pointData(double x, double y, int iterations);
+(The argument names are not required)
+
+To avoid wierd and illusive bugs, prefer to use the same toolchain for this
+library as you are using for the rest of the project. It is a simple enough
+library that it shouldn't be a problem but better safe than sorry.
+
+The details of the function are the same as for lua.
+
+---
+Lua:
 
 Files containing a shape function should end in shape.lua.
 These contain a function pointData(x, y, i), with the three parameters:

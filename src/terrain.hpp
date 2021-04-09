@@ -59,6 +59,9 @@ public:
     loadLua(std::string const& code) -> void;
 
     auto
+    loadLibrary(std::filesystem::path const& sharedLibrary) -> void;
+
+    auto
     setIterations(int iterations) noexcept -> void;
 
     static GLuint constexpr positionAttributeLocation = 0;

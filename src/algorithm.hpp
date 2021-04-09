@@ -21,6 +21,7 @@
 #include <complex>
 #include <functional>
 #include <memory>
+#include <filesystem>
 
 #include <glm/vec2.hpp>
 
@@ -42,6 +43,10 @@ operator==(PointData const& a, PointData const& b)
 }
 
 using Signature = PointData(glm::dvec2 const&, int iterations);
+
+auto
+fromSharedLibrary(std::filesystem::path const& sharedLibrary)
+        -> std::function<Signature>;
 
 [[nodiscard]] auto
 mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData;

@@ -17,7 +17,22 @@
 
 #include "algorithm.hpp"
 
+#include <boost/dll.hpp>
+
 namespace algorithm {
+
+auto
+fromSharedLibrary(std::filesystem::path const& sharedLibrary)
+        -> std::function<Signature>
+{
+    using CSignature = PointData(double x, double y, int iter);
+
+    return [func = boost::dll::import<CSignature>(
+                    {sharedLibrary},
+                    "pointData")](glm::dvec2 const& point, int iter) {
+        return func(point.x, point.y, iter);
+    };
+}
 
 auto
 mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData

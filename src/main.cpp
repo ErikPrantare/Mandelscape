@@ -275,7 +275,7 @@ loadTerrain(
     namespace fs = std::filesystem;
 
     std::vector<util::nfd::FilterItem> filterItems{
-            {"Terrain files"_nfd, "lua,frag"_nfd}};
+            {"Terrain files"_nfd, "so,dll,lua,frag"_nfd}};
 
     auto const [paths, result] = util::nfd::openDialogMultiple(
             filterItems,
@@ -289,6 +289,10 @@ loadTerrain(
         if(util::endsWith(path.native(), "shape.lua"_nfd)) {
             std::ifstream in(path);
             terrain.loadLua(util::getContents(in));
+        }
+        else if(util::endsWith(path.native(), "shape.so"_nfd)
+                || util::endsWith(path.native(), "shape.dll"_nfd)) {
+            terrain.loadLibrary(path);
         }
         else if(util::endsWith(path.native(), "value.frag"_nfd)) {
             std::ifstream in(path);

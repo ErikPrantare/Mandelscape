@@ -42,7 +42,7 @@ Terrain::createLoaderArgs() -> SheetLoader::Args
     loaderArgs.function    = m_pointData;
     loaderArgs.buffer      = std::move(m_buffer);
 
-    return {std::move(loaderArgs)};
+    return loaderArgs;
 }
 
 Terrain::Terrain()
@@ -156,6 +156,14 @@ Terrain::loadLua(std::string const& code) -> void
 {
     m_pointData           = algorithm::fromLua(code);
     m_pointDataHeightFunc = algorithm::fromLua(code);
+}
+
+auto
+Terrain::loadLibrary(std::filesystem::path const& sharedLibrary) -> void
+{
+    auto const algorithm  = algorithm::fromSharedLibrary(sharedLibrary);
+    m_pointData           = algorithm;
+    m_pointDataHeightFunc = algorithm;
 }
 
 auto
