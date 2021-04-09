@@ -8,15 +8,21 @@ C:
 
 To use a shape algorithm written in C, you need to provide a compiled shared
 library (.so in Unix, .dll in Windows) ending in shape.so or shape.dll.
-The library needs to contain the struct:
+The library needs to contain the include:
+
+#include <stdbool.h>
+
+(as C does not have a bool type otherwise)
+
+the struct:
 
 struct PointData {
     double height;
     double value;
-    char inside;
+    bool inside;
 };
 
-(Inside can be any single byte type, it is a stand in for a c++ bool.)
+(inside can be any single byte type, it is a stand in for a c++ bool)
 
 and an implemented function with the signature:
 
@@ -25,8 +31,8 @@ pointData(double x, double y, int iterations);
 (The argument names are not required)
 
 To avoid wierd and illusive bugs, prefer to use the same toolchain for this
-library as you are using for the rest of the project. It is a simple enough
-library that it shouldn't be a problem but better safe than sorry.
+library as you are using for the rest of the project. There is a small risk of
+a size mismatch between the C bool and C++ bool otherwise for example.
 
 The details of the function are the same as for lua.
 
