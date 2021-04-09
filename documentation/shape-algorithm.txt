@@ -4,39 +4,6 @@ An example is given at the end of the document.
 The terrain generation function can be written in either lua or C.
 
 ---
-C:
-
-To use a shape algorithm written in C, you need to provide a compiled shared
-library (.so in Unix, .dll in Windows) ending in shape.so or shape.dll.
-The library needs to contain the include:
-
-#include <stdbool.h>
-
-(as C does not have a bool type otherwise)
-
-the struct:
-
-struct PointData {
-    double height;
-    double value;
-    bool inside;
-};
-
-(inside can be any single byte type, it is a stand in for a c++ bool)
-
-and an implemented function with the signature:
-
-struct PointData
-pointData(double x, double y, int iterations);
-(The argument names are not required)
-
-To avoid wierd and illusive bugs, prefer to use the same toolchain for this
-library as you are using for the rest of the project. There is a small risk of
-a size mismatch between the C bool and C++ bool otherwise for example.
-
-The details of the function are the same as for lua.
-
----
 Lua:
 
 Files containing a shape function should end in shape.lua.
@@ -98,3 +65,37 @@ function pointData (re, im, iters)
         
     return {height = 0, value = 0, inside = true}
 end
+
+---
+C:
+
+To use a shape algorithm written in C, you need to provide a compiled shared
+library (.so in Unix, .dll in Windows) ending in shape.so or shape.dll.
+The library needs to contain the include:
+
+#include <stdbool.h>
+
+(as C does not have a bool type otherwise)
+
+the struct:
+
+struct PointData {
+    double height;
+    double value;
+    bool inside;
+};
+
+(inside can be any single byte type, it is a stand in for a c++ bool)
+
+and an implemented function with the signature:
+
+struct PointData
+pointData(double x, double y, int iterations);
+(The argument names are not required)
+
+To avoid wierd and illusive bugs, prefer to use the same toolchain for this
+library as you are using for the rest of the project. There is a small risk of
+a size mismatch between the C bool and C++ bool otherwise for example.
+
+For a detailed example, the default mandelbrot algorithm is implemented in c in
+presets/mandelbrot/mandelbrot-shape.c
