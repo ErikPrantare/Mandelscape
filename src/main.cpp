@@ -104,7 +104,9 @@ try {
     shaderProgram.bindAttributeLocation(
             "inside_",
             Terrain::insideAttributeLocation);
-    shaderProgram.bindAttributeLocation("normal_", 3);
+    shaderProgram.bindAttributeLocation(
+            "normal_",
+            Terrain::normalAttributeLocation);
 
     auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();

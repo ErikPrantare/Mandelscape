@@ -64,6 +64,7 @@ public:
     static GLuint constexpr positionAttributeLocation = 0;
     static GLuint constexpr valueAttributeLocation    = 1;
     static GLuint constexpr insideAttributeLocation   = 2;
+    static GLuint constexpr normalAttributeLocation   = 3;
 
 private:
     static int constexpr granularity     = 400;

@@ -69,10 +69,10 @@ Terrain::Terrain()
     m_loadingMesh.setAttribute(insideAttributeLocation, m_buffer->inside);
 
     // normal
-    m_mesh.newAttribute<glm::vec3>(3);
-    m_loadingMesh.newAttribute<glm::vec3>(3);
-    m_mesh.setAttribute(3, m_buffer->normal);
-    m_loadingMesh.setAttribute(3, m_buffer->normal);
+    m_mesh.newAttribute<glm::vec3>(normalAttributeLocation);
+    m_loadingMesh.newAttribute<glm::vec3>(normalAttributeLocation);
+    m_mesh.setAttribute(normalAttributeLocation, m_buffer->normal);
+    m_loadingMesh.setAttribute(normalAttributeLocation, m_buffer->normal);
 
     // CPP20 {.imagePath = ...}
     auto textureArgs           = TextureArgs();
@@ -101,11 +101,26 @@ Terrain::uploadChunk() -> void
     auto const uploadSize =
             std::min(uploadChunkSize, (int)(m_buffer->size - m_uploadIndex));
 
-    m_loadingMesh
-            .setAttribute(0, m_buffer->position, m_uploadIndex, uploadSize);
-    m_loadingMesh.setAttribute(1, m_buffer->value, m_uploadIndex, uploadSize);
-    m_loadingMesh.setAttribute(2, m_buffer->inside, m_uploadIndex, uploadSize);
-    m_loadingMesh.setAttribute(3, m_buffer->normal, m_uploadIndex, uploadSize);
+    m_loadingMesh.setAttribute(
+            positionAttributeLocation,
+            m_buffer->position,
+            m_uploadIndex,
+            uploadSize);
+    m_loadingMesh.setAttribute(
+            valueAttributeLocation,
+            m_buffer->value,
+            m_uploadIndex,
+            uploadSize);
+    m_loadingMesh.setAttribute(
+            insideAttributeLocation,
+            m_buffer->inside,
+            m_uploadIndex,
+            uploadSize);
+    m_loadingMesh.setAttribute(
+            normalAttributeLocation,
+            m_buffer->normal,
+            m_uploadIndex,
+            uploadSize);
     m_uploadIndex += uploadSize;
 }
 
