@@ -210,7 +210,7 @@ renderScene(
     program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program->setUniformMatrix4("projection", camera.projection());
     program->setUniformVec3("lookAt", lookAt);
-    program->setUniformVec3("playerPos", PlayerHelper(player).truePosition());
+    program->setUniformVec3("playerPos", player.position);
 }
 
 auto operator""_nfd(char const* str, size_t size)

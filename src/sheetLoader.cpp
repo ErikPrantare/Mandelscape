@@ -5,29 +5,44 @@
 auto
 calculateNormal(Points& points) -> void
 {
+    int const granularity = static_cast<int>(std::sqrt(points.size));
     for(auto& n : points.normal) {
         n = {0.0, 0.0, 0.0};
     }
-    for(int x = 0; x < 400 - 1; x++) {
-        for(int z = 0; z < 400 - 1; z++) {
-            auto const p1     = points.position[z + 400 * x];
-            auto const p2     = points.position[z + 1 + 400 * x];
-            auto const p3     = points.position[z + 400 * (x + 1)];
-            auto const normal = glm::normalize(glm::cross(p1 - p2, p1 - p3));
-            points.normal[z + x * 400] += 0.125f * normal;
-            points.normal[z + 1 + x * 400] += 0.125f * normal;
-            points.normal[z + (x + 1) * 400] += 0.125f * normal;
+    for(int x = 0; x < granularity - 1; x++) {
+        for(int z = 0; z < granularity - 1; z++) {
+            auto const p1 = points.position[z + granularity * x];
+            auto const p2 = points.position[z + 1 + granularity * x];
+            auto const p3 = points.position[z + granularity * (x + 1)];
+            auto normal   = (glm::cross(p1 - p2, p1 - p3));
+            if(normal == glm::vec3{0.0, 0.0, 0.0}) {
+                continue;
+            }
+            normal = glm::normalize(normal);
+            if(normal.y < 0.0) {
+                normal = -normal;
+            }
+            points.normal[z + x * granularity] += normal;
+            points.normal[z + 1 + x * granularity] += normal;
+            points.normal[z + (x + 1) * granularity] += normal;
         }
     }
-    for(int x = 0; x < 400 - 1; x++) {
-        for(int z = 0; z < 400 - 1; z++) {
-            auto const p1     = points.position[(z + 1) + 400 * x];
-            auto const p2     = points.position[(z + 1) + 400 * (x + 1)];
-            auto const p3     = points.position[z + 400 * (x + 1)];
-            auto const normal = glm::normalize(glm::cross(p1 - p2, p1 - p3));
-            points.normal[(z + 1) + 400 * x] += 0.125f * normal;
-            points.normal[(z + 1) + 400 * (x + 1)] += 0.125f * normal;
-            points.normal[z + 400 * (x + 1)] += 0.125f * normal;
+    for(int x = 0; x < granularity - 1; x++) {
+        for(int z = 0; z < granularity - 1; z++) {
+            auto const p1 = points.position[(z + 1) + granularity * x];
+            auto const p2 = points.position[(z + 1) + granularity * (x + 1)];
+            auto const p3 = points.position[z + granularity * (x + 1)];
+            auto normal   = (glm::cross(p1 - p2, p1 - p3));
+            if(normal == glm::vec3{0.0, 0.0, 0.0}) {
+                continue;
+            }
+            normal = glm::normalize(normal);
+            if(normal.y < 0.0) {
+                normal = -normal;
+            }
+            points.normal[(z + 1) + granularity * x] += 0.125f * normal;
+            points.normal[(z + 1) + granularity * (x + 1)] += 0.125f * normal;
+            points.normal[z + granularity * (x + 1)] += 0.125f * normal;
         }
     }
 }

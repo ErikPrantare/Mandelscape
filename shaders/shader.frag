@@ -32,6 +32,23 @@ addFog(const in vec4 color)
     return vec4(fog, fog, fog, 1.0) + (1.0 - fog) * color;
 }
 
+vec4
+addLighting(const in vec4 color)
+{
+    vec3 lightDir = vec3(0.0, 2.0, 0.0);
+    lightDir = normalize(lightDir);
+    float illumination = 0.2 + max(0.0, dot(lightDir, normal));
+    illumination = pow(illumination, 1.0/2.2);
+
+    vec3 dir = normalize(playerPos - point);
+    vec3 refl = reflect(-lightDir, normal);
+    float spec = pow(max(dot(dir, refl), 0.0), 32);
+    illumination += 0.5 * spec;
+
+    //illumination = clamp(0.0, 1.0, illumination);
+    return clamp(vec4(0.0), vec4(1.0), illumination * color);
+}
+
 void
 main()
 {
@@ -39,19 +56,11 @@ main()
         PointInfo i = PointInfo(preCalculated, true);
         PointInfo o = PointInfo(preCalculated, false);
         fragColor =
-            addFog(mix(color(i), color(o), 1.0-inside));
+            addFog(addLighting(
+                    mix(color(i), color(o), 1.0-inside)));
         return;
     }
 
     PointInfo p = value(makeComplex(position, offset));
-    fragColor = addFog(color(p));
-
-    vec3 lightDir = vec3(0.0, 0.0, 1.0);
-    lightDir = normalize(lightDir);
-    float illumination = 0.3;
-    illumination += max(0.0, pow(
-            dot(reflect(lightDir, normal), lookAt), 64.f));
-    illumination += 0.5 * max(dot(lightDir, normal), 0);
-
-    fragColor *= illumination;
+    fragColor = addFog(addLighting(color(p)));
 }

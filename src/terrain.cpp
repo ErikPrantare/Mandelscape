@@ -106,7 +106,6 @@ Terrain::uploadChunk() -> void
     m_loadingMesh.setAttribute(1, m_buffer->value, m_uploadIndex, uploadSize);
     m_loadingMesh.setAttribute(2, m_buffer->inside, m_uploadIndex, uploadSize);
     m_loadingMesh.setAttribute(3, m_buffer->normal, m_uploadIndex, uploadSize);
-    std::cout << m_buffer->normal[0].x << std::endl;
     m_uploadIndex += uploadSize;
 }
 

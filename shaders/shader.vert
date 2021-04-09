@@ -34,11 +34,13 @@ out float distance;
 out float preCalculated;
 out float inside;
 out vec3 normal;
+out vec3 point;
 
 void
 main()
 {
     gl_Position = cameraSpace * vec4(pos.x, yScale*pos.y, pos.z, 1.0);
+    point = pos.xyz;
 
     position = pos.xz;
     distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
@@ -46,6 +48,8 @@ main()
     preCalculated = value;
     inside = inside_ != 0 ? 1.0 : 0.0;
     normal = normalize(normal_);
+    normal.xz *= yScale;
+    normal = normalize(normal);
 
     gl_Position = projection * gl_Position;
 }

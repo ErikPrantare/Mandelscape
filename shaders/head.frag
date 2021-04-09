@@ -24,6 +24,7 @@ in float distance;
 in float preCalculated;
 in float inside;
 in vec3 normal;
+in vec3 point;
 out vec4 fragColor;
 
 uniform sampler2D tex;
