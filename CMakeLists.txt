@@ -114,9 +114,28 @@ if(NOT TARGET stb::stb)
   endif()
 endif()
 
-#---------------------------luajit---------------------------------------------
-find_package(Boost REQUIRED
-  COMPONENTS filesystem system)
+#---------------------------Boost----------------------------------------------
+find_package(Boost QUIET
+  COMPONENTS filesystem system headers)
+
+if(NOT ${Boost_FOUND})
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/extern/boost-filesystem)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/extern/boost-system)
+
+  add_library(Boost::dll INTERFACE IMPORTED)
+  target_include_directories(Boost::dll
+      INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/extern/boost-dll/inlude)
+  target_link_libraries(Boost::dll
+      INTERFACE Boost::filesystem
+      INTERFACE Boost::system)
+else()
+  add_library(Boost::dll INTERFACE IMPORTED)
+
+  target_link_libraries(Boost::dll
+      INTERFACE Boost::headers
+      INTERFACE Boost::filesystem
+      INTERFACE Boost::system)
+endif()
 
 #---------------------------luajit---------------------------------------------
 add_library(luajit::luajit INTERFACE IMPORTED)
