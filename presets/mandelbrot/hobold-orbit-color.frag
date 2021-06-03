@@ -22,9 +22,11 @@ color(const in PointInfo p)
 {
     if(p.inside) return vec4(0.0, 0.0, 0.0, 1.0);
 
-    vec3 colorVal = p.value * colorFrequency + colorOffset;
+    vec3 colorVal = floor(p.value) * colorFrequency + colorOffset;
 
-    vec4 color = vec4(0.5f * sin(colorVal) + 0.5f, 1.0f);
+    vec4 color =
+        pow(p.value - floor(p.value), 0.5)
+        * vec4(0.5 * sin(colorVal) + 0.5, 1.0);
 
     return color;
 }

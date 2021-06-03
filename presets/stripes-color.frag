@@ -24,7 +24,9 @@ color(const in PointInfo p)
 
     vec3 colorVal = p.value * colorFrequency + colorOffset;
 
-    vec4 color = vec4(0.5f * sin(colorVal) + 0.5f, 1.0f);
+    //val + 0.1 avoids weird color glitches in when val is integer
+    vec4 color = texture(stripes, vec2(0.0, p.value + 0.1))
+            * vec4(0.5f * sin(colorVal) + 0.5f, 1.0f);
 
     return color;
 }
