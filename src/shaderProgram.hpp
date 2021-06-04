@@ -44,6 +44,9 @@ public:
     setUniformFloat(std::string const& name, float) -> void;
 
     auto
+    setUniformUInt(std::string const& name, unsigned int) -> void;
+
+    auto
     setUniformInt(std::string const& name, int) -> void;
 
     auto

@@ -34,8 +34,8 @@ Mesh::Mesh()
 auto
 Mesh::render() -> void
 {
-    if(m_texture != nullptr) {
-        m_texture->activate();
+    for(auto& texture : m_textures) {
+        texture->activate();
     }
 
     glBindVertexArray(m_vao);
@@ -78,9 +78,9 @@ Mesh::setIndices(std::vector<GLuint> const& indices) -> void
 }
 
 auto
-Mesh::setTexture(std::shared_ptr<Texture> texture) -> void
+Mesh::addTexture(std::shared_ptr<Texture> texture) -> void
 {
-    m_texture = std::move(texture);
+    m_textures.emplace_back(std::move(texture));
 }
 
 auto
@@ -90,4 +90,5 @@ swap(Mesh& a, Mesh& b) -> void
     std::swap(a.m_attributes, b.m_attributes);
     std::swap(a.m_ebo, b.m_ebo);
     std::swap(a.m_nrVertices, b.m_nrVertices);
+    std::swap(a.m_textures, b.m_textures);
 }

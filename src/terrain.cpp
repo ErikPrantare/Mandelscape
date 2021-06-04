@@ -78,9 +78,18 @@ Terrain::Terrain()
     auto textureArgs           = TextureArgs();
     textureArgs.imagePath      = "textures/texture.png";
     textureArgs.generateMipmap = true;
+    textureArgs.unit           = GL_TEXTURE0;
     auto texture               = std::make_shared<Texture>(textureArgs);
-    m_mesh.setTexture(texture);
-    m_loadingMesh.setTexture(texture);
+    m_mesh.addTexture(texture);
+    m_loadingMesh.addTexture(texture);
+
+    auto textureArgs2           = TextureArgs();
+    textureArgs2.imagePath      = "textures/clouds.png";
+    textureArgs2.generateMipmap = true;
+    textureArgs2.unit           = GL_TEXTURE1;
+    // auto texture2               = std::make_shared<Texture>(textureArgs2);
+    // m_mesh.addTexture(texture2);
+    // m_loadingMesh.addTexture(texture2);
 
     auto meshIndices = generateMeshIndices();
     m_mesh.setIndices(meshIndices);

@@ -24,10 +24,12 @@ in float distance;
 in float preCalculated;
 in float inside;
 in vec3 normal;
-in vec3 point;
+in vec3 worldPosition;
 out vec4 fragColor;
 
-uniform sampler2D tex;
+uniform sampler2D stripes;
+uniform samplerCube skybox;
+
 uniform vec2 offset;
 uniform int iterations;
 uniform float colorFrequency;

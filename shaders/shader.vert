@@ -34,13 +34,13 @@ out float distance;
 out float preCalculated;
 out float inside;
 out vec3 normal;
-out vec3 point;
+out vec3 worldPosition;
 
 void
 main()
 {
     gl_Position = cameraSpace * vec4(pos.x, yScale*pos.y, pos.z, 1.0);
-    point = pos.xyz;
+    worldPosition = pos.xyz;
 
     position = pos.xz;
     distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));

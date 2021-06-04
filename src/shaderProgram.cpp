@@ -80,20 +80,6 @@ ShaderProgram::compile()
                 + errorLog.data());
     }
 
-    glValidateProgram(m_address);
-    glGetProgramiv(m_address, GL_VALIDATE_STATUS, &success);
-    if(success == 0) {
-        auto errorLog = std::array<GLchar, 1024>();
-        glGetProgramInfoLog(
-                m_address,
-                errorLog.size(),
-                nullptr,
-                errorLog.data());
-
-        throw std::runtime_error(
-                std::string{"Invalid shader program: "} + errorLog.data());
-    }
-
     glUseProgram(m_address);
 }
 
@@ -115,6 +101,12 @@ void
 ShaderProgram::setUniformFloat(const std::string& name, float const x)
 {
     glUniform1f(uniformLocation(name), x);
+}
+
+void
+ShaderProgram::setUniformUInt(const std::string& name, unsigned int const x)
+{
+    glUniform1ui(uniformLocation(name), x);
 }
 
 void

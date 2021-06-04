@@ -66,6 +66,48 @@ auto
 initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
 auto
+loadCubemap(std::vector<std::string> faces) -> unsigned int
+{
+    unsigned int textureID = GL_TEXTURE2;
+
+    glActiveTexture(textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width      = 0;
+    int height     = 0;
+    int nrChannels = 0;
+    for(unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char* data =
+                stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if(data != nullptr) {
+            glTexImage2D(
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                    0,
+                    GL_RGB,
+                    width,
+                    height,
+                    0,
+                    GL_RGB,
+                    GL_UNSIGNED_BYTE,
+                    data);
+            stbi_image_free(data);
+        }
+        else {
+            std::cout << "Cubemap tex failed to load at path: " << faces[i]
+                      << std::endl;
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
+}
+
+auto
 main(int argc, char* argv[]) -> int
 try {
     auto const args = std::vector(argv, argv + argc);
@@ -108,6 +150,8 @@ try {
             "normal_",
             Terrain::normalAttributeLocation);
 
+    shaderProgram.setUniformInt("clouds", 1);
+    shaderProgram.setUniformInt("skybox", 2);
     auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();
 
@@ -117,7 +161,18 @@ try {
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
 
+    auto const skybox = loadCubemap({
+            "textures/skybox/right.jpg",
+            "textures/skybox/left.jpg",
+            "textures/skybox/top.jpg",
+            "textures/skybox/bottom.jpg",
+            "textures/skybox/front.jpg",
+            "textures/skybox/back.jpg",
+    });
+
     while(window.update()) {
+        shaderProgram.setUniformInt("clouds", 0);
+        shaderProgram.setUniformInt("skybox", 2);
         double const currentTimepoint = glfwGetTime();
         double const dt               = currentTimepoint - lastTimepoint;
         lastTimepoint                 = currentTimepoint;
@@ -160,6 +215,7 @@ try {
             terrain.setIterations(uniformController.iterations());
         }
 
+        shaderProgram.setUniformUInt("skybox", skybox);
         shaderController.update(shaderProgram);
         uniformController.update(&shaderProgram);
         shaderProgram.setUniformFloat("time", static_cast<float>(time));
@@ -212,7 +268,7 @@ renderScene(
     program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program->setUniformMatrix4("projection", camera.projection());
     program->setUniformVec3("lookAt", lookAt);
-    program->setUniformVec3("playerPos", player.position);
+    program->setUniformVec3("playerPos", cameraPosition);
 }
 
 auto operator""_nfd(char const* str, size_t size)

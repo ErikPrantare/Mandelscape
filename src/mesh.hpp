@@ -106,7 +106,7 @@ public:
     }
 
     auto
-    setTexture(std::shared_ptr<Texture> texture) -> void;
+    addTexture(std::shared_ptr<Texture> texture) -> void;
 
     friend auto
     swap(Mesh&, Mesh&) -> void;
@@ -123,7 +123,7 @@ private:
 
     std::map<int, Attribute> m_attributes = {};
 
-    std::shared_ptr<Texture> m_texture = nullptr;
+    std::vector<std::shared_ptr<Texture>> m_textures;
 };
 
 auto

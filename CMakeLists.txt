@@ -39,12 +39,10 @@ option(BUILD_TESTING OFF)
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-file(TOUCH ${CMAKE_BINARY_DIR}/compile_commands.json)
-file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
-
-configure_file(${CMAKE_BINARY_DIR}/compile_commands.json 
-    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-    COPYONLY)
+add_custom_target(copy-compile-commands ALL
+    ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${PROJECT_SOURCE_DIR}/compile_commands.json)
 
 #---------------------------git submodule setup--------------------------------
 option(UPDATE_SUBMODULES "Update git submodules before configuration" ON)

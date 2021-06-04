@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#line 18 2
+
 vec4
 addFog(const in vec4 color)
 {
@@ -32,24 +34,45 @@ addFog(const in vec4 color)
     return vec4(fog, fog, fog, 1.0) + (1.0 - fog) * color;
 }
 
+float
+illumination(in vec3 lightDir)
+{
+    lightDir = normalize(lightDir);
+
+    float ambient = 0.2;
+
+    float diffuse = max(0.0, dot(lightDir, normal));
+
+    vec3 lookingDirection = normalize(playerPos - worldPosition);
+    vec3 reflection = reflect(-lightDir, normal);
+    float specular =
+        0.5 * pow(max(dot(lookingDirection, reflection), 0.0), 32);
+
+    return ambient + diffuse + specular;
+}
+
+vec4
+mirrorColor()
+{
+    vec3 lookingDirection = normalize(playerPos - worldPosition);
+    vec3 reflection = reflect(-lookingDirection, normal);
+    vec4 color = texture(skybox, reflection);
+    return vec4(vec3(0.33*(color.r+color.g+color.b)), 1.0);
+}
+
 vec4
 addLighting(const in vec4 color)
 {
     if(!lighting) {
         return color;
     }
-    vec3 lightDir = vec3(0.0, 2.0, 0.0);
-    lightDir = normalize(lightDir);
-    float illumination = 0.2 + max(0.0, dot(lightDir, normal));
-    illumination = pow(illumination, 1.0/2.2);
 
-    vec3 dir = normalize(playerPos - point);
-    vec3 refl = reflect(-lightDir, normal);
-    float spec = pow(max(dot(dir, refl), 0.0), 32);
-    illumination += 0.5 * spec;
+    float illumination = pow(illumination(vec3(0.0, 1.0, 0.0)), 1.0/2.2);
+    
+    vec4 terrainColor = clamp(vec4(0.0), vec4(1.0), illumination * color);
+    float reflectionStrength = 0.1;
 
-    //illumination = clamp(0.0, 1.0, illumination);
-    return clamp(vec4(0.0), vec4(1.0), illumination * color);
+    return mix(terrainColor, mirrorColor(), reflectionStrength);
 }
 
 void

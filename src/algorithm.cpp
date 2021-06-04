@@ -29,13 +29,13 @@ mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData
     // main cardioid check
     auto const q = pow(c.real() - 0.25, 2.0) + c.imag() * c.imag();
     if(q * (q + (c.real() - 0.25)) < 0.25 * c.imag() * c.imag()) {
-        return {0.0, -1.0, true};
+        return {0.0, static_cast<double>(iterations), true};
     }
 
     // period-2 bulb check
     if((c.real() + 1.0) * (c.real() + 1.0) + c.imag() * c.imag()
        < 0.25 * 0.25) {
-        return {0.0, -1.0, true};
+        return {0.0, static_cast<double>(iterations), true};
     }
 
     for(int i = 0; i < iterations; ++i) {
@@ -58,7 +58,7 @@ mandelbrot(glm::dvec2 const& pos, int iterations) noexcept -> PointData
         }
     }
 
-    return {0.0, -1.0, true};
+    return {0.0, static_cast<double>(iterations), true};
 }
 
 LuaFunction::LuaFunction(std::string const& code) noexcept(false) :

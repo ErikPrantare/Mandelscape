@@ -47,6 +47,8 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 - H: Allow for deeper zooms. Will increase lag 
         (fast mode is recommended between rendering images).
 
+- L: Toggle lighting effects.
+
 - O: Toggle autozoom.
 
 - C: Toggle autowalk.
