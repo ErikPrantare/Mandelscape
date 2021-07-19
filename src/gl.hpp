@@ -27,8 +27,7 @@
 namespace gl::destructor {
 
 // CPP20 decltype(lambda)
-class Fbo {
-public:
+struct Fbo {
     static auto
     destroy(GLuint address) noexcept -> void
     {
@@ -36,8 +35,7 @@ public:
     }
 };
 
-class Texture {
-public:
+struct Texture {
     static auto
     destroy(GLuint address) noexcept -> void
     {

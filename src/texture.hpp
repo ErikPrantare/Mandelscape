@@ -34,10 +34,16 @@ struct TextureArgs {
     bool generateMipmap = false;
 };
 
+struct CubemapArgs {
+    std::array<std::string, 6> facePaths;
+    GLenum unit = GL_TEXTURE0;
+};
+
 // OpenGL Texture2D
 class Texture {
 public:
     Texture(TextureArgs const& args) noexcept(false);
+    Texture(CubemapArgs const& args) noexcept(false);
 
     auto
     activate() -> void;
