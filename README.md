@@ -22,13 +22,13 @@ If everything built correctly, the program can now be run with `./Mandelscape`
 https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 ## Controls
-- WASD + mouse: Walk and look around.
+- WASD + Mouse: Walk and look around.
 
 - P: Toggle pause(releases mouse).
 
-- left/right mouse button: Shrink/grow.
+- Left/Right mouse button: Shrink/grow.
 
-- Q/escape: Quit.
+- Q/Escape: Quit.
 
 - CTRL+S/CTRL+O: Save/load state.
 
@@ -36,9 +36,9 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 - J/K: Change iteration count.
 
-- 1-4 + up/down: Change colors.
+- 1-4 + Up/Down: Change colors.
 
-- 5 + up/down: Change terrain y scale.
+- 5 + Up/Down: Change terrain y scale.
 
 - X: Render image. Will be put inside directory named screenshots.
 
