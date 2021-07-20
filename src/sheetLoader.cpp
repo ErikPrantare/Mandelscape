@@ -6,9 +6,11 @@ auto
 calculateNormal(Points& points) -> void
 {
     int const granularity = static_cast<int>(std::sqrt(points.size));
+
     for(auto& n : points.normal) {
         n = {0.0, 0.0, 0.0};
     }
+
     for(int x = 0; x < granularity - 1; x++) {
         for(int z = 0; z < granularity - 1; z++) {
             auto const p1 = points.position[z + granularity * x];
@@ -27,6 +29,7 @@ calculateNormal(Points& points) -> void
             points.normal[z + (x + 1) * granularity] += normal;
         }
     }
+
     for(int x = 0; x < granularity - 1; x++) {
         for(int z = 0; z < granularity - 1; z++) {
             auto const p1 = points.position[(z + 1) + granularity * x];
@@ -40,9 +43,9 @@ calculateNormal(Points& points) -> void
             if(normal.y < 0.0) {
                 normal = -normal;
             }
-            points.normal[(z + 1) + granularity * x] += 0.125f * normal;
-            points.normal[(z + 1) + granularity * (x + 1)] += 0.125f * normal;
-            points.normal[z + granularity * (x + 1)] += 0.125f * normal;
+            points.normal[(z + 1) + granularity * x] += normal;
+            points.normal[(z + 1) + granularity * (x + 1)] += normal;
+            points.normal[z + granularity * (x + 1)] += normal;
         }
     }
 }
@@ -73,16 +76,16 @@ SheetLoader::createProcess(Args&& args) -> std::future<std::unique_ptr<Points>>
 
 SheetLoader::SheetLoader(Args&& args) : m_args(std::move(args))
 {
-    // The mesh points need to be clamped in such a way that
-    // reloading yields a smooth transition without any jumps.
+    // The mesh points need to be quantized in such a way that
+    // reloading of the mesh yields a smoother transition without sudden jumps.
 
     auto constexpr doublingInterval = 40;
 
     // Take longer steps for indices far away from middle
-    auto const unscaledStepSize = [this](int i) {
+    auto const unscaledStepSize = [this](int i) -> double {
         return std::pow(
                 2.0,
-                std::abs(i - m_args.granularity / 2) / doublingInterval);
+                std::abs<int>(i - m_args.granularity / 2) / doublingInterval);
     };
 
     // CPP20 use ranges
@@ -123,7 +126,8 @@ SheetLoader::SheetLoader(Args&& args) : m_args(std::move(args))
 auto
 SheetLoader::operator()() -> void
 {
-    size_t nrVertices = m_args.granularity * m_args.granularity;
+    size_t const nrVertices =
+            static_cast<size_t>(m_args.granularity) * m_args.granularity;
     if(m_args.buffer->size != nrVertices) {
         resize(*m_args.buffer, nrVertices);
     }

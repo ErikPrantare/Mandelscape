@@ -112,7 +112,7 @@ LuaFunction::operator()(glm::dvec2 const& pos, int iterations) noexcept(false)
 auto
 fromLua(std::string const& code) noexcept(false) -> std::function<Signature>
 {
-    // ugly hack, but std::function must be copyable which LuaFunction isn't
+    // Wrap in a shared_ptr to make the function copyable
     auto f = std::make_shared<LuaFunction>(LuaFunction(code));
     return [f = std::move(f)](glm::dvec2 const& pos, int iterations) {
         return (*f)(pos, iterations);

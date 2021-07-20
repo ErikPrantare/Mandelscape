@@ -47,7 +47,7 @@ main()
 
     preCalculated = value;
     inside = inside_ != 0 ? 1.0 : 0.0;
-    normal = normalize(normal_);
+    normal = normal_;
     normal.xz *= yScale;
     normal = normalize(normal);
 

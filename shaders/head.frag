@@ -36,7 +36,7 @@ uniform float colorFrequency;
 uniform vec3 colorOffset;
 
 uniform bool fastMode;
-uniform bool lighting;
+uniform bool renderLighting;
 
 uniform float time;
 uniform vec3 lookAt;

@@ -19,6 +19,7 @@
 #include <tuple>
 #include <stdexcept>
 #include <filesystem>
+#include <utility>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -29,7 +30,6 @@
 
 #define NFD_NATIVE
 #include <nfd.hpp>
-#include <utility>
 
 #include "util.hpp"
 #include "camera.hpp"
@@ -132,7 +132,7 @@ try {
             skyboxTextureUnit});
 
     while(window.update()) {
-        shaderProgram.setUniformUInt("skybox", 2);
+        shaderProgram.setUniformUInt("skybox", skyboxTextureUnit);
         double const currentTimepoint = glfwGetTime();
         double const dt               = currentTimepoint - lastTimepoint;
         lastTimepoint                 = currentTimepoint;
@@ -164,7 +164,7 @@ try {
             uniformController.updateState(persistentMap, dt);
 
             auto const pos = PlayerHelper(player).truePosition();
-            terrain.updateMesh(pos.x, pos.z, 1.0 / player.scale);
+            terrain.updateMesh({pos.x, pos.z}, 1.0 / player.scale);
             PlayerHelper(player).updateOffset(terrain.offset());
             player.position.y = terrain.heightAt({pos.x, pos.z});
             metaController.update(&player, dt);
@@ -188,15 +188,17 @@ try {
 catch(std::exception const& e) {
     std::cerr << e.what() << std::endl;
     std::cerr << "Unexpected error, please create an issue at "
-              << "https://github.com/ErikPrantare/Mandelscape"
-              << " detailing the cause, or contact patched on FractalForums\n";
+              << "https://github.com/ErikPrantare/Mandelscape "
+              << "detailing the cause, or contact patched on FractalForums, "
+              << "or send a mail to erik@prantare.xyz\n";
 
     return 1;
 }
 catch(...) {
     std::cerr << "Unexpected error, please create an issue at "
-              << "https://github.com/ErikPrantare/Mandelscape"
-              << " detailing the cause, or contact patched on FractalForums\n";
+              << "https://github.com/ErikPrantare/Mandelscape "
+              << "detailing the cause, or contact patched on FractalForums, "
+              << "or sand a mail to erik@prantare.xyz\n";
 
     return 1;
 }

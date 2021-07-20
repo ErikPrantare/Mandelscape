@@ -44,7 +44,7 @@ public:
     Terrain();
 
     auto
-    updateMesh(double x, double z, double scale) -> void;
+    updateMesh(glm::dvec2 middle, double scale) -> void;
 
     [[nodiscard]] auto
     heightAt(glm::dvec2 const&) -> double;
@@ -89,7 +89,7 @@ private:
     size_t m_uploadIndex = 0;
 
     std::unique_ptr<Points> m_buffer{new Points{}};
-    std::future<std::unique_ptr<Points>> m_loader;
+    std::future<std::unique_ptr<Points>> m_meshPoints;
 
     static auto
     generateMeshIndices() -> std::vector<GLuint>;

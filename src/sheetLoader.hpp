@@ -30,7 +30,9 @@ struct Points {
     std::vector<glm::vec3> position;
     std::vector<float> value;
 
-    // int instead of bool because of vector<bool> specialization
+    // int instead of bool because of vector<bool> specialization.
+    // The bool specialization would make it impossible to transfer the
+    // individual elements to the GPU.
     std::vector<int> inside;
     std::vector<glm::vec3> normal;
 

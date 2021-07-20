@@ -42,52 +42,45 @@ Terrain::createLoaderArgs() -> SheetLoader::Args
     loaderArgs.function    = m_pointData;
     loaderArgs.buffer      = std::move(m_buffer);
 
-    return {std::move(loaderArgs)};
+    return loaderArgs;
 }
 
 Terrain::Terrain()
 {
-    m_loader = SheetLoader::createProcess(createLoaderArgs());
-    m_buffer = m_loader.get();
+    m_meshPoints = SheetLoader::createProcess(createLoaderArgs());
+    m_buffer     = m_meshPoints.get();
 
-    // position
-    m_mesh.newAttribute<glm::vec3>(positionAttributeLocation);
-    m_loadingMesh.newAttribute<glm::vec3>(positionAttributeLocation);
-    m_mesh.setAttribute(positionAttributeLocation, m_buffer->position);
-    m_loadingMesh.setAttribute(positionAttributeLocation, m_buffer->position);
+    // CPP20 std::vector<T> attributeBuffer
+    auto const initAttribute = [this](auto const& attributeBuffer,
+                                      auto const attributeLocation) {
+        using ValueType = typename std::remove_reference_t<
+                decltype(attributeBuffer)>::value_type;
 
-    // value
-    m_mesh.newAttribute<GLfloat>(valueAttributeLocation);
-    m_loadingMesh.newAttribute<GLfloat>(valueAttributeLocation);
-    m_mesh.setAttribute(valueAttributeLocation, m_buffer->value);
-    m_loadingMesh.setAttribute(valueAttributeLocation, m_buffer->value);
+        m_mesh.newAttribute<ValueType>(attributeLocation);
+        m_loadingMesh.newAttribute<ValueType>(attributeLocation);
+        m_mesh.setAttribute(attributeLocation, attributeBuffer);
+        m_loadingMesh.setAttribute(attributeLocation, attributeBuffer);
+    };
 
-    // inside
-    m_mesh.newAttribute<GLint>(insideAttributeLocation);
-    m_loadingMesh.newAttribute<GLint>(insideAttributeLocation);
-    m_mesh.setAttribute(insideAttributeLocation, m_buffer->inside);
-    m_loadingMesh.setAttribute(insideAttributeLocation, m_buffer->inside);
-
-    // normal
-    m_mesh.newAttribute<glm::vec3>(normalAttributeLocation);
-    m_loadingMesh.newAttribute<glm::vec3>(normalAttributeLocation);
-    m_mesh.setAttribute(normalAttributeLocation, m_buffer->normal);
-    m_loadingMesh.setAttribute(normalAttributeLocation, m_buffer->normal);
+    initAttribute(m_buffer->position, positionAttributeLocation);
+    initAttribute(m_buffer->value, valueAttributeLocation);
+    initAttribute(m_buffer->inside, insideAttributeLocation);
+    initAttribute(m_buffer->normal, normalAttributeLocation);
 
     // CPP20 {.imagePath = ...}
     auto textureArgs           = TextureArgs();
-    textureArgs.imagePath      = "textures/texture.png";
+    textureArgs.imagePath      = "textures/stripes.png";
     textureArgs.generateMipmap = true;
     textureArgs.unit           = GL_TEXTURE0;
-    auto texture               = std::make_shared<Texture>(textureArgs);
-    m_mesh.addTexture(texture);
-    m_loadingMesh.addTexture(texture);
+    auto stripeTexture         = std::make_shared<Texture>(textureArgs);
+    m_mesh.addTexture(stripeTexture);
+    m_loadingMesh.addTexture(stripeTexture);
 
     auto meshIndices = generateMeshIndices();
     m_mesh.setIndices(meshIndices);
     m_loadingMesh.setIndices(meshIndices);
 
-    m_loader = SheetLoader::createProcess(createLoaderArgs());
+    m_meshPoints = SheetLoader::createProcess(createLoaderArgs());
 }
 
 auto
@@ -102,31 +95,25 @@ Terrain::uploadChunk() -> void
     auto const uploadSize =
             std::min(uploadChunkSize, (int)(m_buffer->size - m_uploadIndex));
 
-    m_loadingMesh.setAttribute(
-            positionAttributeLocation,
-            m_buffer->position,
-            m_uploadIndex,
-            uploadSize);
-    m_loadingMesh.setAttribute(
-            valueAttributeLocation,
-            m_buffer->value,
-            m_uploadIndex,
-            uploadSize);
-    m_loadingMesh.setAttribute(
-            insideAttributeLocation,
-            m_buffer->inside,
-            m_uploadIndex,
-            uploadSize);
-    m_loadingMesh.setAttribute(
-            normalAttributeLocation,
-            m_buffer->normal,
-            m_uploadIndex,
-            uploadSize);
+    auto const uploadAttribute = [uploadSize, this](
+                                         auto const& attributeBuffer,
+                                         auto const attributeLocation) {
+        m_loadingMesh.setAttribute(
+                attributeLocation,
+                attributeBuffer,
+                m_uploadIndex,
+                uploadSize);
+    };
+
+    uploadAttribute(m_buffer->position, positionAttributeLocation);
+    uploadAttribute(m_buffer->value, valueAttributeLocation);
+    uploadAttribute(m_buffer->inside, insideAttributeLocation);
+    uploadAttribute(m_buffer->normal, normalAttributeLocation);
     m_uploadIndex += uploadSize;
 }
 
 auto
-Terrain::updateMesh(double const x, double const z, double const scale) -> void
+Terrain::updateMesh(glm::dvec2 const middle, double const scale) -> void
 {
     if(m_uploading) {
         auto doneUploading = m_uploadIndex >= m_buffer->size;
@@ -141,14 +128,14 @@ Terrain::updateMesh(double const x, double const z, double const scale) -> void
         swap(m_mesh, m_loadingMesh);
 
         m_offset        = m_loadingOffset;
-        m_loadingOffset = {x, 0.0, z};
+        m_loadingOffset = {middle.x, 0.0, middle.y};
         m_scale         = scale;
 
-        m_loader = SheetLoader::createProcess(createLoaderArgs());
+        m_meshPoints = SheetLoader::createProcess(createLoaderArgs());
     }
-    else if(util::isDone(m_loader)) {
+    else if(util::isDone(m_meshPoints)) {
         m_uploadIndex = 0;
-        m_buffer      = m_loader.get();
+        m_buffer      = m_meshPoints.get();
         m_uploading   = true;
     }
 }
@@ -157,7 +144,7 @@ auto
 Terrain::generateMeshIndices() -> std::vector<GLuint>
 {
     std::vector<GLuint> meshIndices;
-    meshIndices.reserve(granularity * granularity * 6);
+    meshIndices.reserve(static_cast<size_t>(granularity) * granularity * 6);
 
     for(int x = 0; x < granularity - 1; x++) {
         for(int z = 0; z < granularity - 1; z++) {

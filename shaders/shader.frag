@@ -63,7 +63,7 @@ mirrorColor()
 vec4
 addLighting(const in vec4 color)
 {
-    if(!lighting) {
+    if(!renderLighting) {
         return color;
     }
 

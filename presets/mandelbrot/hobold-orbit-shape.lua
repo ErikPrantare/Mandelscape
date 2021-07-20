@@ -28,7 +28,7 @@ function cadd(a, b)
     return {a[1] + b[1], a[2] + b[2]}
 end
 
-function pointData (re, im, iters)
+function pointData(re, im, iters)
     dz = {0, 0}
     z = {0, 0}
     c = {re, im}
@@ -56,7 +56,10 @@ function pointData (re, im, iters)
             dr = math.sqrt(dz[1]*dz[1] + dz[2]*dz[2])
             de = 2.0 * r * math.log(r) / dr
 
-            return {height = de*(1.0-minDist/nextMinDist), value = minIter, inside = false}
+            return {
+                height = de*(1.0-minDist/nextMinDist),
+                value = minIter,
+                inside = false}
         end
     end
         

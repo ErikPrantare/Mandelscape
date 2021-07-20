@@ -121,7 +121,7 @@ private:
     gl::Ebo m_ebo       = 0;
     size_t m_nrVertices = 0;
 
-    std::map<int, Attribute> m_attributes = {};
+    std::map<int, Attribute> m_attributes;
 
     std::vector<std::shared_ptr<Texture>> m_textures;
 };
