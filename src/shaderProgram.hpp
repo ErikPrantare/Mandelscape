@@ -59,6 +59,8 @@ public:
     setUniformMatrix4(std::string const& name, glm::mat4 const& value) -> void;
 
 private:
+    GLuint m_fragmentShaderAddress = 0;
+    GLuint m_vertexShaderAddress   = 0;
     gl::ShaderProgram m_address;
 
     [[nodiscard]] auto

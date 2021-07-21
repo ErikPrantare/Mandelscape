@@ -13,9 +13,11 @@ cppcoreguidelines-*,
 -cppcoreguidelines-pro-bounds-constant-array-index,
 -cppcoreguidelines-pro-bounds-pointer-arithmetic,
 
+bugprone-*,
+-bugprone-easily-swappable-parameters,
+
 modernize-*,
 performance-*,
-bugprone-*,
 misc-*'
 
 CheckOptions:

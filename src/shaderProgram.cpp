@@ -30,33 +30,16 @@ ShaderProgram::ShaderProgram() noexcept(false) : m_address(glCreateProgram())
     }
 }
 
-static void
-attachVertexShader(GLuint const program, GLuint const shader)
-{
-    static GLuint currentVertexShader = 0;
-    glDetachShader(program, currentVertexShader);
-    glAttachShader(program, shader);
-    currentVertexShader = shader;
-}
-
-static void
-attachFragmentShader(GLuint const program, GLuint const shader)
-{
-    static GLuint currentFragmentShader = 0;
-    glDetachShader(program, currentFragmentShader);
-    glAttachShader(program, shader);
-    currentFragmentShader = shader;
-}
-
 void
 ShaderProgram::attachShader(GLuint const shader, GLenum const shaderType)
 {
-    if(shaderType == GL_VERTEX_SHADER) {
-        attachVertexShader(m_address, shader);
-    }
-    else {
-        attachFragmentShader(m_address, shader);
-    }
+    GLuint* currentShader = shaderType == GL_VERTEX_SHADER
+                                    ? &m_vertexShaderAddress
+                                    : &m_fragmentShaderAddress;
+
+    glDetachShader(m_address, *currentShader);
+    glAttachShader(m_address, shader);
+    *currentShader = shader;
 }
 
 void

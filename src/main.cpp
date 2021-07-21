@@ -226,7 +226,9 @@ renderScene(
                                 {1.0, 0.0, 0.0})
                         * glm::dvec4(0.0, 0.0, 1.0, 0.0);
 
-    auto const camera = Camera(cameraPosition, lookAt, viewSize, player.scale);
+    // CPP20 {.x = ...}
+    auto const camera =
+            Camera({cameraPosition, lookAt, viewSize, player.scale});
     program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program->setUniformMatrix4("projection", camera.projection());
     program->setUniformVec3("lookAt", lookAt);

@@ -201,7 +201,9 @@ Window::screenshot()
     auto const outputSize = inputSize / 2;
     auto const pixels     = m_screenshotBuffer->readPixels();
 
-    std::vector<unsigned char> aa(3 * outputSize.x * outputSize.y);
+    // CPP23 3z * outputSize.x
+    std::vector<unsigned char> aa(
+            3 * static_cast<long>(outputSize.x) * outputSize.y);
 
     stbir_resize_uint8(
             pixels.data(),

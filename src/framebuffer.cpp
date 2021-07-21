@@ -77,7 +77,9 @@ Framebuffer::readPixels() -> std::vector<unsigned char>
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    std::vector<unsigned char> pixels(3 * m_size.x * m_size.y);
+    // CPP23 size_t suffix (3z)
+    std::vector<unsigned char> pixels(
+            3 * static_cast<size_t>(m_size.x) * m_size.y);
 
     glReadPixels(
             0,

@@ -25,12 +25,16 @@
 
 class Camera {
 public:
+    struct Args {
+        glm::dvec3 position;
+        glm::dvec3 lookAt;
+        glm::ivec2 viewSize;
+        double scale;
+    };
+
     Camera() = delete;
 
-    Camera(glm::dvec3 position,
-           glm::dvec3 lookAt,
-           glm::ivec2 viewSize,
-           double scale);
+    Camera(Args const& args);
 
     [[nodiscard]] auto
     projection() const -> glm::dmat4;

@@ -24,15 +24,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(
-        glm::dvec3 const position,
-        glm::dvec3 const lookAt,
-        glm::ivec2 const viewSize,
-        double scale) :
-            m_viewSize(viewSize),
-            m_pos(position),
-            m_lookAt(normalize(lookAt)),
-            m_worldScale(scale)
+Camera::Camera(Args const& args) :
+            m_viewSize(args.viewSize),
+            m_pos(args.position),
+            m_lookAt(normalize(args.lookAt)),
+            m_worldScale(args.scale)
 {}
 
 auto
