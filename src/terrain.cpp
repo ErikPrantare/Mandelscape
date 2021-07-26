@@ -70,8 +70,9 @@ Terrain::Terrain()
     // CPP20 {.imagePath = ...}
     auto textureArgs           = TextureArgs();
     textureArgs.imagePath      = "textures/stripes.png";
+    textureArgs.uniformName    = "stripes";
     textureArgs.generateMipmap = true;
-    textureArgs.unit           = GL_TEXTURE0;
+    textureArgs.index          = 1;
     auto stripeTexture         = std::make_shared<Texture>(textureArgs);
     m_mesh.addTexture(stripeTexture);
     m_loadingMesh.addTexture(stripeTexture);
@@ -182,10 +183,10 @@ Terrain::offset() const noexcept -> glm::dvec3
 }
 
 auto
-Terrain::render(ShaderProgram* shaderProgram) -> void
+Terrain::render(ShaderProgram& shaderProgram) -> void
 {
-    shaderProgram->setUniformInt("iterations", m_iterations);
-    shaderProgram->setUniformVec2("offset", {m_offset.x, m_offset.z});
+    shaderProgram.setUniformInt("iterations", m_iterations);
+    shaderProgram.setUniformVec2("offset", {m_offset.x, m_offset.z});
 
-    m_mesh.render();
+    m_mesh.render(shaderProgram);
 }

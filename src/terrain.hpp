@@ -53,7 +53,7 @@ public:
     offset() const noexcept -> glm::dvec3;
 
     auto
-    render(ShaderProgram* shaderProgram) -> void;
+    render(ShaderProgram& shaderProgram) -> void;
 
     auto
     loadLua(std::string const& code) -> void;

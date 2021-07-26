@@ -25,18 +25,21 @@
 #include <glm/glm.hpp>
 
 #include "gl.hpp"
+#include "shaderProgram.hpp"
 
 struct TextureArgs {
     glm::ivec2 size{0, 0};
-    GLenum unit  = GL_TEXTURE0;
+    GLint index  = 0;
     GLint format = GL_RGBA;
     std::string imagePath;
     bool generateMipmap = false;
+    std::string uniformName;
 };
 
 struct CubemapArgs {
     std::array<std::string, 6> facePaths;
-    GLenum unit = GL_TEXTURE0;
+    GLint index = 0;
+    std::string uniformName;
 };
 
 // OpenGL Texture2D
@@ -46,15 +49,19 @@ public:
     Texture(CubemapArgs const& args) noexcept(false);
 
     auto
-    activate() -> void;
+    activateOn(ShaderProgram& shaderProgram) -> void;
 
     auto
     get() noexcept -> GLuint;
 
 private:
-    gl::Texture m_address;
+    auto
+    bind() -> void;
 
-    GLenum m_textureUnit;
+    gl::Texture m_address;
+    GLint m_index;
+    GLenum m_type;
+    std::string m_uniformName;
 };
 
 #endif    // MANDELLANDSCAPE_TEXTURE_HPP

@@ -35,7 +35,9 @@ generateTexture() -> GLuint
 
 Texture::Texture(TextureArgs const& args) :
             m_address(generateTexture()),
-            m_textureUnit(args.unit)
+            m_index(args.index),
+            m_type(GL_TEXTURE_2D),
+            m_uniformName(args.uniformName)
 {
     unsigned char* image = nullptr;
     glm::ivec2 size      = args.size;
@@ -54,8 +56,8 @@ Texture::Texture(TextureArgs const& args) :
         }
     }
 
-    glActiveTexture(m_textureUnit);
-    glBindTexture(GL_TEXTURE_2D, m_address);
+    bind();
+
     glTexImage2D(
             GL_TEXTURE_2D,
             0,
@@ -70,6 +72,7 @@ Texture::Texture(TextureArgs const& args) :
     if(args.generateMipmap) {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -77,38 +80,36 @@ Texture::Texture(TextureArgs const& args) :
 }
 
 Texture::Texture(CubemapArgs const& args) noexcept(false) :
-            m_textureUnit(args.unit)
+            m_address(generateTexture()),
+            m_index(args.index),
+            m_type(GL_TEXTURE_CUBE_MAP),
+            m_uniformName(args.uniformName)
 {
-    GLenum textureUnit = args.unit;
-
-    glActiveTexture(textureUnit);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureUnit);
+    bind();
 
     int width         = 0;
     int height        = 0;
     int nrChannels    = 0;
     auto const& faces = args.facePaths;
     for(unsigned int i = 0; i < faces.size(); i++) {
-        unsigned char* data =
+        unsigned char* image =
                 stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-        if(data != nullptr) {
-            glTexImage2D(
-                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                    0,
-                    GL_RGB,
-                    width,
-                    height,
-                    0,
-                    GL_RGB,
-                    GL_UNSIGNED_BYTE,
-                    data);
-            stbi_image_free(data);
-        }
-        else {
+        if(image == nullptr) {
             std::cout << "Cubemap tex failed to load at path: " << faces[i]
                       << std::endl;
-            stbi_image_free(data);
         }
+
+        glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0,
+                GL_RGB,
+                width,
+                height,
+                0,
+                GL_RGB,
+                GL_UNSIGNED_BYTE,
+                image);
+        stbi_image_free(image);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -118,10 +119,17 @@ Texture::Texture(CubemapArgs const& args) noexcept(false) :
 }
 
 auto
-Texture::activate() -> void
+Texture::bind() -> void
 {
-    glActiveTexture(m_textureUnit);
-    glBindTexture(GL_TEXTURE_2D, m_address);
+    glActiveTexture(GL_TEXTURE0 + m_index);
+    glBindTexture(m_type, m_address);
+}
+
+auto
+Texture::activateOn(ShaderProgram& shaderProgram) -> void
+{
+    glActiveTexture(GL_TEXTURE0 + m_index);
+    shaderProgram.setUniformInt(m_uniformName, m_index);
 }
 
 auto

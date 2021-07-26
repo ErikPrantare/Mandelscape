@@ -34,7 +34,7 @@ public:
     Mesh();
 
     auto
-    render() -> void;
+    render(ShaderProgram& shaderProgram) -> void;
 
     auto
     setIndices(std::vector<GLuint> const& indices) -> void;

@@ -58,16 +58,13 @@ public:
     auto
     setUniformMatrix4(std::string const& name, glm::mat4 const& value) -> void;
 
+    [[nodiscard]] auto
+    uniformLocation(const std::string& name) const -> GLint;
+
 private:
     GLuint m_fragmentShaderAddress = 0;
     GLuint m_vertexShaderAddress   = 0;
     gl::ShaderProgram m_address;
-
-    [[nodiscard]] auto
-    uniformLocation(const std::string& name) const -> GLint;
-
-    [[nodiscard]] auto
-    getLocation(std::string const& path, GLenum shaderType) const -> GLuint;
 };
 
 #endif

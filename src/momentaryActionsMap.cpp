@@ -47,19 +47,21 @@ MomentaryActionsMap::getActions(MouseMove mouse) -> std::set<MomentaryAction>
     return {MouseDelta{mouse.dx, mouse.dy}};
 }
 
-auto MomentaryActionsMap::getActions(KeyUp /*key*/)
+auto
+MomentaryActionsMap::getActions(KeyUp /*key*/) -> std::set<MomentaryAction>
+{
+    return {};
+}
+
+auto
+MomentaryActionsMap::getActions(MouseButtonUp /*mouse*/)
         -> std::set<MomentaryAction>
 {
     return {};
 }
 
-auto MomentaryActionsMap::getActions(MouseButtonUp /*mouse*/)
-        -> std::set<MomentaryAction>
-{
-    return {};
-}
-
-auto MomentaryActionsMap::getActions(MouseButtonDown /*mouse*/)
+auto
+MomentaryActionsMap::getActions(MouseButtonDown /*mouse*/)
         -> std::set<MomentaryAction>
 {
     return {};

@@ -32,10 +32,10 @@ Mesh::Mesh()
 }
 
 auto
-Mesh::render() -> void
+Mesh::render(ShaderProgram& shaderProgram) -> void
 {
     for(auto& texture : m_textures) {
-        texture->activate();
+        texture->activateOn(shaderProgram);
     }
 
     glBindVertexArray(m_vao);

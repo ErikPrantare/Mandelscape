@@ -118,9 +118,8 @@ try {
     auto time            = 0.0;
     double lastTimepoint = glfwGetTime();
 
-    auto constexpr skyboxTextureUnit = GL_TEXTURE2;
     // CPP20 {.x = ...}
-    auto const skybox = Texture(CubemapArgs{
+    auto skybox = Texture(CubemapArgs{
             {
                     "textures/skybox/right.jpg",
                     "textures/skybox/left.jpg",
@@ -129,10 +128,10 @@ try {
                     "textures/skybox/front.jpg",
                     "textures/skybox/back.jpg",
             },
-            skyboxTextureUnit});
+            2,
+            "skybox"});
 
     while(window.update()) {
-        shaderProgram.setUniformUInt("skybox", skyboxTextureUnit);
         double const currentTimepoint = glfwGetTime();
         double const dt               = currentTimepoint - lastTimepoint;
         lastTimepoint                 = currentTimepoint;
@@ -175,12 +174,12 @@ try {
             terrain.setIterations(uniformController.iterations());
         }
 
-        shaderProgram.setUniformUInt("skybox", skyboxTextureUnit);
+        skybox.activateOn(shaderProgram);
         shaderController.update(shaderProgram);
         uniformController.update(&shaderProgram);
         shaderProgram.setUniformFloat("time", static_cast<float>(time));
         renderScene(player, window.size(), &shaderProgram, dt);
-        terrain.render(&shaderProgram);
+        terrain.render(shaderProgram);
     }
 
     return 0;
