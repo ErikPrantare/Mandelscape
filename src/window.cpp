@@ -89,7 +89,7 @@ Window::setCallbacks()
     glfwSetCursorPosCallback(m_window.get(), &cursorPositionCB);
     glfwSetKeyCallback(m_window.get(), &keyboardCB);
     glfwSetMouseButtonCallback(m_window.get(), &mouseButtonCB);
-    glfwSetWindowSizeCallback(m_window.get(), &resizeCB);
+    glfwSetFramebufferSizeCallback(m_window.get(), &resizeCB);
 }
 
 auto

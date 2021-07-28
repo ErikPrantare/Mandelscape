@@ -63,6 +63,12 @@ auto
 loadTerrain(Terrain&, ShaderController&, ShaderProgram&) -> void;
 
 auto
+saveImage(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void;
+
+auto
+saveFramebufferAntialiased(Framebuffer& buffer) -> void;
+
+auto
 initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
 
 auto
@@ -133,6 +139,21 @@ try {
             2,
             "skybox"});
 
+    auto render = [&skybox,
+                   &shaderController,
+                   &shaderProgram,
+                   &uniformController,
+                   &terrain,
+                   &player,
+                   &window](double currentTime, double dt) {
+        skybox.activateOn(shaderProgram);
+        shaderController.update(shaderProgram);
+        uniformController.update(&shaderProgram);
+        shaderProgram.setUniformFloat("time", static_cast<float>(currentTime));
+        renderScene(player, window.size(), &shaderProgram, dt);
+        terrain.render(shaderProgram);
+    };
+
     while(window.update()) {
         double const currentTimepoint = glfwGetTime();
         double const dt               = currentTimepoint - lastTimepoint;
@@ -155,66 +176,15 @@ try {
                     loadTerrain(terrain, shaderController, shaderProgram);
                     window.unpause();
                 }
-                if(action == MomentaryAction{Trigger::TakeScreenshot}) {
-                    // intro
+                else if(action == MomentaryAction{Trigger::TakeScreenshot}) {
                     auto screenshotBuffer = Framebuffer(2 * window.size());
                     screenshotBuffer.bind();
                     glViewport(0, 0, 2 * window.size().x, 2 * window.size().y);
 
-                    // render
-                    skybox.activateOn(shaderProgram);
-                    shaderController.update(shaderProgram);
-                    uniformController.update(&shaderProgram);
-                    shaderProgram.setUniformFloat(
-                            "time",
-                            static_cast<float>(time));
-                    renderScene(player, window.size(), &shaderProgram, dt);
-                    terrain.render(shaderProgram);
+                    render(time, dt);
 
-                    // outro
-                    auto const inputSize  = screenshotBuffer.size();
-                    auto const outputSize = inputSize / 2;
-                    auto const pixels     = screenshotBuffer.readPixels();
+                    saveFramebufferAntialiased(screenshotBuffer);
 
-                    // CPP23 3z * outputSize.x
-                    std::vector<unsigned char> aa(
-                            3 * static_cast<long>(outputSize.x)
-                            * outputSize.y);
-
-                    stbir_resize_uint8(
-                            pixels.data(),
-                            inputSize.x,
-                            inputSize.y,
-                            0,
-                            aa.data(),
-                            outputSize.x,
-                            outputSize.y,
-                            0,
-                            3);
-
-                    std::time_t const t = std::time(nullptr);
-                    std::tm const tm    = *std::localtime(&t);
-                    std::stringstream buffer;
-                    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
-
-                    namespace fs          = std::filesystem;
-                    std::string const dir = "screenshots";
-                    if(!fs::is_directory(dir) || !fs::exists(dir)) {
-                        fs::create_directory(dir);
-                    }
-
-                    std::string filename = dir + "/" + buffer.str() + ".png";
-
-                    stbi_flip_vertically_on_write(1);
-                    stbi_write_png(
-                            filename.c_str(),
-                            outputSize.x,
-                            outputSize.y,
-                            3,
-                            aa.data(),
-                            0);
-
-                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
                     Framebuffer::unbind();
                     glViewport(0, 0, window.size().x, window.size().y);
                 }
@@ -239,12 +209,7 @@ try {
             terrain.setIterations(uniformController.iterations());
         }
 
-        skybox.activateOn(shaderProgram);
-        shaderController.update(shaderProgram);
-        uniformController.update(&shaderProgram);
-        shaderProgram.setUniformFloat("time", static_cast<float>(time));
-        renderScene(player, window.size(), &shaderProgram, dt);
-        terrain.render(shaderProgram);
+        render(time, dt);
     }
 
     return 0;
@@ -394,6 +359,50 @@ loadTerrain(
     }
 }
 
+auto
+saveImage(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void
+{
+    std::time_t const t = std::time(nullptr);
+    std::tm const tm    = *std::localtime(&t);
+    std::stringstream buffer;
+    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
+
+    namespace fs          = std::filesystem;
+    std::string const dir = "screenshots";
+    if(!fs::is_directory(dir) || !fs::exists(dir)) {
+        fs::create_directory(dir);
+    }
+
+    std::string filename = dir + "/" + buffer.str() + ".png";
+
+    stbi_flip_vertically_on_write(1);
+    stbi_write_png(filename.c_str(), size.x, size.y, 3, pixels.data(), 0);
+}
+
+auto
+saveFramebufferAntialiased(Framebuffer& buffer) -> void
+{
+    auto const renderedSize    = buffer.size();
+    auto const antiAliasedSize = renderedSize / 2;
+    auto const pixels          = buffer.readPixels();
+
+    // CPP23 3z * outputSize.x
+    std::vector<unsigned char> antiAliasedImage(
+            3 * static_cast<long>(antiAliasedSize.x) * antiAliasedSize.y);
+
+    stbir_resize_uint8(
+            pixels.data(),
+            renderedSize.x,
+            renderedSize.y,
+            0,
+            antiAliasedImage.data(),
+            antiAliasedSize.x,
+            antiAliasedSize.y,
+            0,
+            3);
+
+    saveImage(antiAliasedImage, antiAliasedSize);
+}
 auto
 createSerializationController(
         Player& player,
