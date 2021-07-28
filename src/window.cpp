@@ -145,9 +145,21 @@ Window::paused() const noexcept -> bool
 }
 
 auto
-Window::pause(bool p) noexcept -> void
+Window::pause() noexcept -> void
 {
-    m_paused = p;
+    setPaused(true);
+}
+
+auto
+Window::unpause() noexcept -> void
+{
+    setPaused(false);
+}
+
+auto
+Window::setPaused(bool paused) noexcept -> void
+{
+    m_paused = paused;
     glfwSetInputMode(
             m_window.get(),
             GLFW_CURSOR,
@@ -157,7 +169,7 @@ Window::pause(bool p) noexcept -> void
 auto
 Window::togglePause() noexcept -> void
 {
-    pause(!m_paused);
+    setPaused(!m_paused);
 }
 
 auto

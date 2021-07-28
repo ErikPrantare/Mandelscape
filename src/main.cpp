@@ -149,9 +149,9 @@ try {
                 serializationController.handleMomentaryAction(action);
 
                 if(action == MomentaryAction{Trigger::LoadTerrainFunctions}) {
-                    window.pause(true);
+                    window.pause();
                     loadTerrain(terrain, shaderController, shaderProgram);
-                    window.pause(false);
+                    window.unpause();
                 }
             }
         }
@@ -337,18 +337,18 @@ createSerializationController(
 {
     return GenericController().withMomentary(
             [&player, &window, &uniformController](MomentaryAction action) {
-                auto const paused = window.paused();
+                auto const previouslyPaused = window.paused();
 
                 if(action == MomentaryAction{Trigger::Save}) {
-                    window.pause(true);
+                    window.pause();
                     save(player, uniformController);
                 }
                 else if(action == MomentaryAction{Trigger::Load}) {
-                    window.pause(true);
+                    window.pause();
                     load(player, uniformController);
                 }
 
-                window.pause(paused);
+                window.setPaused(previouslyPaused);
             });
 }
 
