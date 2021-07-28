@@ -124,11 +124,6 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
         case Trigger::TogglePause:
             togglePause();
             break;
-        case Trigger::TakeScreenshot:
-            m_screenshotBuffer = Framebuffer(2 * m_size);
-            m_screenshotBuffer->bind();
-            glViewport(0, 0, 2 * m_size.x, 2 * m_size.y);
-            break;
         case Trigger::CloseWindow:
             close();
             break;

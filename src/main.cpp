@@ -27,6 +27,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_image_resize.h>
 
 #define NFD_NATIVE
 #include <nfd.hpp>
@@ -152,6 +154,69 @@ try {
                     window.pause();
                     loadTerrain(terrain, shaderController, shaderProgram);
                     window.unpause();
+                }
+                if(action == MomentaryAction{Trigger::TakeScreenshot}) {
+                    // intro
+                    auto screenshotBuffer = Framebuffer(2 * window.size());
+                    screenshotBuffer.bind();
+                    glViewport(0, 0, 2 * window.size().x, 2 * window.size().y);
+
+                    // render
+                    skybox.activateOn(shaderProgram);
+                    shaderController.update(shaderProgram);
+                    uniformController.update(&shaderProgram);
+                    shaderProgram.setUniformFloat(
+                            "time",
+                            static_cast<float>(time));
+                    renderScene(player, window.size(), &shaderProgram, dt);
+                    terrain.render(shaderProgram);
+
+                    // outro
+                    auto const inputSize  = screenshotBuffer.size();
+                    auto const outputSize = inputSize / 2;
+                    auto const pixels     = screenshotBuffer.readPixels();
+
+                    // CPP23 3z * outputSize.x
+                    std::vector<unsigned char> aa(
+                            3 * static_cast<long>(outputSize.x)
+                            * outputSize.y);
+
+                    stbir_resize_uint8(
+                            pixels.data(),
+                            inputSize.x,
+                            inputSize.y,
+                            0,
+                            aa.data(),
+                            outputSize.x,
+                            outputSize.y,
+                            0,
+                            3);
+
+                    std::time_t const t = std::time(nullptr);
+                    std::tm const tm    = *std::localtime(&t);
+                    std::stringstream buffer;
+                    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
+
+                    namespace fs          = std::filesystem;
+                    std::string const dir = "screenshots";
+                    if(!fs::is_directory(dir) || !fs::exists(dir)) {
+                        fs::create_directory(dir);
+                    }
+
+                    std::string filename = dir + "/" + buffer.str() + ".png";
+
+                    stbi_flip_vertically_on_write(1);
+                    stbi_write_png(
+                            filename.c_str(),
+                            outputSize.x,
+                            outputSize.y,
+                            3,
+                            aa.data(),
+                            0);
+
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    Framebuffer::unbind();
+                    glViewport(0, 0, window.size().x, window.size().y);
                 }
             }
         }
