@@ -60,7 +60,7 @@ createSerializationController(Player&, Window&, UniformController&)
         -> GenericController;
 
 auto
-loadTerrain(Terrain&, ShaderController&, ShaderProgram&) -> void;
+pickTerrainFunction(Terrain&, ShaderController&, ShaderProgram&) -> void;
 
 auto
 saveImage(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void;
@@ -139,19 +139,46 @@ try {
             2,
             "skybox"});
 
-    auto render = [&skybox,
-                   &shaderController,
-                   &shaderProgram,
-                   &uniformController,
-                   &terrain,
-                   &player,
-                   &window](double currentTime, double dt) {
+    auto const render = [&skybox,
+                         &shaderController,
+                         &shaderProgram,
+                         &uniformController,
+                         &terrain,
+                         &player,
+                         &window](double currentTime, double dt) {
         skybox.activateOn(shaderProgram);
         shaderController.update(shaderProgram);
         uniformController.update(&shaderProgram);
         shaderProgram.setUniformFloat("time", static_cast<float>(currentTime));
         renderScene(player, window.size(), &shaderProgram, dt);
         terrain.render(shaderProgram);
+    };
+
+    auto const handleAuxilliaryActions = [&render,
+                                          &window,
+                                          &shaderController,
+                                          &terrain,
+                                          &shaderProgram](
+                                                 MomentaryAction const& action,
+                                                 double currentTime,
+                                                 double dt) {
+        if(action == MomentaryAction{Trigger::LoadTerrainFunctions}) {
+            window.pause();
+            pickTerrainFunction(terrain, shaderController, shaderProgram);
+            window.unpause();
+        }
+        else if(action == MomentaryAction{Trigger::TakeScreenshot}) {
+            auto screenshotBuffer = Framebuffer(2 * window.size());
+            screenshotBuffer.bind();
+            glViewport(0, 0, 2 * window.size().x, 2 * window.size().y);
+
+            render(currentTime, dt);
+
+            saveFramebufferAntialiased(screenshotBuffer);
+
+            Framebuffer::unbind();
+            glViewport(0, 0, window.size().x, window.size().y);
+        }
     };
 
     while(window.update()) {
@@ -170,24 +197,7 @@ try {
                 uniformController.handleMomentaryAction(action);
                 shaderController.handleMomentaryAction(action);
                 serializationController.handleMomentaryAction(action);
-
-                if(action == MomentaryAction{Trigger::LoadTerrainFunctions}) {
-                    window.pause();
-                    loadTerrain(terrain, shaderController, shaderProgram);
-                    window.unpause();
-                }
-                else if(action == MomentaryAction{Trigger::TakeScreenshot}) {
-                    auto screenshotBuffer = Framebuffer(2 * window.size());
-                    screenshotBuffer.bind();
-                    glViewport(0, 0, 2 * window.size().x, 2 * window.size().y);
-
-                    render(time, dt);
-
-                    saveFramebufferAntialiased(screenshotBuffer);
-
-                    Framebuffer::unbind();
-                    glViewport(0, 0, window.size().x, window.size().y);
-                }
+                handleAuxilliaryActions(action, time, dt);
             }
         }
 
@@ -321,7 +331,7 @@ load(Player& player, UniformController& uniformController) -> void
 }
 
 auto
-loadTerrain(
+pickTerrainFunction(
         Terrain& terrain,
         ShaderController& shaderController,
         ShaderProgram& shaderProgram) -> void
