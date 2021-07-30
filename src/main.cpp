@@ -280,7 +280,7 @@ auto operator""_nfd(char const* str, size_t size)
 }
 
 auto
-save(Player const& player, UniformController const& uniformController) -> void
+savePreset(Player const& player, UniformController const& uniformController) -> void
 {
     namespace fs = std::filesystem;
 
@@ -302,7 +302,7 @@ save(Player const& player, UniformController const& uniformController) -> void
 }
 
 auto
-load(Player& player, UniformController& uniformController) -> void
+loadPreset(Player& player, UniformController& uniformController) -> void
 {
     namespace fs = std::filesystem;
 
@@ -422,11 +422,11 @@ createSerializationController(
             [&player, &window, &uniformController](MomentaryAction action) {
                 if(action == MomentaryAction{Trigger::Save}) {
                     auto const resumeGuard = window.suspend();
-                    save(player, uniformController);
+                    savePreset(player, uniformController);
                 }
                 else if(action == MomentaryAction{Trigger::Load}) {
                     auto const resumeGuard = window.suspend();
-                    load(player, uniformController);
+                    loadPreset(player, uniformController);
                 }
             });
 }

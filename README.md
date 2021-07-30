@@ -30,7 +30,7 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 - Q/Escape: Quit.
 
-- CTRL+S/CTRL+O: Save/load state.
+- CTRL+S/CTRL+O: Save/load preset.
 
 - CTRL+L: Load scripts.
 
