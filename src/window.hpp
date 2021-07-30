@@ -67,13 +67,14 @@ public:
     auto
     unpause() noexcept -> void;
 
-    auto
-    setPaused(bool paused) noexcept -> void;
-
     [[nodiscard]] auto
     suspend() noexcept -> util::ScopeGuard;
 
 private:
+    auto
+    setPaused(bool paused) noexcept -> void;
+
+    // CPP20 decltype(lambda)
     struct WindowDeleter {
         void
         operator()(GLFWwindow* window) noexcept

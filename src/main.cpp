@@ -342,7 +342,7 @@ pickTerrainFunction(
 
     auto const [paths, result] = util::nfd::openDialogMultiple(
             filterItems,
-            fs::current_path() / "presets");
+            fs::current_path() / "landscape-scripts");
 
     if(result != NFD_OKAY) {
         return;

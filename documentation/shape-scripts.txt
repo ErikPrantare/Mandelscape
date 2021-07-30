@@ -1,22 +1,31 @@
 An example is given at the end of the document.
 
----
+-------------------------------------------------------------------------------
+
 The terrain generation function is written in lua.
 
-Files containing a shape function should end in shape.lua.
+The name of files containing a shape function must end with shape.lua.
 These contain a function pointData(x, y, i), with the three parameters:
 
-x and y: the coordinates of the point
-(in mandelbrot, these would be the real and imaginary part)
+x and y: the coordinates of the point.
+In mandelbrot, x would be the real part, and y the imaginary part.
+
 i: the number of iterations to calculate
 
 
-The function is expected to return a table with entries:
+The function is expected to return a table with the following entries:
 
-height: the height of the point. A distance estimation fits well for this.
-value (optional): An approximation of the value of the point.
-This should be the same value as calculated the the coloring function.
-inside (optional): whether the point is inside or outside the fractal.
+height (number):
+The height of the point.
+The default mandelbrot landscape uses a distance estimator to for this.
+
+value (number, optional):
+An approximation of the color value at the point.
+This should be the same value as calculated in the coloring function.
+
+inside (boolean, optional):
+Whether the point is inside or outside the fractal set.
+
 
 The two optional entries are needed if the function should work in "fast mode".
 
@@ -24,7 +33,8 @@ Tip:
 Avoid using dictionaries in your loops for better performance.
 E.g., z = {x, y} is much more performant than z = {re = x, im = y}.
 
----
+-------------------------------------------------------------------------------
+
 Example
 
 mandelbrot-shape.lua:

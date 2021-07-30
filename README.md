@@ -32,7 +32,7 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 - CTRL+S/CTRL+O: Save/load state.
 
-- CTRL+L: Load different algorithms.
+- CTRL+L: Load scripts.
 
 - J/K: Change iteration count.
 
@@ -57,23 +57,23 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 To use dvorak mode, start Mandelscape with `--dvorak` flag.
 Controls can be found at the bottom of src/main.cpp.
 
-## Using different algorithms
-Loading different algorithms is done with ctrl+l.
-This opens up a file dialog, where you can select the algorithms you want
+## Using different scripts
+Loading different scripts is done with ctrl+l.
+This opens up a file dialog, where you can select the script you want
 to use.
-Algorithms can be identified by their file suffix `myAlgorithm<suffix>`,
+Scripts can be identified by their file suffix `myAlgorithm<suffix>`,
 with `<suffix>` being:
 
-- `shape.lua`: Algorithm changing the terrain shape.
+- `shape.lua`: Shape of the landscape.
 
-- `value.frag`: Algorithm changing the way the terrain is colored.
+- `value.frag`: In what way the landscape is colored.
 
-- `color.frag`: Algorithm changing what colors are used.
+- `color.frag`: Which colors are to be used when coloring the landscape.
 
-Some algorithms can be found under `presets`.
+Some algorithms can be found under `landscape-scripts`.
 
-Detailed documentation on writing custom algorithms is given in
-`documentation/writing-custom-algorithms.txt`.
+Detailed documentation on writing custom scripts is given in
+`documentation/writing-custom-scripts.txt`.
 
 ---
 

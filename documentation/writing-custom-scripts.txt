@@ -1,0 +1,11 @@
+The landscape is rendered by two seperate processes:
+
+1. Shape generation:
+This process decides what overall shape the landscape will have.
+For documentation on shape generation, see documentation/shape-scripts.txt.
+
+2. Coloring:
+This process decides how the generated shape will be colored.
+For documentation on coloring, see documentation/coloring-scripts.txt.
+
+To load files containing scripts, press Ctrl+L and select the files.
