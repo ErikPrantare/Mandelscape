@@ -162,6 +162,16 @@ Window::setPaused(bool paused) noexcept -> void
 }
 
 auto
+Window::suspend() noexcept -> util::ScopeGuard
+{
+    auto const resume = [this, previous = m_paused] {
+        setPaused(previous);
+    };
+    pause();
+    return {resume};
+}
+
+auto
 Window::togglePause() noexcept -> void
 {
     setPaused(!m_paused);

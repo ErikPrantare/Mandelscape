@@ -22,7 +22,7 @@
 
 #include "lua.hpp"
 
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "shaderProgram.hpp"
 #include "momentaryAction.hpp"
 
@@ -50,7 +50,7 @@ operator==(UniformController const& a, UniformControllerApprox const& b)
 class UniformController {
 public:
     auto
-    updateState(PersistentActionMap const& active, double dt) noexcept -> void;
+    updateState(StateMap const& active, double dt) noexcept -> void;
 
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void;

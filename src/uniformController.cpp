@@ -20,28 +20,28 @@
 
 auto
 UniformController::updateState(
-        PersistentActionMap const& active,
+        StateMap const& active,
         double const dt) noexcept -> void
 {
-    int direction = (active(PersistentAction::IncreaseParam) ? 1 : 0)
-                    - (active(PersistentAction::DecreaseParam) ? 1 : 0);
+    int direction = (active(State::IncreasingParameter) ? 1 : 0)
+                    - (active(State::DecreasingParameter) ? 1 : 0);
 
-    if(active(PersistentAction::ChangeFrequency)) {
+    if(active(State::ChangingFrequency)) {
         m_colorFrequency *= std::exp(direction * dt);
     }
-    if(active(PersistentAction::ChangeRedOffset)) {
+    if(active(State::ChangeRedOffset)) {
         m_colorOffset.x += 3 * direction * dt;
     }
-    if(active(PersistentAction::ChangeGreenOffset)) {
+    if(active(State::ChangingGreenOffset)) {
         m_colorOffset.y += 3 * direction * dt;
     }
-    if(active(PersistentAction::ChangeBlueOffset)) {
+    if(active(State::ChangingBlueOffset)) {
         m_colorOffset.z += 3 * direction * dt;
     }
-    if(active(PersistentAction::ChangeTotalOffset)) {
+    if(active(State::ChangingTotalOffset)) {
         m_colorOffset += 3 * direction * dt * glm::dvec3{1.0, 1.0, 1.0};
     }
-    if(active(PersistentAction::ChangeYScale)) {
+    if(active(State::ChangingYScale)) {
         if(m_yScale > 1.0) {
             m_yScale *= std::exp(direction * dt);
         }

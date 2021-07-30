@@ -25,7 +25,7 @@
 #include "util.hpp"
 #include "player.hpp"
 #include "playerController.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 
 class AutoController final : public PlayerController {
 public:
@@ -38,7 +38,7 @@ public:
     handleMomentaryAction(MomentaryAction const&) -> void final;
 
     auto
-    updateState(PersistentActionMap const& /*map*/) -> void final{};
+    updateState(StateMap const& /*map*/) -> void final{};
 
 private:
     auto

@@ -21,7 +21,7 @@
 #include <set>
 
 #include "glfwEnums.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "event.hpp"
 #include "util.hpp"
 
@@ -31,13 +31,13 @@ TEST_CASE(
 {
     using namespace Input;
 
-    auto const action    = PersistentAction::MoveForwards;
-    auto const modAction = PersistentAction::MoveBackwards;
+    auto const action    = State::MovingForwards;
+    auto const modAction = State::MovingBackwards;
 
     auto const key    = KeyDown{Key::U};
     auto const modKey = KeyDown{Key::U, (int)Mod::Shift};
 
-    auto map = PersistentActionMap();
+    auto map = StateMap();
     map.add(key, action);
     map.add(modKey, modAction);
     SECTION("Action defaults to off")

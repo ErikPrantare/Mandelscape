@@ -35,7 +35,7 @@
 #include "texture.hpp"
 #include "mesh.hpp"
 #include "momentaryAction.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "algorithm.hpp"
 #include "sheetLoader.hpp"
 

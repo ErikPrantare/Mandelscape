@@ -20,7 +20,7 @@
 
 #include "player.hpp"
 #include "momentaryAction.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 
 class PlayerController {
 public:
@@ -28,7 +28,7 @@ public:
     handleMomentaryAction(MomentaryAction const& action) -> void = 0;
 
     virtual auto
-    updateState(PersistentActionMap const& map) -> void = 0;
+    updateState(StateMap const& map) -> void = 0;
 
     virtual auto
     update(Player* player, double dt) -> void = 0;

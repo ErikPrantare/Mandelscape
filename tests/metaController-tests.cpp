@@ -45,7 +45,7 @@ public:
     }
 
     auto
-    updateState(PersistentActionMap const& /*map*/) -> void final
+    updateState(StateMap const& /*map*/) -> void final
     {
         stateUpdateCalled[n] = true;
     }
@@ -65,7 +65,7 @@ TEST_CASE("MetaController switches controllers", "[MetaController]")
             std::make_unique<Controller<2>>());
 
     auto player              = Player();
-    auto const persistentMap = PersistentActionMap{};
+    auto const persistentMap = StateMap{};
 
     meta.handleMomentaryAction(Trigger::ToggleAutoWalk);
     meta.updateState(persistentMap);

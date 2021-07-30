@@ -15,27 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 
 #include <algorithm>
 
 #include "util.hpp"
 
 auto
-PersistentActionMap::add(KeyDown key, PersistentAction action) -> void
+StateMap::add(KeyDown key, State action) -> void
 {
     m_inputTriggers[action].insert(Inputs{key});
 }
 
 auto
-PersistentActionMap::add(MouseButtonDown button, PersistentAction action)
-        -> void
+StateMap::add(MouseButtonDown button, State action) -> void
 {
     m_inputTriggers[action].insert(Inputs{button});
 }
 
 auto
-PersistentActionMap::updateState(Event const& event) -> void
+StateMap::updateState(Event const& event) -> void
 {
     std::visit(
             util::Overload{
@@ -64,7 +63,7 @@ PersistentActionMap::updateState(Event const& event) -> void
 }
 
 auto
-PersistentActionMap::operator()(PersistentAction action) const -> bool
+StateMap::operator()(State action) const -> bool
 {
     if(!util::contains(m_inputTriggers, action)) {
         return false;

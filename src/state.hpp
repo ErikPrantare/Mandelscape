@@ -18,21 +18,21 @@
 #ifndef MANDELLANDSCAPE_PERSISTENTACTION_HPP
 #define MANDELLANDSCAPE_PERSISTENTACTION_HPP
 
-enum class PersistentAction {
-    MoveForwards,
-    MoveBackwards,
-    MoveLeft,
-    MoveRight,
-    ZoomIn,
-    ZoomOut,
-    IncreaseParam,
-    DecreaseParam,
+enum class State {
+    MovingForwards,
+    MovingBackwards,
+    MovingLeft,
+    MovingRight,
+    ZoomingIn,
+    ZoomingOut,
+    IncreasingParameter,
+    DecreasingParameter,
     ChangeRedOffset,
-    ChangeGreenOffset,
-    ChangeBlueOffset,
-    ChangeTotalOffset,
-    ChangeFrequency,
-    ChangeYScale,
+    ChangingGreenOffset,
+    ChangingBlueOffset,
+    ChangingTotalOffset,
+    ChangingFrequency,
+    ChangingYScale,
 };
 
 #endif

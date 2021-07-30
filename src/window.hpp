@@ -29,6 +29,7 @@
 #include "event.hpp"
 #include "momentaryAction.hpp"
 #include "framebuffer.hpp"
+#include "util.hpp"
 
 class Window {
 public:
@@ -57,6 +58,9 @@ public:
     [[nodiscard]] auto
     paused() const noexcept -> bool;
 
+    [[nodiscard]] auto
+    size() const noexcept -> glm::ivec2;
+
     auto
     pause() noexcept -> void;
 
@@ -67,7 +71,7 @@ public:
     setPaused(bool paused) noexcept -> void;
 
     [[nodiscard]] auto
-    size() const noexcept -> glm::ivec2;
+    suspend() noexcept -> util::ScopeGuard;
 
 private:
     struct WindowDeleter {

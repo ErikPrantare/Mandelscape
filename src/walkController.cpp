@@ -78,27 +78,27 @@ WalkController::handleMomentaryAction(MomentaryAction const& action) -> void
             action);
 }
 auto
-WalkController::updateState(PersistentActionMap const& active) -> void
+WalkController::updateState(StateMap const& active) -> void
 {
     m_direction = {0, 0, 0};
-    if(active(PersistentAction::MoveForwards)) {
+    if(active(State::MovingForwards)) {
         m_direction.z -= 1.0;
     }
-    if(active(PersistentAction::MoveBackwards)) {
+    if(active(State::MovingBackwards)) {
         m_direction.z += 1.0;
     }
-    if(active(PersistentAction::MoveLeft)) {
+    if(active(State::MovingLeft)) {
         m_direction.x -= 1.0;
     }
-    if(active(PersistentAction::MoveRight)) {
+    if(active(State::MovingRight)) {
         m_direction.x += 1.0;
     }
 
     m_scalingVelocity = 0.0;
-    if(active(PersistentAction::ZoomIn)) {
+    if(active(State::ZoomingIn)) {
         m_scalingVelocity -= 1.0;
     }
-    if(active(PersistentAction::ZoomOut)) {
+    if(active(State::ZoomingOut)) {
         m_scalingVelocity += 1.0;
     }
 }

@@ -20,7 +20,7 @@
 
 #include <glm/glm.hpp>
 
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "momentaryAction.hpp"
 #include "shader.hpp"
 #include "shaderProgram.hpp"

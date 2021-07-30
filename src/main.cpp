@@ -42,7 +42,7 @@
 #include "walkController.hpp"
 #include "autoController.hpp"
 #include "metaController.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "momentaryActionsMap.hpp"
 #include "shaderController.hpp"
 #include "genericController.hpp"
@@ -69,10 +69,10 @@ auto
 saveFramebufferAntialiased(Framebuffer& buffer) -> void;
 
 auto
-initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
+initControls() -> std::pair<MomentaryActionsMap, StateMap>;
 
 auto
-initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>;
+initControlsDvorak() -> std::pair<MomentaryActionsMap, StateMap>;
 
 auto
 main(int argc, char* argv[]) -> int
@@ -87,7 +87,7 @@ try {
     auto terrain = Terrain();
     auto player  = Player();
 
-    auto [momentaryMap, persistentMap] = [&args] {
+    auto [momentaryMap, stateMap] = [&args] {
         if(args.size() == 2 && args[1] == std::string("--dvorak")) {
             return initControlsDvorak();
         }
@@ -163,9 +163,8 @@ try {
                                                  double currentTime,
                                                  double dt) {
         if(action == MomentaryAction{Trigger::LoadTerrainFunctions}) {
-            window.pause();
+            auto resumeGuard = window.suspend();
             pickTerrainFunction(terrain, shaderController, shaderProgram);
-            window.unpause();
         }
         else if(action == MomentaryAction{Trigger::TakeScreenshot}) {
             auto screenshotBuffer = Framebuffer(2 * window.size());
@@ -189,7 +188,7 @@ try {
         while(auto const eventOpt = window.nextEvent()) {
             auto const event = eventOpt.value();
 
-            persistentMap.updateState(event);
+            stateMap.updateState(event);
 
             for(auto const& action : momentaryMap(event)) {
                 window.handleMomentaryAction(action);
@@ -204,8 +203,8 @@ try {
         if(!window.paused()) {
             time += dt;
 
-            metaController.updateState(persistentMap);
-            uniformController.updateState(persistentMap, dt);
+            metaController.updateState(stateMap);
+            uniformController.updateState(stateMap, dt);
 
             auto const pos = PlayerHelper(player).truePosition();
             terrain.updateMesh({pos.x, pos.z}, 1.0 / player.scale);
@@ -421,23 +420,19 @@ createSerializationController(
 {
     return GenericController().withMomentary(
             [&player, &window, &uniformController](MomentaryAction action) {
-                auto const previouslyPaused = window.paused();
-
                 if(action == MomentaryAction{Trigger::Save}) {
-                    window.pause();
+                    auto const resumeGuard = window.suspend();
                     save(player, uniformController);
                 }
                 else if(action == MomentaryAction{Trigger::Load}) {
-                    window.pause();
+                    auto const resumeGuard = window.suspend();
                     load(player, uniformController);
                 }
-
-                window.setPaused(previouslyPaused);
             });
 }
 
 [[nodiscard]] auto
-initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
+initControls() -> std::pair<MomentaryActionsMap, StateMap>
 {
     using namespace Input;
 
@@ -458,26 +453,26 @@ initControls() -> std::pair<MomentaryActionsMap, PersistentActionMap>
             {Key::L, (int)Mod::Control},
             Trigger::LoadTerrainFunctions);
 
-    auto persistentMap = PersistentActionMap();
-    persistentMap.add({Key::W}, PersistentAction::MoveForwards);
-    persistentMap.add({Key::S}, PersistentAction::MoveBackwards);
-    persistentMap.add({Key::A}, PersistentAction::MoveLeft);
-    persistentMap.add({Key::D}, PersistentAction::MoveRight);
-    persistentMap.add({MouseButton::Left}, PersistentAction::ZoomIn);
-    persistentMap.add({MouseButton::Right}, PersistentAction::ZoomOut);
-    persistentMap.add({Key::Up}, PersistentAction::IncreaseParam);
-    persistentMap.add({Key::Down}, PersistentAction::DecreaseParam);
-    persistentMap.add({Key::Key1}, PersistentAction::ChangeFrequency);
-    persistentMap.add({Key::Key2}, PersistentAction::ChangeTotalOffset);
-    persistentMap.add({Key::Key3}, PersistentAction::ChangeGreenOffset);
-    persistentMap.add({Key::Key4}, PersistentAction::ChangeBlueOffset);
-    persistentMap.add({Key::Key5}, PersistentAction::ChangeYScale);
+    auto stateMap = StateMap();
+    stateMap.add({Key::W}, State::MovingForwards);
+    stateMap.add({Key::S}, State::MovingBackwards);
+    stateMap.add({Key::A}, State::MovingLeft);
+    stateMap.add({Key::D}, State::MovingRight);
+    stateMap.add({MouseButton::Left}, State::ZoomingIn);
+    stateMap.add({MouseButton::Right}, State::ZoomingOut);
+    stateMap.add({Key::Up}, State::IncreasingParameter);
+    stateMap.add({Key::Down}, State::DecreasingParameter);
+    stateMap.add({Key::Key1}, State::ChangingFrequency);
+    stateMap.add({Key::Key2}, State::ChangingTotalOffset);
+    stateMap.add({Key::Key3}, State::ChangingGreenOffset);
+    stateMap.add({Key::Key4}, State::ChangingBlueOffset);
+    stateMap.add({Key::Key5}, State::ChangingYScale);
 
-    return {momentaryMap, persistentMap};
+    return {momentaryMap, stateMap};
 }
 
 [[nodiscard]] auto
-initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
+initControlsDvorak() -> std::pair<MomentaryActionsMap, StateMap>
 {
     using namespace Input;
 
@@ -499,20 +494,20 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, PersistentActionMap>
             Trigger::LoadTerrainFunctions);
     momentaryMap.add({Key::L}, Trigger::ToggleLighting);
 
-    auto persistentMap = PersistentActionMap();
-    persistentMap.add({Key::Comma}, PersistentAction::MoveForwards);
-    persistentMap.add({Key::O}, PersistentAction::MoveBackwards);
-    persistentMap.add({Key::A}, PersistentAction::MoveLeft);
-    persistentMap.add({Key::E}, PersistentAction::MoveRight);
-    persistentMap.add({MouseButton::Left}, PersistentAction::ZoomIn);
-    persistentMap.add({MouseButton::Right}, PersistentAction::ZoomOut);
-    persistentMap.add({Key::Up}, PersistentAction::IncreaseParam);
-    persistentMap.add({Key::Down}, PersistentAction::DecreaseParam);
-    persistentMap.add({Key::Key1}, PersistentAction::ChangeFrequency);
-    persistentMap.add({Key::Key2}, PersistentAction::ChangeTotalOffset);
-    persistentMap.add({Key::Key3}, PersistentAction::ChangeGreenOffset);
-    persistentMap.add({Key::Key4}, PersistentAction::ChangeBlueOffset);
-    persistentMap.add({Key::Key5}, PersistentAction::ChangeYScale);
+    auto stateMap = StateMap();
+    stateMap.add({Key::Comma}, State::MovingForwards);
+    stateMap.add({Key::O}, State::MovingBackwards);
+    stateMap.add({Key::A}, State::MovingLeft);
+    stateMap.add({Key::E}, State::MovingRight);
+    stateMap.add({MouseButton::Left}, State::ZoomingIn);
+    stateMap.add({MouseButton::Right}, State::ZoomingOut);
+    stateMap.add({Key::Up}, State::IncreasingParameter);
+    stateMap.add({Key::Down}, State::DecreasingParameter);
+    stateMap.add({Key::Key1}, State::ChangingFrequency);
+    stateMap.add({Key::Key2}, State::ChangingTotalOffset);
+    stateMap.add({Key::Key3}, State::ChangingGreenOffset);
+    stateMap.add({Key::Key4}, State::ChangingBlueOffset);
+    stateMap.add({Key::Key5}, State::ChangingYScale);
 
-    return {momentaryMap, persistentMap};
+    return {momentaryMap, stateMap};
 }

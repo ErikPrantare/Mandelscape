@@ -54,7 +54,7 @@ public:
     }
 
     auto
-    updateState(PersistentActionMap const& actionMap) -> void
+    updateState(StateMap const& actionMap) -> void
     {
         m_controllers[m_activeController]->updateState(actionMap);
     }

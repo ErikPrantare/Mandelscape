@@ -172,6 +172,26 @@ endsWith(
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+// CPP?? https://en.cppreference.com/w/cpp/experimental/scope_exit
+class ScopeGuard {
+public:
+    ScopeGuard(std::function<void()>&& destructor) : m_destructor(destructor)
+    {}
+    ScopeGuard(ScopeGuard const&) = delete;
+    ScopeGuard(ScopeGuard&&)      = delete;
+    auto
+    operator=(ScopeGuard const&) -> ScopeGuard& = delete;
+    auto
+    operator=(ScopeGuard&&) -> ScopeGuard& = delete;
+
+    ~ScopeGuard()
+    {
+        m_destructor();
+    }
+
+private:
+    std::function<void()> m_destructor;
+};
 }    // namespace util
 
 namespace util::lua {

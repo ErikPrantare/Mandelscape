@@ -23,28 +23,28 @@
 
 #include "glfwEnums.hpp"
 #include "event.hpp"
-#include "persistentAction.hpp"
+#include "state.hpp"
 
-class PersistentActionMap {
+class StateMap {
 public:
     auto
-    add(KeyDown key, PersistentAction action) -> void;
+    add(KeyDown key, State action) -> void;
 
     auto
-    add(MouseButtonDown button, PersistentAction action) -> void;
+    add(MouseButtonDown button, State action) -> void;
 
     auto
     updateState(Event const& event) -> void;
 
     [[nodiscard]] auto
-    operator()(PersistentAction action) const -> bool;
+    operator()(State action) const -> bool;
 
 private:
-    std::map<PersistentAction, bool> m_actionMap;
-    std::map<KeyDown, std::set<PersistentAction>> m_keyMap;
-    std::map<Input::MouseButton, std::set<PersistentAction>> m_mouseButtonMap;
+    std::map<State, bool> m_actionMap;
+    std::map<KeyDown, std::set<State>> m_keyMap;
+    std::map<Input::MouseButton, std::set<State>> m_mouseButtonMap;
 
-    std::map<PersistentAction, std::set<Event>> m_triggers;
+    std::map<State, std::set<Event>> m_triggers;
 
     std::set<Event> m_eventsDown;
 
@@ -53,7 +53,7 @@ private:
 
     using Inputs = std::variant<KeyDown, MouseButtonDown>;
     // FIX BETTER NAME
-    std::map<PersistentAction, std::set<Inputs>> m_inputTriggers;
+    std::map<State, std::set<Inputs>> m_inputTriggers;
     int m_currentMods = 0;
 };
 

@@ -24,7 +24,7 @@
 #include "player.hpp"
 #include "testUtils.hpp"
 #include "util.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "uniformController.hpp"
 #include "glfwEnums.hpp"
 #include "momentaryActionsMap.hpp"
@@ -45,25 +45,21 @@ TEST_CASE(
         auto ss = std::stringstream();
         serialize(ss, player, "player");
 
-        lua_State* L = luaL_newstate();
-        luaL_dostring(L, ss.str().c_str());
-        lua_getglobal(L, "player");
-        REQUIRE(util::lua::to<Player>(L, -1) == PlayerApprox{player});
-        lua_close(L);
+        lua_State* l = luaL_newstate();
+        luaL_dostring(l, ss.str().c_str());
+        lua_getglobal(l, "player");
+        REQUIRE(util::lua::to<Player>(l, -1) == PlayerApprox{player});
+        lua_close(l);
     }
 
     SECTION("X = UniformController")
     {
-        auto persistentMap       = PersistentActionMap();
+        auto persistentMap       = StateMap();
         auto momentaryActionsMap = MomentaryActionsMap();
 
-        persistentMap.add(
-                {Input::Key::Key1},
-                PersistentAction::ChangeFrequency);
-        persistentMap.add(
-                {Input::Key::Key1},
-                PersistentAction::ChangeTotalOffset);
-        persistentMap.add({Input::Key::Key1}, PersistentAction::IncreaseParam);
+        persistentMap.add({Input::Key::Key1}, State::ChangingFrequency);
+        persistentMap.add({Input::Key::Key1}, State::ChangingTotalOffset);
+        persistentMap.add({Input::Key::Key1}, State::IncreasingParameter);
 
         momentaryActionsMap.add(
                 {Input::Key::Key1},
@@ -83,11 +79,11 @@ TEST_CASE(
         auto ss = std::stringstream();
         serialize(ss, uniformController, "uniformController");
 
-        lua_State* L = luaL_newstate();
-        luaL_dostring(L, ss.str().c_str());
-        lua_getglobal(L, "uniformController");
-        REQUIRE(util::lua::to<UniformController>(L, -1)
+        lua_State* l = luaL_newstate();
+        luaL_dostring(l, ss.str().c_str());
+        lua_getglobal(l, "uniformController");
+        REQUIRE(util::lua::to<UniformController>(l, -1)
                 == UniformControllerApprox{uniformController});
-        lua_close(L);
+        lua_close(l);
     }
 }
