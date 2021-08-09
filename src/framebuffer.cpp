@@ -19,6 +19,13 @@
 
 #include <stdexcept>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_image_resize.h>
+
+#include "util.hpp"
+
 static auto
 textureArgs(glm::ivec2 size) noexcept -> TextureArgs
 {
@@ -70,6 +77,47 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
     }
 }
 
+static auto
+savePng(std::filesystem::path const& path,
+        std::vector<unsigned char> const& pixels,
+        glm::ivec2 const size) -> void
+{
+    namespace fs          = std::filesystem;
+    std::string const dir = "screenshots";
+    if(!fs::exists(path.parent_path())
+       || !fs::is_directory(path.parent_path())) {
+        fs::create_directory(path.parent_path());
+    }
+
+    stbi_flip_vertically_on_write(1);
+    stbi_write_png(path.c_str(), size.x, size.y, 3, pixels.data(), 0);
+}
+
+auto
+Framebuffer::savePngDownsampled(std::filesystem::path const& path) -> void
+{
+    auto const renderedSize    = size();
+    auto const antiAliasedSize = renderedSize / 2;
+    auto const pixels          = readPixels();
+
+    // CPP23 3z * outputSize.x
+    std::vector<unsigned char> antiAliasedImage(
+            3 * static_cast<long>(antiAliasedSize.x) * antiAliasedSize.y);
+
+    stbir_resize_uint8(
+            pixels.data(),
+            renderedSize.x,
+            renderedSize.y,
+            0,
+            antiAliasedImage.data(),
+            antiAliasedSize.x,
+            antiAliasedSize.y,
+            0,
+            3);
+
+    savePng(path, antiAliasedImage, antiAliasedSize);
+}
+
 [[nodiscard]] auto
 Framebuffer::readPixels() -> std::vector<unsigned char>
 {
@@ -106,7 +154,7 @@ Framebuffer::bind() noexcept -> void
 }
 
 auto
-Framebuffer::unbind() noexcept -> void
+Framebuffer::bindDefaultBuffer() noexcept -> void
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

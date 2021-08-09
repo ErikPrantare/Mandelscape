@@ -25,11 +25,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#include <stb_image_write.h>
-#include <stb_image_resize.h>
-
 #define NFD_NATIVE
 #include <nfd.hpp>
 
@@ -47,6 +42,7 @@
 #include "shaderController.hpp"
 #include "genericController.hpp"
 #include "serialization.hpp"
+#include "keymaps.hpp"
 
 auto
 renderScene(
@@ -55,24 +51,15 @@ renderScene(
         ShaderProgram* program,
         double dt) -> void;
 
-[[nodiscard]] auto
-createSerializationController(Player&, Window&, UniformController&)
-        -> GenericController;
-
 auto
 pickTerrainFunction(Terrain&, ShaderController&, ShaderProgram&) -> void;
 
 auto
-saveImage(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void;
+savePreset(Player const& player, UniformController const& uniformController)
+        -> void;
 
 auto
-saveFramebufferAntialiased(Framebuffer& buffer) -> void;
-
-auto
-initControls() -> std::pair<MomentaryActionsMap, StateMap>;
-
-auto
-initControlsDvorak() -> std::pair<MomentaryActionsMap, StateMap>;
+loadPreset(Player& player, UniformController& uniformController) -> void;
 
 auto
 main(int argc, char* argv[]) -> int
@@ -104,26 +91,12 @@ try {
             std::make_unique<AutoController>(autoControllHeightFunc)};
 
     auto shaderProgram = ShaderProgram();
-    shaderProgram.bindAttributeLocation(
-            "pos",
-            Terrain::positionAttributeLocation);
-    shaderProgram.bindAttributeLocation(
-            "val",
-            Terrain::valueAttributeLocation);
-    shaderProgram.bindAttributeLocation(
-            "inside_",
-            Terrain::insideAttributeLocation);
-    shaderProgram.bindAttributeLocation(
-            "normal_",
-            Terrain::normalAttributeLocation);
+    Terrain::bindAttributeLocations(shaderProgram);
 
     auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();
 
-    auto serializationController =
-            createSerializationController(player, window, uniformController);
-
-    auto time            = 0.0;
+    auto elapsedTime     = 0.0;
     double lastTimepoint = glfwGetTime();
 
     // CPP20 {.x = ...}
@@ -139,46 +112,66 @@ try {
             2,
             "skybox"});
 
-    auto const render = [&skybox,
-                         &shaderController,
-                         &shaderProgram,
-                         &uniformController,
-                         &terrain,
-                         &player,
-                         &window](double currentTime, double dt) {
+    auto const render = [&skybox, &shaderProgram, &terrain, &player](
+                                glm::ivec2 size,
+                                double dt) {
         skybox.activateOn(shaderProgram);
-        shaderController.update(shaderProgram);
-        uniformController.update(&shaderProgram);
-        shaderProgram.setUniformFloat("time", static_cast<float>(currentTime));
-        renderScene(player, window.size(), &shaderProgram, dt);
+        renderScene(player, size, &shaderProgram, dt);
         terrain.render(shaderProgram);
     };
 
-    auto const handleAuxilliaryActions = [&render,
-                                          &window,
-                                          &shaderController,
-                                          &terrain,
-                                          &shaderProgram](
-                                                 MomentaryAction const& action,
-                                                 double currentTime,
-                                                 double dt) {
-        if(action == MomentaryAction{Trigger::LoadTerrainFunctions}) {
-            auto resumeGuard = window.suspend();
+    // CPP20 concept on renderFunction
+    auto const renderToFramebuffer = [](auto const& renderFunction,
+                                        Framebuffer& framebuffer) {
+        framebuffer.bind();
+        glViewport(0, 0, framebuffer.size().x, framebuffer.size().y);
+        renderFunction(framebuffer.size());
+    };
+
+    auto const handleAuxilliaryTriggers = [&render,
+                                           &window,
+                                           &shaderController,
+                                           &terrain,
+                                           &shaderProgram,
+                                           &player,
+                                           &uniformController,
+                                           &renderToFramebuffer](
+                                                  Trigger const& trigger) {
+        switch(trigger) {
+        case Trigger::LoadTerrainFunctions: {
+            auto const suspendGuard = window.suspend();
             pickTerrainFunction(terrain, shaderController, shaderProgram);
-        }
-        else if(action == MomentaryAction{Trigger::TakeScreenshot}) {
+        } break;
+        case Trigger::TakeScreenshot: {
             auto screenshotBuffer = Framebuffer(2 * window.size());
-            screenshotBuffer.bind();
-            glViewport(0, 0, 2 * window.size().x, 2 * window.size().y);
+            renderToFramebuffer(
+                    [&render](glm::ivec2 size) { render(size, 0); },
+                    screenshotBuffer);
 
-            render(currentTime, dt);
+            screenshotBuffer.savePngDownsampled(
+                    std::filesystem::path("screenshots")
+                    / util::currentDatetimeString());
 
-            saveFramebufferAntialiased(screenshotBuffer);
-
-            Framebuffer::unbind();
+            Framebuffer::bindDefaultBuffer();
             glViewport(0, 0, window.size().x, window.size().y);
+        } break;
+        case Trigger::Save: {
+            auto const suspendGuard = window.suspend();
+            savePreset(player, uniformController);
+        } break;
+        case Trigger::Load: {
+            auto const suspendGuard = window.suspend();
+            loadPreset(player, uniformController);
+        } break;
+        default:
+            break;
         }
     };
+
+    auto const handleAuxilliaryActions =
+            [&handleAuxilliaryTriggers](MomentaryAction const& action) {
+                util::dispatch(action, handleAuxilliaryTriggers);
+            };
 
     while(window.update()) {
         double const currentTimepoint = glfwGetTime();
@@ -195,13 +188,12 @@ try {
                 metaController.handleMomentaryAction(action);
                 uniformController.handleMomentaryAction(action);
                 shaderController.handleMomentaryAction(action);
-                serializationController.handleMomentaryAction(action);
-                handleAuxilliaryActions(action, time, dt);
+                handleAuxilliaryActions(action);
             }
         }
 
         if(!window.paused()) {
-            time += dt;
+            elapsedTime += dt;
 
             metaController.updateState(stateMap);
             uniformController.updateState(stateMap, dt);
@@ -218,7 +210,10 @@ try {
             terrain.setIterations(uniformController.iterations());
         }
 
-        render(time, dt);
+        shaderController.update(shaderProgram);
+        uniformController.update(shaderProgram);
+        shaderProgram.setUniformFloat("time", static_cast<float>(elapsedTime));
+        render(window.size(), dt);
     }
 
     return 0;
@@ -273,16 +268,12 @@ renderScene(
     program->setUniformVec3("playerPos", cameraPosition);
 }
 
-auto operator""_nfd(char const* str, size_t size)
-        -> std::filesystem::path::string_type
-{
-    return {str, str + size};
-}
-
 auto
-savePreset(Player const& player, UniformController const& uniformController) -> void
+savePreset(Player const& player, UniformController const& uniformController)
+        -> void
 {
     namespace fs = std::filesystem;
+    using namespace util::nfd::literal;
 
     std::vector<util::nfd::FilterItem> filterItems{
             {"Lua files"_nfd, "lua"_nfd}};
@@ -305,6 +296,7 @@ auto
 loadPreset(Player& player, UniformController& uniformController) -> void
 {
     namespace fs = std::filesystem;
+    using namespace util::nfd::literal;
 
     std::vector<util::nfd::FilterItem> filterItems{
             {"Lua files"_nfd, "lua"_nfd}};
@@ -336,6 +328,7 @@ pickTerrainFunction(
         ShaderProgram& shaderProgram) -> void
 {
     namespace fs = std::filesystem;
+    using namespace util::nfd::literal;
 
     std::vector<util::nfd::FilterItem> filterItems{
             {"Terrain files"_nfd, "lua,frag"_nfd}};
@@ -366,148 +359,4 @@ pickTerrainFunction(
                     util::getContents(in));
         }
     }
-}
-
-auto
-saveImage(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void
-{
-    std::time_t const t = std::time(nullptr);
-    std::tm const tm    = *std::localtime(&t);
-    std::stringstream buffer;
-    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
-
-    namespace fs          = std::filesystem;
-    std::string const dir = "screenshots";
-    if(!fs::is_directory(dir) || !fs::exists(dir)) {
-        fs::create_directory(dir);
-    }
-
-    std::string filename = dir + "/" + buffer.str() + ".png";
-
-    stbi_flip_vertically_on_write(1);
-    stbi_write_png(filename.c_str(), size.x, size.y, 3, pixels.data(), 0);
-}
-
-auto
-saveFramebufferAntialiased(Framebuffer& buffer) -> void
-{
-    auto const renderedSize    = buffer.size();
-    auto const antiAliasedSize = renderedSize / 2;
-    auto const pixels          = buffer.readPixels();
-
-    // CPP23 3z * outputSize.x
-    std::vector<unsigned char> antiAliasedImage(
-            3 * static_cast<long>(antiAliasedSize.x) * antiAliasedSize.y);
-
-    stbir_resize_uint8(
-            pixels.data(),
-            renderedSize.x,
-            renderedSize.y,
-            0,
-            antiAliasedImage.data(),
-            antiAliasedSize.x,
-            antiAliasedSize.y,
-            0,
-            3);
-
-    saveImage(antiAliasedImage, antiAliasedSize);
-}
-auto
-createSerializationController(
-        Player& player,
-        Window& window,
-        UniformController& uniformController) -> GenericController
-{
-    return GenericController().withMomentary(
-            [&player, &window, &uniformController](MomentaryAction action) {
-                if(action == MomentaryAction{Trigger::Save}) {
-                    auto const resumeGuard = window.suspend();
-                    savePreset(player, uniformController);
-                }
-                else if(action == MomentaryAction{Trigger::Load}) {
-                    auto const resumeGuard = window.suspend();
-                    loadPreset(player, uniformController);
-                }
-            });
-}
-
-[[nodiscard]] auto
-initControls() -> std::pair<MomentaryActionsMap, StateMap>
-{
-    using namespace Input;
-
-    auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add({Key::C}, Trigger::ToggleAutoWalk);
-    momentaryMap.add({Key::O}, Trigger::ToggleAutoZoom);
-    momentaryMap.add({Key::K}, Trigger::IncreaseIterations);
-    momentaryMap.add({Key::J}, Trigger::DecreaseIterations);
-    momentaryMap.add({Key::F}, Trigger::ToggleFastMode);
-    momentaryMap.add({Key::H}, Trigger::SwitchShader);
-    momentaryMap.add({Key::P}, Trigger::TogglePause);
-    momentaryMap.add({Key::X}, Trigger::TakeScreenshot);
-    momentaryMap.add({Key::Q}, Trigger::CloseWindow);
-    momentaryMap.add({Key::Escape}, Trigger::CloseWindow);
-    momentaryMap.add({Key::S, (int)Mod::Control}, Trigger::Save);
-    momentaryMap.add({Key::O, (int)Mod::Control}, Trigger::Load);
-    momentaryMap.add(
-            {Key::L, (int)Mod::Control},
-            Trigger::LoadTerrainFunctions);
-
-    auto stateMap = StateMap();
-    stateMap.add({Key::W}, State::MovingForwards);
-    stateMap.add({Key::S}, State::MovingBackwards);
-    stateMap.add({Key::A}, State::MovingLeft);
-    stateMap.add({Key::D}, State::MovingRight);
-    stateMap.add({MouseButton::Left}, State::ZoomingIn);
-    stateMap.add({MouseButton::Right}, State::ZoomingOut);
-    stateMap.add({Key::Up}, State::IncreasingParameter);
-    stateMap.add({Key::Down}, State::DecreasingParameter);
-    stateMap.add({Key::Key1}, State::ChangingFrequency);
-    stateMap.add({Key::Key2}, State::ChangingTotalOffset);
-    stateMap.add({Key::Key3}, State::ChangingGreenOffset);
-    stateMap.add({Key::Key4}, State::ChangingBlueOffset);
-    stateMap.add({Key::Key5}, State::ChangingYScale);
-
-    return {momentaryMap, stateMap};
-}
-
-[[nodiscard]] auto
-initControlsDvorak() -> std::pair<MomentaryActionsMap, StateMap>
-{
-    using namespace Input;
-
-    auto momentaryMap = MomentaryActionsMap();
-    momentaryMap.add({Key::J}, Trigger::ToggleAutoWalk);
-    momentaryMap.add({Key::R}, Trigger::ToggleAutoZoom);
-    momentaryMap.add({Key::T}, Trigger::IncreaseIterations);
-    momentaryMap.add({Key::H}, Trigger::DecreaseIterations);
-    momentaryMap.add({Key::F}, Trigger::ToggleFastMode);
-    momentaryMap.add({Key::D}, Trigger::SwitchShader);
-    momentaryMap.add({Key::P}, Trigger::TogglePause);
-    momentaryMap.add({Key::X}, Trigger::TakeScreenshot);
-    momentaryMap.add({Key::Q}, Trigger::CloseWindow);
-    momentaryMap.add({Key::Escape}, Trigger::CloseWindow);
-    momentaryMap.add({Key::S, (int)Mod::Control}, Trigger::Save);
-    momentaryMap.add({Key::O, (int)Mod::Control}, Trigger::Load);
-    momentaryMap.add(
-            {Key::L, (int)Mod::Control},
-            Trigger::LoadTerrainFunctions);
-    momentaryMap.add({Key::L}, Trigger::ToggleLighting);
-
-    auto stateMap = StateMap();
-    stateMap.add({Key::Comma}, State::MovingForwards);
-    stateMap.add({Key::O}, State::MovingBackwards);
-    stateMap.add({Key::A}, State::MovingLeft);
-    stateMap.add({Key::E}, State::MovingRight);
-    stateMap.add({MouseButton::Left}, State::ZoomingIn);
-    stateMap.add({MouseButton::Right}, State::ZoomingOut);
-    stateMap.add({Key::Up}, State::IncreasingParameter);
-    stateMap.add({Key::Down}, State::DecreasingParameter);
-    stateMap.add({Key::Key1}, State::ChangingFrequency);
-    stateMap.add({Key::Key2}, State::ChangingTotalOffset);
-    stateMap.add({Key::Key3}, State::ChangingGreenOffset);
-    stateMap.add({Key::Key4}, State::ChangingBlueOffset);
-    stateMap.add({Key::Key5}, State::ChangingYScale);
-
-    return {momentaryMap, stateMap};
 }

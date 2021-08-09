@@ -61,6 +61,8 @@ public:
     auto
     setIterations(int iterations) noexcept -> void;
 
+    auto static bindAttributeLocations(ShaderProgram& shaderProgram) -> void;
+
     static GLuint constexpr positionAttributeLocation = 0;
     static GLuint constexpr valueAttributeLocation    = 1;
     static GLuint constexpr insideAttributeLocation   = 2;

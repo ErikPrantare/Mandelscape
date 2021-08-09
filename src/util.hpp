@@ -112,6 +112,9 @@ Overload(Callables...) -> Overload<Callables...>;
 auto constexpr nop = [](auto&&...) {
 };
 
+auto
+currentDatetimeString() -> std::string;
+
 template<typename T, typename Container>
 [[nodiscard]] auto
 pop(std::queue<T, Container>& queue) -> std::optional<T>
@@ -192,6 +195,14 @@ public:
 private:
     std::function<void()> m_destructor;
 };
+
+template<class Variant, class... Function>
+auto
+dispatch(Variant& variant, Function... fs)
+{
+    std::visit(util::Overload{fs..., util::nop}, variant);
+};
+
 }    // namespace util
 
 namespace util::lua {
@@ -219,6 +230,11 @@ to<UniformController>(lua_State* L, int offset) -> UniformController;
 }    // namespace util::lua
 
 namespace util::nfd {
+namespace literal {
+auto operator""_nfd(char const* str, size_t size)
+        -> std::filesystem::path::string_type;
+}
+
 namespace fs = std::filesystem;
 using string = fs::path::string_type;
 

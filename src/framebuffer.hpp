@@ -18,6 +18,7 @@
 #ifndef MANDELSCAPE_FRAMEBUFFER_HPP
 #define MANDELSCAPE_FRAMEBUFFER_HPP
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -34,16 +35,19 @@ public:
     [[nodiscard]] auto
     size() const noexcept -> glm::ivec2;
 
-    [[nodiscard]] auto
-    readPixels() -> std::vector<unsigned char>;
+    auto
+    savePngDownsampled(std::filesystem::path const& path) -> void;
 
     auto
     bind() noexcept -> void;
 
     static auto
-    unbind() noexcept -> void;
+    bindDefaultBuffer() noexcept -> void;
 
 private:
+    [[nodiscard]] auto
+    readPixels() -> std::vector<unsigned char>;
+
     gl::Fbo m_fbo = 0;
     Texture m_texture;
     Texture m_depth;

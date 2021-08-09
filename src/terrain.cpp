@@ -190,3 +190,20 @@ Terrain::render(ShaderProgram& shaderProgram) -> void
 
     m_mesh.render(shaderProgram);
 }
+
+auto
+Terrain::bindAttributeLocations(ShaderProgram& shaderProgram) -> void
+{
+    shaderProgram.bindAttributeLocation(
+            "pos",
+            Terrain::positionAttributeLocation);
+    shaderProgram.bindAttributeLocation(
+            "val",
+            Terrain::valueAttributeLocation);
+    shaderProgram.bindAttributeLocation(
+            "inside_",
+            Terrain::insideAttributeLocation);
+    shaderProgram.bindAttributeLocation(
+            "normal_",
+            Terrain::normalAttributeLocation);
+}

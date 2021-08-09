@@ -22,6 +22,16 @@
 namespace util {
 
 auto
+currentDatetimeString() -> std::string
+{
+    std::time_t const t = std::time(nullptr);
+    std::tm const tm    = *std::localtime(&t);
+    std::stringstream buffer;
+    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
+    return buffer.str();
+}
+
+auto
 unitVec2(double theta) noexcept -> glm::dvec2
 {
     return {std::cos(theta), std::sin(theta)};
@@ -167,6 +177,14 @@ to<UniformController>(lua_State* L, int offset) -> UniformController
 }    // namespace util::lua
 
 namespace util::nfd {
+namespace literal {
+auto operator""_nfd(char const* str, size_t size)
+        -> std::filesystem::path::string_type
+{
+    return {str, str + size};
+}
+}
+
 auto
 toNfdFilterItems(std::vector<FilterItem> const& items)
         -> std::vector<nfdnfilteritem_t>

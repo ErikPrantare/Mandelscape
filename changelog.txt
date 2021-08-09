@@ -10,6 +10,8 @@ This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 + Add hobold orbit trap algorithm
 + Add lighting
 
+. Update documentation
+
 1.0.0 (2021-03-24):
 + Add custom terrain scripting
 + Add documentation for writing custom algorithms

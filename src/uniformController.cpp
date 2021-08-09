@@ -92,17 +92,17 @@ UniformController::iterations() const noexcept -> int
 }
 
 auto
-UniformController::update(ShaderProgram* const shaderProgram) -> void
+UniformController::update(ShaderProgram& shaderProgram) -> void
 {
-    shaderProgram->setUniformInt("fastMode", static_cast<int>(m_fastMode));
-    shaderProgram->setUniformInt(
+    shaderProgram.setUniformInt("fastMode", static_cast<int>(m_fastMode));
+    shaderProgram.setUniformInt(
             "renderLighting",
             static_cast<int>(m_renderLighting));
-    shaderProgram->setUniformFloat(
+    shaderProgram.setUniformFloat(
             "colorFrequency",
             static_cast<float>(m_colorFrequency));
-    shaderProgram->setUniformVec3("colorOffset", m_colorOffset);
-    shaderProgram->setUniformFloat("yScale", static_cast<float>(m_yScale));
+    shaderProgram.setUniformVec3("colorOffset", m_colorOffset);
+    shaderProgram.setUniformFloat("yScale", static_cast<float>(m_yScale));
 }
 
 auto

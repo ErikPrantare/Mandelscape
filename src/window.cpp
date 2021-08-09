@@ -102,12 +102,6 @@ auto
 Window::update() -> bool
 {
     glfwMakeContextCurrent(m_window.get());
-    if(m_screenshotBuffer != std::nullopt) {
-        screenshot();
-        m_screenshotBuffer->unbind();
-        m_screenshotBuffer = std::nullopt;
-        glViewport(0, 0, m_size.x, m_size.y);
-    }
     glfwSwapBuffers(m_window.get());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -180,62 +174,13 @@ Window::togglePause() noexcept -> void
 auto
 Window::size() const noexcept -> glm::ivec2
 {
-    return m_screenshotBuffer ? m_screenshotBuffer->size() : m_size;
+    return m_size;
 }
 
 void
 Window::close()
 {
     glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
-}
-
-static auto
-saveScreenshot(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void
-{
-    std::time_t const t = std::time(nullptr);
-    std::tm const tm    = *std::localtime(&t);
-    std::stringstream buffer;
-    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
-
-    namespace fs          = std::filesystem;
-    std::string const dir = "screenshots";
-    if(!fs::is_directory(dir) || !fs::exists(dir)) {
-        fs::create_directory(dir);
-    }
-
-    std::string filename = dir + "/" + buffer.str() + ".png";
-
-    stbi_flip_vertically_on_write(1);
-    stbi_write_png(filename.c_str(), size.x, size.y, 3, pixels.data(), 0);
-}
-
-void
-Window::screenshot()
-{
-    glfwMakeContextCurrent(m_window.get());
-
-    auto const inputSize  = m_screenshotBuffer->size();
-    auto const outputSize = inputSize / 2;
-    auto const pixels     = m_screenshotBuffer->readPixels();
-
-    // CPP23 3z * outputSize.x
-    std::vector<unsigned char> aa(
-            3 * static_cast<long>(outputSize.x) * outputSize.y);
-
-    stbir_resize_uint8(
-            pixels.data(),
-            inputSize.x,
-            inputSize.y,
-            0,
-            aa.data(),
-            outputSize.x,
-            outputSize.y,
-            0,
-            3);
-
-    saveScreenshot(aa, outputSize);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void

@@ -56,7 +56,7 @@ public:
     handleMomentaryAction(MomentaryAction const& action) -> void;
 
     auto
-    update(ShaderProgram* shaderProgram) -> void;
+    update(ShaderProgram& shaderProgram) -> void;
 
     [[nodiscard]] auto
     yScale() const noexcept -> double;
