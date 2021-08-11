@@ -23,7 +23,6 @@
 #include <catch2/catch.hpp>
 
 #include "metaController.hpp"
-#include "playerController.hpp"
 #include "event.hpp"
 #include "player.hpp"
 
@@ -33,7 +32,7 @@ auto stateUpdateCalled   = std::array{false, false, false};
 auto constexpr switchKey = Input::Key::C;
 
 template<int n>
-class Controller final : public PlayerController {
+class Controller final : public Player::Controller {
 public:
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void final
@@ -51,7 +50,7 @@ public:
     }
 
     auto
-    update(Player*, double) -> void final
+    update(Player::Internals&, double) -> void final
     {
         updateCalled[n] = true;
     }
@@ -70,21 +69,21 @@ TEST_CASE("MetaController switches controllers", "[MetaController]")
     meta.handleMomentaryAction(Trigger::ToggleAutoWalk);
     meta.updateState(persistentMap);
     REQUIRE(switchCalls == std::array{0, 1, 0});
-    meta.update(&player, 0.0);
+    meta.update(player, 0.0);
     REQUIRE(updateCalled == std::array{false, true, false});
     REQUIRE(stateUpdateCalled == std::array{false, true, false});
 
     meta.handleMomentaryAction(Trigger::ToggleAutoWalk);
     meta.updateState(persistentMap);
     REQUIRE(switchCalls == std::array{0, 1, 1});
-    meta.update(&player, 0.0);
+    meta.update(player, 0.0);
     REQUIRE(updateCalled == std::array{false, true, true});
     REQUIRE(stateUpdateCalled == std::array{false, true, true});
 
     meta.handleMomentaryAction(Trigger::ToggleAutoWalk);
     meta.updateState(persistentMap);
     REQUIRE(switchCalls == std::array{1, 1, 1});
-    meta.update(&player, 0.0);
+    meta.update(player, 0.0);
     REQUIRE(updateCalled == std::array{true, true, true});
     REQUIRE(stateUpdateCalled == std::array{true, true, true});
 }

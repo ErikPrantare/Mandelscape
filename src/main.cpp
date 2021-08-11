@@ -28,12 +28,16 @@
 #define NFD_NATIVE
 #include <nfd.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_image_resize.h>
+
 #include "util.hpp"
 #include "camera.hpp"
 #include "terrain.hpp"
 #include "window.hpp"
 #include "player.hpp"
-#include "playerHelper.hpp"
 #include "walkController.hpp"
 #include "autoController.hpp"
 #include "metaController.hpp"
@@ -198,14 +202,14 @@ try {
             metaController.updateState(stateMap);
             uniformController.updateState(stateMap, dt);
 
-            auto const pos = PlayerHelper(player).truePosition();
-            terrain.updateMesh({pos.x, pos.z}, 1.0 / player.scale);
-            PlayerHelper(player).updateOffset(terrain.offset());
-            player.position.y = terrain.heightAt({pos.x, pos.z});
-            metaController.update(&player, dt);
+            auto const pos = player.truePosition();
+            terrain.updateMesh({pos.x, pos.z}, 1.0 / player.scale());
+            player.updateOffset(terrain.offset());
+            player.updateFeetAltitude(terrain.heightAt({pos.x, pos.z}));
+            metaController.update(player, dt);
 
             // Do this after .update, as autozoom is dependent on position.y
-            player.position.y *= uniformController.yScale();
+            player.state().position.y *= uniformController.yScale();
 
             terrain.setIterations(uniformController.iterations());
         }
@@ -243,25 +247,25 @@ renderScene(
         ShaderProgram* const program,
         double dt)
 {
-    glm::dvec3 cameraPosition = player.position;
-    cameraPosition.y += player.scale;
+    glm::dvec3 cameraPosition = player.state().position;
+    cameraPosition.y += player.scale();
     static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
     cameraPosition.y = filteredHeight(cameraPosition.y, dt);
 
     // + util::pi, because -z is regarded as the default lookAt forward
     auto const lookAt = glm::rotate(
                                 glm::dmat4(1.0),
-                                player.lookAtOffset.x + util::pi,
+                                player.state().lookAtOffset.x + util::pi,
                                 {0.0, 1.0, 0.0})
                         * glm::rotate(
                                 glm::dmat4(1.0),
-                                player.lookAtOffset.y,
+                                player.state().lookAtOffset.y,
                                 {1.0, 0.0, 0.0})
                         * glm::dvec4(0.0, 0.0, 1.0, 0.0);
 
     // CPP20 {.x = ...}
     auto const camera =
-            Camera({cameraPosition, lookAt, viewSize, player.scale});
+            Camera({cameraPosition, lookAt, viewSize, player.scale()});
     program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program->setUniformMatrix4("projection", camera.projection());
     program->setUniformVec3("lookAt", lookAt);

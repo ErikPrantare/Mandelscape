@@ -38,12 +38,12 @@ serialize(std::ostream& out, Player const& player, std::string const& name)
         -> void
 {
     out << name << " = {\n  ";
-    serialize(out, player.position, "position");
+    serialize(out, player.state().position, "position");
     out << ",\n  ";
-    serialize(out, player.offset, "offset");
+    serialize(out, player.state().offset, "offset");
     out << ",\n  ";
-    serialize(out, player.lookAtOffset, "lookAtOffset");
-    out << ",\n  scale = " << player.scale << "\n}\n\n";
+    serialize(out, player.state().lookAtOffset, "lookAtOffset");
+    out << ",\n  scale = " << player.scale() << "\n}\n\n";
 }
 
 auto

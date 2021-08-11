@@ -26,8 +26,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "player.hpp"
 #include "event.hpp"
-#include "playerController.hpp"
 #include "util.hpp"
 #include "momentaryAction.hpp"
 
@@ -42,12 +42,9 @@ public:
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void
     {
-        bool switchController =
-                std::holds_alternative<Trigger>(action)
-                && std::get<Trigger>(action) == Trigger::ToggleAutoWalk;
-
-        if(switchController) {
-            m_activeController = (m_activeController + 1) % numControllers;
+        if(action == MomentaryAction{Trigger::ToggleAutoWalk}) {
+            ++m_activeController;
+            m_activeController %= numControllers;
         }
 
         m_controllers[m_activeController]->handleMomentaryAction(action);
@@ -60,13 +57,13 @@ public:
     }
 
     auto
-    update(Player* const player, double dt) -> void
+    update(Player& player, double dt) -> void
     {
-        m_controllers[m_activeController]->update(player, dt);
+        m_controllers[m_activeController]->update(player.state(), dt);
     }
 
 private:
-    std::array<std::unique_ptr<PlayerController>, numControllers>
+    std::array<std::unique_ptr<Player::Controller>, numControllers>
             m_controllers;
     size_t m_activeController = 0;
 };

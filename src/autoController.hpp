@@ -24,15 +24,14 @@
 
 #include "util.hpp"
 #include "player.hpp"
-#include "playerController.hpp"
 #include "stateMap.hpp"
 
-class AutoController final : public PlayerController {
+class AutoController final : public Player::Controller {
 public:
     AutoController(std::function<double(glm::dvec2)>);
 
     auto
-    update(Player*, double) -> void final;
+    update(Player::Internals& playerState, double dt) -> void final;
 
     auto
     handleMomentaryAction(MomentaryAction const&) -> void final;
@@ -42,7 +41,7 @@ public:
 
 private:
     auto
-    locateTarget(Player const& player) -> void;
+    locateTarget(Player::Internals const& playerState) -> void;
 
     std::function<double(glm::dvec2)> m_heightFunc;
 

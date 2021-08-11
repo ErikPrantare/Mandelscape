@@ -19,6 +19,9 @@
 
 #include <glm/glm.hpp>
 
+#include "player.hpp"
+#include "uniformController.hpp"
+
 namespace util {
 
 auto
@@ -127,19 +130,19 @@ to<Player>(lua_State* L, int offset) -> Player
     auto player = Player();
 
     lua_getfield(L, offset, "position");
-    player.position = util::lua::to<glm::dvec3>(L, -1);
+    player.m_state.position = util::lua::to<glm::dvec3>(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "offset");
-    player.offset = util::lua::to<glm::dvec3>(L, -1);
+    player.m_state.offset = util::lua::to<glm::dvec3>(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "lookAtOffset");
-    player.lookAtOffset = util::lua::to<glm::dvec2>(L, -1);
+    player.m_state.lookAtOffset = util::lua::to<glm::dvec2>(L, -1);
     lua_pop(L, 1);
 
     lua_getfield(L, offset, "scale");
-    player.scale = lua_tonumber(L, -1);
+    player.m_state.scale = lua_tonumber(L, -1);
     lua_pop(L, 1);
 
     return player;
@@ -178,12 +181,12 @@ to<UniformController>(lua_State* L, int offset) -> UniformController
 
 namespace util::nfd {
 namespace literal {
-auto operator""_nfd(char const* str, size_t size)
-        -> std::filesystem::path::string_type
-{
-    return {str, str + size};
-}
-}
+    auto operator""_nfd(char const* str, size_t size)
+            -> std::filesystem::path::string_type
+    {
+        return {str, str + size};
+    }
+}    // namespace literal
 
 auto
 toNfdFilterItems(std::vector<FilterItem> const& items)

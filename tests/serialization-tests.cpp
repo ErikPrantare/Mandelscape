@@ -37,10 +37,10 @@ TEST_CASE(
     {
         auto player = Player();
 
-        player.position     = {0.001, 127378888.01, -3.14};
-        player.offset       = {0.024, 378888.01, 1e100};
-        player.lookAtOffset = {378.99, 1e-10};
-        player.scale        = 1.0 / 32897.879423;
+        player.state().position     = {0.001, 127378888.01, -3.14};
+        player.state().offset       = {0.024, 378888.01, 1e100};
+        player.state().lookAtOffset = {378.99, 1e-10};
+        player.state().scale        = 1.0 / 32897.879423;
 
         auto ss = std::stringstream();
         serialize(ss, player, "player");

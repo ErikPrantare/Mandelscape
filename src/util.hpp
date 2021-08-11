@@ -29,6 +29,7 @@
 #include <optional>
 #include <type_traits>
 #include <filesystem>
+#include <variant>
 
 #include <glm/glm.hpp>
 #include <glm/ext/scalar_constants.hpp>
@@ -37,9 +38,8 @@
 
 #include "lua.hpp"
 
+#include "glfwEnums.hpp"
 #include "mandelTypeTraits.hpp"
-#include "player.hpp"
-#include "uniformController.hpp"
 
 namespace util {
 
@@ -205,6 +205,9 @@ dispatch(Variant& variant, Function... fs)
 
 }    // namespace util
 
+// forward declaration for specialization declarations
+class Player;
+class UniformController;
 namespace util::lua {
 
 template<class T>
@@ -231,8 +234,8 @@ to<UniformController>(lua_State* L, int offset) -> UniformController;
 
 namespace util::nfd {
 namespace literal {
-auto operator""_nfd(char const* str, size_t size)
-        -> std::filesystem::path::string_type;
+    auto operator""_nfd(char const* str, size_t size)
+            -> std::filesystem::path::string_type;
 }
 
 namespace fs = std::filesystem;

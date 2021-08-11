@@ -25,26 +25,14 @@
 #include "stateMap.hpp"
 #include "shaderProgram.hpp"
 #include "momentaryAction.hpp"
+#include "util.hpp"
 
-// forward declarations for friend functions
-///////////////////////////////////////////////////////////////////////////////
 class UniformController;
-namespace util::lua {
-template<class T>
-[[nodiscard]] auto
-to(lua_State* L, int offset) -> T;
-
-template<>
-auto
-to<UniformController>(lua_State* L, int offset) -> UniformController;
-}    // namespace util::lua
-
 // used in tests to test for approximate equality
 class UniformControllerApprox;
 auto
 operator==(UniformController const& a, UniformControllerApprox const& b)
         -> bool;
-///////////////////////////////////////////////////////////////////////////////
 
 /* Controls shader parameters */
 class UniformController {

@@ -56,18 +56,20 @@ operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&
 auto
 operator<<(std::ostream& os, Player const& player) -> std::ostream&
 {
-    os << "Player(" << player.position << ", " << player.offset << ", "
-       << player.lookAtOffset << ", " << player.scale << ")";
+    os << "Player(" << player.state().position << ", " << player.state().offset
+       << ", " << player.state().lookAtOffset << ", " << player.state().scale
+       << ")";
     return os;
 }
 
 auto
 operator==(Player const& a, PlayerApprox const& b) -> bool
 {
-    return a.position == Dvec3Approx{b.player.position}
-           && a.offset == Dvec3Approx{b.player.offset}
-           && a.lookAtOffset == Dvec2Approx{b.player.lookAtOffset}
-           && a.scale == Approx{b.player.scale};
+    return a.state().position == Dvec3Approx{b.player.state().position}
+           && a.state().offset == Dvec3Approx{b.player.state().offset}
+           && a.state().lookAtOffset
+                      == Dvec2Approx{b.player.state().lookAtOffset}
+           && a.state().scale == Approx{b.player.state().scale};
 }
 
 auto
