@@ -17,6 +17,18 @@
 
 #include "serialization.hpp"
 
+template<>
+auto
+serialize<double>(
+        std::ostream& out,
+        double const& object,
+        std::string const& name,
+        int depth)
+{
+    auto const indentation = std::string(depth, ' ');
+    out << indentation << name << " = " << object;
+}
+
 // C++20 use fmt library for serialization.
 static auto
 serialize(std::ostream& out, glm::dvec2 const v, std::string const& name)
@@ -25,20 +37,12 @@ serialize(std::ostream& out, glm::dvec2 const v, std::string const& name)
     out << name << " = {x = " << v.x << ", y = " << v.y << "}";
 }
 
-static auto
-serialize(std::ostream& out, glm::dvec3 const v, std::string const& name)
-        -> void
-{
-    out << name << " = {x = " << v.x << ", y = " << v.y << ", z = " << v.z
-        << "}";
-}
-
 auto
 serialize(std::ostream& out, Player const& player, std::string const& name)
         -> void
 {
     out << name << " = {\n  ";
-    serialize(out, player.state().position, "position");
+    serialize<glm::dvec3>(out, player.state().position, "position");
     out << ",\n  ";
     serialize(out, player.state().offset, "offset");
     out << ",\n  ";
