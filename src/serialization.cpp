@@ -29,16 +29,26 @@ serialize<double>(
     out << indentation << name << " = " << object;
 }
 
+template<>
 auto
-serialize(
+serialize<bool>(
         std::ostream& out,
-        UniformController const& uniformController,
-        std::string const& name) -> void
+        bool const& object,
+        std::string const& name,
+        int depth) -> void
 {
-    out << name << " = {\n  ";
-    serialize(out, uniformController.m_colorOffset, "colorOffset");
-    out << ",\n  colorFrequency = " << uniformController.m_colorFrequency
-        << ",\n  yScale = " << uniformController.m_yScale << ",\n  fastMode = "
-        << (uniformController.m_fastMode ? "true" : "false")
-        << ",\n  iterations = " << uniformController.m_iterations << "\n}\n\n";
+    auto const indentation = std::string(depth, ' ');
+    out << indentation << name << " = " << (object ? "true" : "false");
+}
+
+template<>
+auto
+serialize<int>(
+        std::ostream& out,
+        int const& object,
+        std::string const& name,
+        int depth) -> void
+{
+    auto const indentation = std::string(depth, ' ');
+    out << indentation << name << " = " << object;
 }

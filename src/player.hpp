@@ -77,7 +77,7 @@ public:
         m_state.position.y = altitude;
     }
 
-    auto static getSerializationTable()
+    [[nodiscard]] auto static getSerializationTable()
     {
         return std::make_tuple(
                 makeMemberEntry<&Player::m_state, &Internals::scale>("scale"),

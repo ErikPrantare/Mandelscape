@@ -45,6 +45,7 @@
 #include "momentaryActionsMap.hpp"
 #include "shaderController.hpp"
 #include "genericController.hpp"
+#include "uniformController.hpp"
 #include "serialization.hpp"
 #include "keymaps.hpp"
 

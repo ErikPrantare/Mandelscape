@@ -26,6 +26,7 @@
 #include "shaderProgram.hpp"
 #include "momentaryAction.hpp"
 #include "util.hpp"
+#include "serialization.hpp"
 
 class UniformController;
 // used in tests to test for approximate equality
@@ -55,15 +56,23 @@ public:
     [[nodiscard]] auto
     operator==(UniformController const& other) const noexcept -> bool;
 
+    [[nodiscard]] auto static getSerializationTable()
+    {
+        return std::make_tuple(
+                makeMemberEntry<&UniformController::m_colorOffset>(
+                        "colorOffset"),
+                makeMemberEntry<&UniformController::m_colorFrequency>(
+                        "colorFrequency"),
+                makeMemberEntry<&UniformController::m_yScale>("yScale"),
+                makeMemberEntry<&UniformController::m_fastMode>("fastMode"),
+                makeMemberEntry<&UniformController::m_iterations>(
+                        "iterations"));
+    }
+
     friend auto
     util::lua::to<UniformController>(lua_State* L, int offset)
             -> UniformController;
 
-    friend auto
-    serialize(
-            std::ostream& out,
-            UniformController const& uniformController,
-            std::string const& name) -> void;
     friend auto
     operator==(UniformController const& a, UniformControllerApprox const& b)
             -> bool;

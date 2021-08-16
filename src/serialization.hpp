@@ -21,9 +21,10 @@
 #include <ostream>
 #include <functional>
 
-#include "lua.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
-#include "uniformController.hpp"
+#include "lua.hpp"
 
 // CPP20 use concepts for Getter and Setter
 template<class Getter, class Setter>
@@ -114,8 +115,20 @@ serialize<double>(
         std::string const& name,
         int depth) -> void;
 
+template<>
 auto
-serialize(std::ostream&, UniformController const&, std::string const& name)
-        -> void;
+serialize<bool>(
+        std::ostream& out,
+        bool const& object,
+        std::string const& name,
+        int depth) -> void;
+
+template<>
+auto
+serialize<int>(
+        std::ostream& out,
+        int const& object,
+        std::string const& name,
+        int depth) -> void;
 
 #endif
