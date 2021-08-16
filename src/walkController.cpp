@@ -27,27 +27,30 @@
 #include "util.hpp"
 
 auto
-WalkController::update(Player::Internals& player, double const dt) -> void
+WalkController::update(Player& player, double const dt) -> void
 {
     auto constexpr pi = glm::pi<double>();
 
-    player.lookAtOffset += m_dLookAtOffset;
-    player.lookAtOffset.y =
-            std::clamp(player.lookAtOffset.y, -pi / 2 + 0.001, pi / 2 - 0.001);
+    internals(player).lookAtOffset += m_dLookAtOffset;
+    internals(player).lookAtOffset.y = std::clamp(
+            internals(player).lookAtOffset.y,
+            -pi / 2 + 0.001,
+            pi / 2 - 0.001);
     m_dLookAtOffset = glm::dvec2{0.0, 0.0};
 
     auto rotator = glm::rotate(
             glm::dmat4(1.0),
-            player.lookAtOffset.x,
+            internals(player).lookAtOffset.x,
             {0.0, 1.0, 0.0});
-    player.position += dt * player.scale * movementSpeed
-                       * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
+    internals(player).position +=
+            dt * internals(player).scale * movementSpeed
+            * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
 
     if(!m_autoZoom) {
-        player.scale *= std::exp(dt * m_scalingVelocity);
+        internals(player).scale *= std::exp(dt * m_scalingVelocity);
     }
-    else if(player.position.y != 0.0) {
-        player.scale = player.position.y;
+    else if(internals(player).position.y != 0.0) {
+        internals(player).scale = internals(player).position.y;
     }
 }
 

@@ -23,55 +23,52 @@
 
 #include "lua.hpp"
 
-#include "player.hpp"
 #include "uniformController.hpp"
 
 // CPP20 use concepts for Getter and Setter
-template<
-        class Parent,
-        class Value,
-        class Getter,
-        class Setter,
-        class = std::enable_if<
-                std::is_invocable_r_v<Value, Getter, Parent const&>>,
-        class = std::enable_if<
-                std::is_invocable_v<Setter, Parent, Value const&>>>
+template<class Getter, class Setter>
 struct SerializationEntry {
     std::string const name;
     Getter const getter;
     Setter const setter;
 };
 
-template<class Class, class Member>
-struct T {
-    Member Class::*mem;
-    using M = Member;
-    using C = Class;
-};
-
-template<class C, class M>
-T(M C::*) -> T<C, M>;
-
-template<auto member>
+template<auto... member>
 auto
 makeMemberEntry(std::string const& name)
 {
-    auto const getter = std::mem_fn(member);
-    auto const setter = [&name](auto& object, auto const& val) {
-        object.*member = val;
+    auto const getter = [](auto const& object) {
+        return (object.*....*member);
+    };
+    auto const setter = [](auto& object, auto const& val) {
+        (object.*....*member) = val;
     };
 
     // CPP20 {.x = ...}
-    return SerializationEntry<
-            typename decltype(T{member})::C,
-            typename decltype(T{member})::M,
-            decltype(getter),
-            decltype(setter)>{name, getter, setter};
+    return SerializationEntry<decltype(getter), decltype(setter)>{
+            name,
+            getter,
+            setter};
 }
 
 // CPP20 concept Serializable
 template<class Serializable>
-struct SerializationTable;
+struct SerializationTable {
+    auto static entries()
+    {
+        return Serializable::getSerializationTable();
+    }
+};
+
+template<>
+struct SerializationTable<glm::dvec2> {
+    auto static entries()
+    {
+        return std::make_tuple(
+                makeMemberEntry<&glm::dvec2::x>("x"),
+                makeMemberEntry<&glm::dvec2::y>("y"));
+    }
+};
 
 template<>
 struct SerializationTable<glm::dvec3> {
@@ -91,7 +88,7 @@ serialize(
         std::ostream& out,
         Serializable const& object,
         std::string const& name,
-        int depth = 0)
+        int depth = 0) -> void
 {
     auto const indentation = std::string(depth, ' ');
     out << indentation << name << " = {\n";
@@ -115,10 +112,7 @@ serialize<double>(
         std::ostream& out,
         double const& object,
         std::string const& name,
-        int depth);
-
-auto
-serialize(std::ostream&, Player const&, std::string const& name) -> void;
+        int depth) -> void;
 
 auto
 serialize(std::ostream&, UniformController const&, std::string const& name)

@@ -59,7 +59,7 @@ public:
     auto
     update(Player& player, double dt) -> void
     {
-        m_controllers[m_activeController]->update(player.state(), dt);
+        m_controllers[m_activeController]->update(player, dt);
     }
 
 private:

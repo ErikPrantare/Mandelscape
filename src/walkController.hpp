@@ -34,7 +34,7 @@ public:
     updateState(StateMap const& active) -> void final;
 
     auto
-    update(Player::Internals& player, double dt) -> void final;
+    update(Player& player, double dt) -> void final;
 
 private:
     static double constexpr movementSpeed = 1.0;

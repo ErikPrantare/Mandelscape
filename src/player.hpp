@@ -26,13 +26,13 @@
 #include "lua.h"
 
 #include "momentaryAction.hpp"
+#include "serialization.hpp"
 #include "stateMap.hpp"
 #include "util.hpp"
 
 class Player {
 public:
     struct Internals {
-        Player* owner;
         glm::dvec3 position     = glm::dvec3{0.0, 0.0, 0.0};
         glm::dvec3 offset       = glm::dvec3{0.0, 0.0, 0.0};
         glm::dvec2 lookAtOffset = glm::dvec2{0.0, 0.0};
@@ -77,20 +77,23 @@ public:
         m_state.position.y = altitude;
     }
 
+    auto static getSerializationTable()
+    {
+        return std::make_tuple(
+                makeMemberEntry<&Player::m_state, &Internals::scale>("scale"),
+                makeMemberEntry<&Player::m_state, &Internals::position>(
+                        "position"),
+                makeMemberEntry<&Player::m_state, &Internals::offset>(
+                        "offset"),
+                makeMemberEntry<&Player::m_state, &Internals::lookAtOffset>(
+                        "lookAtOffset"));
+    }
+
     friend auto
     util::lua::to<Player>(lua_State* L, int offset) -> Player;
 
     class Controller {
     public:
-        virtual auto
-        handleMomentaryAction(MomentaryAction const& action) -> void = 0;
-
-        virtual auto
-        updateState(StateMap const& map) -> void = 0;
-
-        virtual auto
-        update(Internals& player, double dt) -> void = 0;
-
         virtual ~Controller() = default;
 
         Controller()                  = default;
@@ -101,11 +104,30 @@ public:
         operator=(Controller&&) -> Controller& = default;
         auto
         operator=(Controller const&) -> Controller& = default;
+
+        virtual auto
+        handleMomentaryAction(MomentaryAction const& action) -> void = 0;
+
+        virtual auto
+        updateState(StateMap const& map) -> void = 0;
+
+        virtual auto
+        update(Player& player, double dt) -> void = 0;
+
+    protected:
+        auto static internals(Player& p) -> Internals&
+        {
+            return p.m_state;
+        }
+        auto static internals(Player const& p) -> Internals const&
+        {
+            return p.m_state;
+        }
     };
 
 private:
     // CPP20 {.x = ...}
-    Internals m_state{this};
+    Internals m_state;
 };
 
 #endif

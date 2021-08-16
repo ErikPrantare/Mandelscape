@@ -40,37 +40,37 @@ AutoController::handleMomentaryAction(MomentaryAction const& action) -> void
 }
 
 auto
-AutoController::update(Player::Internals& playerState, double const dt) -> void
+AutoController::update(Player& player, double const dt) -> void
 {
-    auto const absolutePos = util::planePos(playerState.owner->truePosition());
+    auto const absolutePos = util::planePos(player.truePosition());
 
-    auto const speed          = playerState.scale * travelSpeed;
+    auto const speed          = internals(player).scale * travelSpeed;
     auto const targetDistance = glm::length(m_target - absolutePos);
 
     m_needsRetarget = m_needsRetarget || targetDistance < dt * speed;
 
     if(m_needsRetarget) {
-        locateTarget(playerState);
+        locateTarget(player);
         m_needsRetarget = false;
     }
 
     auto const direction = glm::normalize(m_target - absolutePos);
-    playerState.position.x += dt * speed * direction.x;
-    playerState.position.z += dt * speed * direction.y;
+    internals(player).position.x += dt * speed * direction.x;
+    internals(player).position.z += dt * speed * direction.y;
 
     // flipped in atan2 and +pi because offset is relative to -z and not x
-    playerState.lookAtOffset.x =
+    internals(player).lookAtOffset.x =
             m_filteredLookAt(std::atan2(direction.x, direction.y) + util::pi);
     // look slightly down
-    playerState.lookAtOffset.y = util::pi / 6;
+    internals(player).lookAtOffset.y = util::pi / 6;
 }
 
 auto
-AutoController::locateTarget(Player::Internals const& playerState) -> void
+AutoController::locateTarget(Player const& player) -> void
 {
     using distribution = std::uniform_real_distribution<double>;
 
-    auto const absolutePos = util::planePos(playerState.owner->truePosition());
+    auto const absolutePos = util::planePos(player.truePosition());
 
     auto rd               = std::random_device();
     auto const travelTime = distribution(minTravelTime, maxTravelTime)(rd);
@@ -82,13 +82,13 @@ AutoController::locateTarget(Player::Internals const& playerState) -> void
         return angleDistance * distance / 3.0;
     };
 
-    auto const heightPenalty = [this, &playerState](glm::dvec2 pos) -> double {
+    auto const heightPenalty = [this, &player](glm::dvec2 pos) -> double {
         if(m_heightFunc(pos) == 0.0) {
             return 1e98;
         }
 
         // Divide by player.scale to normalize height pos.
-        return std::abs(m_heightFunc(pos) / playerState.scale - 1.0);
+        return std::abs(m_heightFunc(pos) / internals(player).scale - 1.0);
     };
 
     auto bestTarget  = absolutePos;
@@ -101,7 +101,7 @@ AutoController::locateTarget(Player::Internals const& playerState) -> void
     for(double angle = angleInit; angle < 2.0 * util::pi; angle += 0.01) {
         auto const testTarget =
                 absolutePos
-                + distance * playerState.scale * util::unitVec2(angle);
+                + distance * internals(player).scale * util::unitVec2(angle);
         auto const testPenalty =
                 heightPenalty(testTarget) + anglePenalty(angle, distance);
 

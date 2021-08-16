@@ -31,7 +31,7 @@ public:
     AutoController(std::function<double(glm::dvec2)>);
 
     auto
-    update(Player::Internals& playerState, double dt) -> void final;
+    update(Player& player, double dt) -> void final;
 
     auto
     handleMomentaryAction(MomentaryAction const&) -> void final;
@@ -41,7 +41,7 @@ public:
 
 private:
     auto
-    locateTarget(Player::Internals const& playerState) -> void;
+    locateTarget(Player const& playerState) -> void;
 
     std::function<double(glm::dvec2)> m_heightFunc;
 

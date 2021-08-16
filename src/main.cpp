@@ -293,6 +293,7 @@ savePreset(Player const& player, UniformController const& uniformController)
 
     std::ofstream out(path);
     serialize(out, player, "player");
+    out << "\n\n";
     serialize(out, uniformController, "uniformController");
 }
 
