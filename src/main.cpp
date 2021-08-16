@@ -155,7 +155,7 @@ try {
 
             screenshotBuffer.savePngDownsampled(
                     std::filesystem::path("screenshots")
-                    / util::currentDatetimeString());
+                    / (util::currentDatetimeString() + ".png"));
 
             Framebuffer::bindDefaultBuffer();
             glViewport(0, 0, window.size().x, window.size().y);
