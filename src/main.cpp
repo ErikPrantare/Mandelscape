@@ -296,16 +296,16 @@ savePreset(Player const& player, UniformController const& uniformController)
                                          ? presetDirectory
                                          : fs::current_path();
 
-    auto const [path, result] = util::nfd::saveDialog(
+    auto const path = util::nfd::saveDialog(
             filterItems,
             searchDirectory,
-            "save.lua"_nfd);
+            "my-preset.lua"_nfd);
 
-    if(result != NFD_OKAY) {
+    if(!path) {
         return;
     }
 
-    std::ofstream out(path);
+    std::ofstream out(*path);
     serialize(out, player, "player");
     out << "\n\n";
     serialize(out, uniformController, "uniformController");

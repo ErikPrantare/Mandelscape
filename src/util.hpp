@@ -223,7 +223,7 @@ struct FilterItem {
 saveDialog(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath,
-        string const& defaultName) -> std::pair<fs::path, nfdresult_t>;
+        string const& defaultName) -> std::optional<fs::path>;
 
 [[nodiscard]] auto
 openDialog(

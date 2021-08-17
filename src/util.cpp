@@ -111,7 +111,7 @@ toNfdFilterItems(std::vector<FilterItem> const& items)
 }
 
 auto
-saveDialog(
+saveDialogWithErrorCode(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath,
         string const& defaultName) -> std::pair<fs::path, nfdresult_t>
@@ -129,6 +129,20 @@ saveDialog(
     auto path = result == NFD_OKAY ? fs::path{nfdOutput.get()} : fs::path{};
 
     return {path, result};
+}
+
+auto
+saveDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath,
+        string const& defaultName) -> std::optional<fs::path>
+{
+    auto const& [path, code] =
+            saveDialogWithErrorCode(filterItems, startPath, defaultName);
+    if(code != NFD_OKAY) {
+        return std::nullopt;
+    }
+    return std::make_optional(path);
 }
 
 auto
