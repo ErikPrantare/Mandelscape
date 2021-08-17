@@ -255,13 +255,12 @@ saveDialog(
 [[nodiscard]] auto
 openDialog(
         std::vector<FilterItem> const& filterItems,
-        fs::path const& startPath) -> std::pair<fs::path, nfdresult_t>;
+        fs::path const& startPath) -> std::optional<fs::path>;
 
 [[nodiscard]] auto
 openDialogMultiple(
         std::vector<FilterItem> const& filterItems,
-        fs::path const& startPath)
-        -> std::pair<std::vector<fs::path>, nfdresult_t>;
+        fs::path const& startPath) -> std::vector<fs::path>;
 }    // namespace util::nfd
 
 #endif    // MANDELLANDSCAPE_UTILS_HPP

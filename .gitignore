@@ -43,5 +43,6 @@ tags
 #screenshots
 screenshots/
 
-#params
-params/
+#presets
+presets/*
+!presets/default.lua

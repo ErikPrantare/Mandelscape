@@ -225,26 +225,38 @@ saveDialog(
 }
 
 auto
-openDialog(
+openDialogWithErrorCode(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath) -> std::pair<fs::path, nfdresult_t>
 {
     auto nfdOutput            = NFD::UniquePathN();
     auto const nfdFilterItems = toNfdFilterItems(filterItems);
 
-    auto const result = NFD::OpenDialog(
+    auto const code = NFD::OpenDialog(
             nfdOutput,
             nfdFilterItems.data(),
             nfdFilterItems.size(),
             startPath.c_str());
 
-    auto path = result == NFD_OKAY ? fs::path{nfdOutput.get()} : fs::path{};
+    auto path = code == NFD_OKAY ? fs::path{nfdOutput.get()} : fs::path{};
 
-    return {path, result};
+    return {path, code};
 }
 
 auto
-openDialogMultiple(
+openDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath) -> std::optional<fs::path>
+{
+    auto const& [path, code] = openDialogWithErrorCode(filterItems, startPath);
+    if(code != NFD_OKAY) {
+        return std::nullopt;
+    }
+    return std::make_optional(path);
+}
+
+auto
+openDialogMultipleWithErrorCode(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath)
         -> std::pair<std::vector<fs::path>, nfdresult_t>
@@ -275,5 +287,16 @@ openDialogMultiple(
     }
 
     return {paths, result};
+}
+
+auto
+openDialogMultiple(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath) -> std::vector<fs::path>
+{
+    auto const& [paths, code] =
+            openDialogMultipleWithErrorCode(filterItems, startPath);
+
+    return paths;
 }
 }    // namespace util::nfd

@@ -64,6 +64,12 @@ savePreset(Player const& player, UniformController const& uniformController)
         -> void;
 
 auto
+loadPresetFrom(
+        std::filesystem::path const& path,
+        Player& player,
+        UniformController& uniformController) -> void;
+
+auto
 loadPreset(Player& player, UniformController& uniformController) -> void;
 
 auto
@@ -100,6 +106,8 @@ try {
 
     auto shaderController  = ShaderController(shaderProgram);
     auto uniformController = UniformController();
+
+    loadPresetFrom("presets/default.lua", player, uniformController);
 
     auto elapsedTime     = 0.0;
     double lastTimepoint = glfwGetTime();
@@ -283,9 +291,14 @@ savePreset(Player const& player, UniformController const& uniformController)
     std::vector<util::nfd::FilterItem> filterItems{
             {"Lua files"_nfd, "lua"_nfd}};
 
+    auto const presetDirectory = fs::current_path() / "presets";
+    auto const searchDirectory = fs::is_directory(presetDirectory)
+                                         ? presetDirectory
+                                         : fs::current_path();
+
     auto const [path, result] = util::nfd::saveDialog(
             filterItems,
-            fs::current_path(),
+            searchDirectory,
             "save.lua"_nfd);
 
     if(result != NFD_OKAY) {
@@ -299,21 +312,11 @@ savePreset(Player const& player, UniformController const& uniformController)
 }
 
 auto
-loadPreset(Player& player, UniformController& uniformController) -> void
+loadPresetFrom(
+        std::filesystem::path const& path,
+        Player& player,
+        UniformController& uniformController) -> void
 {
-    namespace fs = std::filesystem;
-    using namespace util::nfd::literal;
-
-    std::vector<util::nfd::FilterItem> filterItems{
-            {"Lua files"_nfd, "lua"_nfd}};
-
-    auto const [path, result] =
-            util::nfd::openDialog(filterItems, fs::current_path());
-
-    if(result != NFD_OKAY) {
-        return;
-    }
-
     std::ifstream in(path);
     lua_State* l = luaL_newstate();
     luaL_dostring(l, util::getContents(in).c_str());
@@ -328,6 +331,25 @@ loadPreset(Player& player, UniformController& uniformController) -> void
 }
 
 auto
+loadPreset(Player& player, UniformController& uniformController) -> void
+{
+    namespace fs = std::filesystem;
+    using namespace util::nfd::literal;
+
+    std::vector<util::nfd::FilterItem> filterItems{
+            {"Lua files"_nfd, "lua"_nfd}};
+
+    std::optional const path =
+            util::nfd::openDialog(filterItems, fs::current_path() / "presets");
+
+    if(!path) {
+        return;
+    }
+
+    loadPresetFrom(*path, player, uniformController);
+}
+
+auto
 pickTerrainFunction(
         Terrain& terrain,
         ShaderController& shaderController,
@@ -339,13 +361,9 @@ pickTerrainFunction(
     std::vector<util::nfd::FilterItem> filterItems{
             {"Terrain files"_nfd, "lua,frag"_nfd}};
 
-    auto const [paths, result] = util::nfd::openDialogMultiple(
+    auto const paths = util::nfd::openDialogMultiple(
             filterItems,
             fs::current_path() / "landscape-scripts");
-
-    if(result != NFD_OKAY) {
-        return;
-    }
 
     for(auto const& path : paths) {
         if(util::endsWith(path.native(), "shape.lua"_nfd)) {

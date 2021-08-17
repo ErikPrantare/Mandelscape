@@ -81,11 +81,13 @@ savePng(std::filesystem::path const& path,
         std::vector<unsigned char> const& pixels,
         glm::ivec2 const size) -> void
 {
-    namespace fs          = std::filesystem;
-    std::string const dir = "screenshots";
-    if(!fs::exists(path.parent_path())
-       || !fs::is_directory(path.parent_path())) {
+    namespace fs = std::filesystem;
+
+    if(!fs::exists(path.parent_path())) {
         fs::create_directory(path.parent_path());
+    }
+    else if(!fs::is_directory(path.parent_path())) {
+        return;
     }
 
     stbi_flip_vertically_on_write(1);
