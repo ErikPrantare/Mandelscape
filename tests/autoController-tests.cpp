@@ -29,7 +29,7 @@ TEST_CASE("AutoController moves player", "[AutoController]")
 
     for(auto i = 0; i < 10; ++i) {
         auto prevPos = player.state().position;
-        controller.update(player.state(), 1.0);
+        controller.update(player, 1.0);
         REQUIRE(player.state().position != prevPos);
     }
 }

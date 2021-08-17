@@ -70,10 +70,6 @@ public:
     }
 
     friend auto
-    util::lua::to<UniformController>(lua_State* L, int offset)
-            -> UniformController;
-
-    friend auto
     operator==(UniformController const& a, UniformControllerApprox const& b)
             -> bool;
 

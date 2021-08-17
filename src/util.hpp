@@ -205,33 +205,6 @@ dispatch(Variant& variant, Function... fs)
 
 }    // namespace util
 
-// forward declaration for specialization declarations
-class Player;
-class UniformController;
-namespace util::lua {
-
-template<class T>
-[[nodiscard]] auto
-to(lua_State* L, int offset) -> T;
-
-template<>
-[[nodiscard]] auto
-to<glm::dvec2>(lua_State* L, int offset) -> glm::dvec2;
-
-template<>
-[[nodiscard]] auto
-to<glm::dvec3>(lua_State* L, int offset) -> glm::dvec3;
-
-template<>
-[[nodiscard]] auto
-to<Player>(lua_State* L, int offset) -> Player;
-
-template<>
-[[nodiscard]] auto
-to<UniformController>(lua_State* L, int offset) -> UniformController;
-
-}    // namespace util::lua
-
 namespace util::nfd {
 namespace literal {
     auto operator""_nfd(char const* str, size_t size)

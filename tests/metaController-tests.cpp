@@ -50,7 +50,7 @@ public:
     }
 
     auto
-    update(Player::Internals&, double) -> void final
+    update(Player&, double) -> void final
     {
         updateCalled[n] = true;
     }

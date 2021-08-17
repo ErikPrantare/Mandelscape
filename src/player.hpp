@@ -89,9 +89,6 @@ public:
                         "lookAtOffset"));
     }
 
-    friend auto
-    util::lua::to<Player>(lua_State* L, int offset) -> Player;
-
     class Controller {
     public:
         virtual ~Controller() = default;

@@ -52,3 +52,24 @@ serialize<int>(
     auto const indentation = std::string(depth, ' ');
     out << indentation << name << " = " << object;
 }
+
+template<>
+auto
+deserialize<double>(lua_State* const l, int const offset) -> double
+{
+    return lua_tonumber(l, offset);
+}
+
+template<>
+auto
+deserialize<bool>(lua_State* const l, int const offset) -> bool
+{
+    return static_cast<bool>(lua_toboolean(l, offset));
+}
+
+template<>
+auto
+deserialize<int>(lua_State* const l, int const offset) -> int
+{
+    return static_cast<int>(lua_tonumber(l, offset));
+}

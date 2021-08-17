@@ -322,11 +322,11 @@ loadPresetFrom(
     luaL_dostring(l, util::getContents(in).c_str());
 
     lua_getglobal(l, "player");
-    player = util::lua::to<Player>(l, -1);
+    player = deserialize<Player>(l, -1);
     lua_pop(l, 1);
 
     lua_getglobal(l, "uniformController");
-    uniformController = util::lua::to<UniformController>(l, -1);
+    uniformController = deserialize<UniformController>(l, -1);
     lua_close(l);
 }
 

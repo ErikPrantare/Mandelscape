@@ -20,6 +20,7 @@
 
 #include <string>
 #include <memory>
+#include <array>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>

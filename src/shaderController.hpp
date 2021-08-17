@@ -18,6 +18,8 @@
 #ifndef MANDELSCAPE_SHADERCONTROLLER_HPP
 #define MANDELSCAPE_SHADERCONTROLLER_HPP
 
+#include <array>
+
 #include <glm/glm.hpp>
 
 #include "stateMap.hpp"

@@ -27,12 +27,19 @@
 #include "lua.hpp"
 
 // CPP20 use concepts for Getter and Setter
+// law: setter(a, getter(a)) == nop
 template<class Getter, class Setter>
 struct SerializationEntry {
     std::string const name;
     Getter const getter;
     Setter const setter;
 };
+
+// CPP20
+// https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
+template<class Getter, class Setter>
+SerializationEntry(std::string const&, Getter const&, Setter const&)
+        -> SerializationEntry<Getter, Setter>;
 
 template<auto... member>
 auto
@@ -46,10 +53,7 @@ makeMemberEntry(std::string const& name)
     };
 
     // CPP20 {.x = ...}
-    return SerializationEntry<decltype(getter), decltype(setter)>{
-            name,
-            getter,
-            setter};
+    return SerializationEntry{name, getter, setter};
 }
 
 // CPP20 concept Serializable
@@ -130,5 +134,39 @@ serialize<int>(
         int const& object,
         std::string const& name,
         int depth) -> void;
+
+// CPP20 concept Serializable
+template<class Serializable>
+auto
+deserialize(lua_State* const l, int const offset) -> Serializable
+{
+    auto object                 = Serializable();
+    auto const entries          = SerializationTable<Serializable>::entries();
+    auto const deserializeEntry = [&object, l, offset](auto const& entry) {
+        lua_getfield(l, offset, entry.name.c_str());
+        entry.setter(
+                object,
+                deserialize<decltype(entry.getter(object))>(l, -1));
+        lua_pop(l, 1);
+    };
+
+    std::apply(
+            [&deserializeEntry](auto... x) { (deserializeEntry(x), ...); },
+            entries);
+
+    return object;
+}
+
+template<>
+auto
+deserialize<double>(lua_State* l, int offset) -> double;
+
+template<>
+auto
+deserialize<bool>(lua_State* l, int offset) -> bool;
+
+template<>
+auto
+deserialize<int>(lua_State* l, int offset) -> int;
 
 #endif
