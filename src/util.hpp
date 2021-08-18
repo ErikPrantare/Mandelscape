@@ -70,11 +70,16 @@ public:
                 m_amount(amount){};
 
     auto
-    operator()(T const newValue, double const weight = 1.0f) -> T
+    update(T const newValue, double const weight = 1.0f) noexcept -> void
     {
         double const factor = std::pow(m_amount, weight);
 
         m_filteredValue = factor * m_filteredValue + (1.0 - factor) * newValue;
+    }
+
+    [[nodiscard]] auto
+    get() const noexcept -> T
+    {
         return m_filteredValue;
     }
 

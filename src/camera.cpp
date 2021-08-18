@@ -26,21 +26,33 @@
 
 Camera::Camera(Args const& args) :
             m_viewSize(args.viewSize),
-            m_pos(args.position),
+            m_position(args.position),
             m_lookAt(normalize(args.lookAt)),
             m_worldScale(args.scale)
 {}
 
 auto
-Camera::lookAtMatrix() const -> glm::dmat4
+Camera::position() const noexcept -> glm::dvec3
 {
-    glm::dvec3 const forward = normalize(m_lookAt);
-
-    return glm::lookAt(m_pos, m_pos + forward, up);
+    return m_position;
 }
 
 auto
-Camera::projection() const -> glm::dmat4
+Camera::lookAt() const noexcept -> glm::dvec3
+{
+    return m_lookAt;
+}
+
+auto
+Camera::lookAtMatrix() const noexcept -> glm::dmat4
+{
+    glm::dvec3 const forward = normalize(m_lookAt);
+
+    return glm::lookAt(m_position, m_position + forward, up);
+}
+
+auto
+Camera::projection() const noexcept -> glm::dmat4
 {
     double const aspectRatio = (double)m_viewSize.x / m_viewSize.y;
 
@@ -48,7 +60,7 @@ Camera::projection() const -> glm::dmat4
 }
 
 auto
-Camera::cameraSpace() const -> glm::dmat4
+Camera::cameraSpace() const noexcept -> glm::dmat4
 {
     return glm::scale(glm::dmat4(1.0), 1.0 / glm::dvec3(m_worldScale))
            * lookAtMatrix();

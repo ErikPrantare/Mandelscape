@@ -50,11 +50,8 @@
 #include "keymaps.hpp"
 
 auto
-renderScene(
-        Player const& player,
-        glm::ivec2 viewSize,
-        ShaderProgram* program,
-        double dt) -> void;
+renderScene(Player const& player, glm::ivec2 viewSize, ShaderProgram* program)
+        -> void;
 
 auto
 pickTerrainFunction(Terrain&, ShaderController&, ShaderProgram&) -> void;
@@ -125,13 +122,12 @@ try {
             2,
             "skybox"});
 
-    auto const render = [&skybox, &shaderProgram, &terrain, &player](
-                                glm::ivec2 size,
-                                double dt) {
-        skybox.activateOn(shaderProgram);
-        renderScene(player, size, &shaderProgram, dt);
-        terrain.render(shaderProgram);
-    };
+    auto const render =
+            [&skybox, &shaderProgram, &terrain, &player](glm::ivec2 size) {
+                skybox.activateOn(shaderProgram);
+                renderScene(player, size, &shaderProgram);
+                terrain.render(shaderProgram);
+            };
 
     // CPP20 concept on renderFunction
     auto const renderToFramebuffer = [](auto const& renderFunction,
@@ -157,9 +153,7 @@ try {
         } break;
         case Trigger::TakeScreenshot: {
             auto screenshotBuffer = Framebuffer(2 * window.size());
-            renderToFramebuffer(
-                    [&render](glm::ivec2 size) { render(size, 0); },
-                    screenshotBuffer);
+            renderToFramebuffer(render, screenshotBuffer);
 
             screenshotBuffer.savePngDownsampled(
                     std::filesystem::path("screenshots")
@@ -219,6 +213,7 @@ try {
 
             // Do this after .update, as autozoom is dependent on position.y
             player.state().position.y *= uniformController.yScale();
+            player.update(dt);
 
             terrain.setIterations(uniformController.iterations());
         }
@@ -226,7 +221,7 @@ try {
         shaderController.update(shaderProgram);
         uniformController.update(shaderProgram);
         shaderProgram.setUniformFloat("time", static_cast<float>(elapsedTime));
-        render(window.size(), dt);
+        render(window.size());
     }
 
     return 0;
@@ -253,32 +248,14 @@ void
 renderScene(
         Player const& player,
         glm::ivec2 const viewSize,
-        ShaderProgram* const program,
-        double dt)
+        ShaderProgram* const program)
 {
-    glm::dvec3 cameraPosition = player.state().position;
-    cameraPosition.y += player.scale();
-    static util::LowPassFilter filteredHeight(cameraPosition.y, 0.01);
-    cameraPosition.y = filteredHeight(cameraPosition.y, dt);
-
-    // + util::pi, because -z is regarded as the default lookAt forward
-    auto const lookAt = glm::rotate(
-                                glm::dmat4(1.0),
-                                player.state().lookAtOffset.x + util::pi,
-                                {0.0, 1.0, 0.0})
-                        * glm::rotate(
-                                glm::dmat4(1.0),
-                                player.state().lookAtOffset.y,
-                                {1.0, 0.0, 0.0})
-                        * glm::dvec4(0.0, 0.0, 1.0, 0.0);
-
     // CPP20 {.x = ...}
-    auto const camera =
-            Camera({cameraPosition, lookAt, viewSize, player.scale()});
+    auto const camera = player.getCamera(viewSize);
     program->setUniformMatrix4("cameraSpace", camera.cameraSpace());
     program->setUniformMatrix4("projection", camera.projection());
-    program->setUniformVec3("lookAt", lookAt);
-    program->setUniformVec3("playerPos", cameraPosition);
+    program->setUniformVec3("lookAt", camera.lookAt());
+    program->setUniformVec3("playerPos", camera.position());
 }
 
 auto

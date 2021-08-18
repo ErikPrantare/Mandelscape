@@ -59,8 +59,8 @@ AutoController::update(Player& player, double const dt) -> void
     internals(player).position.z += dt * speed * direction.y;
 
     // flipped in atan2 and +pi because offset is relative to -z and not x
-    internals(player).lookAtOffset.x =
-            m_filteredLookAt(std::atan2(direction.x, direction.y) + util::pi);
+    m_filteredLookAt.update(std::atan2(direction.x, direction.y) + util::pi);
+    internals(player).lookAtOffset.x = m_filteredLookAt.get();
     // look slightly down
     internals(player).lookAtOffset.y = util::pi / 6;
 }

@@ -25,6 +25,7 @@
 
 #include "lua.h"
 
+#include "camera.hpp"
 #include "momentaryAction.hpp"
 #include "serialization.hpp"
 #include "stateMap.hpp"
@@ -39,43 +40,26 @@ public:
         double scale            = 1.0;
     };
 
+    auto
+    update(double dt) -> void;
+
     [[nodiscard]] auto
-    truePosition() const noexcept -> glm::dvec3
-    {
-        return m_state.position + m_state.offset;
-    }
+    truePosition() const noexcept -> glm::dvec3;
 
     auto
-    updateOffset(glm::dvec3 offset) noexcept -> void
-    {
-        auto dOffset = offset - m_state.offset;
-        m_state.position -= dOffset;
-        m_state.offset = offset;
-    }
+    updateOffset(glm::dvec3 offset) noexcept -> void;
 
     [[nodiscard]] auto
-    scale() const noexcept -> double
-    {
-        return m_state.scale;
-    }
+    scale() const noexcept -> double;
 
     [[nodiscard]] auto
-    state() noexcept -> Internals&
-    {
-        return m_state;
-    }
-
-    [[nodiscard]] auto
-    state() const noexcept -> Internals const&
-    {
-        return m_state;
-    }
+    state() noexcept -> Internals&;
 
     auto
-    updateFeetAltitude(double altitude) noexcept -> void
-    {
-        m_state.position.y = altitude;
-    }
+    updateFeetAltitude(double altitude) noexcept -> void;
+
+    [[nodiscard]] auto
+    getCamera(glm::ivec2 viewSize) const noexcept -> Camera;
 
     [[nodiscard]] auto static getSerializationTable()
     {
@@ -125,6 +109,7 @@ public:
 private:
     // CPP20 {.x = ...}
     Internals m_state;
+    util::LowPassFilter<double> m_headAltitude{0.0, 0.01};
 };
 
 #endif
