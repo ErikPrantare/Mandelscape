@@ -91,7 +91,7 @@ savePng(std::filesystem::path const& path,
     }
 
     stbi_flip_vertically_on_write(1);
-    stbi_write_png(path.c_str(), size.x, size.y, 3, pixels.data(), 0);
+    stbi_write_png(path.string().c_str(), size.x, size.y, 3, pixels.data(), 0);
 }
 
 auto
