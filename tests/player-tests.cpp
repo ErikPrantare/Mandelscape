@@ -30,5 +30,5 @@ TEST_CASE("Updating offset retains true position", "[PlayerHelper]")
     auto oldPlayer = player;
 
     player.updateOffset({0.888, 123, 2});
-    REQUIRE(oldPlayer.truePosition() == Dvec3Approx{player.truePosition()});
+    REQUIRE(oldPlayer.truePosition() == Approximate{player.truePosition()});
 }

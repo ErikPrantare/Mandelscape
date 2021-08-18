@@ -26,19 +26,23 @@
 #include "player.hpp"
 #include "uniformController.hpp"
 
-struct Dvec2Approx {
-    glm::dvec2 val;
+template<class ValueType>
+struct Approximate {
+    ValueType val;
 };
 
-auto
-operator==(glm::dvec2 a, Dvec2Approx b) -> bool;
-
-struct Dvec3Approx {
-    glm::dvec3 val;
-};
+template<class ValueType>
+Approximate(ValueType) -> Approximate<ValueType>;
 
 auto
-operator==(glm::dvec3 a, Dvec3Approx b) -> bool;
+operator==(glm::dvec2 a, Approximate<glm::dvec2> b) -> bool;
+auto
+operator==(glm::dvec3 a, Approximate<glm::dvec3> b) -> bool;
+auto
+operator==(glm::dvec4 a, Approximate<glm::dvec4> b) -> bool;
+
+auto
+operator==(glm::dmat4 a, Approximate<glm::dmat4> b) -> bool;
 
 // namespace glm needed for ADL
 namespace glm {
@@ -48,9 +52,6 @@ auto
 operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&;
 
 }    // namespace glm
-
-auto
-operator<<(std::ostream& os, Player const& player) -> std::ostream&;
 
 struct PlayerApprox {
     Player player;

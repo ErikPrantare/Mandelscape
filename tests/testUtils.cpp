@@ -26,16 +26,36 @@
 #include "uniformController.hpp"
 
 auto
-operator==(glm::dvec2 a, Dvec2Approx b) -> bool
+operator==(double a, Approximate<double> b) -> bool
 {
-    return a.x == Approx(b.val.x) && a.y == Approx(b.val.y);
+    return a == Approx(b.val);
 }
 
 auto
-operator==(glm::dvec3 a, Dvec3Approx b) -> bool
+operator==(glm::dvec2 a, Approximate<glm::dvec3> b) -> bool
 {
-    return a.x == Approx(b.val.x) && a.y == Approx(b.val.y)
-           && a.z == Approx(b.val.z);
+    return a.x == Approximate{b.val.x} && a.y == Approximate{b.val.y};
+}
+
+auto
+operator==(glm::dvec3 a, Approximate<glm::dvec3> b) -> bool
+{
+    return a.x == Approximate{b.val.x} && a.y == Approximate{b.val.y}
+           && a.z == Approximate{b.val.z};
+}
+
+auto
+operator==(glm::dvec4 a, Approximate<glm::dvec4> b) -> bool
+{
+    return a.x == Approximate{b.val.x} && a.y == Approximate{b.val.y}
+           && a.z == Approximate{b.val.z} && a.w == Approximate{b.val.w};
+}
+
+auto
+operator==(glm::dmat4 a, Approximate<glm::dmat4> b) -> bool
+{
+    return a[0] == Approximate{b.val[0]} && a[1] == Approximate{b.val[1]}
+           && a[2] == Approximate{b.val[2]} && a[3] == Approximate{b.val[3]};
 }
 
 namespace glm {
@@ -54,29 +74,20 @@ operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&
 }    // namespace glm
 
 auto
-operator<<(std::ostream& os, Player const& player) -> std::ostream&
-{
-    os << "Player(" << player.state().position << ", " << player.state().offset
-       << ", " << player.state().lookAtOffset << ", " << player.state().scale
-       << ")";
-    return os;
-}
-
-auto
 operator==(Player const& a, PlayerApprox const& b) -> bool
 {
-    return a.state().position == Dvec3Approx{b.player.state().position}
-           && a.state().offset == Dvec3Approx{b.player.state().offset}
-           && a.state().lookAtOffset
-                      == Dvec2Approx{b.player.state().lookAtOffset}
-           && a.state().scale == Approx{b.player.state().scale};
+    auto aCamera = a.getCamera({640, 720});
+    auto bCamera = b.player.getCamera({640, 720});
+
+    return aCamera.cameraSpace()
+           == Approximate<glm::dmat4>{bCamera.cameraSpace()};
 }
 
 auto
 operator==(UniformController const& a, UniformControllerApprox const& b)
         -> bool
 {
-    return a.m_colorOffset == Dvec3Approx{b.uc.m_colorOffset}
+    return a.m_colorOffset == Approximate{b.uc.m_colorOffset}
            && a.m_colorFrequency == Approx{b.uc.m_colorFrequency}
            && a.m_yScale == Approx{b.uc.m_yScale}
            && a.m_fastMode == b.uc.m_fastMode

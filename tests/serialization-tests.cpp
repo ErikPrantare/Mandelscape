@@ -48,7 +48,7 @@ TEST_CASE(
         lua_State* l = luaL_newstate();
         luaL_dostring(l, ss.str().c_str());
         lua_getglobal(l, "player");
-        REQUIRE(util::lua::to<Player>(l, -1) == PlayerApprox{player});
+        REQUIRE(deserialize<Player>(l, -1) == PlayerApprox{player});
         lua_close(l);
     }
 
@@ -82,7 +82,7 @@ TEST_CASE(
         lua_State* l = luaL_newstate();
         luaL_dostring(l, ss.str().c_str());
         lua_getglobal(l, "uniformController");
-        REQUIRE(util::lua::to<UniformController>(l, -1)
+        REQUIRE(deserialize<UniformController>(l, -1)
                 == UniformControllerApprox{uniformController});
         lua_close(l);
     }
