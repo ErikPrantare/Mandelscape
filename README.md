@@ -19,7 +19,7 @@ mv build/src/Mandelscape .
 If everything built correctly, the program can now be run with `./Mandelscape`
 
 ## Binary Download (Windows)
-https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
+https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.1.0
 
 ## Controls
 - Mouse: Look around.
