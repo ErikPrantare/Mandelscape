@@ -21,7 +21,6 @@
 #include <vector>
 #include <memory>
 #include <complex>
-#include <future>
 #include <tuple>
 
 #include <glad/glad.h>
@@ -91,7 +90,7 @@ private:
     size_t m_uploadIndex = 0;
 
     std::unique_ptr<Points> m_buffer{new Points{}};
-    std::future<std::unique_ptr<Points>> m_meshPoints;
+    SheetLoader::FuturePoints m_meshPoints;
 
     static auto
     generateMeshIndices() -> std::vector<GLuint>;

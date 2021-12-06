@@ -61,17 +61,19 @@ resize(Points& points, size_t const size) -> void
 }
 
 auto
-SheetLoader::createProcess(Args&& args) -> std::future<std::unique_ptr<Points>>
+SheetLoader::createProcess(Args&& args) -> FuturePoints
 {
-    return std::async(
+    HaltFlag halt{new std::atomic<bool>{false}};
+    auto process = std::async(
             std::launch::async,
-            [](Args&& args) {
+            [halt](Args&& args) {
                 auto loader = SheetLoader{std::move(args)};
-                loader();
+                loader(halt);
                 calculateNormal(*loader.m_args.buffer);
                 return std::move(loader.m_args.buffer);
             },
             std::move(args));
+    return {std::move(process), halt};
 }
 
 SheetLoader::SheetLoader(Args&& args) : m_args(std::move(args))
@@ -124,7 +126,7 @@ SheetLoader::SheetLoader(Args&& args) : m_args(std::move(args))
 }
 
 auto
-SheetLoader::operator()() -> void
+SheetLoader::operator()(HaltFlag const& halt) -> void
 {
     size_t const nrVertices =
             static_cast<size_t>(m_args.granularity) * m_args.granularity;
@@ -144,6 +146,9 @@ SheetLoader::operator()() -> void
             m_args.buffer->value[index]  = static_cast<float>(data.value);
             m_args.buffer->inside[index] = data.inside ? 1 : 0;
             ++index;
+            if(*halt) {
+                return;
+            }
         }
     }
 }
