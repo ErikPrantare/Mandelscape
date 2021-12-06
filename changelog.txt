@@ -12,6 +12,7 @@ This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 + Add running (SHIFT+WASD)
 
 . Update documentation
+. Shut down faster when quitting
 
 1.0.0 (2021-03-24):
 + Add custom terrain scripting

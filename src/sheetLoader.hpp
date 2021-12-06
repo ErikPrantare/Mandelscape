@@ -21,6 +21,7 @@
 #include <functional>
 #include <future>
 #include <vector>
+#include <atomic>
 
 #include "glm/vec3.hpp"
 
@@ -50,14 +51,40 @@ public:
         std::unique_ptr<Points> buffer = nullptr;
     };
 
+    // CPP20 std::jthread
+    using HaltFlag = std::shared_ptr<std::atomic<bool>>;
+
+    class FuturePoints : public std::future<std::unique_ptr<Points>> {
+    public:
+        FuturePoints() = default;
+        FuturePoints(
+                std::future<std::unique_ptr<Points>>&& future,
+                HaltFlag& halt) :
+                    std::future<std::unique_ptr<Points>>(std::move(future)),
+                    m_halt(new HaltFlag(halt))
+        {}
+
+    private:
+        // CPP20 decltype(lambda)
+        struct HaltFlagDestructor {
+            auto
+            operator()(HaltFlag* halt) noexcept -> void
+            {
+                **halt = true;
+                delete halt;
+            }
+        };
+        std::unique_ptr<HaltFlag, HaltFlagDestructor> m_halt;
+    };
+
     [[nodiscard]] static auto
-    createProcess(Args&& args) -> std::future<std::unique_ptr<Points>>;
+    createProcess(Args&& args) -> FuturePoints;
 
     SheetLoader(Args&& args);
 
 private:
     auto
-    operator()() -> void;
+    operator()(HaltFlag const& halt) -> void;
 
     Args m_args;
 
