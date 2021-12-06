@@ -155,9 +155,9 @@ try {
             auto screenshotBuffer = Framebuffer(2 * window.size());
             renderToFramebuffer(render, screenshotBuffer);
 
-            screenshotBuffer.savePngDownsampled(
-                    std::filesystem::path("screenshots")
-                    / (util::currentDatetimeString() + ".png"));
+            savePng(std::filesystem::path("screenshots")
+                            / (util::currentDatetimeString() + ".png"),
+                    downsample(screenshotBuffer.readImage()));
 
             Framebuffer::bindDefaultBuffer();
             glViewport(0, 0, window.size().x, window.size().y);

@@ -210,6 +210,19 @@ dispatch(Variant& variant, Function... fs)
 
 }    // namespace util
 
+namespace util::image {
+struct Image {
+    std::vector<unsigned char> const pixels;
+    glm::ivec2 const size;
+};
+
+auto
+savePng(std::filesystem::path const& path, Image const& image) -> void;
+
+auto
+downsample(Image const& image) -> Image;
+}    // namespace util::image
+
 namespace util::nfd {
 namespace literal {
     auto operator""_nfd(char const* str, size_t size)

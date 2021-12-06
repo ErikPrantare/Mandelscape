@@ -19,10 +19,6 @@
 
 #include <stdexcept>
 
-#include <stb_image.h>
-#include <stb_image_write.h>
-#include <stb_image_resize.h>
-
 #include "util.hpp"
 
 static auto
@@ -76,51 +72,8 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
     }
 }
 
-static auto
-savePng(std::filesystem::path const& path,
-        std::vector<unsigned char> const& pixels,
-        glm::ivec2 const size) -> void
-{
-    namespace fs = std::filesystem;
-
-    if(!fs::exists(path.parent_path())) {
-        fs::create_directory(path.parent_path());
-    }
-    else if(!fs::is_directory(path.parent_path())) {
-        return;
-    }
-
-    stbi_flip_vertically_on_write(1);
-    stbi_write_png(path.string().c_str(), size.x, size.y, 3, pixels.data(), 0);
-}
-
-auto
-Framebuffer::savePngDownsampled(std::filesystem::path const& path) -> void
-{
-    auto const renderedSize    = size();
-    auto const antiAliasedSize = renderedSize / 2;
-    auto const pixels          = readPixels();
-
-    // CPP23 3z * outputSize.x
-    std::vector<unsigned char> antiAliasedImage(
-            3 * static_cast<long>(antiAliasedSize.x) * antiAliasedSize.y);
-
-    stbir_resize_uint8(
-            pixels.data(),
-            renderedSize.x,
-            renderedSize.y,
-            0,
-            antiAliasedImage.data(),
-            antiAliasedSize.x,
-            antiAliasedSize.y,
-            0,
-            3);
-
-    savePng(path, antiAliasedImage, antiAliasedSize);
-}
-
 [[nodiscard]] auto
-Framebuffer::readPixels() -> std::vector<unsigned char>
+Framebuffer::readImage() -> util::image::Image
 {
     bind();
     glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -139,7 +92,7 @@ Framebuffer::readPixels() -> std::vector<unsigned char>
             GL_UNSIGNED_BYTE,
             pixels.data());
 
-    return pixels;
+    return util::image::Image{pixels, size()};
 }
 
 auto

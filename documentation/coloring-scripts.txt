@@ -4,7 +4,7 @@ Examples are given at the end of the document.
 
 Coloring of the landscape is done in two steps.
 For a given complex number,
-a value function calculates information this point.
+a value function calculates information about this point.
 This information is then passed to a coloring function, which translates the
 information to a color.
 
@@ -24,7 +24,7 @@ vec4
 color(const in PointInfo p)
 
 
-The PointInfo struct, is to transfer information about each point.
+The PointInfo struct is used to transfer information about each point.
 It contains two members:
 
 float value

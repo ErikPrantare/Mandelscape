@@ -19,6 +19,10 @@
 
 #include <glm/glm.hpp>
 
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_image_resize.h>
+
 #include "player.hpp"
 #include "uniformController.hpp"
 
@@ -85,6 +89,52 @@ toGpuVec(glm::dvec3 const v) -> glm::vec3
 }
 
 }    // namespace util
+
+namespace util::image {
+auto
+savePng(std::filesystem::path const& path, Image const& image) -> void
+{
+    namespace fs = std::filesystem;
+
+    if(!fs::exists(path.parent_path())) {
+        fs::create_directory(path.parent_path());
+    }
+    else if(!fs::is_directory(path.parent_path())) {
+        return;
+    }
+
+    stbi_flip_vertically_on_write(1);
+    stbi_write_png(
+            path.string().c_str(),
+            image.size.x,
+            image.size.y,
+            3,
+            image.pixels.data(),
+            0);
+}
+
+auto
+downsample(Image const& image) -> Image
+{
+    auto const downsampledSize = image.size / 2;
+    std::vector<unsigned char> downsampledPixels(
+            3 * static_cast<long>(downsampledSize.x) * downsampledSize.y);
+
+    stbir_resize_uint8(
+            image.pixels.data(),
+            image.size.x,
+            image.size.y,
+            0,
+            downsampledPixels.data(),
+            downsampledSize.x,
+            downsampledSize.y,
+            0,
+            3);
+
+    // CPP20 {.x = ...}
+    return {downsampledPixels, downsampledSize};
+}
+}    // namespace util::image
 
 namespace util::nfd {
 namespace literal {

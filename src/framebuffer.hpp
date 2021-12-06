@@ -27,6 +27,7 @@
 
 #include "texture.hpp"
 #include "gl.hpp"
+#include "util.hpp"
 
 class Framebuffer {
 public:
@@ -36,18 +37,15 @@ public:
     size() const noexcept -> glm::ivec2;
 
     auto
-    savePngDownsampled(std::filesystem::path const& path) -> void;
-
-    auto
     bind() noexcept -> void;
 
     static auto
     bindDefaultBuffer() noexcept -> void;
 
-private:
     [[nodiscard]] auto
-    readPixels() -> std::vector<unsigned char>;
+    readImage() -> util::image::Image;
 
+private:
     gl::Fbo m_fbo = 0;
     Texture m_texture;
     Texture m_depth;
