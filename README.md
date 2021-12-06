@@ -59,7 +59,7 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 ## Options
 To use dvorak mode, start Mandelscape with `--dvorak` flag.
-Controls can be found at the bottom of src/main.cpp.
+Controls can be found in `src/keymaps.cpp`.
 
 ## Using different scripts
 Loading different scripts is done with ctrl+l.
