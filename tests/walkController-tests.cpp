@@ -40,7 +40,7 @@ glm::dvec3 constexpr back{0.0, 0.0, 1.0};
 
 glm::dvec3 constexpr zero{0.0, 0.0, 0.0};
 
-auto const sameMutation = [](auto f, auto g) -> bool {
+auto const sameMutation = [](auto const& f, auto const& g) -> bool {
     auto mutated1 = Player();
     auto mutated2 = Player();
     f(mutated1);
@@ -52,26 +52,29 @@ auto const bindApplyEvents = [](MomentaryActionsMap const& momentaryMap,
                                 StateMap& stateMap,
                                 WalkController& controller) {
     auto const applyEvents = [&momentaryMap, &stateMap, &controller](
-                                     std::vector<Event> const& events) {
-        return [&momentaryMap, &controller, &stateMap, events](
-                       Player& player) {
-            auto constexpr dontCare = 13.37;
+                                     std::vector<Event> const& events,
+                                     Player& player) {
+        auto constexpr dontCare = 13.37;
 
-            for(auto const& event : events) {
-                stateMap.updateState(event);
-                controller.updateState(stateMap);
-                controller.update(player, dontCare);
+        for(auto const& event : events) {
+            stateMap.updateState(event);
+            controller.updateState(stateMap);
+            controller.update(player, dontCare);
 
-                auto actions = momentaryMap(event);
-                for(auto const& action : actions) {
-                    controller.handleMomentaryAction(action);
-                }
-                controller.update(player, dontCare);
+            auto actions = momentaryMap(event);
+            for(auto const& action : actions) {
+                controller.handleMomentaryAction(action);
             }
-        };
+            controller.update(player, dontCare);
+        }
     };
 
-    return applyEvents;
+    // Curry for ease of use with sameMutation
+    return [applyEvents](std::vector<Event> const& events) {
+        return [applyEvents, events](Player& player) {
+            applyEvents(events, player);
+        };
+    };
 };
 
 TEST_CASE("WalkController handles movement keys", "[WalkController]")

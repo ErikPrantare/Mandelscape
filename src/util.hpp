@@ -36,8 +36,6 @@
 
 #include <nfd.hpp>
 
-#include "lua.hpp"
-
 #include "glfwEnums.hpp"
 #include "mandelTypeTraits.hpp"
 
