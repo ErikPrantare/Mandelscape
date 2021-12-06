@@ -6,10 +6,11 @@ and changed/other with a '.'.
 
 This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 
-1.1.0 (IN PROGRESS):
-+ Add hobold orbit trap algorithm
+1.1.0 (2021-12-06):
 + Add lighting
++ Add hobold orbit trap algorithm
 + Add running (SHIFT+WASD)
++ Add ability to load multiple scripts at the same time
 
 . Update documentation
 . Shut down faster when quitting
