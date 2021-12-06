@@ -85,6 +85,7 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
     auto constexpr leftKey   = Key::A;
     auto constexpr rightKey  = Key::D;
     auto constexpr zoomInKey = Key::Z;
+    auto constexpr runKey    = Key::LeftShift;
 
     auto controller = WalkController{};
 
@@ -94,6 +95,10 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
     stateMap.add({leftKey}, State::MovingLeft);
     stateMap.add({rightKey}, State::MovingRight);
     stateMap.add({zoomInKey}, State::ZoomingIn);
+    stateMap.add({frontKey, (int)Mod::Shift}, State::RunningForwards);
+    stateMap.add({backKey, (int)Mod::Shift}, State::RunningBackwards);
+    stateMap.add({leftKey, (int)Mod::Shift}, State::RunningLeft);
+    stateMap.add({rightKey, (int)Mod::Shift}, State::RunningRight);
 
     auto momentaryMap = MomentaryActionsMap();
 
@@ -189,10 +194,10 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
         REQUIRE(scaleFactor * dUnscaledPos == Approximate{dScaledPos});
     }
 
+    auto applyEvents = bindApplyEvents(momentaryMap, stateMap, controller);
+
     SECTION("Movement is dependent on player look direction")
     {
-        auto applyEvents = bindApplyEvents(momentaryMap, stateMap, controller);
-
         // Walking along both sides of rhombus ends up at the same place
         REQUIRE(sameMutation(
                 applyEvents({
@@ -225,6 +230,21 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
                         KeyDown{frontKey},
                         KeyUp{frontKey},
                         MouseMove{{}, {-42, 0}},
+                })));
+    }
+
+    SECTION("Running doubles player speed")
+    {
+        REQUIRE(!sameMutation(
+                applyEvents({
+                        KeyDown{runKey},
+                        KeyDown{frontKey},
+                }),
+                applyEvents({
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
                 })));
     }
 }

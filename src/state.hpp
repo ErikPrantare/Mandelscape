@@ -23,10 +23,18 @@ enum class State {
     MovingBackwards,
     MovingLeft,
     MovingRight,
+
+    RunningForwards,
+    RunningBackwards,
+    RunningLeft,
+    RunningRight,
+
     ZoomingIn,
     ZoomingOut,
+
     IncreasingParameter,
     DecreasingParameter,
+
     ChangeRedOffset,
     ChangingGreenOffset,
     ChangingBlueOffset,

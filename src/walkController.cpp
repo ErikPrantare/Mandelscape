@@ -94,6 +94,19 @@ WalkController::updateState(StateMap const& active) -> void
         m_direction.x += 1.0;
     }
 
+    if(active(State::RunningForwards)) {
+        m_direction.z -= 2.0;
+    }
+    if(active(State::RunningBackwards)) {
+        m_direction.z += 2.0;
+    }
+    if(active(State::RunningLeft)) {
+        m_direction.x -= 2.0;
+    }
+    if(active(State::RunningRight)) {
+        m_direction.x += 2.0;
+    }
+
     m_scalingVelocity = 0.0;
     if(active(State::ZoomingIn)) {
         m_scalingVelocity -= 1.0;
