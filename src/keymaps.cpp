@@ -27,6 +27,10 @@ initControls() -> std::pair<MomentaryActionsMap, StateMap>
     stateMap.add({Key::S}, State::MovingBackwards);
     stateMap.add({Key::A}, State::MovingLeft);
     stateMap.add({Key::D}, State::MovingRight);
+    stateMap.add({Key::W, (int)Mod::Shift}, State::RunningForwards);
+    stateMap.add({Key::S, (int)Mod::Shift}, State::RunningBackwards);
+    stateMap.add({Key::A, (int)Mod::Shift}, State::RunningLeft);
+    stateMap.add({Key::D, (int)Mod::Shift}, State::RunningRight);
     stateMap.add({MouseButton::Left}, State::ZoomingIn);
     stateMap.add({MouseButton::Right}, State::ZoomingOut);
     stateMap.add({Key::Up}, State::IncreasingParameter);
@@ -68,6 +72,10 @@ initControlsDvorak() -> std::pair<MomentaryActionsMap, StateMap>
     stateMap.add({Key::O}, State::MovingBackwards);
     stateMap.add({Key::A}, State::MovingLeft);
     stateMap.add({Key::E}, State::MovingRight);
+    stateMap.add({Key::Comma, (int)Mod::Shift}, State::RunningForwards);
+    stateMap.add({Key::O, (int)Mod::Shift}, State::RunningBackwards);
+    stateMap.add({Key::A, (int)Mod::Shift}, State::RunningLeft);
+    stateMap.add({Key::E, (int)Mod::Shift}, State::RunningRight);
     stateMap.add({MouseButton::Left}, State::ZoomingIn);
     stateMap.add({MouseButton::Right}, State::ZoomingOut);
     stateMap.add({Key::Up}, State::IncreasingParameter);
