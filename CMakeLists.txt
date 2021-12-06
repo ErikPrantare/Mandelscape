@@ -128,6 +128,7 @@ if(MINGW)
         CONFIGURE_COMMAND ""
         INSTALL_COMMAND "")
 
+    add_dependencies(luajit::luajit luajit)
     target_link_libraries(luajit::luajit
         INTERFACE
             "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit-5.1.dll.a")
@@ -140,6 +141,7 @@ else()
         CONFIGURE_COMMAND ""
         INSTALL_COMMAND "")
 
+    add_dependencies(luajit::luajit luajit)
     target_link_libraries(luajit::luajit
         INTERFACE "${PROJECT_SOURCE_DIR}/extern/luajit-2.0/src/libluajit.a")
 endif()
