@@ -22,7 +22,11 @@ If everything built correctly, the program can now be run with `./Mandelscape`
 https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 ## Controls
-- WASD + Mouse: Walk and look around.
+- Mouse: Look around.
+
+- WASD: Walk around.
+
+- SHIFT+WASD: Run around.
 
 - P: Toggle pause(releases mouse).
 
@@ -55,7 +59,7 @@ https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 ## Options
 To use dvorak mode, start Mandelscape with `--dvorak` flag.
-Controls can be found at the bottom of src/main.cpp.
+Controls can be found in `src/keymaps.cpp`.
 
 ## Using different scripts
 Loading different scripts is done with ctrl+l.
