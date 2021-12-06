@@ -18,9 +18,11 @@
 #ifndef MANDELSCAPE_SHADERCONTROLLER_HPP
 #define MANDELSCAPE_SHADERCONTROLLER_HPP
 
+#include <array>
+
 #include <glm/glm.hpp>
 
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "momentaryAction.hpp"
 #include "shader.hpp"
 #include "shaderProgram.hpp"
@@ -49,26 +51,29 @@ private:
     bool m_switchShader            = false;
     size_t m_currentFragmentShader = 0;
 
-    // Beware, here be ugly duplicate code (1)
+    static auto constexpr defaultValueScript =
+            "landscape-scripts/mandelbrot/mandelbrot-value.frag";
+    static auto constexpr defaultColorScript =
+            "landscape-scripts/default-color.frag";
+
     std::array<FragmentShader, 2> m_fragmentShaders = {
             FragmentShader::fromFiles(
                     "shaders/head.frag",
                     "shaders/shallowLib.frag",
-                    "presets/mandelbrot/mandelbrot-value.frag",
-                    "presets/default-color.frag",
+                    defaultValueScript,
+                    defaultColorScript,
                     "shaders/shader.frag"),
             FragmentShader::fromFiles(
                     "shaders/head.frag",
                     "shaders/deepLib.frag",
-                    "presets/mandelbrot/mandelbrot-value.frag",
-                    "presets/default-color.frag",
+                    defaultValueScript,
+                    defaultColorScript,
                     "shaders/shader.frag")};
 
-    // (2)
-    std::string m_valueCode = util::getContents(
-            std::ifstream("presets/mandelbrot/mandelbrot-value.frag"));
+    std::string m_valueCode =
+            util::getContents(std::ifstream(defaultValueScript));
     std::string m_colorCode =
-            util::getContents(std::ifstream("presets/default-color.frag"));
+            util::getContents(std::ifstream(defaultColorScript));
 
     auto
     recompile(ShaderProgram& shaderProgram) const -> void;

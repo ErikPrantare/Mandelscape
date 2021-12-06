@@ -89,7 +89,7 @@ Window::setCallbacks()
     glfwSetCursorPosCallback(m_window.get(), &cursorPositionCB);
     glfwSetKeyCallback(m_window.get(), &keyboardCB);
     glfwSetMouseButtonCallback(m_window.get(), &mouseButtonCB);
-    glfwSetWindowSizeCallback(m_window.get(), &resizeCB);
+    glfwSetFramebufferSizeCallback(m_window.get(), &resizeCB);
 }
 
 auto
@@ -102,12 +102,6 @@ auto
 Window::update() -> bool
 {
     glfwMakeContextCurrent(m_window.get());
-    if(m_screenshotBuffer != std::nullopt) {
-        screenshot();
-        m_screenshotBuffer->unbind();
-        m_screenshotBuffer = std::nullopt;
-        glViewport(0, 0, m_size.x, m_size.y);
-    }
     glfwSwapBuffers(m_window.get());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -123,11 +117,6 @@ Window::handleMomentaryAction(MomentaryAction const& action) -> void
         switch(std::get<Trigger>(action)) {
         case Trigger::TogglePause:
             togglePause();
-            break;
-        case Trigger::TakeScreenshot:
-            m_screenshotBuffer = Framebuffer(2 * m_size);
-            m_screenshotBuffer->bind();
-            glViewport(0, 0, 2 * m_size.x, 2 * m_size.y);
             break;
         case Trigger::CloseWindow:
             close();
@@ -145,9 +134,21 @@ Window::paused() const noexcept -> bool
 }
 
 auto
-Window::pause(bool p) noexcept -> void
+Window::pause() noexcept -> void
 {
-    m_paused = p;
+    setPaused(true);
+}
+
+auto
+Window::unpause() noexcept -> void
+{
+    setPaused(false);
+}
+
+auto
+Window::setPaused(bool paused) noexcept -> void
+{
+    m_paused = paused;
     glfwSetInputMode(
             m_window.get(),
             GLFW_CURSOR,
@@ -155,68 +156,31 @@ Window::pause(bool p) noexcept -> void
 }
 
 auto
+Window::suspend() noexcept -> util::ScopeGuard
+{
+    auto const resume = [this, previous = m_paused] {
+        setPaused(previous);
+    };
+    pause();
+    return {resume};
+}
+
+auto
 Window::togglePause() noexcept -> void
 {
-    pause(!m_paused);
+    setPaused(!m_paused);
 }
 
 auto
 Window::size() const noexcept -> glm::ivec2
 {
-    return m_screenshotBuffer ? m_screenshotBuffer->size() : m_size;
+    return m_size;
 }
 
 void
 Window::close()
 {
     glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
-}
-
-static auto
-saveScreenshot(std::vector<unsigned char>& pixels, glm::ivec2 size) -> void
-{
-    std::time_t const t = std::time(nullptr);
-    std::tm const tm    = *std::localtime(&t);
-    std::stringstream buffer;
-    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
-
-    namespace fs          = std::filesystem;
-    std::string const dir = "screenshots";
-    if(!fs::is_directory(dir) || !fs::exists(dir)) {
-        fs::create_directory(dir);
-    }
-
-    std::string filename = dir + "/" + buffer.str() + ".png";
-
-    stbi_flip_vertically_on_write(1);
-    stbi_write_png(filename.c_str(), size.x, size.y, 3, pixels.data(), 0);
-}
-
-void
-Window::screenshot()
-{
-    glfwMakeContextCurrent(m_window.get());
-
-    auto const inputSize  = m_screenshotBuffer->size();
-    auto const outputSize = inputSize / 2;
-    auto const pixels     = m_screenshotBuffer->readPixels();
-
-    std::vector<unsigned char> aa(3 * outputSize.x * outputSize.y);
-
-    stbir_resize_uint8(
-            pixels.data(),
-            inputSize.x,
-            inputSize.y,
-            0,
-            aa.data(),
-            outputSize.x,
-            outputSize.y,
-            0,
-            3);
-
-    saveScreenshot(aa, outputSize);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void
@@ -239,11 +203,9 @@ Window::cursorPositionCB(GLFWwindow* glfwWindow, double x, double y)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
-    auto dx              = x - window->m_lastMouseX;
-    auto dy              = y - window->m_lastMouseY;
-    window->m_lastMouseX = x;
-    window->m_lastMouseY = y;
-    window->registerEvent(MouseMove{x, y, dx, dy});
+    auto dPos           = glm::dvec2{x, y} - window->m_lastMouse;
+    window->m_lastMouse = glm::dvec2{x, y};
+    window->registerEvent(MouseMove{{x, y}, dPos});
 }
 
 void

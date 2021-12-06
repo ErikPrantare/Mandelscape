@@ -15,18 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_PERSISTENTACTIONMAP_TESTS_HPP
-#define MANDELLANDSCAPE_PERSISTENTACTIONMAP_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include <map>
 #include <set>
 
 #include "glfwEnums.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "event.hpp"
 #include "util.hpp"
-
-namespace PersistentActionMapTests {
 
 TEST_CASE(
         "PersistentActionMap keeps track of keyboard state",
@@ -34,13 +31,13 @@ TEST_CASE(
 {
     using namespace Input;
 
-    auto const action    = PersistentAction::MoveForwards;
-    auto const modAction = PersistentAction::MoveBackwards;
+    auto const action    = State::MovingForwards;
+    auto const modAction = State::MovingBackwards;
 
     auto const key    = KeyDown{Key::U};
     auto const modKey = KeyDown{Key::U, (int)Mod::Shift};
 
-    auto map = PersistentActionMap();
+    auto map = StateMap();
     map.add(key, action);
     map.add(modKey, modAction);
     SECTION("Action defaults to off")
@@ -72,7 +69,3 @@ TEST_CASE(
         REQUIRE(!map(modAction));
     }
 }
-
-}    // namespace PersistentActionMapTests
-
-#endif

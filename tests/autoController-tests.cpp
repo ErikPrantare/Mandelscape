@@ -15,14 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_AUTO_CONTROLLER_TESTS_HPP
-#define MANDELLANDSCAPE_AUTO_CONTROLLER_TESTS_HPP
-
-#include "autoController.hpp"
-
 #include <catch2/catch.hpp>
 
-namespace AutoControllerTests {
+#include "autoController.hpp"
+#include "testUtils.hpp"
 
 TEST_CASE("AutoController moves player", "[AutoController]")
 {
@@ -33,12 +29,8 @@ TEST_CASE("AutoController moves player", "[AutoController]")
     auto controller = AutoController(heightFunc);
 
     for(auto i = 0; i < 10; ++i) {
-        auto prevPos = player.position;
-        controller.update(&player, 1.0);
-        REQUIRE(player.position != prevPos);
+        auto const previous = player;
+        controller.update(player, 1.0);
+        REQUIRE(!(previous == Approximate{player}));
     }
 }
-
-}    // namespace AutoControllerTests
-
-#endif

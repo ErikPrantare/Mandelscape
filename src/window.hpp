@@ -29,6 +29,7 @@
 #include "event.hpp"
 #include "momentaryAction.hpp"
 #include "framebuffer.hpp"
+#include "util.hpp"
 
 class Window {
 public:
@@ -57,13 +58,23 @@ public:
     [[nodiscard]] auto
     paused() const noexcept -> bool;
 
-    auto
-    pause(bool) noexcept -> void;
-
     [[nodiscard]] auto
     size() const noexcept -> glm::ivec2;
 
+    auto
+    pause() noexcept -> void;
+
+    auto
+    unpause() noexcept -> void;
+
+    [[nodiscard]] auto
+    suspend() noexcept -> util::ScopeGuard;
+
 private:
+    auto
+    setPaused(bool paused) noexcept -> void;
+
+    // CPP20 decltype(lambda)
     struct WindowDeleter {
         void
         operator()(GLFWwindow* window) noexcept
@@ -81,9 +92,6 @@ private:
 
     auto
     close() -> void;
-
-    auto
-    screenshot() noexcept(false) -> void;
 
     auto
     resizeBuffer(glm::ivec2 size) -> void;
@@ -108,11 +116,9 @@ private:
     static auto
     resizeCB(GLFWwindow* glfwWindow, int width, int height) -> void;
 
-    double m_lastMouseX = 0.0;
-    double m_lastMouseY = 0.0;
+    glm::dvec2 m_lastMouse = {0.0, 0.0};
 
-    bool m_paused                                 = false;
-    std::optional<Framebuffer> m_screenshotBuffer = std::nullopt;
+    bool m_paused = false;
     glm::ivec2 m_size;
 };
 

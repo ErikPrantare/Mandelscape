@@ -26,16 +26,18 @@
 #include <stb_image.h>
 
 auto
-generateTexture() -> GLuint*
+generateTexture() -> GLuint
 {
-    auto* const texture = new GLuint;
-    glGenTextures(1, texture);
+    auto texture = GLuint();
+    glGenTextures(1, &texture);
     return texture;
 }
 
 Texture::Texture(TextureArgs const& args) :
-            m_location(generateTexture()),
-            m_textureUnit(args.unit)
+            m_address(generateTexture()),
+            m_index(args.index),
+            m_type(GL_TEXTURE_2D),
+            m_uniformName(args.uniformName)
 {
     unsigned char* image = nullptr;
     glm::ivec2 size      = args.size;
@@ -54,8 +56,8 @@ Texture::Texture(TextureArgs const& args) :
         }
     }
 
-    glActiveTexture(m_textureUnit);
-    glBindTexture(GL_TEXTURE_2D, *m_location);
+    bind();
+
     glTexImage2D(
             GL_TEXTURE_2D,
             0,
@@ -70,21 +72,68 @@ Texture::Texture(TextureArgs const& args) :
     if(args.generateMipmap) {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     stbi_image_free(image);
 }
 
-auto
-Texture::activate() -> void
+Texture::Texture(CubemapArgs const& args) noexcept(false) :
+            m_address(generateTexture()),
+            m_index(args.index),
+            m_type(GL_TEXTURE_CUBE_MAP),
+            m_uniformName(args.uniformName)
 {
-    glActiveTexture(m_textureUnit);
-    glBindTexture(GL_TEXTURE_2D, *m_location);
+    bind();
+
+    int width         = 0;
+    int height        = 0;
+    int nrChannels    = 0;
+    auto const& faces = args.facePaths;
+    for(unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char* image =
+                stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if(image == nullptr) {
+            std::cout << "Cubemap tex failed to load at path: " << faces[i]
+                      << std::endl;
+        }
+
+        glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0,
+                GL_RGB,
+                width,
+                height,
+                0,
+                GL_RGB,
+                GL_UNSIGNED_BYTE,
+                image);
+        stbi_image_free(image);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+}
+
+auto
+Texture::bind() -> void
+{
+    glActiveTexture(GL_TEXTURE0 + m_index);
+    glBindTexture(m_type, m_address);
+}
+
+auto
+Texture::activateOn(ShaderProgram& shaderProgram) -> void
+{
+    glActiveTexture(GL_TEXTURE0 + m_index);
+    shaderProgram.setUniformInt(m_uniformName, m_index);
 }
 
 auto
 Texture::get() noexcept -> GLuint
 {
-    return *m_location;
+    return m_address;
 }

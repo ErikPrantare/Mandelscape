@@ -18,6 +18,7 @@
 #ifndef MANDELLANDSCAPE_MESH_HPP
 #define MANDELLANDSCAPE_MESH_HPP
 
+#include <stdexcept>
 #include <vector>
 #include <memory>
 #include <map>
@@ -25,47 +26,55 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "gl.hpp"
 #include "texture.hpp"
 
 class Mesh {
 public:
     Mesh();
 
-    Mesh(Mesh const&) = delete;
     auto
-    operator=(Mesh const&) -> Mesh& = delete;
-    Mesh(Mesh&&)                    = delete;
-    auto
-    operator=(Mesh&&) -> Mesh& = delete;
-
-    // Todo: RAII to remove destructor and = delete
-    ~Mesh();
-
-    auto
-    render() -> void;
-
-    auto
-    setVertices(std::vector<glm::vec3> const& vertices) -> void;
-
-    auto
-    setVertices(
-            std::vector<glm::vec3> const& vertices,
-            size_t start,
-            size_t size) -> void;
+    render(ShaderProgram& shaderProgram) -> void;
 
     auto
     setIndices(std::vector<GLuint> const& indices) -> void;
 
+    template<class T>
     auto
-    newAttribute(int location) -> void;
+    assertIsType(gl::AttributeInfo const info) noexcept(false)
+    {
+        if(gl::attributeInfo<T>() == info) {
+            return true;
+        }
+
+        throw std::runtime_error("Error: Type mismatch in shader attribute");
+    }
 
     template<class T>
     auto
-    setAttribute(int location, std::vector<T> const& values) -> void
+    newAttribute(int location) -> void
     {
         glBindVertexArray(m_vao);
+        GLuint vbo = 0;
+        glEnableVertexAttribArray(location);
+        glGenBuffers(1, &vbo);
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+        glBindVertexArray(0);
+
+        // CPP20 {.x = ...}
+        m_attributes[location].vbo  = vbo;
+        m_attributes[location].info = gl::attributeInfo<T>();
+    }
+
+    template<class T>
+    auto
+    setAttribute(int location, std::vector<T> const& values) noexcept(false)
+            -> void
+    {
+        assertIsType<T>(m_attributes.at(location).info);
+
+        glBindVertexArray(m_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location].vbo);
         glBufferData(
                 GL_ARRAY_BUFFER,
                 values.size() * sizeof(T),
@@ -81,11 +90,12 @@ public:
             int location,
             std::vector<T> const& values,
             size_t start,
-            size_t size) -> void
+            size_t size) noexcept(false) -> void
     {
-        glBindVertexArray(m_vao);
+        assertIsType<T>(m_attributes.at(location).info);
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location]);
+        glBindVertexArray(m_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_attributes[location].vbo);
         glBufferSubData(
                 GL_ARRAY_BUFFER,
                 start * sizeof(T),
@@ -96,23 +106,24 @@ public:
     }
 
     auto
-    setTexture(std::shared_ptr<Texture> texture) -> void;
+    addTexture(std::shared_ptr<Texture> texture) -> void;
 
     friend auto
     swap(Mesh&, Mesh&) -> void;
 
-    static int constexpr vertexLocation = 0;
-
 private:
-    GLuint m_vao        = 0;
-    GLuint m_vbo        = 0;
-    GLuint m_ebo        = 0;
+    struct Attribute {
+        gl::Vbo vbo;
+        gl::AttributeInfo info;
+    };
+
+    gl::Vao m_vao       = 0;
+    gl::Ebo m_ebo       = 0;
     size_t m_nrVertices = 0;
 
-    // location -> VBO
-    std::map<int, GLuint> m_attributes = {};
+    std::map<int, Attribute> m_attributes;
 
-    std::shared_ptr<Texture> m_texture = nullptr;
+    std::vector<std::shared_ptr<Texture>> m_textures;
 };
 
 auto

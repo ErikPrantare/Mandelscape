@@ -24,25 +24,24 @@
 
 #include "util.hpp"
 #include "player.hpp"
-#include "playerController.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 
-class AutoController final : public PlayerController {
+class AutoController final : public Player::Controller {
 public:
     AutoController(std::function<double(glm::dvec2)>);
 
     auto
-    update(Player*, double) -> void final;
+    update(Player& player, double dt) -> void final;
 
     auto
     handleMomentaryAction(MomentaryAction const&) -> void final;
 
     auto
-    updateState(PersistentActionMap const& /*map*/) -> void final{};
+    updateState(StateMap const& /*map*/) -> void final{};
 
 private:
     auto
-    locateTarget(Player const& player) -> void;
+    locateTarget(Player const& playerState) -> void;
 
     std::function<double(glm::dvec2)> m_heightFunc;
 

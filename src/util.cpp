@@ -19,7 +19,24 @@
 
 #include <glm/glm.hpp>
 
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_image_resize.h>
+
+#include "player.hpp"
+#include "uniformController.hpp"
+
 namespace util {
+
+auto
+currentDatetimeString() -> std::string
+{
+    std::time_t const t = std::time(nullptr);
+    std::tm const tm    = *std::localtime(&t);
+    std::stringstream buffer;
+    buffer << std::put_time(&tm, "%Y_%m_%d-%H_%M_%S");
+    return buffer.str();
+}
 
 auto
 unitVec2(double theta) noexcept -> glm::dvec2
@@ -65,98 +82,69 @@ toMod(Input::Key key) noexcept(false) -> Input::Mod
     return modKeyMap.at(key);
 }
 
+auto
+toGpuVec(glm::dvec3 const v) -> glm::vec3
+{
+    return static_cast<glm::vec3>(v);
+}
+
 }    // namespace util
 
-namespace util::lua {
-
+namespace util::image {
 auto
-toVec3(lua_State* L, int offset) -> glm::dvec3
+savePng(std::filesystem::path const& path, Image const& image) -> void
 {
-    auto vec = glm::dvec3();
+    namespace fs = std::filesystem;
 
-    lua_getfield(L, offset, "x");
-    vec.x = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    lua_getfield(L, offset, "y");
-    vec.y = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    lua_getfield(L, offset, "z");
-    vec.z = lua_tonumber(L, -1);
-    lua_pop(L, 1);
+    if(!fs::exists(path.parent_path())) {
+        fs::create_directory(path.parent_path());
+    }
+    else if(!fs::is_directory(path.parent_path())) {
+        return;
+    }
 
-    return vec;
+    stbi_flip_vertically_on_write(1);
+    stbi_write_png(
+            path.string().c_str(),
+            image.size.x,
+            image.size.y,
+            3,
+            image.pixels.data(),
+            0);
 }
 
 auto
-toVec2(lua_State* L, int offset) -> glm::dvec2
+downsample(Image const& image) -> Image
 {
-    auto vec = glm::dvec2();
+    auto const downsampledSize = image.size / 2;
+    std::vector<unsigned char> downsampledPixels(
+            3 * static_cast<long>(downsampledSize.x) * downsampledSize.y);
 
-    lua_getfield(L, offset, "x");
-    vec.x = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    lua_getfield(L, offset, "y");
-    vec.y = lua_tonumber(L, -1);
-    lua_pop(L, 1);
+    stbir_resize_uint8(
+            image.pixels.data(),
+            image.size.x,
+            image.size.y,
+            0,
+            downsampledPixels.data(),
+            downsampledSize.x,
+            downsampledSize.y,
+            0,
+            3);
 
-    return vec;
+    // CPP20 {.x = ...}
+    return {downsampledPixels, downsampledSize};
 }
-
-auto
-toPlayer(lua_State* L, int offset) -> Player
-{
-    auto player = Player();
-
-    lua_getfield(L, offset, "position");
-    player.position = util::lua::toVec3(L, -1);
-    lua_pop(L, 1);
-
-    lua_getfield(L, offset, "offset");
-    player.offset = util::lua::toVec3(L, -1);
-    lua_pop(L, 1);
-
-    lua_getfield(L, offset, "lookAtOffset");
-    player.lookAtOffset = util::lua::toVec2(L, -1);
-    lua_pop(L, 1);
-
-    lua_getfield(L, offset, "scale");
-    player.scale = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-
-    return player;
-}
-
-auto
-toUniformController(lua_State* L, int offset) -> UniformController
-{
-    auto uniformController = UniformController();
-
-    lua_getfield(L, offset, "colorOffset");
-    uniformController.m_colorOffset = util::lua::toVec3(L, -1);
-    lua_pop(L, 1);
-
-    lua_getfield(L, offset, "colorFrequency");
-    uniformController.m_colorFrequency = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-
-    lua_getfield(L, offset, "yScale");
-    uniformController.m_yScale = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-
-    lua_getfield(L, offset, "fastMode");
-    uniformController.m_fastMode = static_cast<bool>(lua_toboolean(L, -1));
-    lua_pop(L, 1);
-
-    lua_getfield(L, offset, "iterations");
-    uniformController.m_iterations = static_cast<int>(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-
-    return uniformController;
-}
-
-}    // namespace util::lua
+}    // namespace util::image
 
 namespace util::nfd {
+namespace literal {
+    auto operator""_nfd(char const* str, size_t size)
+            -> std::filesystem::path::string_type
+    {
+        return {str, str + size};
+    }
+}    // namespace literal
+
 auto
 toNfdFilterItems(std::vector<FilterItem> const& items)
         -> std::vector<nfdnfilteritem_t>
@@ -173,7 +161,7 @@ toNfdFilterItems(std::vector<FilterItem> const& items)
 }
 
 auto
-saveDialog(
+saveDialogWithErrorCode(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath,
         string const& defaultName) -> std::pair<fs::path, nfdresult_t>
@@ -188,28 +176,58 @@ saveDialog(
             startPath.c_str(),
             defaultName.c_str());
 
-    return {fs::path(nfdOutput.get()), result};
+    auto path = result == NFD_OKAY ? fs::path{nfdOutput.get()} : fs::path{};
+
+    return {path, result};
 }
 
 auto
-openDialog(
+saveDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath,
+        string const& defaultName) -> std::optional<fs::path>
+{
+    auto const& [path, code] =
+            saveDialogWithErrorCode(filterItems, startPath, defaultName);
+    if(code != NFD_OKAY) {
+        return std::nullopt;
+    }
+    return std::make_optional(path);
+}
+
+auto
+openDialogWithErrorCode(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath) -> std::pair<fs::path, nfdresult_t>
 {
     auto nfdOutput            = NFD::UniquePathN();
     auto const nfdFilterItems = toNfdFilterItems(filterItems);
 
-    auto const result = NFD::OpenDialog(
+    auto const code = NFD::OpenDialog(
             nfdOutput,
             nfdFilterItems.data(),
             nfdFilterItems.size(),
             startPath.c_str());
 
-    return {fs::path(nfdOutput.get()), result};
+    auto path = code == NFD_OKAY ? fs::path{nfdOutput.get()} : fs::path{};
+
+    return {path, code};
 }
 
 auto
-openDialogMultiple(
+openDialog(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath) -> std::optional<fs::path>
+{
+    auto const& [path, code] = openDialogWithErrorCode(filterItems, startPath);
+    if(code != NFD_OKAY) {
+        return std::nullopt;
+    }
+    return std::make_optional(path);
+}
+
+auto
+openDialogMultipleWithErrorCode(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath)
         -> std::pair<std::vector<fs::path>, nfdresult_t>
@@ -240,5 +258,16 @@ openDialogMultiple(
     }
 
     return {paths, result};
+}
+
+auto
+openDialogMultiple(
+        std::vector<FilterItem> const& filterItems,
+        fs::path const& startPath) -> std::vector<fs::path>
+{
+    auto const& [paths, code] =
+            openDialogMultipleWithErrorCode(filterItems, startPath);
+
+    return paths;
 }
 }    // namespace util::nfd

@@ -2,7 +2,7 @@
 Mandelscape is a landscape walking simulator based on the Mandelbrot fractal.
 Walk around and explore the smallest of details by shrinking yourself.
 
-# Build Guide (Linux)
+## Build Guide (Linux)
 Mandelscape depends on GTK3. To install it on Debian:
 ```
 sudo apt install libgtk-3-dev
@@ -18,60 +18,66 @@ mv build/src/Mandelscape .
 ```
 If everything built correctly, the program can now be run with `./Mandelscape`
 
-# Binary Download (Windows)
-https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
+## Binary Download (Windows)
+https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.1.0
 
-# Controls
-- wasd + mouse: Walk and look around.
+## Controls
+- Mouse: Look around.
 
-- p: Toggle pause(releases mouse).
+- WASD: Walk around.
 
-- left/right mouse button: Shrink/grow.
+- SHIFT+WASD: Run around.
 
-- q/escape: Quit.
+- P: Toggle pause(releases mouse).
 
-- ctrl+s/ctrl+o: Save/load state.
+- Left/Right mouse button: Shrink/grow.
 
-- ctrl+l: Load different algorithms.
+- Q/Escape: Quit.
 
-- j/k: Change iteration count.
+- CTRL+S/CTRL+O: Save/load preset.
 
-- 1-4 + up/down: Change colors.
+- CTRL+L: Load scripts.
 
-- 5 + up/down: Change terrain y scale.
+- J/K: Change iteration count.
 
-- x: Render image. Will be put inside directory named screenshots.
+- 1-4 + Up/Down: Change colors.
 
-- f: Toggle fast mode.
+- 5 + Up/Down: Change terrain y scale.
 
-- h: Allow for deeper zooms. Will increase lag 
+- X: Render image. Will be put inside directory named screenshots.
+
+- F: Toggle fast mode.
+
+- H: Allow for deeper zooms. Will increase lag 
         (fast mode is recommended between rendering images).
 
-- o: Toggle autozoom.
+- L: Toggle lighting effects.
 
-- c: Toggle autowalk.
+- O: Toggle autozoom.
 
-# Options
+- C: Toggle autowalk.
+
+## Options
 To use dvorak mode, start Mandelscape with `--dvorak` flag.
-Controls can be found at the bottom of src/main.cpp.
+Controls can be found in `src/keymaps.cpp`.
 
-# Using different algorithms
-Loading different algorithms is done with ctrl+l.
-This opens up a file dialog, where you can select the algorithms you want
+## Using different scripts
+Loading different scripts is done with ctrl+l.
+This opens up a file dialog, where you can select the script you want
 to use.
-Algorithms can be identified by their file suffix `myAlgorithm<suffix>`,
+Scripts can be identified by their file suffix `myAlgorithm<suffix>`,
 with `<suffix>` being:
 
-- `shape.lua`: Algorithm changing the terrain shape.
+- `shape.lua`: Shape of the landscape.
 
-- `value.frag`: Algorithm changing the way the terrain is colored.
+- `value.frag`: In what way the landscape is colored.
 
-- `color.frag`: Algorithm changing what colors are used.
+- `color.frag`: Which colors are to be used when coloring the landscape.
 
-Some algorithms can be found under `presets`.
+Some algorithms can be found under `landscape-scripts`.
 
-Detailed documentation on writing custom algorithms is given in
-`documentation/writing-custom-algorithms.txt`.
+Detailed documentation on writing custom scripts is given in
+`documentation/writing-custom-scripts.txt`.
 
 ---
 

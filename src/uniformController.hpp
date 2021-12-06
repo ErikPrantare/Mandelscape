@@ -22,16 +22,13 @@
 
 #include "lua.hpp"
 
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
 #include "shaderProgram.hpp"
 #include "momentaryAction.hpp"
+#include "util.hpp"
+#include "serialization.hpp"
 
-// forward declarations for friend function
 class UniformController;
-namespace util::lua {
-[[nodiscard]] auto
-toUniformController(lua_State* L, int offset) -> UniformController;
-}
 // used in tests to test for approximate equality
 class UniformControllerApprox;
 auto
@@ -42,13 +39,13 @@ operator==(UniformController const& a, UniformControllerApprox const& b)
 class UniformController {
 public:
     auto
-    updateState(PersistentActionMap const& active, double dt) noexcept -> void;
+    updateState(StateMap const& active, double dt) noexcept -> void;
 
     auto
     handleMomentaryAction(MomentaryAction const& action) -> void;
 
     auto
-    update(ShaderProgram* shaderProgram) -> void;
+    update(ShaderProgram& shaderProgram) -> void;
 
     [[nodiscard]] auto
     yScale() const noexcept -> double;
@@ -59,22 +56,28 @@ public:
     [[nodiscard]] auto
     operator==(UniformController const& other) const noexcept -> bool;
 
-    friend auto
-    util::lua::toUniformController(lua_State* L, int offset)
-            -> UniformController;
-    friend auto
-    serialize(
-            std::ostream& out,
-            UniformController const& uniformController,
-            std::string const& name) -> void;
+    [[nodiscard]] auto static getSerializationTable()
+    {
+        return std::make_tuple(
+                makeMemberEntry<&UniformController::m_colorOffset>(
+                        "colorOffset"),
+                makeMemberEntry<&UniformController::m_colorFrequency>(
+                        "colorFrequency"),
+                makeMemberEntry<&UniformController::m_yScale>("yScale"),
+                makeMemberEntry<&UniformController::m_fastMode>("fastMode"),
+                makeMemberEntry<&UniformController::m_iterations>(
+                        "iterations"));
+    }
+
     friend auto
     operator==(UniformController const& a, UniformControllerApprox const& b)
             -> bool;
 
 private:
-    int m_iterations = 100;
-    double m_yScale  = 1.0;
-    bool m_fastMode  = false;
+    int m_iterations      = 100;
+    double m_yScale       = 1.0;
+    bool m_fastMode       = false;
+    bool m_renderLighting = true;
 
     glm::dvec3 m_colorOffset = {0.0, 1.0, 2.0};
     double m_colorFrequency  = 0.1;

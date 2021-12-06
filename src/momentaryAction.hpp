@@ -20,16 +20,20 @@
 
 #include <variant>
 
+#include "glm/glm.hpp"
+
 enum class Trigger {
     IncreaseIterations,
     DecreaseIterations,
-    ToggleAutoWalk,
-    ToggleAutoZoom,
     SwitchShader,
     TakeScreenshot,
-    TogglePause,
     CloseWindow,
+
+    ToggleAutoWalk,
+    ToggleAutoZoom,
     ToggleFastMode,
+    TogglePause,
+    ToggleLighting,
 
     Save,
     Load,
@@ -38,8 +42,7 @@ enum class Trigger {
 };
 
 struct MouseDelta {
-    double dx;
-    double dy;
+    glm::dvec2 dPos;
 };
 
 using MomentaryAction = std::variant<Trigger, MouseDelta>;

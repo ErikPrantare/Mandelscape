@@ -15,17 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_UTILS_TESTS_HPP
-#define MANDELLANDSCAPE_UTILS_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include <queue>
 #include <optional>
 
-#include <catch2/catch.hpp>
-
 #include "util.hpp"
-
-namespace UtilsTests {
 
 TEST_CASE(
         "util::pop pops and returns the top element of a std::queue",
@@ -35,11 +30,7 @@ TEST_CASE(
 
     SECTION("Empty queue should return a std::nullopt")
     {
-        auto nullopt = util::pop(queue);
+        auto const nullopt = util::pop(queue);
         REQUIRE(!nullopt.has_value());
     }
 }
-
-}    // namespace UtilsTests
-
-#endif    // MANDELLANDSCAPE_UTILS_TESTS_HPP

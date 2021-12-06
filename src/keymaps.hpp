@@ -1,5 +1,5 @@
 /* Mandelscape
- * Copyright (C) 2020-2021 Erik Präntare
+ * Copyright (C) 2021 Erik Präntare
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,19 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#ifndef MANDELSCAPE_KEYMAPS_HPP
+#define MANDELSCAPE_KEYMAPS_HPP
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include <utility>
 
-#include "utils-tests.hpp"
-#include "walkController-tests.hpp"
-#include "autoController-tests.hpp"
-#include "metaController-tests.hpp"
-#include "genericController-tests.hpp"
-#include "momentaryActionsMap-tests.hpp"
-#include "persistentActionMap-tests.hpp"
-#include "lua-tests.hpp"
-#include "serialization-tests.hpp"
-#include "playerHelper-tests.hpp"
+#include "momentaryActionsMap.hpp"
+#include "stateMap.hpp"
+
+[[nodiscard]] auto
+initControls() -> std::pair<MomentaryActionsMap, StateMap>;
+
+[[nodiscard]] auto
+initControlsDvorak() -> std::pair<MomentaryActionsMap, StateMap>;
+
+#endif    // MANDELSCAPE_KEYMAPS_HPP

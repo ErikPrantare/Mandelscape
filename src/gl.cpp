@@ -15,24 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_PERSISTENTACTION_HPP
-#define MANDELLANDSCAPE_PERSISTENTACTION_HPP
+#include <tuple>
 
-enum class PersistentAction {
-    MoveForwards,
-    MoveBackwards,
-    MoveLeft,
-    MoveRight,
-    ZoomIn,
-    ZoomOut,
-    IncreaseParam,
-    DecreaseParam,
-    ChangeRedOffset,
-    ChangeGreenOffset,
-    ChangeBlueOffset,
-    ChangeTotalOffset,
-    ChangeFrequency,
-    ChangeYScale,
-};
+#include "gl.hpp"
 
-#endif
+namespace gl {
+
+auto
+operator==(AttributeInfo const& a, AttributeInfo const& b) -> bool
+{
+    return std::tie(a.type, a.nrComponents)
+           == std::tie(b.type, b.nrComponents);
+}
+
+}    // namespace gl

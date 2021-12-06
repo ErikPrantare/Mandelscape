@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#line 18 2
+
 vec4
 addFog(const in vec4 color)
 {
@@ -32,6 +34,47 @@ addFog(const in vec4 color)
     return vec4(fog, fog, fog, 1.0) + (1.0 - fog) * color;
 }
 
+float
+illumination(in vec3 lightDir)
+{
+    lightDir = normalize(lightDir);
+
+    float ambient = 0.2;
+
+    float diffuse = max(0.0, dot(lightDir, normal));
+
+    vec3 lookingDirection = normalize(playerPos - worldPosition);
+    vec3 reflection = reflect(-lightDir, normal);
+    float specular =
+        0.5 * pow(max(dot(lookingDirection, reflection), 0.0), 32);
+
+    return ambient + diffuse + specular;
+}
+
+vec4
+mirrorColor()
+{
+    vec3 lookingDirection = normalize(playerPos - worldPosition);
+    vec3 reflection = reflect(-lookingDirection, normal);
+    vec4 color = texture(skybox, reflection);
+    return vec4(vec3(0.33*(color.r+color.g+color.b)), 1.0);
+}
+
+vec4
+addLighting(const in vec4 color)
+{
+    if(!renderLighting) {
+        return color;
+    }
+
+    float illumination = pow(illumination(vec3(0.0, 1.0, 0.0)), 1.0/2.2);
+    
+    vec4 terrainColor = clamp(vec4(0.0), vec4(1.0), illumination * color);
+    float reflectionStrength = 0.1;
+
+    return mix(terrainColor, mirrorColor(), reflectionStrength);
+}
+
 void
 main()
 {
@@ -39,10 +82,11 @@ main()
         PointInfo i = PointInfo(preCalculated, true);
         PointInfo o = PointInfo(preCalculated, false);
         fragColor =
-            addFog(mix(color(i), color(o), 1.0-inside));
+            addFog(addLighting(
+                    mix(color(i), color(o), 1.0-inside)));
         return;
     }
 
     PointInfo p = value(makeComplex(position, offset));
-    fragColor = addFog(color(p));
+    fragColor = addFog(addLighting(color(p)));
 }

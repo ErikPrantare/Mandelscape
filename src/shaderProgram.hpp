@@ -25,7 +25,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "glDestructors.hpp"
+#include "gl.hpp"
 
 class ShaderProgram {
 public:
@@ -44,6 +44,9 @@ public:
     setUniformFloat(std::string const& name, float) -> void;
 
     auto
+    setUniformUInt(std::string const& name, unsigned int) -> void;
+
+    auto
     setUniformInt(std::string const& name, int) -> void;
 
     auto
@@ -55,14 +58,13 @@ public:
     auto
     setUniformMatrix4(std::string const& name, glm::mat4 const& value) -> void;
 
-private:
-    std::unique_ptr<GLuint, glDestructors::ShaderProgram> m_location;
-
     [[nodiscard]] auto
     uniformLocation(const std::string& name) const -> GLint;
 
-    [[nodiscard]] auto
-    getLocation(std::string const& path, GLenum shaderType) const -> GLuint;
+private:
+    GLuint m_fragmentShaderAddress = 0;
+    GLuint m_vertexShaderAddress   = 0;
+    gl::ShaderProgram m_address;
 };
 
 #endif

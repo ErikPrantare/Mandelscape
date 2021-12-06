@@ -22,6 +22,7 @@ precision highp float;
 in vec3 pos;
 in float value;
 in int inside_;
+in vec3 normal_;
 
 uniform mat4 cameraSpace;
 uniform mat4 projection;
@@ -32,17 +33,23 @@ out vec2 position;
 out float distance;
 out float preCalculated;
 out float inside;
+out vec3 normal;
+out vec3 worldPosition;
 
 void
 main()
 {
     gl_Position = cameraSpace * vec4(pos.x, yScale*pos.y, pos.z, 1.0);
+    worldPosition = pos.xyz;
 
     position = pos.xz;
     distance = sqrt(dot(gl_Position.xyz, gl_Position.xyz));
 
     preCalculated = value;
     inside = inside_ != 0 ? 1.0 : 0.0;
+    normal = normal_;
+    normal.xz *= yScale;
+    normal = normalize(normal);
 
     gl_Position = projection * gl_Position;
 }

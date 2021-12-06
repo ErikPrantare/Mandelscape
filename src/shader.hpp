@@ -26,7 +26,7 @@
 #include <glad/glad.h>
 
 #include "shaderProgram.hpp"
-#include "glDestructors.hpp"
+#include "gl.hpp"
 #include "util.hpp"
 
 enum class ShaderType {
@@ -57,13 +57,12 @@ public:
     attachTo(ShaderProgram& program) const -> void;
 
 private:
+    gl::Shader m_address;
+
     Shader(std::string const& sourceCode);
 
-    std::unique_ptr<GLuint const, glDestructors::Shader> m_location;
-
     [[nodiscard]] static auto
-    createShader(std::string const& sourceCode) noexcept(false)
-            -> GLuint const*;
+    createShader(std::string const& sourceCode) noexcept(false) -> GLuint;
 };
 
 using VertexShader   = Shader<ShaderType::Vertex>;

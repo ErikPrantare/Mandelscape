@@ -1,26 +1,40 @@
 Examples are given at the end of the document.
 
----
+-------------------------------------------------------------------------------
+
 Coloring of the landscape is done in two steps.
 For a given complex number,
-a function is applied that calculates information about each point.
-This information is then passed to another function, that translates the
-value to a color.
+a value function calculates information about this point.
+This information is then passed to a coloring function, which translates the
+information to a color.
 
-Files defining the value function end with value.frag,
-and files defining the color function end with color.frag.
+The name of scripts defining a value function must end with value.frag,
+and the name of scripts defining a color function must end with color.frag.
 
----
-The functions are written in GLSL. 
+-------------------------------------------------------------------------------
 
-The PointInfo struct, used to transfer information about each point,
-contains two members:
+The coloring scripts are written in GLSL. 
+
+The two functions must have the following signatures:
+
+PointInfo
+value(const in complex c)
+
+vec4
+color(const in PointInfo p)
+
+
+The PointInfo struct is used to transfer information about each point.
+It contains two members:
 
 float value
 bool inside
 
-value picks a value for each point(e.g. how many iterations to bail out),
-and inside signals whether the point is located inside or outside the fractal.
+value picks a value for each point
+(e.g. how many iterations it took to bail out for the mandelbrot fractal),
+and inside signals whether the point is located inside or outside the fractal
+set.
+
 
 To allow for different precisions,
 two macro types are defined to be used in the calculation of the value:
@@ -37,7 +51,7 @@ It is possible to create a complex number with
 
 complex(real r, real i)
 
-It is also possible to create values with value 0:
+It is also simple to create values with value 0:
 
 complex(0.0)
 real(0.0)
@@ -49,7 +63,7 @@ real toReal(float)
 float toFloat(real)
 
 toFloat will cause loss of precision,
-so use it only where the precision is not vital.
+so use it only where the extra precision is not necessary.
 
 
 Two macros are defined to get the real and imaginary
@@ -85,22 +99,25 @@ To subtract, negate the second argument to add:
 
 z = add(z, -c);
 
----
+-------------------------------------------------------------------------------
+
 Two uniform variables can be used in the functions:
 
 int iterations
 float time
 
-iterations contains the amount of iterations the algorithm should use.
+iterations contains the amount of iterations the function should use.
 time is the elapsed time given in seconds, and can be used to animate
-the algorithm.
+the coloring.
 
----
+-------------------------------------------------------------------------------
+
 Tip:
 The utility ggr2glsl (https://github.com/ErikPrantare/ggr2glsl)
 can be used to convert GIMP gradients to GLSL functions.
 
----
+-------------------------------------------------------------------------------
+
 Example functions
 
 mandelbrot-value.frag:
@@ -145,8 +162,11 @@ color(const in PointInfo p)
             1.0);
 }
 
-The preprocessor directives makes sure error messages output correct line
+The preprocessor directive #line makes sure error messages output correct line
 numbers.
----
-An example value function is defined in presets/mandelbrot-orbit.value
-that uses the time variable to animate an orbit trap algorithm.
+
+-------------------------------------------------------------------------------
+
+An example value function is defined in
+landscape-scripts/mandelbrot-orbit.value.
+It uses the time variable to animate an orbit trap algorithm.

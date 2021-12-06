@@ -6,7 +6,16 @@ and changed/other with a '.'.
 
 This project adheres to semantic versioning (MAJOR.MINOR.PATCH).
 
-1.0.0 (2021-03-24)
+1.1.0 (2021-12-06):
++ Add lighting
++ Add hobold orbit trap algorithm
++ Add running (SHIFT+WASD)
++ Add ability to load multiple scripts at the same time
+
+. Update documentation
+. Shut down faster when quitting
+
+1.0.0 (2021-03-24):
 + Add custom terrain scripting
 + Add documentation for writing custom algorithms
 + Save and load state with CTRL+S and CTRL+O

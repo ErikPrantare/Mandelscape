@@ -18,7 +18,8 @@ mv build/src/Mandelscape.exe . &&
 mv extern/luajit-2.0/src/lua51.dll . &&
 zip Mandelscape.zip \
     Mandelscape.exe COPYING shaders/* textures/* lua51.dll \
-    README.md documentation/* presets/* presets/*/* &&
+    README.md documentation/* \
+    presets/* landscape-scripts/* landscape-scripts/*/* &&
 
 # clean
 rm -r build/ &&

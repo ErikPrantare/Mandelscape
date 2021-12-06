@@ -26,62 +26,44 @@
 #include "player.hpp"
 #include "uniformController.hpp"
 
-struct Dvec2Approx {
-    glm::dvec2 val;
+template<class ValueType>
+struct Approximate {
+    ValueType val;
 };
 
-auto
-operator==(glm::dvec2 a, Dvec2Approx b) -> bool
-{
-    return a.x == Approx(b.val.x) && a.y == Approx(b.val.y);
-}
-
-struct Dvec3Approx {
-    glm::dvec3 val;
-};
+template<class ValueType>
+Approximate(ValueType) -> Approximate<ValueType>;
 
 auto
-operator==(glm::dvec3 a, Dvec3Approx b) -> bool
+operator==(double a, Approximate<double> b) -> bool;
+auto
+operator==(glm::dvec2 a, Approximate<glm::dvec2> b) -> bool;
+auto
+operator==(glm::dvec3 a, Approximate<glm::dvec3> b) -> bool;
+auto
+operator==(glm::dvec4 a, Approximate<glm::dvec4> b) -> bool;
+
+auto
+operator==(glm::dmat4 a, Approximate<glm::dmat4> b) -> bool;
+
+auto
+operator==(Player const& a, Approximate<Player> const& b) -> bool;
+
+template<class T>
+auto
+operator!=(T const& a, Approximate<T> const& b) -> bool
 {
-    return a.x == Approx(b.val.x) && a.y == Approx(b.val.y)
-           && a.z == Approx(b.val.z);
+    return !(a == b);
 }
+
 // namespace glm needed for ADL
 namespace glm {
 auto
-operator<<(std::ostream& os, glm::dvec2 const& v) -> std::ostream&
-{
-    os << '(' << v.x << ", " << v.y << ')';
-    return os;
-}
+operator<<(std::ostream& os, glm::dvec2 const& v) -> std::ostream&;
 auto
-operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&
-{
-    os << '(' << v.x << ", " << v.y << ", " << v.z << ')';
-    return os;
-}
+operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&;
+
 }    // namespace glm
-
-auto
-operator<<(std::ostream& os, Player const& player) -> std::ostream&
-{
-    os << "Player(" << player.position << ", " << player.offset << ", "
-       << player.lookAtOffset << ", " << player.scale << ")";
-    return os;
-}
-
-struct PlayerApprox {
-    Player player;
-};
-
-auto
-operator==(Player const& a, PlayerApprox const& b) -> bool
-{
-    return a.position == Dvec3Approx{b.player.position}
-           && a.offset == Dvec3Approx{b.player.offset}
-           && a.lookAtOffset == Dvec2Approx{b.player.lookAtOffset}
-           && a.scale == Approx{b.player.scale};
-}
 
 struct UniformControllerApprox {
     UniformController uc;
@@ -89,12 +71,6 @@ struct UniformControllerApprox {
 
 auto
 operator==(UniformController const& a, UniformControllerApprox const& b)
-        -> bool
-{
-    return a.m_colorOffset == Dvec3Approx{b.uc.m_colorOffset}
-           && a.m_colorFrequency == Approx{b.uc.m_colorFrequency}
-           && a.m_yScale == Approx{b.uc.m_yScale}
-           && a.m_fastMode == b.uc.m_fastMode
-           && a.m_iterations == b.uc.m_iterations;
-}
+        -> bool;
+
 #endif

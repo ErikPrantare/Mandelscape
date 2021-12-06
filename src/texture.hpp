@@ -20,35 +20,49 @@
 
 #include <string>
 #include <memory>
+#include <array>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "glDestructors.hpp"
+#include "gl.hpp"
+#include "shaderProgram.hpp"
 
 struct TextureArgs {
     glm::ivec2 size{0, 0};
-    GLenum unit  = GL_TEXTURE0;
+    GLint index  = 0;
     GLint format = GL_RGBA;
     std::string imagePath;
     bool generateMipmap = false;
+    std::string uniformName;
+};
+
+struct CubemapArgs {
+    std::array<std::string, 6> facePaths;
+    GLint index = 0;
+    std::string uniformName;
 };
 
 // OpenGL Texture2D
 class Texture {
 public:
     Texture(TextureArgs const& args) noexcept(false);
+    Texture(CubemapArgs const& args) noexcept(false);
 
     auto
-    activate() -> void;
+    activateOn(ShaderProgram& shaderProgram) -> void;
 
     auto
     get() noexcept -> GLuint;
 
 private:
-    std::unique_ptr<GLuint, glDestructors::Texture> m_location;
+    auto
+    bind() -> void;
 
-    GLenum m_textureUnit;
+    gl::Texture m_address;
+    GLint m_index;
+    GLenum m_type;
+    std::string m_uniformName;
 };
 
 #endif    // MANDELLANDSCAPE_TEXTURE_HPP

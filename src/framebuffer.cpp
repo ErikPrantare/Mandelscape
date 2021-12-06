@@ -19,6 +19,8 @@
 
 #include <stdexcept>
 
+#include "util.hpp"
+
 static auto
 textureArgs(glm::ivec2 size) noexcept -> TextureArgs
 {
@@ -44,7 +46,7 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
             m_depth(depthArgs(size)),
             m_size(size)
 {
-    glGenFramebuffers(1, m_fbo.get());
+    glGenFramebuffers(1, &m_fbo);
     bind();
 
     glFramebufferTexture2D(
@@ -71,13 +73,15 @@ Framebuffer::Framebuffer(glm::ivec2 size) noexcept(false) :
 }
 
 [[nodiscard]] auto
-Framebuffer::readPixels() -> std::vector<unsigned char>
+Framebuffer::readImage() -> util::image::Image
 {
     bind();
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    std::vector<unsigned char> pixels(3 * m_size.x * m_size.y);
+    // CPP23 size_t suffix (3z)
+    std::vector<unsigned char> pixels(
+            3 * static_cast<size_t>(m_size.x) * m_size.y);
 
     glReadPixels(
             0,
@@ -88,7 +92,7 @@ Framebuffer::readPixels() -> std::vector<unsigned char>
             GL_UNSIGNED_BYTE,
             pixels.data());
 
-    return pixels;
+    return util::image::Image{pixels, size()};
 }
 
 auto
@@ -100,11 +104,11 @@ Framebuffer::size() const noexcept -> glm::ivec2
 auto
 Framebuffer::bind() noexcept -> void
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, *m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 }
 
 auto
-Framebuffer::unbind() noexcept -> void
+Framebuffer::bindDefaultBuffer() noexcept -> void
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

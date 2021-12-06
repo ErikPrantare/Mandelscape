@@ -29,17 +29,15 @@
 #include <optional>
 #include <type_traits>
 #include <filesystem>
+#include <variant>
 
 #include <glm/glm.hpp>
 #include <glm/ext/scalar_constants.hpp>
 
 #include <nfd.hpp>
 
-#include "lua.hpp"
-
+#include "glfwEnums.hpp"
 #include "mandelTypeTraits.hpp"
-#include "player.hpp"
-#include "uniformController.hpp"
 
 namespace util {
 
@@ -70,11 +68,16 @@ public:
                 m_amount(amount){};
 
     auto
-    operator()(T const newValue, double const weight = 1.0f) -> T
+    update(T const newValue, double const weight = 1.0f) noexcept -> void
     {
         double const factor = std::pow(m_amount, weight);
 
         m_filteredValue = factor * m_filteredValue + (1.0 - factor) * newValue;
+    }
+
+    [[nodiscard]] auto
+    get() const noexcept -> T
+    {
         return m_filteredValue;
     }
 
@@ -109,8 +112,11 @@ struct Overload : Callables... {
 template<typename... Callables>
 Overload(Callables...) -> Overload<Callables...>;
 
-auto constexpr unaryNOP = [](auto&&) {
+auto constexpr nop = [](auto&&...) {
 };
+
+auto
+currentDatetimeString() -> std::string;
 
 template<typename T, typename Container>
 [[nodiscard]] auto
@@ -138,6 +144,15 @@ pop(std::queue<T, Container>& queue) -> std::optional<T>
     return {spacePos.x, spacePos.z};
 }
 
+[[nodiscard]] auto constexpr truncateExponent(double value, double base)
+        -> double
+{
+    return std::pow(base, (long int)(std::log(value) / std::log(base)));
+}
+
+[[nodiscard]] auto
+toGpuVec(glm::dvec3 v) -> glm::vec3;
+
 // CPP20 Make constexpr
 [[nodiscard]] auto
 unitVec2(double theta) noexcept -> glm::dvec2;
@@ -163,25 +178,55 @@ endsWith(
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+// CPP?? https://en.cppreference.com/w/cpp/experimental/scope_exit
+class ScopeGuard {
+public:
+    ScopeGuard(std::function<void()>&& destructor) : m_destructor(destructor)
+    {}
+    ScopeGuard(ScopeGuard const&) = delete;
+    ScopeGuard(ScopeGuard&&)      = delete;
+    auto
+    operator=(ScopeGuard const&) -> ScopeGuard& = delete;
+    auto
+    operator=(ScopeGuard&&) -> ScopeGuard& = delete;
+
+    ~ScopeGuard()
+    {
+        m_destructor();
+    }
+
+private:
+    std::function<void()> m_destructor;
+};
+
+template<class Variant, class... Function>
+auto
+dispatch(Variant& variant, Function... fs)
+{
+    std::visit(util::Overload{fs..., util::nop}, variant);
+};
+
 }    // namespace util
 
-namespace util::lua {
+namespace util::image {
+struct Image {
+    std::vector<unsigned char> const pixels;
+    glm::ivec2 const size;
+};
 
-[[nodiscard]] auto
-toVec3(lua_State* L, int offset) -> glm::dvec3;
+auto
+savePng(std::filesystem::path const& path, Image const& image) -> void;
 
-[[nodiscard]] auto
-toVec2(lua_State* L, int offset) -> glm::dvec2;
-
-[[nodiscard]] auto
-toPlayer(lua_State* L, int offset) -> Player;
-
-[[nodiscard]] auto
-toUniformController(lua_State* L, int offset) -> UniformController;
-
-}    // namespace util::lua
+auto
+downsample(Image const& image) -> Image;
+}    // namespace util::image
 
 namespace util::nfd {
+namespace literal {
+    auto operator""_nfd(char const* str, size_t size)
+            -> std::filesystem::path::string_type;
+}
+
 namespace fs = std::filesystem;
 using string = fs::path::string_type;
 
@@ -194,18 +239,17 @@ struct FilterItem {
 saveDialog(
         std::vector<FilterItem> const& filterItems,
         fs::path const& startPath,
-        string const& defaultName) -> std::pair<fs::path, nfdresult_t>;
+        string const& defaultName) -> std::optional<fs::path>;
 
 [[nodiscard]] auto
 openDialog(
         std::vector<FilterItem> const& filterItems,
-        fs::path const& startPath) -> std::pair<fs::path, nfdresult_t>;
+        fs::path const& startPath) -> std::optional<fs::path>;
 
 [[nodiscard]] auto
 openDialogMultiple(
         std::vector<FilterItem> const& filterItems,
-        fs::path const& startPath)
-        -> std::pair<std::vector<fs::path>, nfdresult_t>;
+        fs::path const& startPath) -> std::vector<fs::path>;
 }    // namespace util::nfd
 
 #endif    // MANDELLANDSCAPE_UTILS_HPP

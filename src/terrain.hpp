@@ -21,7 +21,6 @@
 #include <vector>
 #include <memory>
 #include <complex>
-#include <future>
 #include <tuple>
 
 #include <glad/glad.h>
@@ -35,22 +34,16 @@
 #include "texture.hpp"
 #include "mesh.hpp"
 #include "momentaryAction.hpp"
-#include "persistentActionMap.hpp"
+#include "stateMap.hpp"
+#include "algorithm.hpp"
+#include "sheetLoader.hpp"
 
 class Terrain {
 public:
     Terrain();
-    Terrain(const Terrain&) = delete;
-    auto
-    operator=(const Terrain&) -> Terrain& = delete;
-    Terrain(Terrain&&)                    = delete;
-    auto
-    operator=(Terrain&&) -> Terrain& = delete;
-
-    ~Terrain();
 
     auto
-    updateMesh(double x, double z, double scale) -> void;
+    updateMesh(glm::dvec2 middle, double scale) -> void;
 
     [[nodiscard]] auto
     heightAt(glm::dvec2 const&) -> double;
@@ -59,7 +52,7 @@ public:
     offset() const noexcept -> glm::dvec3;
 
     auto
-    render(ShaderProgram* shaderProgram) -> void;
+    render(ShaderProgram& shaderProgram) -> void;
 
     auto
     loadLua(std::string const& code) -> void;
@@ -67,13 +60,12 @@ public:
     auto
     setIterations(int iterations) noexcept -> void;
 
-    static int constexpr colorLocation = 1;
+    auto static bindAttributeLocations(ShaderProgram& shaderProgram) -> void;
 
-    struct PointData {
-        double height;
-        double value;
-        bool inside;
-    };
+    static GLuint constexpr positionAttributeLocation = 0;
+    static GLuint constexpr valueAttributeLocation    = 1;
+    static GLuint constexpr insideAttributeLocation   = 2;
+    static GLuint constexpr normalAttributeLocation   = 3;
 
 private:
     static int constexpr granularity     = 400;
@@ -86,46 +78,28 @@ private:
     double m_scale = 1.0;
 
     // duplication bc two different threads. Gotta clean up this mess...
-    lua_State* m_luaPointData           = nullptr;
-    lua_State* m_luaPointDataHeightFunc = nullptr;
+    std::function<algorithm::Signature> m_pointData = algorithm::mandelbrot;
+    std::function<algorithm::Signature> m_pointDataHeightFunc =
+            algorithm::mandelbrot;
 
-    std::function<PointData(glm::dvec2 const&, int iterations)> m_pointData;
-    std::function<PointData(glm::dvec2 const&, int iterations)>
-            m_pointDataHeightFunc;
-
-    enum class State { Loading, Uploading };
-    State m_state = State::Loading;
+    bool m_uploading = false;
 
     Mesh m_mesh        = Mesh();
     Mesh m_loadingMesh = Mesh();
 
-    size_t m_loadIndex = 0;
+    size_t m_uploadIndex = 0;
 
-    std::future<void> m_loadingProcess;
-
-    struct Points {
-        std::vector<glm::vec3> position;
-        std::vector<float> value;
-
-        // int instead of bool because of vector<bool> specialization
-        std::vector<int> inside;
-
-        size_t size = 0;
-    };
-
-    static auto
-    resize(Points* points, size_t size) -> void;
-
-    Points m_points;
-
-    auto
-    startLoading() -> void;
+    std::unique_ptr<Points> m_buffer{new Points{}};
+    SheetLoader::FuturePoints m_meshPoints;
 
     static auto
     generateMeshIndices() -> std::vector<GLuint>;
 
+    [[nodiscard]] auto
+    createLoaderArgs() -> SheetLoader::Args;
+
     auto
-    loadMesh(glm::dvec3 offset, double scale, Points* points) -> void;
+    uploadChunk() -> void;
 };
 
 #endif

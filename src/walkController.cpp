@@ -27,29 +27,30 @@
 #include "util.hpp"
 
 auto
-WalkController::update(Player* const player, double const dt) -> void
+WalkController::update(Player& player, double const dt) -> void
 {
     auto constexpr pi = glm::pi<double>();
 
-    player->lookAtOffset += m_dLookAtOffset;
-    player->lookAtOffset.y = std::clamp(
-            player->lookAtOffset.y,
+    internals(player).lookAtOffset += m_dLookAtOffset;
+    internals(player).lookAtOffset.y = std::clamp(
+            internals(player).lookAtOffset.y,
             -pi / 2 + 0.001,
             pi / 2 - 0.001);
     m_dLookAtOffset = glm::dvec2{0.0, 0.0};
 
     auto rotator = glm::rotate(
             glm::dmat4(1.0),
-            player->lookAtOffset.x,
+            internals(player).lookAtOffset.x,
             {0.0, 1.0, 0.0});
-    player->position += dt * player->scale * movementSpeed
-                        * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
+    internals(player).position +=
+            dt * internals(player).scale * movementSpeed
+            * glm::dvec3(rotator * glm::dvec4(m_direction, 1.0));
 
     if(!m_autoZoom) {
-        player->scale *= std::exp(dt * m_scalingVelocity);
+        internals(player).scale *= std::exp(dt * m_scalingVelocity);
     }
-    else if(player->position.y != 0.0) {
-        player->scale = player->position.y;
+    else if(internals(player).position.y != 0.0) {
+        internals(player).scale = internals(player).position.y;
     }
 }
 
@@ -69,36 +70,48 @@ WalkController::handleMomentaryAction(MomentaryAction const& action) -> void
                     },
 
                     [this](MouseDelta mouse) {
-                        m_dLookAtOffset +=
-                                util::pixelsToAngle({mouse.dx, mouse.dy});
+                        m_dLookAtOffset += util::pixelsToAngle(mouse.dPos);
                     },
 
                     // default
-                    util::unaryNOP},
+                    util::nop},
             action);
 }
 auto
-WalkController::updateState(PersistentActionMap const& active) -> void
+WalkController::updateState(StateMap const& active) -> void
 {
     m_direction = {0, 0, 0};
-    if(active(PersistentAction::MoveForwards)) {
+    if(active(State::MovingForwards)) {
         m_direction.z -= 1.0;
     }
-    if(active(PersistentAction::MoveBackwards)) {
+    if(active(State::MovingBackwards)) {
         m_direction.z += 1.0;
     }
-    if(active(PersistentAction::MoveLeft)) {
+    if(active(State::MovingLeft)) {
         m_direction.x -= 1.0;
     }
-    if(active(PersistentAction::MoveRight)) {
+    if(active(State::MovingRight)) {
         m_direction.x += 1.0;
     }
 
+    if(active(State::RunningForwards)) {
+        m_direction.z -= 2.0;
+    }
+    if(active(State::RunningBackwards)) {
+        m_direction.z += 2.0;
+    }
+    if(active(State::RunningLeft)) {
+        m_direction.x -= 2.0;
+    }
+    if(active(State::RunningRight)) {
+        m_direction.x += 2.0;
+    }
+
     m_scalingVelocity = 0.0;
-    if(active(PersistentAction::ZoomIn)) {
+    if(active(State::ZoomingIn)) {
         m_scalingVelocity -= 1.0;
     }
-    if(active(PersistentAction::ZoomOut)) {
+    if(active(State::ZoomingOut)) {
         m_scalingVelocity += 1.0;
     }
 }

@@ -18,6 +18,7 @@
 #ifndef MANDELSCAPE_FRAMEBUFFER_HPP
 #define MANDELSCAPE_FRAMEBUFFER_HPP
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -25,7 +26,8 @@
 #include <glm/glm.hpp>
 
 #include "texture.hpp"
-#include "glDestructors.hpp"
+#include "gl.hpp"
+#include "util.hpp"
 
 class Framebuffer {
 public:
@@ -34,17 +36,17 @@ public:
     [[nodiscard]] auto
     size() const noexcept -> glm::ivec2;
 
-    [[nodiscard]] auto
-    readPixels() -> std::vector<unsigned char>;
-
     auto
     bind() noexcept -> void;
 
     static auto
-    unbind() noexcept -> void;
+    bindDefaultBuffer() noexcept -> void;
+
+    [[nodiscard]] auto
+    readImage() -> util::image::Image;
 
 private:
-    std::unique_ptr<GLuint, glDestructors::Fbo> m_fbo{new GLuint};
+    gl::Fbo m_fbo = 0;
     Texture m_texture;
     Texture m_depth;
     glm::ivec2 m_size;

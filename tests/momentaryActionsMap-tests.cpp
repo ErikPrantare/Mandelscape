@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANDELLANDSCAPE_TOACTIONS_TESTS_HPP
-#define MANDELLANDSCAPE_TOACTIONS_TESTS_HPP
+#include <catch2/catch.hpp>
 
 #include <map>
 #include <set>
@@ -25,8 +24,6 @@
 #include "momentaryActionsMap.hpp"
 #include "event.hpp"
 #include "util.hpp"
-
-namespace MomentaryActionsMapTests {
 
 TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
 {
@@ -41,7 +38,7 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
     {
         auto event   = KeyDown{Key::K};
         auto actions = map(event);
-        REQUIRE(actions.size() == 0);
+        REQUIRE(actions.empty());
     }
 
     SECTION("Mapping gives correct result")
@@ -63,7 +60,3 @@ TEST_CASE("MomentaryActionsMap maps from glfwEvent", "[MomentaryActionsMap]")
         REQUIRE(util::contains(actions, {Trigger::Save}));
     }
 }
-
-}    // namespace MomentaryActionsMapTests
-
-#endif

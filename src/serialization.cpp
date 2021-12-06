@@ -17,45 +17,59 @@
 
 #include "serialization.hpp"
 
-// C++20 use fmt library for serialization.
-static auto
-serialize(std::ostream& out, glm::dvec2 const v, std::string const& name)
-        -> void
-{
-    out << name << " = {x = " << v.x << ", y = " << v.y << "}";
-}
-
-static auto
-serialize(std::ostream& out, glm::dvec3 const v, std::string const& name)
-        -> void
-{
-    out << name << " = {x = " << v.x << ", y = " << v.y << ", z = " << v.z
-        << "}";
-}
-
+template<>
 auto
-serialize(std::ostream& out, Player const& player, std::string const& name)
-        -> void
-{
-    out << name << " = {\n  ";
-    serialize(out, player.position, "position");
-    out << ",\n  ";
-    serialize(out, player.offset, "offset");
-    out << ",\n  ";
-    serialize(out, player.lookAtOffset, "lookAtOffset");
-    out << ",\n  scale = " << player.scale << "\n}\n\n";
-}
-
-auto
-serialize(
+serialize<double>(
         std::ostream& out,
-        UniformController const& uniformController,
-        std::string const& name) -> void
+        double const& object,
+        std::string const& name,
+        int depth) -> void
 {
-    out << name << " = {\n  ";
-    serialize(out, uniformController.m_colorOffset, "colorOffset");
-    out << ",\n  colorFrequency = " << uniformController.m_colorFrequency
-        << ",\n  yScale = " << uniformController.m_yScale << ",\n  fastMode = "
-        << (uniformController.m_fastMode ? "true" : "false")
-        << ",\n  iterations = " << uniformController.m_iterations << "\n}\n\n";
+    auto const indentation = std::string(depth, ' ');
+    out << indentation << name << " = " << object;
+}
+
+template<>
+auto
+serialize<bool>(
+        std::ostream& out,
+        bool const& object,
+        std::string const& name,
+        int depth) -> void
+{
+    auto const indentation = std::string(depth, ' ');
+    out << indentation << name << " = " << (object ? "true" : "false");
+}
+
+template<>
+auto
+serialize<int>(
+        std::ostream& out,
+        int const& object,
+        std::string const& name,
+        int depth) -> void
+{
+    auto const indentation = std::string(depth, ' ');
+    out << indentation << name << " = " << object;
+}
+
+template<>
+auto
+deserialize<double>(lua_State* const l, int const offset) -> double
+{
+    return lua_tonumber(l, offset);
+}
+
+template<>
+auto
+deserialize<bool>(lua_State* const l, int const offset) -> bool
+{
+    return static_cast<bool>(lua_toboolean(l, offset));
+}
+
+template<>
+auto
+deserialize<int>(lua_State* const l, int const offset) -> int
+{
+    return static_cast<int>(lua_tonumber(l, offset));
 }

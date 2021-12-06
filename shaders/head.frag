@@ -23,15 +23,24 @@ in vec2 position;
 in float distance;
 in float preCalculated;
 in float inside;
+in vec3 normal;
+in vec3 worldPosition;
 out vec4 fragColor;
 
-uniform sampler2D tex;
+uniform sampler2D stripes;
+uniform samplerCube skybox;
+
 uniform vec2 offset;
 uniform int iterations;
 uniform float colorFrequency;
 uniform vec3 colorOffset;
+
 uniform bool fastMode;
+uniform bool renderLighting;
+
 uniform float time;
+uniform vec3 lookAt;
+uniform vec3 playerPos;
 
 struct PointInfo {
     float value;
