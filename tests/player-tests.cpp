@@ -22,11 +22,7 @@
 
 TEST_CASE("Updating offset retains true position", "[PlayerHelper]")
 {
-    // C++20 {.offset = ...}
-    auto player             = Player();
-    player.state().position = {83.0, -1118888.0, 1e-10};
-    player.state().offset   = {3.0, -1e20, -1e-10};
-
+    auto player    = Player();
     auto oldPlayer = player;
 
     player.updateOffset({0.888, 123, 2});

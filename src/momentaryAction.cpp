@@ -22,13 +22,13 @@
 auto
 operator==(MouseDelta a, MouseDelta b) -> bool
 {
-    return std::tie(a.dx, a.dy) == std::tie(b.dx, b.dy);
+    return std::tie(a.dPos.x, a.dPos.y) == std::tie(b.dPos.x, b.dPos.y);
 }
 
 auto
 operator<(MouseDelta a, MouseDelta b) -> bool
 {
-    return std::tie(a.dx, a.dy) < std::tie(b.dx, b.dy);
+    return std::tie(a.dPos.x, a.dPos.y) < std::tie(b.dPos.x, b.dPos.y);
 }
 
 auto

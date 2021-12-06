@@ -44,7 +44,7 @@ MomentaryActionsMap::getActions(KeyDown key) const -> std::set<MomentaryAction>
 auto
 MomentaryActionsMap::getActions(MouseMove mouse) -> std::set<MomentaryAction>
 {
-    return {MouseDelta{mouse.dx, mouse.dy}};
+    return {MouseDelta{mouse.dPos}};
 }
 
 auto

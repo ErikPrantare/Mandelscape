@@ -52,9 +52,6 @@ public:
     [[nodiscard]] auto
     scale() const noexcept -> double;
 
-    [[nodiscard]] auto
-    state() noexcept -> Internals&;
-
     auto
     updateFeetAltitude(double altitude) noexcept -> void;
 

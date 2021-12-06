@@ -21,6 +21,7 @@
 #include <variant>
 
 #include "glfwEnums.hpp"
+#include "glm/glm.hpp"
 
 struct KeyDown {
     Input::Key const code = {};
@@ -33,10 +34,8 @@ struct KeyUp {
 };
 
 struct MouseMove {
-    double const x;
-    double const y;
-    double const dx;
-    double const dy;
+    glm::dvec2 pos;
+    glm::dvec2 dPos;
 };
 
 struct MouseButtonDown {

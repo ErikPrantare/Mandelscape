@@ -208,11 +208,13 @@ try {
             auto const pos = player.truePosition();
             terrain.updateMesh({pos.x, pos.z}, 1.0 / player.scale());
             player.updateOffset(terrain.offset());
-            player.updateFeetAltitude(terrain.heightAt({pos.x, pos.z}));
+            auto const terrainHeight = terrain.heightAt({pos.x, pos.z});
+            player.updateFeetAltitude(terrainHeight);
             metaController.update(player, dt);
 
             // Do this after .update, as autozoom is dependent on position.y
-            player.state().position.y *= uniformController.yScale();
+            player.updateFeetAltitude(
+                    uniformController.yScale() * terrainHeight);
             player.update(dt);
 
             terrain.setIterations(uniformController.iterations());

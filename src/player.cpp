@@ -26,12 +26,6 @@ Player::scale() const noexcept -> double
 }
 
 auto
-Player::state() noexcept -> Internals&
-{
-    return m_state;
-}
-
-auto
 Player::update(double dt) -> void
 {
     m_headAltitude.update(m_state.position.y + m_state.scale, dt);

@@ -40,50 +40,89 @@ glm::dvec3 constexpr back{0.0, 0.0, 1.0};
 
 glm::dvec3 constexpr zero{0.0, 0.0, 0.0};
 
+auto const sameMutation = [](auto f, auto g) -> bool {
+    auto mutated1 = Player();
+    auto mutated2 = Player();
+    f(mutated1);
+    g(mutated2);
+    return mutated1 == Approximate{mutated2};
+};
+
+auto const bindApplyEvents = [](MomentaryActionsMap const& momentaryMap,
+                                StateMap& stateMap,
+                                WalkController& controller) {
+    auto const applyEvents = [&momentaryMap, &stateMap, &controller](
+                                     std::vector<Event> const& events) {
+        return [&momentaryMap, &controller, &stateMap, events](
+                       Player& player) {
+            auto constexpr dontCare = 13.37;
+
+            for(auto const& event : events) {
+                stateMap.updateState(event);
+                controller.updateState(stateMap);
+                controller.update(player, dontCare);
+
+                auto actions = momentaryMap(event);
+                for(auto const& action : actions) {
+                    controller.handleMomentaryAction(action);
+                }
+                controller.update(player, dontCare);
+            }
+        };
+    };
+
+    return applyEvents;
+};
+
 TEST_CASE("WalkController handles movement keys", "[WalkController]")
 {
     using namespace Input;
-    auto constexpr frontKey = Key::W;
-    auto constexpr backKey  = Key::S;
-    auto constexpr leftKey  = Key::A;
-    auto constexpr rightKey = Key::D;
+    auto constexpr frontKey  = Key::W;
+    auto constexpr backKey   = Key::S;
+    auto constexpr leftKey   = Key::A;
+    auto constexpr rightKey  = Key::D;
+    auto constexpr zoomInKey = Key::Z;
 
     auto controller = WalkController{};
-    StateMap persistentMap;
-    persistentMap.add({frontKey}, State::MovingForwards);
-    persistentMap.add({backKey}, State::MovingBackwards);
-    persistentMap.add({leftKey}, State::MovingLeft);
-    persistentMap.add({rightKey}, State::MovingRight);
+
+    auto stateMap = StateMap();
+    stateMap.add({frontKey}, State::MovingForwards);
+    stateMap.add({backKey}, State::MovingBackwards);
+    stateMap.add({leftKey}, State::MovingLeft);
+    stateMap.add({rightKey}, State::MovingRight);
+    stateMap.add({zoomInKey}, State::ZoomingIn);
+
+    auto momentaryMap = MomentaryActionsMap();
 
     auto player = Player();
 
-    REQUIRE(player.state().position == zero);
+    REQUIRE(player.truePosition() == zero);
 
     SECTION("No buttons held -> no movement")
     {
         controller.update(player, 1.0);
-        REQUIRE(player.state().position == zero);
+        REQUIRE(player.truePosition() == zero);
     }
 
     SECTION("Player walks in base directions correctly")
     {
         auto testDirection = [&controller,
-                              &persistentMap](Key key, glm::dvec3 direction) {
+                              &stateMap](Key key, glm::dvec3 direction) {
             auto player = Player();
 
-            persistentMap.updateState(KeyDown{key});
-            controller.updateState(persistentMap);
+            stateMap.updateState(KeyDown{key});
+            controller.updateState(stateMap);
             controller.update(player, 1.0);
-            REQUIRE(player.state().position == direction);
+            REQUIRE(player.truePosition() == direction);
 
-            controller.updateState(persistentMap);
+            controller.updateState(stateMap);
             controller.update(player, 1.0);
-            REQUIRE(player.state().position == 2.0 * direction);
+            REQUIRE(player.truePosition() == 2.0 * direction);
 
-            persistentMap.updateState(KeyUp{key});
-            controller.updateState(persistentMap);
+            stateMap.updateState(KeyUp{key});
+            controller.updateState(stateMap);
             controller.update(player, 1.0);
-            REQUIRE(player.state().position == 2.0 * direction);
+            REQUIRE(player.truePosition() == 2.0 * direction);
         };
 
         testDirection(frontKey, front);
@@ -94,60 +133,96 @@ TEST_CASE("WalkController handles movement keys", "[WalkController]")
 
     SECTION("Combination of inputs accelerate in multiple directions")
     {
-        persistentMap.updateState(KeyDown{backKey});
-        persistentMap.updateState(KeyDown{leftKey});
-        controller.updateState(persistentMap);
+        stateMap.updateState(KeyDown{backKey});
+        stateMap.updateState(KeyDown{leftKey});
+        controller.updateState(stateMap);
         controller.update(player, 1.0);
-        REQUIRE(player.state().position == back + left);
+        REQUIRE(player.truePosition() == back + left);
     }
 
     SECTION("Movement in opposite directions yields no velocity")
     {
-        persistentMap.updateState(KeyDown{leftKey});
-        persistentMap.updateState(KeyDown{rightKey});
-        controller.updateState(persistentMap);
+        stateMap.updateState(KeyDown{leftKey});
+        stateMap.updateState(KeyDown{rightKey});
+        controller.updateState(stateMap);
         controller.update(player, 1.0);
-        REQUIRE(player.state().position == zero);
+        REQUIRE(player.truePosition() == zero);
 
-        persistentMap.updateState(KeyDown{backKey});
-        persistentMap.updateState(KeyDown{frontKey});
-        controller.updateState(persistentMap);
+        stateMap.updateState(KeyDown{backKey});
+        stateMap.updateState(KeyDown{frontKey});
+        controller.updateState(stateMap);
         controller.update(player, 1.0);
-        REQUIRE(player.state().position == zero);
+        REQUIRE(player.truePosition() == zero);
     }
 
     SECTION("Movement is dependent on player scale")
     {
-        persistentMap.updateState(KeyDown{leftKey});
+        auto const referencePlayer = player;
 
-        auto firstPos = player.state().position;
-        controller.updateState(persistentMap);
+        stateMap.updateState(KeyDown{leftKey});
+        controller.updateState(stateMap);
+        stateMap.updateState(KeyUp{leftKey});
+
         controller.update(player, 1.0);
-        auto dNormalPos = player.state().position - firstPos;
+        auto const dUnscaledPos =
+                player.truePosition() - referencePlayer.truePosition();
 
-        double scaleFactor      = 0.6838;
-        player.state().position = firstPos;
-        player.state().scale *= scaleFactor;
-        controller.updateState(persistentMap);
+        player = referencePlayer;
+
+        stateMap.updateState(KeyDown{zoomInKey});
+        controller.updateState(stateMap);
+        stateMap.updateState(KeyUp{zoomInKey});
         controller.update(player, 1.0);
 
-        auto dScaledPos = player.state().position - firstPos;
-        REQUIRE(scaleFactor * dNormalPos == Dvec3Approx{dScaledPos});
+        stateMap.updateState(KeyDown{leftKey});
+        controller.updateState(stateMap);
+        stateMap.updateState(KeyUp{leftKey});
+        controller.update(player, 1.0);
+
+        auto const scaleFactor = player.scale();
+        auto const dScaledPos =
+                player.truePosition() - referencePlayer.truePosition();
+
+        REQUIRE(scaleFactor * dUnscaledPos == Approximate{dScaledPos});
     }
 
     SECTION("Movement is dependent on player look direction")
     {
-        auto rotation                 = -46.0997;
-        player.state().lookAtOffset.x = rotation;
+        auto applyEvents = bindApplyEvents(momentaryMap, stateMap, controller);
 
-        persistentMap.updateState(KeyDown{frontKey});
-        controller.updateState(persistentMap);
-        controller.update(player, 1.0);
+        // Walking along both sides of rhombus ends up at the same place
+        REQUIRE(sameMutation(
+                applyEvents({
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
+                        MouseMove{{}, {42, 0}},
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
+                        MouseMove{{}, {-42, 0}},
+                }),
+                applyEvents({
+                        MouseMove{{}, {42, 0}},
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
+                        MouseMove{{}, {-42, 0}},
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
+                })));
 
-        auto rotator = glm::rotate(glm::dmat4(1.0), rotation, {0.0, 1.0, 0.0});
-        auto dPos    = rotator * glm::dvec4(front, 0.0);
-
-        REQUIRE(player.state().position == Dvec3Approx{dPos});
+        // ... but not if we don't walk all the way
+        REQUIRE(!sameMutation(
+                applyEvents({
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
+                        MouseMove{{}, {42, 0}},
+                        MouseMove{{}, {-42, 0}},
+                }),
+                applyEvents({
+                        MouseMove{{}, {42, 0}},
+                        KeyDown{frontKey},
+                        KeyUp{frontKey},
+                        MouseMove{{}, {-42, 0}},
+                })));
     }
 }
 
@@ -156,84 +231,92 @@ TEST_CASE("WalkController handles mouse movement", "[WalkController]")
     auto controller         = WalkController{};
     auto player             = Player();
     auto const momentaryMap = MomentaryActionsMap();
+    auto stateMap           = StateMap();
 
     auto constexpr dontCare = 0.0;
 
     auto dMovement = [](glm::dvec2 dPos) {
-        return MouseMove{0.0, 0.0, dPos.x, dPos.y};
+        // CPP20: {.x = ...}
+        return MouseMove{{0.0, 0.0}, dPos};
     };
 
-    auto directionTest = [&](glm::dvec2 pixelsMoved) {
-        auto const angleMoved = util::pixelsToAngle(pixelsMoved);
+    REQUIRE(player.truePosition() == zero);
 
-        auto actions = momentaryMap(dMovement(pixelsMoved));
-        for(auto const& action : actions) {
-            controller.handleMomentaryAction(action);
-        }
-        controller.update(player, dontCare);
-        REQUIRE(player.state().lookAtOffset == angleMoved);
-
-        actions = momentaryMap(dMovement(-pixelsMoved));
-        for(auto const& action : actions) {
-            controller.handleMomentaryAction(action);
-        }
-        controller.update(player, dontCare);
-        REQUIRE(player.state().lookAtOffset == glm::dvec2{0.0, 0.0});
-
-        actions = momentaryMap(dMovement(-pixelsMoved));
-        for(auto const& action : actions) {
-            controller.handleMomentaryAction(action);
-        }
-        controller.update(player, dontCare);
-        REQUIRE(player.state().lookAtOffset == -angleMoved);
-    };
-
-    REQUIRE(player.state().position == zero);
-
-    SECTION("Mouse movement in vertical direction")
+    SECTION("Mouse movement")
     {
-        directionTest({0.0, 23.0});
+        auto directionTest = [&](glm::dvec2 pixelsMoved) {
+            auto const origPlayer = player;
+
+            auto actions = momentaryMap(dMovement(pixelsMoved));
+            for(auto const& action : actions) {
+                controller.handleMomentaryAction(action);
+            }
+            controller.update(player, dontCare);
+            auto const newDirectionPlayer = player;
+            REQUIRE(newDirectionPlayer != Approximate{origPlayer});
+
+            actions = momentaryMap(dMovement(-pixelsMoved));
+            for(auto const& action : actions) {
+                controller.handleMomentaryAction(action);
+            }
+            controller.update(player, dontCare);
+            REQUIRE(player == Approximate{origPlayer});
+
+            actions = momentaryMap(dMovement(-pixelsMoved));
+            for(auto const& action : actions) {
+                controller.handleMomentaryAction(action);
+            }
+            controller.update(player, dontCare);
+            REQUIRE(player != Approximate{origPlayer});
+            REQUIRE(player != Approximate{newDirectionPlayer});
+        };
+
+        SECTION("Mouse movement in vertical direction")
+        {
+            directionTest({0.0, 23.0});
+        }
+
+        SECTION("Mouse movement in horizontal direction")
+        {
+            directionTest({-177.0, 0.0});
+        }
+
+        SECTION("Mouse movement in diagonal direction")
+        {
+            directionTest(glm::dvec2{230.0, -63.0});
+        }
     }
 
-    SECTION("Mouse movement in horizontal direction")
-    {
-        directionTest({-177.0, 0.0});
-    }
+    auto const applyEvents =
+            bindApplyEvents(momentaryMap, stateMap, controller);
 
-    SECTION("Mouse movement in diagonal direction")
-    {
-        directionTest(glm::dvec2{230.0, -63.0});
-    }
-
-    SECTION("Multiple mouse events before update")
+    SECTION("Multiple mouse events before update are compounded")
     {
         auto constexpr pixelsMoved = 73;
-        auto constexpr angleMoved  = util::pixelsToAngle({pixelsMoved, 0.0});
 
-        auto actions = momentaryMap(dMovement({pixelsMoved, 0}));
-        for(auto const& action : actions) {
-            controller.handleMomentaryAction(action);
-            controller.handleMomentaryAction(action);
-        }
-        controller.update(player, dontCare);
-        REQUIRE(player.state().lookAtOffset == 2.0 * angleMoved);
+        REQUIRE(sameMutation(
+                [&momentaryMap, &controller, &dMovement](Player& player) {
+                    auto actions = momentaryMap(dMovement({pixelsMoved, 0}));
+                    for(auto const& action : actions) {
+                        controller.handleMomentaryAction(action);
+                        controller.handleMomentaryAction(action);
+                    }
+                    controller.update(player, dontCare);
+                },
+                applyEvents({dMovement({2 * pixelsMoved, 0})})));
     }
 
-    SECTION("Vertical look direction does not exceed +-pi/2")
+    SECTION("Vertical look direction caps")
     {
-        auto constexpr manyPixels = 9999999999;
+        auto constexpr manyPixels = 9999999;
 
-        auto actions = momentaryMap(dMovement({0, manyPixels}));
-        for(auto const& action : actions)
-            controller.handleMomentaryAction(action);
-        controller.update(player, dontCare);
-        REQUIRE(player.state().lookAtOffset.y < glm::pi<double>() / 2.0);
+        REQUIRE(sameMutation(
+                applyEvents({dMovement({0, manyPixels})}),
+                applyEvents({dMovement({0, 10 * manyPixels})})));
 
-        actions = momentaryMap(dMovement({0, -manyPixels}));
-        for(auto const& action : actions)
-            controller.handleMomentaryAction(action);
-        controller.update(player, dontCare);
-        REQUIRE(player.state().lookAtOffset.y > -glm::pi<double>() / 2);
+        REQUIRE(sameMutation(
+                applyEvents({dMovement({0, -manyPixels})}),
+                applyEvents({dMovement({0, -10 * manyPixels})})));
     }
 }
 
@@ -256,20 +339,20 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
     auto momentaryMap = MomentaryActionsMap();
     momentaryMap.add({autoKey}, Trigger::ToggleAutoZoom);
 
-    REQUIRE(player.state().scale == 1.0);
+    REQUIRE(player.scale() == 1.0);
 
     SECTION("Player can shrink")
     {
         persistentMap.updateState(KeyDown{inKey});
         controller.updateState(persistentMap);
         controller.update(player, 1.0);
-        auto scale = player.state().scale;
+        auto scale = player.scale();
         REQUIRE(scale < 1.0);
 
         persistentMap.updateState(KeyUp{inKey});
         controller.updateState(persistentMap);
         controller.update(player, 1.0);
-        REQUIRE(player.state().scale == scale);
+        REQUIRE(player.scale() == scale);
     }
 
     SECTION("Player can grow")
@@ -277,13 +360,13 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
         persistentMap.updateState(KeyDown{outKey});
         controller.updateState(persistentMap);
         controller.update(player, 1.0);
-        auto scale = player.state().scale;
+        auto scale = player.scale();
         REQUIRE(scale > 1.0);
 
         persistentMap.updateState(KeyUp{outKey});
         controller.updateState(persistentMap);
         controller.update(player, 1.0);
-        REQUIRE(player.state().scale == scale);
+        REQUIRE(player.scale() == scale);
     }
 
     SECTION("Growing and shrinking at the same time does nothing")
@@ -292,13 +375,13 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
         persistentMap.updateState(KeyDown{outKey});
         controller.updateState(persistentMap);
         controller.update(player, 1.0);
-        REQUIRE(player.state().scale == Approx(1.0));
+        REQUIRE(player.scale() == Approx(1.0));
     }
 
     SECTION("Player can enable automatic zooming")
     {
-        auto height               = 0.200468;
-        player.state().position.y = height;
+        auto height = 0.200468;
+        player.updateFeetAltitude(height);
 
         auto actions = momentaryMap(KeyDown{autoKey});
         for(auto const& action : actions) {
@@ -307,7 +390,7 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
 
         controller.updateState(persistentMap);
         controller.update(player, dontCare);
-        REQUIRE(player.state().scale == height);
+        REQUIRE(player.scale() == height);
     }
 
     SECTION("Scaling happens exponentially")
@@ -318,21 +401,19 @@ TEST_CASE("WalkController controlls player scale", "[WalkController]")
 
         auto playerReference = Player();
         controller.update(playerReference, dt);
-        auto scaleReference = playerReference.state().scale;
+        auto scaleReference = playerReference.scale();
 
         SECTION("Double the delta time squares the scale change")
         {
             controller.update(player, 2.0 * dt);
-            REQUIRE(scaleReference * scaleReference
-                    == Approx(player.state().scale));
+            REQUIRE(scaleReference * scaleReference == Approx(player.scale()));
         }
 
         SECTION("Twice updating squares the scale change")
         {
             controller.update(player, dt);
             controller.update(player, dt);
-            REQUIRE(scaleReference * scaleReference
-                    == Approx(player.state().scale));
+            REQUIRE(scaleReference * scaleReference == Approx(player.scale()));
         }
     }
 }

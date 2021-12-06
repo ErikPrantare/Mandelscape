@@ -116,8 +116,7 @@ private:
     static auto
     resizeCB(GLFWwindow* glfwWindow, int width, int height) -> void;
 
-    double m_lastMouseX = 0.0;
-    double m_lastMouseY = 0.0;
+    glm::dvec2 m_lastMouse = {0.0, 0.0};
 
     bool m_paused = false;
     glm::ivec2 m_size;

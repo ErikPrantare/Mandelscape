@@ -30,7 +30,7 @@ TEST_CASE(
 
     SECTION("Empty queue should return a std::nullopt")
     {
-        auto nullopt = util::pop(queue);
+        auto const nullopt = util::pop(queue);
         REQUIRE(!nullopt.has_value());
     }
 }

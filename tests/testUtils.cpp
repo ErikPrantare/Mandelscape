@@ -58,6 +58,16 @@ operator==(glm::dmat4 a, Approximate<glm::dmat4> b) -> bool
            && a[2] == Approximate{b.val[2]} && a[3] == Approximate{b.val[3]};
 }
 
+auto
+operator==(Player const& a, Approximate<Player> const& b) -> bool
+{
+    auto aCamera = a.getCamera({640, 720});
+    auto bCamera = b.val.getCamera({640, 720});
+
+    return aCamera.cameraSpace()
+           == Approximate<glm::dmat4>{bCamera.cameraSpace()};
+}
+
 namespace glm {
 auto
 operator<<(std::ostream& os, glm::dvec2 const& v) -> std::ostream&
@@ -72,16 +82,6 @@ operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&
     return os;
 }
 }    // namespace glm
-
-auto
-operator==(Player const& a, PlayerApprox const& b) -> bool
-{
-    auto aCamera = a.getCamera({640, 720});
-    auto bCamera = b.player.getCamera({640, 720});
-
-    return aCamera.cameraSpace()
-           == Approximate<glm::dmat4>{bCamera.cameraSpace()};
-}
 
 auto
 operator==(UniformController const& a, UniformControllerApprox const& b)

@@ -35,6 +35,8 @@ template<class ValueType>
 Approximate(ValueType) -> Approximate<ValueType>;
 
 auto
+operator==(double a, Approximate<double> b) -> bool;
+auto
 operator==(glm::dvec2 a, Approximate<glm::dvec2> b) -> bool;
 auto
 operator==(glm::dvec3 a, Approximate<glm::dvec3> b) -> bool;
@@ -44,6 +46,16 @@ operator==(glm::dvec4 a, Approximate<glm::dvec4> b) -> bool;
 auto
 operator==(glm::dmat4 a, Approximate<glm::dmat4> b) -> bool;
 
+auto
+operator==(Player const& a, Approximate<Player> const& b) -> bool;
+
+template<class T>
+auto
+operator!=(T const& a, Approximate<T> const& b) -> bool
+{
+    return !(a == b);
+}
+
 // namespace glm needed for ADL
 namespace glm {
 auto
@@ -52,13 +64,6 @@ auto
 operator<<(std::ostream& os, glm::dvec3 const& v) -> std::ostream&;
 
 }    // namespace glm
-
-struct PlayerApprox {
-    Player player;
-};
-
-auto
-operator==(Player const& a, PlayerApprox const& b) -> bool;
 
 struct UniformControllerApprox {
     UniformController uc;

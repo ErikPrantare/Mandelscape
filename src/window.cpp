@@ -203,11 +203,9 @@ Window::cursorPositionCB(GLFWwindow* glfwWindow, double x, double y)
 {
     auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
-    auto dx              = x - window->m_lastMouseX;
-    auto dy              = y - window->m_lastMouseY;
-    window->m_lastMouseX = x;
-    window->m_lastMouseY = y;
-    window->registerEvent(MouseMove{x, y, dx, dy});
+    auto dPos           = glm::dvec2{x, y} - window->m_lastMouse;
+    window->m_lastMouse = glm::dvec2{x, y};
+    window->registerEvent(MouseMove{{x, y}, dPos});
 }
 
 void

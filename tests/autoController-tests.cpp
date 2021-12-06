@@ -18,6 +18,7 @@
 #include <catch2/catch.hpp>
 
 #include "autoController.hpp"
+#include "testUtils.hpp"
 
 TEST_CASE("AutoController moves player", "[AutoController]")
 {
@@ -28,8 +29,8 @@ TEST_CASE("AutoController moves player", "[AutoController]")
     auto controller = AutoController(heightFunc);
 
     for(auto i = 0; i < 10; ++i) {
-        auto prevPos = player.state().position;
+        auto const previous = player;
         controller.update(player, 1.0);
-        REQUIRE(player.state().position != prevPos);
+        REQUIRE(!(previous == Approximate{player}));
     }
 }

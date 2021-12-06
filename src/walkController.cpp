@@ -70,8 +70,7 @@ WalkController::handleMomentaryAction(MomentaryAction const& action) -> void
                     },
 
                     [this](MouseDelta mouse) {
-                        m_dLookAtOffset +=
-                                util::pixelsToAngle({mouse.dx, mouse.dy});
+                        m_dLookAtOffset += util::pixelsToAngle(mouse.dPos);
                     },
 
                     // default

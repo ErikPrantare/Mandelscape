@@ -20,6 +20,8 @@
 
 #include <variant>
 
+#include "glm/glm.hpp"
+
 enum class Trigger {
     IncreaseIterations,
     DecreaseIterations,
@@ -40,8 +42,7 @@ enum class Trigger {
 };
 
 struct MouseDelta {
-    double dx;
-    double dy;
+    glm::dvec2 dPos;
 };
 
 using MomentaryAction = std::variant<Trigger, MouseDelta>;

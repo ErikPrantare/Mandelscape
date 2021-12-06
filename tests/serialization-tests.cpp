@@ -29,61 +29,67 @@
 #include "glfwEnums.hpp"
 #include "momentaryActionsMap.hpp"
 
+struct DataObject {
+    glm::dvec3 m_dvec3;
+    glm::dvec2 m_dvec2;
+    double m_double;
+    int m_int;
+    bool m_bool;
+    struct {
+        int m_int;
+    } m_nestled;
+
+    auto static getSerializationTable()
+    {
+        return std::make_tuple(
+                makeMemberEntry<&DataObject::m_dvec3>("dvec3"),
+                makeMemberEntry<&DataObject::m_dvec2>("dvec2"),
+                makeMemberEntry<&DataObject::m_double>("double"),
+                makeMemberEntry<&DataObject::m_int>("int"),
+                makeMemberEntry<&DataObject::m_bool>("bool"),
+                makeMemberEntry<
+                        &DataObject::m_nestled,
+                        &decltype(m_nestled)::m_int>("nestledInt"));
+    }
+};
+
+auto
+operator==(DataObject const& a, DataObject const& b) -> bool
+{
+    return std::tie(
+                   a.m_dvec3,
+                   a.m_dvec2,
+                   a.m_double,
+                   a.m_int,
+                   a.m_bool,
+                   a.m_nestled.m_int)
+           == std::tie(
+                   b.m_dvec3,
+                   b.m_dvec2,
+                   b.m_double,
+                   b.m_int,
+                   b.m_bool,
+                   b.m_nestled.m_int);
+}
+
 TEST_CASE(
-        "util::lua::toX . serialize == id",
+        "deserialize . serialize == id",
         "[serialize, Player, UniformController]")
 {
-    SECTION("X = Player")
-    {
-        auto player = Player();
+    // CPP20 {.x = ...}
+    auto data = DataObject{
+            {0.7, -10e7, 837},
+            {-10e7, 837},
+            13.37,
+            13,
+            true,
+            {420}};
 
-        player.state().position     = {0.001, 127378888.01, -3.14};
-        player.state().offset       = {0.024, 378888.01, 1e100};
-        player.state().lookAtOffset = {378.99, 1e-10};
-        player.state().scale        = 1.0 / 32897.879423;
-
-        auto ss = std::stringstream();
-        serialize(ss, player, "player");
-
-        lua_State* l = luaL_newstate();
-        luaL_dostring(l, ss.str().c_str());
-        lua_getglobal(l, "player");
-        REQUIRE(deserialize<Player>(l, -1) == PlayerApprox{player});
-        lua_close(l);
-    }
-
-    SECTION("X = UniformController")
-    {
-        auto persistentMap       = StateMap();
-        auto momentaryActionsMap = MomentaryActionsMap();
-
-        persistentMap.add({Input::Key::Key1}, State::ChangingFrequency);
-        persistentMap.add({Input::Key::Key1}, State::ChangingTotalOffset);
-        persistentMap.add({Input::Key::Key1}, State::IncreasingParameter);
-
-        momentaryActionsMap.add(
-                {Input::Key::Key1},
-                Trigger::IncreaseIterations);
-        momentaryActionsMap.add({Input::Key::Key1}, Trigger::ToggleFastMode);
-
-        persistentMap.updateState({KeyDown{Input::Key::Key1}});
-
-        auto uniformController = UniformController();
-        uniformController.updateState(persistentMap, 0.317727);
-
-        for(auto const& action :
-            momentaryActionsMap({KeyDown{Input::Key::Key1}})) {
-            uniformController.handleMomentaryAction(action);
-        }
-
-        auto ss = std::stringstream();
-        serialize(ss, uniformController, "uniformController");
-
-        lua_State* l = luaL_newstate();
-        luaL_dostring(l, ss.str().c_str());
-        lua_getglobal(l, "uniformController");
-        REQUIRE(deserialize<UniformController>(l, -1)
-                == UniformControllerApprox{uniformController});
-        lua_close(l);
-    }
+    auto ss = std::stringstream();
+    serialize(ss, data, "data");
+    lua_State* l = luaL_newstate();
+    luaL_dostring(l, ss.str().c_str());
+    lua_getglobal(l, "data");
+    REQUIRE(deserialize<DataObject>(l, -1) == data);
+    lua_close(l);
 }
