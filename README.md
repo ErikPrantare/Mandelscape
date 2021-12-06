@@ -22,7 +22,11 @@ If everything built correctly, the program can now be run with `./Mandelscape`
 https://github.com/ErikPrantare/Mandelscape/releases/tag/v1.0.0
 
 ## Controls
-- WASD + Mouse: Walk and look around.
+- Mouse: Look around.
+
+- WASD: Walk around.
+
+- SHIFT+WASD: Run around.
 
 - P: Toggle pause(releases mouse).
 
